@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# .husky/ 配下の変更は lefthook に任せる
+.husky/
