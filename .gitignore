@@ -39,3 +39,6 @@ mocked-db.json
 /.next
 /.vite
 tsconfig.tsbuildinfo
+
+# husky (lefthook により生成されるため)
+.husky/
