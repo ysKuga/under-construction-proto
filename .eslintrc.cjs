@@ -1,36 +1,20 @@
 module.exports = {
-  root: true,
   env: {
-    node: true,
     es6: true,
+    node: true,
   },
-  parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
+  extends: ['eslint:recommended', 'next/core-web-vitals', "plugin:perfectionist/recommended-alphabetical-legacy"],
   ignorePatterns: [
     'node_modules/*',
     'public/mockServiceWorker.js',
     'generators/*',
   ],
-  extends: ['eslint:recommended', 'next/core-web-vitals'],
   overrides: [
     {
-      files: ['**/*.d.ts'],
-      rules: {
-        '@typescript-eslint/no-unused-vars': ['allow'],
-      }
-    },
-    {
-      files: ['**/*.ts', '**/*.tsx'],
-      parser: '@typescript-eslint/parser',
-      settings: {
-        react: { version: 'detect' },
-        'import/resolver': {
-          typescript: {},
-        },
-      },
       env: {
         browser: true,
-        node: true,
         es6: true,
+        node: true,
       },
       extends: [
         'eslint:recommended',
@@ -47,8 +31,19 @@ module.exports = {
         'plugin:tailwindcss/recommended',
         'plugin:vitest/legacy-recommended',
       ],
+      files: ['**/*.ts', '**/*.tsx'],
+      parser: '@typescript-eslint/parser',
       rules: {
         '@next/next/no-img-element': 'off',
+        '@typescript-eslint/explicit-function-return-type': ['off'],
+        '@typescript-eslint/explicit-module-boundary-types': ['off'],
+        '@typescript-eslint/no-empty-function': ['off'],
+        '@typescript-eslint/no-explicit-any': ['off'],
+        '@typescript-eslint/no-unused-vars': ['error'],
+        'import/default': 'off',
+        'import/no-cycle': 'error',
+        'import/no-named-as-default': 'off',
+        'import/no-named-as-default-member': 'off',
         'import/no-restricted-paths': [
           'error',
           {
@@ -56,40 +51,41 @@ module.exports = {
               // disables cross-feature imports:
               // eg. src/features/discussions should not import from src/features/comments, etc.
               {
-                target: './src/features/auth',
-                from: './src/features',
                 except: ['./auth'],
+                from: './src/features',
+                target: './src/features/auth',
               },
               {
-                target: './src/features/comments',
-                from: './src/features',
                 except: ['./comments'],
+                from: './src/features',
+                target: './src/features/comments',
               },
               {
-                target: './src/features/discussions',
-                from: './src/features',
                 except: ['./discussions'],
+                from: './src/features',
+                target: './src/features/discussions',
               },
               {
-                target: './src/features/teams',
-                from: './src/features',
                 except: ['./teams'],
+                from: './src/features',
+                target: './src/features/teams',
               },
               {
-                target: './src/features/users',
-                from: './src/features',
                 except: ['./users'],
+                from: './src/features',
+                target: './src/features/users',
               },
               // enforce unidirectional codebase:
 
               // e.g. src/app can import from src/features but not the other way around
               {
-                target: './src/features',
                 from: './src/app',
+                target: './src/features',
               },
 
               // e.g src/features and src/app can import from these shared modules but not the other way around
               {
+                from: ['./src/features', './src/app'],
                 target: [
                   './src/components',
                   './src/hooks',
@@ -97,17 +93,14 @@ module.exports = {
                   './src/types',
                   './src/utils',
                 ],
-                from: ['./src/features', './src/app'],
               },
             ],
           },
         ],
-        'import/no-cycle': 'error',
-        'linebreak-style': ['error', 'unix'],
-        'react/prop-types': 'off',
         'import/order': [
           'error',
           {
+            alphabetize: { caseInsensitive: true, order: 'asc' },
             groups: [
               'builtin',
               'external',
@@ -118,25 +111,24 @@ module.exports = {
               'object',
             ],
             'newlines-between': 'always',
-            alphabetize: { order: 'asc', caseInsensitive: true },
           },
         ],
-        'import/default': 'off',
-        'import/no-named-as-default-member': 'off',
-        'import/no-named-as-default': 'off',
-        'react/react-in-jsx-scope': 'off',
         'jsx-a11y/anchor-is-valid': 'off',
-        '@typescript-eslint/no-unused-vars': ['error'],
-        '@typescript-eslint/explicit-function-return-type': ['off'],
-        '@typescript-eslint/explicit-module-boundary-types': ['off'],
-        '@typescript-eslint/no-empty-function': ['off'],
-        '@typescript-eslint/no-explicit-any': ['off'],
+        'linebreak-style': ['error', 'unix'],
         'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+        'react/prop-types': 'off',
+        'react/react-in-jsx-scope': 'off',
+      },
+      settings: {
+        'import/resolver': {
+          typescript: {},
+        },
+        react: { version: 'detect' },
       },
     },
     {
-      plugins: ['check-file'],
       files: ['src/**/*'],
+      plugins: ['check-file'],
       rules: {
         'check-file/filename-naming-convention': [
           'error',
@@ -150,11 +142,19 @@ module.exports = {
         'check-file/folder-naming-convention': [
           'error',
           {
-            '!(src/app)/**/*': 'KEBAB_CASE',
             '!(**/__tests__)/**/*': 'KEBAB_CASE',
+            '!(src/app)/**/*': 'KEBAB_CASE',
           },
         ],
       },
     },
+    {
+      files: ['**/*.d.ts'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': ['off'],
+      }
+    },
   ],
+  parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
+  root: true,
 };
