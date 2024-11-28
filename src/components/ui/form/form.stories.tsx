@@ -12,41 +12,41 @@ import { Textarea } from './textarea';
 const MyForm = ({ hideSubmit = false }: { hideSubmit?: boolean }) => {
   return (
     <Form
+      id="my-form"
       onSubmit={async (values) => {
         alert(JSON.stringify(values, null, 2));
       }}
       schema={z.object({
-        title: z.string().min(1, 'Required'),
         description: z.string().min(1, 'Required'),
+        title: z.string().min(1, 'Required'),
         type: z.string().min(1, 'Required'),
       })}
-      id="my-form"
     >
-      {({ register, formState }) => (
+      {({ formState, register }) => (
         <>
           <Input
-            label="Title"
             error={formState.errors['title']}
+            label="Title"
             registration={register('title')}
           />
           <Textarea
-            label="Description"
             error={formState.errors['description']}
+            label="Description"
             registration={register('description')}
           />
           <Select
-            label="Type"
             error={formState.errors['type']}
-            registration={register('type')}
+            label="Type"
             options={['A', 'B', 'C'].map((type) => ({
               label: type,
               value: type,
             }))}
+            registration={register('type')}
           />
 
           {!hideSubmit && (
             <div>
-              <Button type="submit" className="w-full">
+              <Button className="w-full" type="submit">
                 Submit
               </Button>
             </div>
@@ -72,14 +72,14 @@ export const Default: Story = {
 export const AsFormDrawer: Story = {
   render: () => (
     <FormDrawer
-      triggerButton={<Button>Open Form</Button>}
       isDone={true}
-      title="My Form"
       submitButton={
         <Button form="my-form" type="submit">
           Submit
         </Button>
       }
+      title="My Form"
+      triggerButton={<Button>Open Form</Button>}
     >
       <MyForm hideSubmit />
     </FormDrawer>

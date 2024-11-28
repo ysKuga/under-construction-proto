@@ -5,21 +5,21 @@ import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Form, Input, Select, Label, Switch } from '@/components/ui/form';
+import { Form, Input, Label, Select, Switch } from '@/components/ui/form';
 import { paths } from '@/config/paths';
-import { useRegister, registerInputSchema } from '@/lib/auth';
+import { registerInputSchema, useRegister } from '@/lib/auth';
 import { Team } from '@/types/api';
 
 type RegisterFormProps = {
-  onSuccess: () => void;
   chooseTeam: boolean;
+  onSuccess: () => void;
   setChooseTeam: () => void;
   teams?: Team[];
 };
 
 export const RegisterForm = ({
-  onSuccess,
   chooseTeam,
+  onSuccess,
   setChooseTeam,
   teams,
 }: RegisterFormProps) => {
@@ -33,73 +33,73 @@ export const RegisterForm = ({
         onSubmit={(values) => {
           registering.mutate(values);
         }}
-        schema={registerInputSchema}
         options={{
           shouldUnregister: true,
         }}
+        schema={registerInputSchema}
       >
-        {({ register, formState }) => (
+        {({ formState, register }) => (
           <>
             <Input
-              type="text"
-              label="First Name"
               error={formState.errors['firstName']}
+              label="First Name"
               registration={register('firstName')}
-            />
-            <Input
               type="text"
-              label="Last Name"
+            />
+            <Input
               error={formState.errors['lastName']}
+              label="Last Name"
               registration={register('lastName')}
+              type="text"
             />
             <Input
-              type="email"
-              label="Email Address"
               error={formState.errors['email']}
+              label="Email Address"
               registration={register('email')}
+              type="email"
             />
             <Input
-              type="password"
-              label="Password"
               error={formState.errors['password']}
+              label="Password"
               registration={register('password')}
+              type="password"
             />
 
             <div className="flex items-center space-x-2">
               <Switch
                 checked={chooseTeam}
-                onCheckedChange={setChooseTeam}
                 className={`${
                   chooseTeam ? 'bg-blue-600' : 'bg-gray-200'
                 } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2`}
                 id="choose-team"
+                onCheckedChange={setChooseTeam}
               />
               <Label htmlFor="airplane-mode">Join Existing Team</Label>
             </div>
 
             {chooseTeam && teams ? (
               <Select
-                label="Team"
                 error={formState.errors['teamId']}
-                registration={register('teamId')}
+                label="Team"
                 options={teams?.map((team) => ({
                   label: team.name,
                   value: team.id,
                 }))}
+                registration={register('teamId')}
               />
             ) : (
               <Input
-                type="text"
-                label="Team Name"
                 error={formState.errors['teamName']}
+                label="Team Name"
                 registration={register('teamName')}
+                type="text"
               />
             )}
             <div>
               <Button
+                className="w-full"
                 isLoading={registering.isPending}
                 type="submit"
-                className="w-full"
               >
                 Register
               </Button>
@@ -110,8 +110,8 @@ export const RegisterForm = ({
       <div className="mt-2 flex items-center justify-end">
         <div className="text-sm">
           <NextLink
-            href={paths.auth.login.getHref(redirectTo)}
             className="font-medium text-blue-600 hover:text-blue-500"
+            href={paths.auth.login.getHref(redirectTo)}
           >
             Log In
           </NextLink>

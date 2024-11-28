@@ -1,7 +1,7 @@
 import {
   render as rtlRender,
-  waitForElementToBeRemoved,
   screen,
+  waitForElementToBeRemoved,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Cookies from 'js-cookie';
@@ -72,4 +72,4 @@ export const renderApp = async (
 };
 
 export * from '@testing-library/react';
-export { userEvent, rtlRender };
+export { rtlRender, userEvent };

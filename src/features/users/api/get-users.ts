@@ -10,8 +10,8 @@ export const getUsers = (): Promise<{ data: User[] }> => {
 
 export const getUsersQueryOptions = () => {
   return queryOptions({
-    queryKey: ['users'],
     queryFn: getUsers,
+    queryKey: ['users'],
   });
 };
 

@@ -10,8 +10,8 @@ test('should register new user and call onSuccess cb which should navigate the u
 
   await renderApp(
     <RegisterForm
-      onSuccess={onSuccess}
       chooseTeam={false}
+      onSuccess={onSuccess}
       setChooseTeam={() => {}}
       teams={[]}
     />,

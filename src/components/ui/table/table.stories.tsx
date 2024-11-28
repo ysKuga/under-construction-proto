@@ -9,55 +9,55 @@ const meta: Meta<typeof Table> = {
 export default meta;
 
 type User = {
-  id: string;
   createdAt: number;
-  name: string;
-  title: string;
-  role: string;
   email: string;
+  id: string;
+  name: string;
+  role: string;
+  title: string;
 };
 
 type Story = StoryObj<typeof Table<User>>;
 
 const data: User[] = [
   {
-    id: '1',
     createdAt: Date.now(),
-    name: 'Jane Cooper',
-    title: 'Regional Paradigm Technician',
-    role: 'Admin',
     email: 'jane.cooper@example.com',
+    id: '1',
+    name: 'Jane Cooper',
+    role: 'Admin',
+    title: 'Regional Paradigm Technician',
   },
   {
-    id: '2',
     createdAt: Date.now(),
-    name: 'Cody Fisher',
-    title: 'Product Directives Officer',
-    role: 'Owner',
     email: 'cody.fisher@example.com',
+    id: '2',
+    name: 'Cody Fisher',
+    role: 'Owner',
+    title: 'Product Directives Officer',
   },
 ];
 
 export const Default: Story = {
   args: {
-    data,
     columns: [
       {
-        title: 'Name',
         field: 'name',
+        title: 'Name',
       },
       {
-        title: 'Title',
         field: 'title',
+        title: 'Title',
       },
       {
-        title: 'Role',
         field: 'role',
+        title: 'Role',
       },
       {
-        title: 'Email',
         field: 'email',
+        title: 'Email',
       },
     ],
+    data,
   },
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
 
 import { Link } from '@/components/ui/link';
@@ -39,7 +39,7 @@ export const AuthLayout = ({ children }: LayoutProps) => {
             className="flex items-center text-white"
             href={paths.home.getHref()}
           >
-            <img className="h-24 w-auto" src="/logo.svg" alt="Workflow" />
+            <img alt="Workflow" className="h-24 w-auto" src="/logo.svg" />
           </Link>
         </div>
 

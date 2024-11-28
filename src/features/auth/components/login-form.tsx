@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Form, Input } from '@/components/ui/form';
 import { paths } from '@/config/paths';
-import { useLogin, loginInputSchema } from '@/lib/auth';
+import { loginInputSchema, useLogin } from '@/lib/auth';
 
 type LoginFormProps = {
   onSuccess: () => void;
@@ -27,25 +27,25 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         }}
         schema={loginInputSchema}
       >
-        {({ register, formState }) => (
+        {({ formState, register }) => (
           <>
             <Input
-              type="email"
-              label="Email Address"
               error={formState.errors['email']}
+              label="Email Address"
               registration={register('email')}
+              type="email"
             />
             <Input
-              type="password"
-              label="Password"
               error={formState.errors['password']}
+              label="Password"
               registration={register('password')}
+              type="password"
             />
             <div>
               <Button
+                className="w-full"
                 isLoading={login.isPending}
                 type="submit"
-                className="w-full"
               >
                 Log in
               </Button>
@@ -56,8 +56,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
       <div className="mt-2 flex items-center justify-end">
         <div className="text-sm">
           <NextLink
-            href={paths.auth.register.getHref(redirectTo)}
             className="font-medium text-blue-600 hover:text-blue-500"
+            href={paths.auth.register.getHref(redirectTo)}
           >
             Register
           </NextLink>

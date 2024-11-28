@@ -1,5 +1,5 @@
 export type ErrorProps = {
-  errorMessage?: string | null;
+  errorMessage?: null | string;
 };
 
 export const Error = ({ errorMessage }: ErrorProps) => {
@@ -7,9 +7,9 @@ export const Error = ({ errorMessage }: ErrorProps) => {
 
   return (
     <div
-      role="alert"
       aria-label={errorMessage}
       className="text-sm font-semibold text-red-500"
+      role="alert"
     >
       {errorMessage}
     </div>

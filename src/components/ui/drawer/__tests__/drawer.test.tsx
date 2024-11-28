@@ -31,7 +31,7 @@ const TestDrawer = () => {
         </div>
         <DrawerFooter>
           <DrawerClose asChild>
-            <Button value="outline" type="submit">
+            <Button type="submit" value="outline">
               {cancelButtonText}
             </Button>
           </DrawerClose>

@@ -68,7 +68,7 @@ export function authenticate({
   if (user?.password === hash(password)) {
     const sanitizedUser = sanitizeUser(user);
     const encodedToken = encode(sanitizedUser);
-    return { user: sanitizedUser, jwt: encodedToken };
+    return { jwt: encodedToken, user: sanitizedUser };
   }
 
   const error = new Error('Invalid username or password');

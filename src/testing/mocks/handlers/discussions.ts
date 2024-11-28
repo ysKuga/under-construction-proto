@@ -1,19 +1,19 @@
-import { HttpResponse, http } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
 
 import { db, persistDb } from '../db';
 import {
-  requireAuth,
-  requireAdmin,
-  sanitizeUser,
   networkDelay,
+  requireAdmin,
+  requireAuth,
+  sanitizeUser,
 } from '../utils';
 
 type DiscussionBody = {
-  title: string;
   body: string;
   public: boolean;
+  title: string;
 };
 
 export const discussionsHandlers = [
@@ -21,7 +21,7 @@ export const discussionsHandlers = [
     await networkDelay();
 
     try {
-      const { user, error } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies);
       if (error) {
         return HttpResponse.json({ message: error }, { status: 401 });
       }
@@ -42,13 +42,13 @@ export const discussionsHandlers = [
 
       const result = db.discussion
         .findMany({
+          skip: 10 * (page - 1),
+          take: 10,
           where: {
             teamId: {
               equals: user?.teamId,
             },
           },
-          take: 10,
-          skip: 10 * (page - 1),
         })
         .map(({ authorId, ...discussion }) => {
           const author = db.user.findFirst({
@@ -81,7 +81,7 @@ export const discussionsHandlers = [
 
   http.get(
     `${env.API_URL}/discussions/:discussionId`,
-    async ({ params, cookies }) => {
+    async ({ cookies, params }) => {
       await networkDelay();
 
       const discussionId = params.discussionId as string;
@@ -112,7 +112,7 @@ export const discussionsHandlers = [
       }
 
       try {
-        const { user, error } = requireAuth(cookies);
+        const { error, user } = requireAuth(cookies);
         if (error) {
           return HttpResponse.json({ message: error }, { status: 401 });
         }
@@ -157,19 +157,19 @@ export const discussionsHandlers = [
     },
   ),
 
-  http.post(`${env.API_URL}/discussions`, async ({ request, cookies }) => {
+  http.post(`${env.API_URL}/discussions`, async ({ cookies, request }) => {
     await networkDelay();
 
     try {
-      const { user, error } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies);
       if (error) {
         return HttpResponse.json({ message: error }, { status: 401 });
       }
       const data = (await request.json()) as DiscussionBody;
       requireAdmin(user);
       const result = db.discussion.create({
-        teamId: user?.teamId,
         authorId: user?.id,
+        teamId: user?.teamId,
         ...data,
       });
       await persistDb('discussion');
@@ -184,11 +184,11 @@ export const discussionsHandlers = [
 
   http.patch(
     `${env.API_URL}/discussions/:discussionId`,
-    async ({ request, params, cookies }) => {
+    async ({ cookies, params, request }) => {
       await networkDelay();
 
       try {
-        const { user, error } = requireAuth(cookies);
+        const { error, user } = requireAuth(cookies);
         if (error) {
           return HttpResponse.json({ message: error }, { status: 401 });
         }
@@ -196,15 +196,15 @@ export const discussionsHandlers = [
         const discussionId = params.discussionId as string;
         requireAdmin(user);
         const result = db.discussion.update({
+          data,
           where: {
-            teamId: {
-              equals: user?.teamId,
-            },
             id: {
               equals: discussionId,
             },
+            teamId: {
+              equals: user?.teamId,
+            },
           },
-          data,
         });
         await persistDb('discussion');
         return HttpResponse.json(result);
@@ -223,7 +223,7 @@ export const discussionsHandlers = [
       await networkDelay();
 
       try {
-        const { user, error } = requireAuth(cookies);
+        const { error, user } = requireAuth(cookies);
         if (error) {
           return HttpResponse.json({ message: error }, { status: 401 });
         }

@@ -11,26 +11,26 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
-  DrawerTrigger,
   DrawerTitle,
+  DrawerTrigger,
 } from '../drawer';
 
 type FormDrawerProps = {
+  children: React.ReactNode;
   isDone: boolean;
-  triggerButton: React.ReactElement;
   submitButton: React.ReactElement;
   title: string;
-  children: React.ReactNode;
+  triggerButton: React.ReactElement;
 };
 
 export const FormDrawer = ({
-  title,
   children,
   isDone,
-  triggerButton,
   submitButton,
+  title,
+  triggerButton,
 }: FormDrawerProps) => {
-  const { close, open, isOpen } = useDisclosure();
+  const { close, isOpen, open } = useDisclosure();
 
   React.useEffect(() => {
     if (isDone) {
@@ -40,7 +40,6 @@ export const FormDrawer = ({
 
   return (
     <Drawer
-      open={isOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           close();
@@ -48,6 +47,7 @@ export const FormDrawer = ({
           open();
         }
       }}
+      open={isOpen}
     >
       <DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
       <DrawerContent className="flex max-w-[800px] flex-col justify-between sm:max-w-[540px]">
@@ -59,7 +59,7 @@ export const FormDrawer = ({
         </div>
         <DrawerFooter>
           <DrawerClose asChild>
-            <Button variant="outline" type="submit">
+            <Button type="submit" variant="outline">
               Close
             </Button>
           </DrawerClose>

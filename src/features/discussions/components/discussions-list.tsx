@@ -44,50 +44,50 @@ export const DiscussionsList = ({
 
   return (
     <Table
-      data={discussions}
       columns={[
         {
-          title: 'Title',
           field: 'title',
+          title: 'Title',
         },
         {
-          title: 'Created At',
-          field: 'createdAt',
           Cell({ entry: { createdAt } }) {
             return <span>{formatDate(createdAt)}</span>;
           },
+          field: 'createdAt',
+          title: 'Created At',
         },
         {
-          title: '',
-          field: 'id',
           Cell({ entry: { id } }) {
             return (
               <Link
+                href={paths.app.discussion.getHref(id)}
                 onMouseEnter={() => {
                   // Prefetch the discussion data when the user hovers over the link
                   queryClient.prefetchQuery(getDiscussionQueryOptions(id));
                   onDiscussionPrefetch?.(id);
                 }}
-                href={paths.app.discussion.getHref(id)}
               >
                 View
               </Link>
             );
           },
+          field: 'id',
+          title: '',
         },
         {
-          title: '',
-          field: 'id',
           Cell({ entry: { id } }) {
             return <DeleteDiscussion id={id} />;
           },
+          field: 'id',
+          title: '',
         },
       ]}
+      data={discussions}
       pagination={
         meta && {
-          totalPages: meta.totalPages,
           currentPage: meta.page,
           rootUrl: '',
+          totalPages: meta.totalPages,
         }
       }
     />

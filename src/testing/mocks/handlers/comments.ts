@@ -1,4 +1,4 @@
-import { HttpResponse, http } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
 
@@ -11,7 +11,7 @@ type CreateCommentBody = {
 };
 
 export const commentsHandlers = [
-  http.get(`${env.API_URL}/comments`, async ({ request, cookies }) => {
+  http.get(`${env.API_URL}/comments`, async ({ cookies, request }) => {
     await networkDelay();
 
     try {
@@ -46,13 +46,13 @@ export const commentsHandlers = [
 
       const comments = db.comment
         .findMany({
+          skip: 10 * (page - 1),
+          take: 10,
           where: {
             discussionId: {
               equals: discussionId,
             },
           },
-          take: 10,
-          skip: 10 * (page - 1),
         })
         .map(({ authorId, ...comment }) => {
           const author = db.user.findFirst({
@@ -83,11 +83,11 @@ export const commentsHandlers = [
     }
   }),
 
-  http.post(`${env.API_URL}/comments`, async ({ request, cookies }) => {
+  http.post(`${env.API_URL}/comments`, async ({ cookies, request }) => {
     await networkDelay();
 
     try {
-      const { user, error } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies);
       if (error) {
         return HttpResponse.json({ message: error }, { status: 401 });
       }
@@ -108,11 +108,11 @@ export const commentsHandlers = [
 
   http.delete(
     `${env.API_URL}/comments/:commentId`,
-    async ({ params, cookies }) => {
+    async ({ cookies, params }) => {
       await networkDelay();
 
       try {
-        const { user, error } = requireAuth(cookies);
+        const { error, user } = requireAuth(cookies);
         if (error) {
           return HttpResponse.json({ message: error }, { status: 401 });
         }

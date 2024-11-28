@@ -2,13 +2,13 @@ import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
 
 type RequestOptions = {
-  method?: string;
-  headers?: Record<string, string>;
   body?: any;
-  cookie?: string;
-  params?: Record<string, string | number | boolean | undefined | null>;
   cache?: RequestCache;
+  cookie?: string;
+  headers?: Record<string, string>;
+  method?: string;
   next?: NextFetchRequestConfig;
+  params?: Record<string, boolean | null | number | string | undefined>;
 };
 
 function buildUrlWithParams(
@@ -52,13 +52,13 @@ async function fetchApi<T>(
   options: RequestOptions = {},
 ): Promise<T> {
   const {
-    method = 'GET',
-    headers = {},
     body,
-    cookie,
-    params,
     cache = 'no-store',
+    cookie,
+    headers = {},
+    method = 'GET',
     next,
+    params,
   } = options;
 
   // Get cookies from the request when running on server
@@ -70,16 +70,16 @@ async function fetchApi<T>(
   const fullUrl = buildUrlWithParams(`${env.API_URL}${url}`, params);
 
   const response = await fetch(fullUrl, {
-    method,
+    body: body ? JSON.stringify(body) : undefined,
+    cache,
+    credentials: 'include',
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...headers,
       ...(cookieHeader ? { Cookie: cookieHeader } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: 'include',
-    cache,
+    method,
     next,
   });
 
@@ -87,9 +87,9 @@ async function fetchApi<T>(
     const message = (await response.json()).message || response.statusText;
     if (typeof window !== 'undefined') {
       useNotifications.getState().addNotification({
-        type: 'error',
-        title: 'Error',
         message,
+        title: 'Error',
+        type: 'error',
       });
     }
     throw new Error(message);
@@ -99,19 +99,19 @@ async function fetchApi<T>(
 }
 
 export const api = {
+  delete<T>(url: string, options?: RequestOptions): Promise<T> {
+    return fetchApi<T>(url, { ...options, method: 'DELETE' });
+  },
   get<T>(url: string, options?: RequestOptions): Promise<T> {
     return fetchApi<T>(url, { ...options, method: 'GET' });
   },
+  patch<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
+    return fetchApi<T>(url, { ...options, body, method: 'PATCH' });
+  },
   post<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'POST', body });
+    return fetchApi<T>(url, { ...options, body, method: 'POST' });
   },
   put<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'PUT', body });
-  },
-  patch<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'PATCH', body });
-  },
-  delete<T>(url: string, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'DELETE' });
+    return fetchApi<T>(url, { ...options, body, method: 'PUT' });
   },
 };

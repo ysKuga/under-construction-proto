@@ -19,8 +19,8 @@ export const UpdateProfile = () => {
     mutationConfig: {
       onSuccess: () => {
         addNotification({
-          type: 'success',
           title: 'Profile Updated',
+          type: 'success',
         });
       },
     },
@@ -29,20 +29,20 @@ export const UpdateProfile = () => {
   return (
     <FormDrawer
       isDone={updateProfileMutation.isSuccess}
-      triggerButton={
-        <Button icon={<Pen className="size-4" />} size="sm">
-          Update Profile
-        </Button>
-      }
-      title="Update Profile"
       submitButton={
         <Button
           form="update-profile"
-          type="submit"
-          size="sm"
           isLoading={updateProfileMutation.isPending}
+          size="sm"
+          type="submit"
         >
           Submit
+        </Button>
+      }
+      title="Update Profile"
+      triggerButton={
+        <Button icon={<Pen className="size-4" />} size="sm">
+          Update Profile
         </Button>
       }
     >
@@ -53,36 +53,36 @@ export const UpdateProfile = () => {
         }}
         options={{
           defaultValues: {
+            bio: user.data?.bio ?? '',
+            email: user.data?.email ?? '',
             firstName: user.data?.firstName ?? '',
             lastName: user.data?.lastName ?? '',
-            email: user.data?.email ?? '',
-            bio: user.data?.bio ?? '',
           },
         }}
         schema={updateProfileInputSchema}
       >
-        {({ register, formState }) => (
+        {({ formState, register }) => (
           <>
             <Input
-              label="First Name"
               error={formState.errors['firstName']}
+              label="First Name"
               registration={register('firstName')}
             />
             <Input
-              label="Last Name"
               error={formState.errors['lastName']}
+              label="Last Name"
               registration={register('lastName')}
             />
             <Input
-              label="Email Address"
-              type="email"
               error={formState.errors['email']}
+              label="Email Address"
               registration={register('email')}
+              type="email"
             />
 
             <Textarea
-              label="Bio"
               error={formState.errors['bio']}
+              label="Bio"
               registration={register('bio')}
             />
           </>

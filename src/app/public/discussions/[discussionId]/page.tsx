@@ -21,8 +21,8 @@ export const generateMetadata = async ({
   const discussion = await getDiscussion({ discussionId });
 
   return {
-    title: discussion.data?.title,
     description: discussion.data?.title,
+    title: discussion.data?.title,
   };
 };
 

@@ -10,8 +10,8 @@ export const getTeams = (): Promise<{ data: Team[] }> => {
 
 export const getTeamsQueryOptions = () => {
   return queryOptions({
-    queryKey: ['teams'],
     queryFn: () => getTeams(),
+    queryKey: ['teams'],
   });
 };
 

@@ -14,20 +14,20 @@ type Story = StoryObj<typeof ConfirmationDialog>;
 
 export const Danger: Story = {
   args: {
-    icon: 'danger',
-    title: 'Confirmation',
     body: 'Hello World',
     confirmButton: <Button className="bg-red-500">Confirm</Button>,
+    icon: 'danger',
+    title: 'Confirmation',
     triggerButton: <Button>Open</Button>,
   },
 };
 
 export const Info: Story = {
   args: {
-    icon: 'info',
-    title: 'Confirmation',
     body: 'Hello World',
     confirmButton: <Button>Confirm</Button>,
+    icon: 'info',
+    title: 'Confirmation',
     triggerButton: <Button>Open</Button>,
   },
 };

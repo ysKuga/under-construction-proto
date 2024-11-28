@@ -1,14 +1,14 @@
 import { useParams } from 'next/navigation';
 
 import {
+  createDiscussion,
+  createUser,
   renderApp,
   screen,
   userEvent,
   waitFor,
-  createDiscussion,
-  createUser,
-  within,
   waitForLoadingToFinish,
+  within,
 } from '@/testing/test-utils';
 
 import { Discussion } from '../_components/discussion';
@@ -17,13 +17,13 @@ vi.mock('next/navigation', async () => {
   const actual = await vi.importActual('next/navigation');
   return {
     ...actual,
+    useParams: vi.fn(),
     useRouter: () => {
       return {
         push: vi.fn(),
         replace: vi.fn(),
       };
     },
-    useParams: vi.fn(),
   };
 });
 
@@ -36,9 +36,9 @@ const renderDiscussion = async () => {
   const utils = await renderApp(
     <Discussion discussionId={fakeDiscussion.id} />,
     {
-      user: fakeUser,
       path: `/app/discussions/:discussionId`,
       url: `/app/discussions/${fakeDiscussion.id}`,
+      user: fakeUser,
     },
   );
 
@@ -48,8 +48,8 @@ const renderDiscussion = async () => {
 
   return {
     ...utils,
-    fakeUser,
     fakeDiscussion,
+    fakeUser,
   };
 };
 

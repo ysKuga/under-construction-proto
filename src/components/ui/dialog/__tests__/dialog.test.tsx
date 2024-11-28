@@ -18,12 +18,11 @@ const cancelButtonText = 'Cancel';
 const titleText = 'Modal Title';
 
 const TestDialog = () => {
-  const { close, open, isOpen } = useDisclosure();
+  const { close, isOpen, open } = useDisclosure();
   const cancelButtonRef = React.useRef(null);
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           close();
@@ -31,6 +30,7 @@ const TestDialog = () => {
           open();
         }
       }}
+      open={isOpen}
     >
       <DialogTrigger asChild>
         <Button variant="outline">{openButtonText}</Button>
@@ -42,7 +42,7 @@ const TestDialog = () => {
 
         <DialogFooter>
           <Button type="submit">Submit</Button>
-          <Button ref={cancelButtonRef} variant="outline" onClick={close}>
+          <Button onClick={close} ref={cancelButtonRef} variant="outline">
             {cancelButtonText}
           </Button>
         </DialogFooter>

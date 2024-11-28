@@ -9,14 +9,14 @@ import { getDiscussionsQueryOptions } from '@/features/discussions/api/get-discu
 import { Discussions } from './_components/discussions';
 
 export const metadata = {
-  title: 'Discussions',
   description: 'Discussions',
+  title: 'Discussions',
 };
 
 const DiscussionsPage = async ({
   searchParams,
 }: {
-  searchParams: { page: string | null };
+  searchParams: { page: null | string };
 }) => {
   const queryClient = new QueryClient();
 

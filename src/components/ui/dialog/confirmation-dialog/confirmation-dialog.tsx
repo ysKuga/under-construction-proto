@@ -17,25 +17,25 @@ import {
 } from '../dialog';
 
 export type ConfirmationDialogProps = {
-  triggerButton: React.ReactElement;
-  confirmButton: React.ReactElement;
-  title: string;
   body?: string;
   cancelButtonText?: string;
+  confirmButton: React.ReactElement;
   icon?: 'danger' | 'info';
   isDone?: boolean;
+  title: string;
+  triggerButton: React.ReactElement;
 };
 
 export const ConfirmationDialog = ({
-  triggerButton,
-  confirmButton,
-  title,
   body = '',
   cancelButtonText = 'Cancel',
+  confirmButton,
   icon = 'danger',
   isDone = false,
+  title,
+  triggerButton,
 }: ConfirmationDialogProps) => {
-  const { close, open, isOpen } = useDisclosure();
+  const { close, isOpen, open } = useDisclosure();
   const cancelButtonRef = React.useRef(null);
 
   useEffect(() => {
@@ -46,7 +46,6 @@ export const ConfirmationDialog = ({
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           close();
@@ -54,6 +53,7 @@ export const ConfirmationDialog = ({
           open();
         }
       }}
+      open={isOpen}
     >
       <DialogTrigger asChild>{triggerButton}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -61,10 +61,10 @@ export const ConfirmationDialog = ({
           <DialogTitle className="flex items-center gap-2">
             {' '}
             {icon === 'danger' && (
-              <CircleAlert className="size-6 text-red-600" aria-hidden="true" />
+              <CircleAlert aria-hidden="true" className="size-6 text-red-600" />
             )}
             {icon === 'info' && (
-              <Info className="size-6 text-blue-600" aria-hidden="true" />
+              <Info aria-hidden="true" className="size-6 text-blue-600" />
             )}
             {title}
           </DialogTitle>
@@ -80,7 +80,7 @@ export const ConfirmationDialog = ({
 
         <DialogFooter>
           {confirmButton}
-          <Button ref={cancelButtonRef} variant="outline" onClick={close}>
+          <Button onClick={close} ref={cancelButtonRef} variant="outline">
             {cancelButtonText}
           </Button>
         </DialogFooter>

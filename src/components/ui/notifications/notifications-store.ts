@@ -3,19 +3,18 @@ import { create } from 'zustand';
 
 export type Notification = {
   id: string;
-  type: 'info' | 'warning' | 'success' | 'error';
-  title: string;
   message?: string;
+  title: string;
+  type: 'error' | 'info' | 'success' | 'warning';
 };
 
 type NotificationsStore = {
-  notifications: Notification[];
   addNotification: (notification: Omit<Notification, 'id'>) => void;
   dismissNotification: (id: string) => void;
+  notifications: Notification[];
 };
 
 export const useNotifications = create<NotificationsStore>((set) => ({
-  notifications: [],
   addNotification: (notification) =>
     set((state) => ({
       notifications: [
@@ -29,4 +28,5 @@ export const useNotifications = create<NotificationsStore>((set) => ({
         (notification) => notification.id !== id,
       ),
     })),
+  notifications: [],
 }));

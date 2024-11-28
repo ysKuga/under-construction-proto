@@ -1,21 +1,21 @@
 import Cookies from 'js-cookie';
-import { HttpResponse, http } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
 
 import { db, persistDb } from '../db';
 import {
+  AUTH_COOKIE,
   authenticate,
   hash,
-  requireAuth,
-  AUTH_COOKIE,
   networkDelay,
+  requireAuth,
 } from '../utils';
 
 type RegisterBody = {
+  email: string;
   firstName: string;
   lastName: string;
-  email: string;
   password: string;
   teamId?: string;
   teamName?: string;
@@ -80,8 +80,8 @@ export const authHandlers = [
 
       db.user.create({
         ...userObject,
-        role,
         password: hash(userObject.password),
+        role,
         teamId,
       });
 

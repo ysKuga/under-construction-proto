@@ -18,8 +18,8 @@ export const DeleteUser = ({ id }: DeleteUserProps) => {
     mutationConfig: {
       onSuccess: () => {
         addNotification({
-          type: 'success',
           title: 'User Deleted',
+          type: 'success',
         });
       },
     },
@@ -29,20 +29,20 @@ export const DeleteUser = ({ id }: DeleteUserProps) => {
 
   return (
     <ConfirmationDialog
-      icon="danger"
-      title="Delete User"
       body="Are you sure you want to delete this user?"
-      triggerButton={<Button variant="destructive">Delete</Button>}
       confirmButton={
         <Button
           isLoading={deleteUserMutation.isPending}
+          onClick={() => deleteUserMutation.mutate({ userId: id })}
           type="button"
           variant="destructive"
-          onClick={() => deleteUserMutation.mutate({ userId: id })}
         >
           Delete User
         </Button>
       }
+      icon="danger"
+      title="Delete User"
+      triggerButton={<Button variant="destructive">Delete</Button>}
     />
   );
 };

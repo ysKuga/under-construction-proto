@@ -11,10 +11,10 @@ test('should handle confirmation flow', async () => {
 
   await rtlRender(
     <ConfirmationDialog
-      icon="danger"
-      title={titleText}
       body={bodyText}
       confirmButton={<Button>{confirmationButtonText}</Button>}
+      icon="danger"
+      title={titleText}
       triggerButton={<Button>{openButtonText}</Button>}
     />,
   );

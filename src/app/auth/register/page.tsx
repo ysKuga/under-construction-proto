@@ -23,12 +23,12 @@ const RegisterPage = () => {
 
   return (
     <RegisterForm
+      chooseTeam={chooseTeam}
       onSuccess={() =>
         router.replace(
           `${redirectTo ? `${decodeURIComponent(redirectTo)}` : paths.app.dashboard.getHref()}`,
         )
       }
-      chooseTeam={chooseTeam}
       setChooseTeam={() => setChooseTeam(!chooseTeam)}
       teams={teamsQuery.data?.data}
     />
