@@ -1,20 +1,20 @@
-import { HttpResponse, http } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
 
 import { db, persistDb } from '../db';
 import {
-  requireAuth,
-  requireAdmin,
-  sanitizeUser,
   networkDelay,
+  requireAdmin,
+  requireAuth,
+  sanitizeUser,
 } from '../utils';
 
 type ProfileBody = {
+  bio: string;
   email: string;
   firstName: string;
   lastName: string;
-  bio: string;
 };
 
 export const usersHandlers = [
@@ -22,7 +22,7 @@ export const usersHandlers = [
     await networkDelay();
 
     try {
-      const { user, error } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies);
       if (error) {
         return HttpResponse.json({ message: error }, { status: 401 });
       }
@@ -45,22 +45,22 @@ export const usersHandlers = [
     }
   }),
 
-  http.patch(`${env.API_URL}/users/profile`, async ({ request, cookies }) => {
+  http.patch(`${env.API_URL}/users/profile`, async ({ cookies, request }) => {
     await networkDelay();
 
     try {
-      const { user, error } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies);
       if (error) {
         return HttpResponse.json({ message: error }, { status: 401 });
       }
       const data = (await request.json()) as ProfileBody;
       const result = db.user.update({
+        data,
         where: {
           id: {
             equals: user?.id,
           },
         },
-        data,
       });
       await persistDb('user');
       return HttpResponse.json(result);
@@ -76,7 +76,7 @@ export const usersHandlers = [
     await networkDelay();
 
     try {
-      const { user, error } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies);
       if (error) {
         return HttpResponse.json({ message: error }, { status: 401 });
       }

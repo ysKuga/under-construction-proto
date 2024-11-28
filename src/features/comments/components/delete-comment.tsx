@@ -9,19 +9,19 @@ import { useNotifications } from '@/components/ui/notifications';
 import { useDeleteComment } from '../api/delete-comment';
 
 type DeleteCommentProps = {
-  id: string;
   discussionId: string;
+  id: string;
 };
 
-export const DeleteComment = ({ id, discussionId }: DeleteCommentProps) => {
+export const DeleteComment = ({ discussionId, id }: DeleteCommentProps) => {
   const { addNotification } = useNotifications();
   const deleteCommentMutation = useDeleteComment({
     discussionId,
     mutationConfig: {
       onSuccess: () => {
         addNotification({
-          type: 'success',
           title: 'Comment Deleted',
+          type: 'success',
         });
       },
     },
@@ -29,25 +29,25 @@ export const DeleteComment = ({ id, discussionId }: DeleteCommentProps) => {
 
   return (
     <ConfirmationDialog
-      isDone={deleteCommentMutation.isSuccess}
-      icon="danger"
-      title="Delete Comment"
       body="Are you sure you want to delete this comment?"
-      triggerButton={
+      confirmButton={
         <Button
+          isLoading={deleteCommentMutation.isPending}
+          onClick={() => deleteCommentMutation.mutate({ commentId: id })}
+          type="button"
           variant="destructive"
-          size="sm"
-          icon={<Trash className="size-4" />}
         >
           Delete Comment
         </Button>
       }
-      confirmButton={
+      icon="danger"
+      isDone={deleteCommentMutation.isSuccess}
+      title="Delete Comment"
+      triggerButton={
         <Button
-          isLoading={deleteCommentMutation.isPending}
-          type="button"
+          icon={<Trash className="size-4" />}
+          size="sm"
           variant="destructive"
-          onClick={() => deleteCommentMutation.mutate({ commentId: id })}
         >
           Delete Comment
         </Button>

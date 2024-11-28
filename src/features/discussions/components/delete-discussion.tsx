@@ -21,8 +21,8 @@ export const DeleteDiscussion = ({ id }: DeleteDiscussionProps) => {
     mutationConfig: {
       onSuccess: () => {
         addNotification({
-          type: 'success',
           title: 'Discussion Deleted',
+          type: 'success',
         });
       },
     },
@@ -34,21 +34,21 @@ export const DeleteDiscussion = ({ id }: DeleteDiscussionProps) => {
 
   return (
     <ConfirmationDialog
-      icon="danger"
-      title="Delete Discussion"
       body="Are you sure you want to delete this discussion?"
-      triggerButton={
-        <Button variant="destructive" icon={<Trash className="size-4" />}>
-          Delete Discussion
-        </Button>
-      }
       confirmButton={
         <Button
           isLoading={deleteDiscussionMutation.isPending}
+          onClick={() => deleteDiscussionMutation.mutate({ discussionId: id })}
           type="button"
           variant="destructive"
-          onClick={() => deleteDiscussionMutation.mutate({ discussionId: id })}
         >
+          Delete Discussion
+        </Button>
+      }
+      icon="danger"
+      title="Delete Discussion"
+      triggerButton={
+        <Button icon={<Trash className="size-4" />} variant="destructive">
           Delete Discussion
         </Button>
       }

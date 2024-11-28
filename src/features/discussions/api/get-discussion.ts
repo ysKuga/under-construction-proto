@@ -1,4 +1,4 @@
-import { useQuery, queryOptions } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
@@ -14,8 +14,8 @@ export const getDiscussion = ({
 
 export const getDiscussionQueryOptions = (discussionId: string) => {
   return queryOptions({
-    queryKey: ['discussions', discussionId],
     queryFn: () => getDiscussion({ discussionId }),
+    queryKey: ['discussions', discussionId],
   });
 };
 

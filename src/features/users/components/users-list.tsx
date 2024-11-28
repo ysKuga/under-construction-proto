@@ -25,39 +25,39 @@ export const UsersList = () => {
 
   return (
     <Table
-      data={users}
       columns={[
         {
-          title: 'First Name',
           field: 'firstName',
+          title: 'First Name',
         },
         {
-          title: 'Last Name',
           field: 'lastName',
+          title: 'Last Name',
         },
         {
-          title: 'Email',
           field: 'email',
+          title: 'Email',
         },
         {
-          title: 'Role',
           field: 'role',
+          title: 'Role',
         },
         {
-          title: 'Created At',
-          field: 'createdAt',
           Cell({ entry: { createdAt } }) {
             return <span>{formatDate(createdAt)}</span>;
           },
+          field: 'createdAt',
+          title: 'Created At',
         },
         {
-          title: '',
-          field: 'id',
           Cell({ entry: { id } }) {
             return <DeleteUser id={id} />;
           },
+          field: 'id',
+          title: '',
         },
       ]}
+      data={users}
     />
   );
 };

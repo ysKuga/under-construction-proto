@@ -37,9 +37,9 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
   if (!comments?.length)
     return (
       <div
-        role="list"
         aria-label="comments"
         className="flex h-40 flex-col items-center justify-center bg-white text-gray-500"
+        role="list"
       >
         <ArchiveX className="size-10" />
         <h4>No Comments Found</h4>
@@ -52,8 +52,8 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
         {comments.map((comment, index) => (
           <li
             aria-label={`comment-${comment.body}-${index}`}
-            key={comment.id || index}
             className="w-full bg-white p-4 shadow-sm"
+            key={comment.id || index}
           >
             <div className="flex justify-between">
               <div>

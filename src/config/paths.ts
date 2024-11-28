@@ -1,38 +1,38 @@
 export const paths = {
-  home: {
-    getHref: () => '/',
-  },
-
-  auth: {
-    register: {
-      getHref: (redirectTo?: string | null | undefined) =>
-        `/auth/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
-    },
-    login: {
-      getHref: (redirectTo?: string | null | undefined) =>
-        `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
-    },
-  },
-
   app: {
-    root: {
-      getHref: () => '/app',
-    },
     dashboard: {
       getHref: () => '/app',
-    },
-    discussions: {
-      getHref: () => '/app/discussions',
     },
     discussion: {
       getHref: (id: string) => `/app/discussions/${id}`,
     },
-    users: {
-      getHref: () => '/app/users',
+    discussions: {
+      getHref: () => '/app/discussions',
     },
     profile: {
       getHref: () => '/app/profile',
     },
+    root: {
+      getHref: () => '/app',
+    },
+    users: {
+      getHref: () => '/app/users',
+    },
+  },
+
+  auth: {
+    login: {
+      getHref: (redirectTo?: null | string | undefined) =>
+        `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+    },
+    register: {
+      getHref: (redirectTo?: null | string | undefined) =>
+        `/auth/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+    },
+  },
+
+  home: {
+    getHref: () => '/',
   },
   public: {
     discussion: {

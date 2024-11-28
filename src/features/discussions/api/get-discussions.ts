@@ -21,8 +21,8 @@ export const getDiscussionsQueryOptions = ({
   page = 1,
 }: { page?: number } = {}) => {
   return queryOptions({
-    queryKey: ['discussions', { page }],
     queryFn: () => getDiscussions({ page }),
+    queryKey: ['discussions', { page }],
   });
 };
 
@@ -32,8 +32,8 @@ type UseDiscussionsOptions = {
 };
 
 export const useDiscussions = ({
-  queryConfig,
   page,
+  queryConfig,
 }: UseDiscussionsOptions) => {
   return useQuery({
     ...getDiscussionsQueryOptions({ page }),

@@ -23,11 +23,10 @@ export default meta;
 type Story = StoryObj<typeof Drawer>;
 
 const DemoDrawer = () => {
-  const { close, open, isOpen } = useDisclosure();
+  const { close, isOpen, open } = useDisclosure();
 
   return (
     <Drawer
-      open={isOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           close();
@@ -35,6 +34,7 @@ const DemoDrawer = () => {
           open();
         }
       }}
+      open={isOpen}
     >
       <DrawerTrigger asChild>
         <Button variant="outline">Open</Button>

@@ -15,8 +15,8 @@ type UseDeleteCommentOptions = {
 };
 
 export const useDeleteComment = ({
-  mutationConfig,
   discussionId,
+  mutationConfig,
 }: UseDeleteCommentOptions) => {
   const queryClient = useQueryClient();
 

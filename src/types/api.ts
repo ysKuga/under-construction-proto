@@ -3,8 +3,8 @@
 // with the backend instead of manually writing them out
 
 export type BaseEntity = {
-  id: string;
   createdAt: number;
+  id: string;
 };
 
 export type Entity<T> = {
@@ -18,12 +18,12 @@ export type Meta = {
 };
 
 export type User = Entity<{
+  bio: string;
+  email: string;
   firstName: string;
   lastName: string;
-  email: string;
   role: 'ADMIN' | 'USER';
   teamId: string;
-  bio: string;
 }>;
 
 export type AuthResponse = {
@@ -32,20 +32,20 @@ export type AuthResponse = {
 };
 
 export type Team = Entity<{
-  name: string;
   description: string;
+  name: string;
 }>;
 
 export type Discussion = Entity<{
-  title: string;
-  body: string;
-  teamId: string;
   author: User;
+  body: string;
   public: boolean;
+  teamId: string;
+  title: string;
 }>;
 
 export type Comment = Entity<{
+  author: User;
   body: string;
   discussionId: string;
-  author: User;
 }>;

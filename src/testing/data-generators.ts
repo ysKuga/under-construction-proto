@@ -1,24 +1,24 @@
 import {
+  randCatchPhrase,
   randCompanyName,
-  randUserName,
   randEmail,
   randParagraph,
-  randUuid,
   randPassword,
-  randCatchPhrase,
+  randUserName,
+  randUuid,
 } from '@ngneat/falso';
 
 const generateUser = () => ({
-  id: randUuid() + Math.random(),
-  firstName: randUserName({ withAccents: false }),
-  lastName: randUserName({ withAccents: false }),
-  email: randEmail(),
-  password: randPassword(),
-  teamId: randUuid(),
-  teamName: randCompanyName(),
-  role: 'ADMIN',
   bio: randParagraph(),
   createdAt: Date.now(),
+  email: randEmail(),
+  firstName: randUserName({ withAccents: false }),
+  id: randUuid() + Math.random(),
+  lastName: randUserName({ withAccents: false }),
+  password: randPassword(),
+  role: 'ADMIN',
+  teamId: randUuid(),
+  teamName: randCompanyName(),
 });
 
 export const createUser = <T extends Partial<ReturnType<typeof generateUser>>>(
@@ -28,10 +28,10 @@ export const createUser = <T extends Partial<ReturnType<typeof generateUser>>>(
 };
 
 const generateTeam = () => ({
+  createdAt: Date.now(),
+  description: randParagraph(),
   id: randUuid(),
   name: randCompanyName(),
-  description: randParagraph(),
-  createdAt: Date.now(),
 });
 
 export const createTeam = <T extends Partial<ReturnType<typeof generateTeam>>>(
@@ -41,37 +41,37 @@ export const createTeam = <T extends Partial<ReturnType<typeof generateTeam>>>(
 };
 
 const generateDiscussion = () => ({
-  id: randUuid(),
-  title: randCatchPhrase(),
   body: randParagraph(),
   createdAt: Date.now(),
+  id: randUuid(),
   public: true,
+  title: randCatchPhrase(),
 });
 
 export const createDiscussion = <
   T extends Partial<ReturnType<typeof generateDiscussion>>,
 >(
-  overrides?: T & {
+  overrides?: {
     authorId?: string;
     teamId?: string;
-  },
+  } & T,
 ) => {
   return { ...generateDiscussion(), ...overrides };
 };
 
 const generateComment = () => ({
-  id: randUuid(),
   body: randParagraph(),
   createdAt: Date.now(),
+  id: randUuid(),
 });
 
 export const createComment = <
   T extends Partial<ReturnType<typeof generateComment>>,
 >(
-  overrides?: T & {
+  overrides?: {
     authorId?: string;
     discussionId?: string;
-  },
+  } & T,
 ) => {
   return { ...generateComment(), ...overrides };
 };

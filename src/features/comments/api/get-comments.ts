@@ -21,16 +21,16 @@ export const getComments = ({
 
 export const getInfiniteCommentsQueryOptions = (discussionId: string) => {
   return infiniteQueryOptions({
-    queryKey: ['comments', discussionId],
-    queryFn: ({ pageParam = 1 }) => {
-      return getComments({ discussionId, page: pageParam as number });
-    },
     getNextPageParam: (lastPage) => {
       if (lastPage?.meta?.page === lastPage?.meta?.totalPages) return undefined;
       const nextPage = lastPage.meta.page + 1;
       return nextPage;
     },
     initialPageParam: 1,
+    queryFn: ({ pageParam = 1 }) => {
+      return getComments({ discussionId, page: pageParam as number });
+    },
+    queryKey: ['comments', discussionId],
   });
 };
 

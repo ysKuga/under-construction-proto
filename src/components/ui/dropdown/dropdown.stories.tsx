@@ -5,17 +5,17 @@ import { Button } from '@/components/ui/button';
 
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
-  DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-  DropdownMenuRadioGroup,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from './dropdown';
 
 const meta: Meta = {
@@ -76,7 +76,7 @@ export const WithRadioItems = () => {
       <DropdownMenuContent>
         <DropdownMenuLabel>Select an option</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={value} onValueChange={setValue}>
+        <DropdownMenuRadioGroup onValueChange={setValue} value={value}>
           <DropdownMenuRadioItem value="one">Option One</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="two">Option Two</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="three">

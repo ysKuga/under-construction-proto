@@ -2,7 +2,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { rtlRender, screen, waitFor, userEvent } from '@/testing/test-utils';
+import { rtlRender, screen, userEvent, waitFor } from '@/testing/test-utils';
 
 import { Form } from '../form';
 import { Input } from '../input';
@@ -19,16 +19,16 @@ test('should render and submit a basic Form component', async () => {
   const handleSubmit = vi.fn() as SubmitHandler<z.infer<typeof schema>>;
 
   rtlRender(
-    <Form onSubmit={handleSubmit} schema={schema} id="my-form">
-      {({ register, formState }) => (
+    <Form id="my-form" onSubmit={handleSubmit} schema={schema}>
+      {({ formState, register }) => (
         <>
           <Input
-            label="Title"
             error={formState.errors['title']}
+            label="Title"
             registration={register('title')}
           />
 
-          <Button name="submit" type="submit" className="w-full">
+          <Button className="w-full" name="submit" type="submit">
             Submit
           </Button>
         </>
@@ -49,16 +49,16 @@ test('should fail submission if validation fails', async () => {
   const handleSubmit = vi.fn() as SubmitHandler<z.infer<typeof schema>>;
 
   rtlRender(
-    <Form onSubmit={handleSubmit} schema={schema} id="my-form">
-      {({ register, formState }) => (
+    <Form id="my-form" onSubmit={handleSubmit} schema={schema}>
+      {({ formState, register }) => (
         <>
           <Input
-            label="Title"
             error={formState.errors['title']}
+            label="Title"
             registration={register('title')}
           />
 
-          <Button name="submit" type="submit" className="w-full">
+          <Button className="w-full" name="submit" type="submit">
             Submit
           </Button>
         </>

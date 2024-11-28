@@ -4,8 +4,8 @@ import { AdminGuard } from './_components/admin-guard';
 import { Users } from './_components/users';
 
 export const metadata = {
-  title: 'Users',
   description: 'Users',
+  title: 'Users',
 };
 
 const UsersPage = () => {

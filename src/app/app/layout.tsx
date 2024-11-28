@@ -3,8 +3,8 @@ import { ReactNode } from 'react';
 import { DashboardLayout } from './_components/dashboard-layout';
 
 export const metadata = {
-  title: 'Dashboard',
   description: 'Dashboard',
+  title: 'Dashboard',
 };
 
 const AppLayout = ({ children }: { children: ReactNode }) => {

@@ -5,19 +5,19 @@ import { Error } from './error';
 import { Label } from './label';
 
 type FieldWrapperProps = {
-  label?: string;
-  className?: string;
   children: React.ReactNode;
+  className?: string;
   error?: FieldError | undefined;
+  label?: string;
 };
 
 export type FieldWrapperPassThroughProps = Omit<
   FieldWrapperProps,
-  'className' | 'children'
+  'children' | 'className'
 >;
 
 export const FieldWrapper = (props: FieldWrapperProps) => {
-  const { label, error, children } = props;
+  const { children, error, label } = props;
   return (
     <div>
       <Label>

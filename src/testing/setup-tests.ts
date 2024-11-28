@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom/vitest';
-
 import { initializeDb, resetDb } from '@/testing/mocks/db';
 import { server } from '@/testing/mocks/server';
 
@@ -11,13 +10,13 @@ beforeAll(() => {
     const actual = await vi.importActual('next/navigation');
     return {
       ...actual,
+      usePathname: () => '/app',
       useRouter: () => {
         return {
           push: vi.fn(),
           replace: vi.fn(),
         };
       },
-      usePathname: () => '/app',
       useSearchParams: () => ({
         get: vi.fn(),
       }),
@@ -27,9 +26,9 @@ beforeAll(() => {
 afterAll(() => server.close());
 beforeEach(() => {
   const ResizeObserverMock = vi.fn(() => ({
+    disconnect: vi.fn(),
     observe: vi.fn(),
     unobserve: vi.fn(),
-    disconnect: vi.fn(),
   }));
 
   vi.stubGlobal('ResizeObserver', ResizeObserverMock);

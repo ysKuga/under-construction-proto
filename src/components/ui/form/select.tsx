@@ -9,21 +9,21 @@ import { FieldWrapper, FieldWrapperPassThroughProps } from './field-wrapper';
 
 type Option = {
   label: React.ReactNode;
-  value: string | number | string[];
+  value: number | string | string[];
 };
 
-type SelectFieldProps = FieldWrapperPassThroughProps & {
-  options: Option[];
+type SelectFieldProps = {
   className?: string;
   defaultValue?: string;
+  options: Option[];
   registration: Partial<UseFormRegisterReturn>;
-};
+} & FieldWrapperPassThroughProps;
 
 export const Select = (props: SelectFieldProps) => {
-  const { label, options, error, className, defaultValue, registration } =
+  const { className, defaultValue, error, label, options, registration } =
     props;
   return (
-    <FieldWrapper label={label} error={error}>
+    <FieldWrapper error={error} label={label}>
       <select
         className={cn(
           'mt-1 block w-full rounded-md border-gray-600 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm',

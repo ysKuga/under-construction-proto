@@ -1,21 +1,21 @@
 import { Comment, User } from '@/types/api';
 
-export const canCreateDiscussion = (user: User | null | undefined) => {
+export const canCreateDiscussion = (user: null | undefined | User) => {
   return user?.role === 'ADMIN';
 };
-export const canDeleteDiscussion = (user: User | null | undefined) => {
+export const canDeleteDiscussion = (user: null | undefined | User) => {
   return user?.role === 'ADMIN';
 };
-export const canUpdateDiscussion = (user: User | null | undefined) => {
+export const canUpdateDiscussion = (user: null | undefined | User) => {
   return user?.role === 'ADMIN';
 };
 
-export const canViewUsers = (user: User | null | undefined) => {
+export const canViewUsers = (user: null | undefined | User) => {
   return user?.role === 'ADMIN';
 };
 
 export const canDeleteComment = (
-  user: User | null | undefined,
+  user: null | undefined | User,
   comment: Comment,
 ) => {
   if (user?.role === 'ADMIN') {

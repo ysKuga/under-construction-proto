@@ -1,7 +1,7 @@
 namespace NodeJS {
   interface ProcessEnv {
-    DEV: string;
     CI: string;
+    DEV: string;
     NEXT_PUBLIC_API_URL: string;
     NEXT_PUBLIC_ENABLE_API_MOCKING: string;
     NEXT_PUBLIC_MOCK_API_PORT: string;

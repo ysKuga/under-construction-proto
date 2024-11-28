@@ -7,8 +7,8 @@ import { Form, FormDrawer, Textarea } from '@/components/ui/form';
 import { useNotifications } from '@/components/ui/notifications';
 
 import {
-  useCreateComment,
   createCommentInputSchema,
+  useCreateComment,
 } from '../api/create-comment';
 
 type CreateCommentProps = {
@@ -22,8 +22,8 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
     mutationConfig: {
       onSuccess: () => {
         addNotification({
-          type: 'success',
           title: 'Comment Created',
+          type: 'success',
         });
       },
     },
@@ -32,21 +32,21 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
   return (
     <FormDrawer
       isDone={createCommentMutation.isSuccess}
-      triggerButton={
-        <Button size="sm" icon={<Plus className="size-4" />}>
-          Create Comment
+      submitButton={
+        <Button
+          disabled={createCommentMutation.isPending}
+          form="create-comment"
+          isLoading={createCommentMutation.isPending}
+          size="sm"
+          type="submit"
+        >
+          Submit
         </Button>
       }
       title="Create Comment"
-      submitButton={
-        <Button
-          isLoading={createCommentMutation.isPending}
-          form="create-comment"
-          type="submit"
-          size="sm"
-          disabled={createCommentMutation.isPending}
-        >
-          Submit
+      triggerButton={
+        <Button icon={<Plus className="size-4" />} size="sm">
+          Create Comment
         </Button>
       }
     >
@@ -57,18 +57,18 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
             data: values,
           });
         }}
-        schema={createCommentInputSchema}
         options={{
           defaultValues: {
             body: '',
             discussionId: discussionId,
           },
         }}
+        schema={createCommentInputSchema}
       >
-        {({ register, formState }) => (
+        {({ formState, register }) => (
           <Textarea
-            label="Body"
             error={formState.errors['body']}
+            label="Body"
             registration={register('body')}
           />
         )}

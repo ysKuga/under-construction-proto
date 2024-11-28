@@ -23,8 +23,8 @@ const userQueryKey = ['user'];
 
 export const getUserQueryOptions = () => {
   return queryOptions({
-    queryKey: userQueryKey,
     queryFn: getUser,
+    queryKey: userQueryKey,
   });
 };
 
@@ -92,8 +92,8 @@ export const registerInputSchema = z
       })
       .or(
         z.object({
-          teamName: z.string().min(1, 'Required'),
           teamId: z.null().default(null),
+          teamName: z.string().min(1, 'Required'),
         }),
       ),
   );

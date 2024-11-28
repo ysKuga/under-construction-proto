@@ -15,12 +15,11 @@ import {
 } from './dialog';
 
 const DemoDialog = () => {
-  const { close, open, isOpen } = useDisclosure();
+  const { close, isOpen, open } = useDisclosure();
   const cancelButtonRef = React.useRef(null);
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           close();
@@ -28,6 +27,7 @@ const DemoDialog = () => {
           open();
         }
       }}
+      open={isOpen}
     >
       <DialogTrigger asChild>
         <Button variant="outline">Open Dialog</Button>
@@ -41,7 +41,7 @@ const DemoDialog = () => {
 
         <DialogFooter>
           <Button type="submit">Save changes</Button>
-          <Button ref={cancelButtonRef} variant="outline" onClick={close}>
+          <Button onClick={close} ref={cancelButtonRef} variant="outline">
             Cancel
           </Button>
         </DialogFooter>

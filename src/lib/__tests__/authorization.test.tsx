@@ -2,10 +2,10 @@ import { Comment, User } from '@/types/api';
 
 import {
   canCreateDiscussion,
+  canDeleteComment,
   canDeleteDiscussion,
   canUpdateDiscussion,
   canViewUsers,
-  canDeleteComment,
 } from '../authorization';
 
 describe('Discussion Authorization', () => {
@@ -66,8 +66,8 @@ describe('Comment Authorization', () => {
 
   test('should allow admin to delete any comment', () => {
     const comment: Comment = {
-      id: '1',
       author: anotherUser,
+      id: '1',
     } as Comment;
 
     expect(canDeleteComment(adminUser, comment)).toBe(true);
@@ -75,8 +75,8 @@ describe('Comment Authorization', () => {
 
   test('should allow users to delete their own comments', () => {
     const comment: Comment = {
-      id: '1',
       author: regularUser,
+      id: '1',
     } as Comment;
 
     expect(canDeleteComment(regularUser, comment)).toBe(true);
@@ -84,8 +84,8 @@ describe('Comment Authorization', () => {
 
   test('should not allow users to delete others comments', () => {
     const comment: Comment = {
-      id: '1',
       author: anotherUser,
+      id: '1',
     } as Comment;
 
     expect(canDeleteComment(regularUser, comment)).toBe(false);
@@ -93,8 +93,8 @@ describe('Comment Authorization', () => {
 
   test('should not allow unauthorized users to delete comments', () => {
     const comment: Comment = {
-      id: '1',
       author: regularUser,
+      id: '1',
     } as Comment;
 
     expect(canDeleteComment(null, comment)).toBe(false);
