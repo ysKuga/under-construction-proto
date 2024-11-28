@@ -3,7 +3,7 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: ['eslint:recommended', 'next/core-web-vitals', "plugin:perfectionist/recommended-alphabetical-legacy"],
+  extends: ['eslint:recommended', 'next/core-web-vitals', 'plugin:perfectionist/recommended-alphabetical-legacy'],
   ignorePatterns: [
     'node_modules/*',
     'public/mockServiceWorker.js',
@@ -115,6 +115,7 @@ module.exports = {
         ],
         'jsx-a11y/anchor-is-valid': 'off',
         'linebreak-style': ['error', 'unix'],
+        "perfectionist/sort-imports": "off",
         'prettier/prettier': ['error', {}, { usePrettierrc: true }],
         'react/prop-types': 'off',
         'react/react-in-jsx-scope': 'off',
