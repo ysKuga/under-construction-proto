@@ -153,7 +153,13 @@ module.exports = {
       files: ['**/*.d.ts'],
       rules: {
         '@typescript-eslint/no-unused-vars': ['off'],
-      }
+      },
+    },
+    {
+      files: ['**/*rc.*js'],
+      rules: {
+        'comma-dangle': ["error", "always-multiline"],
+      },
     },
   ],
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
