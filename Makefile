@@ -42,6 +42,9 @@ generate:
 lint:
 	yarn lint
 
+lint/fix:
+	yarn lint --fix
+
 prepare:
 	yarn prepare
 
