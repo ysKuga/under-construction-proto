@@ -20,7 +20,7 @@ export const getComments = ({
 }
 
 export const getInfiniteCommentsQueryOptions = (discussionId: string) => {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<{ data: Comment[]; meta: Meta }>({
     getNextPageParam: (lastPage) => {
       if (lastPage?.meta?.page === lastPage?.meta?.totalPages) return undefined
       const nextPage = lastPage.meta.page + 1
