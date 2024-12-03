@@ -1,14 +1,14 @@
-import { ReactNode, Suspense } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ReactNode, Suspense } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner } from '@/components/ui/spinner'
 
-import { AuthLayout as AuthLayoutComponent } from './_components/auth-layout';
+import { AuthLayout as AuthLayoutComponent } from './_components/auth-layout'
 
 export const metadata = {
   description: 'Welcome to Bulletproof React',
   title: 'Bulletproof React',
-};
+}
 
 const AuthLayout = ({ children }: { children: ReactNode }) => {
   return (
@@ -23,7 +23,7 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
         <AuthLayoutComponent>{children}</AuthLayoutComponent>
       </ErrorBoundary>
     </Suspense>
-  );
-};
+  )
+}
 
-export default AuthLayout;
+export default AuthLayout

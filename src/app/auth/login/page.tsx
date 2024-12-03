@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation'
 
-import { paths } from '@/config/paths';
-import { LoginForm } from '@/features/auth/components/login-form';
+import { paths } from '@/config/paths'
+import { LoginForm } from '@/features/auth/components/login-form'
 
 const LoginPage = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get('redirectTo');
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams?.get('redirectTo')
 
   return (
     <LoginForm
@@ -18,7 +18,7 @@ const LoginPage = () => {
         )
       }
     />
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

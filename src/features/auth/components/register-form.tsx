@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import NextLink from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import * as React from 'react';
+import NextLink from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import * as React from 'react'
 
-import { Button } from '@/components/ui/button';
-import { Form, Input, Label, Select, Switch } from '@/components/ui/form';
-import { paths } from '@/config/paths';
-import { registerInputSchema, useRegister } from '@/lib/auth';
-import { Team } from '@/types/api';
+import { Button } from '@/components/ui/button'
+import { Form, Input, Label, Select, Switch } from '@/components/ui/form'
+import { paths } from '@/config/paths'
+import { registerInputSchema, useRegister } from '@/lib/auth'
+import { Team } from '@/types/api'
 
 type RegisterFormProps = {
-  chooseTeam: boolean;
-  onSuccess: () => void;
-  setChooseTeam: () => void;
-  teams?: Team[];
-};
+  chooseTeam: boolean
+  onSuccess: () => void
+  setChooseTeam: () => void
+  teams?: Team[]
+}
 
 export const RegisterForm = ({
   chooseTeam,
@@ -23,15 +23,15 @@ export const RegisterForm = ({
   setChooseTeam,
   teams,
 }: RegisterFormProps) => {
-  const registering = useRegister({ onSuccess });
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get('redirectTo');
+  const registering = useRegister({ onSuccess })
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams?.get('redirectTo')
 
   return (
     <div>
       <Form
         onSubmit={(values) => {
-          registering.mutate(values);
+          registering.mutate(values)
         }}
         options={{
           shouldUnregister: true,
@@ -118,5 +118,5 @@ export const RegisterForm = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

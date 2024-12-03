@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as LabelPrimitive from '@radix-ui/react-label';
-import { Slot } from '@radix-ui/react-slot';
-import * as React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as LabelPrimitive from '@radix-ui/react-label'
+import { Slot } from '@radix-ui/react-slot'
+import * as React from 'react'
 import {
   Controller,
   ControllerProps,
@@ -15,23 +15,23 @@ import {
   useFormContext,
   UseFormProps,
   UseFormReturn,
-} from 'react-hook-form';
-import { z, ZodType } from 'zod';
+} from 'react-hook-form'
+import { z, ZodType } from 'zod'
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils/cn'
 
-import { Label } from './label';
+import { Label } from './label'
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
-  name: TName;
-};
+  name: TName
+}
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue,
-);
+)
 
 const FormField = <
   TFieldValues extends FieldValues,
@@ -43,21 +43,21 @@ const FormField = <
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
     </FormFieldContext.Provider>
-  );
-};
+  )
+}
 
 const useFormField = () => {
-  const fieldContext = React.useContext(FormFieldContext);
-  const itemContext = React.useContext(FormItemContext);
-  const { formState, getFieldState } = useFormContext();
+  const fieldContext = React.useContext(FormFieldContext)
+  const itemContext = React.useContext(FormItemContext)
+  const { formState, getFieldState } = useFormContext()
 
-  const fieldState = getFieldState(fieldContext.name, formState);
+  const fieldState = getFieldState(fieldContext.name, formState)
 
   if (!fieldContext) {
-    throw new Error('useFormField should be used within <FormField>');
+    throw new Error('useFormField should be used within <FormField>')
   }
 
-  const { id } = itemContext;
+  const { id } = itemContext
 
   return {
     formDescriptionId: `${id}-form-item-description`,
@@ -66,36 +66,36 @@ const useFormField = () => {
     id,
     name: fieldContext.name,
     ...fieldState,
-  };
-};
+  }
+}
 
 type FormItemContextValue = {
-  id: string;
-};
+  id: string
+}
 
 const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue,
-);
+)
 
 const FormItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const id = React.useId();
+  const id = React.useId()
 
   return (
     <FormItemContext.Provider value={{ id }}>
       <div className={cn('space-y-2', className)} ref={ref} {...props} />
     </FormItemContext.Provider>
-  );
-});
-FormItem.displayName = 'FormItem';
+  )
+})
+FormItem.displayName = 'FormItem'
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField();
+  const { error, formItemId } = useFormField()
 
   return (
     <Label
@@ -104,16 +104,15 @@ const FormLabel = React.forwardRef<
       ref={ref}
       {...props}
     />
-  );
-});
-FormLabel.displayName = 'FormLabel';
+  )
+})
+FormLabel.displayName = 'FormLabel'
 
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formDescriptionId, formItemId, formMessageId } =
-    useFormField();
+  const { error, formDescriptionId, formItemId, formMessageId } = useFormField()
 
   return (
     <Slot
@@ -127,15 +126,15 @@ const FormControl = React.forwardRef<
       ref={ref}
       {...props}
     />
-  );
-});
-FormControl.displayName = 'FormControl';
+  )
+})
+FormControl.displayName = 'FormControl'
 
 const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
-  const { formDescriptionId } = useFormField();
+  const { formDescriptionId } = useFormField()
 
   return (
     <p
@@ -144,19 +143,19 @@ const FormDescription = React.forwardRef<
       ref={ref}
       {...props}
     />
-  );
-});
-FormDescription.displayName = 'FormDescription';
+  )
+})
+FormDescription.displayName = 'FormDescription'
 
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ children, className, ...props }, ref) => {
-  const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message) : children;
+  const { error, formMessageId } = useFormField()
+  const body = error ? String(error?.message) : children
 
   if (!body) {
-    return null;
+    return null
   }
 
   return (
@@ -168,18 +167,18 @@ const FormMessage = React.forwardRef<
     >
       {body}
     </p>
-  );
-});
-FormMessage.displayName = 'FormMessage';
+  )
+})
+FormMessage.displayName = 'FormMessage'
 
 type FormProps<TFormValues extends FieldValues, Schema> = {
-  children: (methods: UseFormReturn<TFormValues>) => React.ReactNode;
-  className?: string;
-  id?: string;
-  onSubmit: SubmitHandler<TFormValues>;
-  options?: UseFormProps<TFormValues>;
-  schema: Schema;
-};
+  children: (methods: UseFormReturn<TFormValues>) => React.ReactNode
+  className?: string
+  id?: string
+  onSubmit: SubmitHandler<TFormValues>
+  options?: UseFormProps<TFormValues>
+  schema: Schema
+}
 
 const Form = <
   Schema extends ZodType<any, any, any>,
@@ -192,7 +191,7 @@ const Form = <
   options,
   schema,
 }: FormProps<TFormValues, Schema>) => {
-  const form = useForm({ ...options, resolver: zodResolver(schema) });
+  const form = useForm({ ...options, resolver: zodResolver(schema) })
   return (
     <FormProvider {...form}>
       <form
@@ -203,8 +202,8 @@ const Form = <
         {children(form)}
       </form>
     </FormProvider>
-  );
-};
+  )
+}
 
 export {
   Form,
@@ -216,4 +215,4 @@ export {
   FormMessage,
   FormProvider,
   useFormField,
-};
+}

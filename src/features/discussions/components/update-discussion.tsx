@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { Pen } from 'lucide-react';
+import { Pen } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormDrawer,
@@ -10,42 +10,42 @@ import {
   Label,
   Switch,
   Textarea,
-} from '@/components/ui/form';
-import { useNotifications } from '@/components/ui/notifications';
-import { useUser } from '@/lib/auth';
-import { canUpdateDiscussion } from '@/lib/authorization';
+} from '@/components/ui/form'
+import { useNotifications } from '@/components/ui/notifications'
+import { useUser } from '@/lib/auth'
+import { canUpdateDiscussion } from '@/lib/authorization'
 
-import { useDiscussion } from '../api/get-discussion';
+import { useDiscussion } from '../api/get-discussion'
 import {
   updateDiscussionInputSchema,
   useUpdateDiscussion,
-} from '../api/update-discussion';
+} from '../api/update-discussion'
 
 type UpdateDiscussionProps = {
-  discussionId: string;
-};
+  discussionId: string
+}
 
 export const UpdateDiscussion = ({ discussionId }: UpdateDiscussionProps) => {
-  const { addNotification } = useNotifications();
-  const discussionQuery = useDiscussion({ discussionId });
+  const { addNotification } = useNotifications()
+  const discussionQuery = useDiscussion({ discussionId })
   const updateDiscussionMutation = useUpdateDiscussion({
     mutationConfig: {
       onSuccess: () => {
         addNotification({
           title: 'Discussion Updated',
           type: 'success',
-        });
+        })
       },
     },
-  });
+  })
 
-  const user = useUser();
+  const user = useUser()
 
   if (!canUpdateDiscussion(user?.data)) {
-    return null;
+    return null
   }
 
-  const discussion = discussionQuery.data?.data;
+  const discussion = discussionQuery.data?.data
 
   return (
     <FormDrawer
@@ -73,7 +73,7 @@ export const UpdateDiscussion = ({ discussionId }: UpdateDiscussionProps) => {
           updateDiscussionMutation.mutate({
             data: values,
             discussionId,
-          });
+          })
         }}
         options={{
           defaultValues: {
@@ -111,5 +111,5 @@ export const UpdateDiscussion = ({ discussionId }: UpdateDiscussionProps) => {
         )}
       </Form>
     </FormDrawer>
-  );
-};
+  )
+}

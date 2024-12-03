@@ -1,30 +1,30 @@
-'use client';
+'use client'
 
-import { Pen } from 'lucide-react';
+import { Pen } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Form, FormDrawer, Input, Textarea } from '@/components/ui/form';
-import { useNotifications } from '@/components/ui/notifications';
-import { useUser } from '@/lib/auth';
+import { Button } from '@/components/ui/button'
+import { Form, FormDrawer, Input, Textarea } from '@/components/ui/form'
+import { useNotifications } from '@/components/ui/notifications'
+import { useUser } from '@/lib/auth'
 
 import {
   updateProfileInputSchema,
   useUpdateProfile,
-} from '../api/update-profile';
+} from '../api/update-profile'
 
 export const UpdateProfile = () => {
-  const user = useUser();
-  const { addNotification } = useNotifications();
+  const user = useUser()
+  const { addNotification } = useNotifications()
   const updateProfileMutation = useUpdateProfile({
     mutationConfig: {
       onSuccess: () => {
         addNotification({
           title: 'Profile Updated',
           type: 'success',
-        });
+        })
       },
     },
-  });
+  })
 
   return (
     <FormDrawer
@@ -49,7 +49,7 @@ export const UpdateProfile = () => {
       <Form
         id="update-profile"
         onSubmit={(values) => {
-          updateProfileMutation.mutate({ data: values });
+          updateProfileMutation.mutate({ data: values })
         }}
         options={{
           defaultValues: {
@@ -89,5 +89,5 @@ export const UpdateProfile = () => {
         )}
       </Form>
     </FormDrawer>
-  );
-};
+  )
+}

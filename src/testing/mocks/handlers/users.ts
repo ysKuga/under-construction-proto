@@ -1,30 +1,25 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw'
 
-import { env } from '@/config/env';
+import { env } from '@/config/env'
 
-import { db, persistDb } from '../db';
-import {
-  networkDelay,
-  requireAdmin,
-  requireAuth,
-  sanitizeUser,
-} from '../utils';
+import { db, persistDb } from '../db'
+import { networkDelay, requireAdmin, requireAuth, sanitizeUser } from '../utils'
 
 type ProfileBody = {
-  bio: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-};
+  bio: string
+  email: string
+  firstName: string
+  lastName: string
+}
 
 export const usersHandlers = [
   http.get(`${env.API_URL}/users`, async ({ cookies }) => {
-    await networkDelay();
+    await networkDelay()
 
     try {
-      const { error, user } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies)
       if (error) {
-        return HttpResponse.json({ message: error }, { status: 401 });
+        return HttpResponse.json({ message: error }, { status: 401 })
       }
       const result = db.user
         .findMany({
@@ -34,26 +29,26 @@ export const usersHandlers = [
             },
           },
         })
-        .map(sanitizeUser);
+        .map(sanitizeUser)
 
-      return HttpResponse.json({ data: result });
+      return HttpResponse.json({ data: result })
     } catch (error: any) {
       return HttpResponse.json(
         { message: error?.message || 'Server Error' },
         { status: 500 },
-      );
+      )
     }
   }),
 
   http.patch(`${env.API_URL}/users/profile`, async ({ cookies, request }) => {
-    await networkDelay();
+    await networkDelay()
 
     try {
-      const { error, user } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies)
       if (error) {
-        return HttpResponse.json({ message: error }, { status: 401 });
+        return HttpResponse.json({ message: error }, { status: 401 })
       }
-      const data = (await request.json()) as ProfileBody;
+      const data = (await request.json()) as ProfileBody
       const result = db.user.update({
         data,
         where: {
@@ -61,27 +56,27 @@ export const usersHandlers = [
             equals: user?.id,
           },
         },
-      });
-      await persistDb('user');
-      return HttpResponse.json(result);
+      })
+      await persistDb('user')
+      return HttpResponse.json(result)
     } catch (error: any) {
       return HttpResponse.json(
         { message: error?.message || 'Server Error' },
         { status: 500 },
-      );
+      )
     }
   }),
 
   http.delete(`${env.API_URL}/users/:userId`, async ({ cookies, params }) => {
-    await networkDelay();
+    await networkDelay()
 
     try {
-      const { error, user } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies)
       if (error) {
-        return HttpResponse.json({ message: error }, { status: 401 });
+        return HttpResponse.json({ message: error }, { status: 401 })
       }
-      const userId = params.userId as string;
-      requireAdmin(user);
+      const userId = params.userId as string
+      requireAdmin(user)
       const result = db.user.delete({
         where: {
           id: {
@@ -91,14 +86,14 @@ export const usersHandlers = [
             equals: user?.teamId,
           },
         },
-      });
-      await persistDb('user');
-      return HttpResponse.json(result);
+      })
+      await persistDb('user')
+      return HttpResponse.json(result)
     } catch (error: any) {
       return HttpResponse.json(
         { message: error?.message || 'Server Error' },
         { status: 500 },
-      );
+      )
     }
   }),
-];
+]

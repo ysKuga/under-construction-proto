@@ -1,35 +1,35 @@
-'use client';
+'use client'
 
-import { Trash } from 'lucide-react';
+import { Trash } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { ConfirmationDialog } from '@/components/ui/dialog';
-import { useNotifications } from '@/components/ui/notifications';
-import { useUser } from '@/lib/auth';
-import { canDeleteDiscussion } from '@/lib/authorization';
+import { Button } from '@/components/ui/button'
+import { ConfirmationDialog } from '@/components/ui/dialog'
+import { useNotifications } from '@/components/ui/notifications'
+import { useUser } from '@/lib/auth'
+import { canDeleteDiscussion } from '@/lib/authorization'
 
-import { useDeleteDiscussion } from '../api/delete-discussion';
+import { useDeleteDiscussion } from '../api/delete-discussion'
 
 type DeleteDiscussionProps = {
-  id: string;
-};
+  id: string
+}
 
 export const DeleteDiscussion = ({ id }: DeleteDiscussionProps) => {
-  const user = useUser();
-  const { addNotification } = useNotifications();
+  const user = useUser()
+  const { addNotification } = useNotifications()
   const deleteDiscussionMutation = useDeleteDiscussion({
     mutationConfig: {
       onSuccess: () => {
         addNotification({
           title: 'Discussion Deleted',
           type: 'success',
-        });
+        })
       },
     },
-  });
+  })
 
   if (!canDeleteDiscussion(user?.data)) {
-    return null;
+    return null
   }
 
   return (
@@ -53,5 +53,5 @@ export const DeleteDiscussion = ({ id }: DeleteDiscussionProps) => {
         </Button>
       }
     />
-  );
-};
+  )
+}

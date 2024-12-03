@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-import { useDisclosure } from '@/hooks/use-disclosure';
+import { useDisclosure } from '@/hooks/use-disclosure'
 
-import { Button } from '../button';
+import { Button } from '../button'
 import {
   Drawer,
   DrawerClose,
@@ -13,15 +13,15 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '../drawer';
+} from '../drawer'
 
 type FormDrawerProps = {
-  children: React.ReactNode;
-  isDone: boolean;
-  submitButton: React.ReactElement;
-  title: string;
-  triggerButton: React.ReactElement;
-};
+  children: React.ReactNode
+  isDone: boolean
+  submitButton: React.ReactElement
+  title: string
+  triggerButton: React.ReactElement
+}
 
 export const FormDrawer = ({
   children,
@@ -30,21 +30,21 @@ export const FormDrawer = ({
   title,
   triggerButton,
 }: FormDrawerProps) => {
-  const { close, isOpen, open } = useDisclosure();
+  const { close, isOpen, open } = useDisclosure()
 
   React.useEffect(() => {
     if (isDone) {
-      close();
+      close()
     }
-  }, [isDone, close]);
+  }, [isDone, close])
 
   return (
     <Drawer
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          close();
+          close()
         } else {
-          open();
+          open()
         }
       }}
       open={isOpen}
@@ -67,5 +67,5 @@ export const FormDrawer = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}

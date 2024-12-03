@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { Plus } from 'lucide-react';
+import { Plus } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Form, FormDrawer, Textarea } from '@/components/ui/form';
-import { useNotifications } from '@/components/ui/notifications';
+import { Button } from '@/components/ui/button'
+import { Form, FormDrawer, Textarea } from '@/components/ui/form'
+import { useNotifications } from '@/components/ui/notifications'
 
 import {
   createCommentInputSchema,
   useCreateComment,
-} from '../api/create-comment';
+} from '../api/create-comment'
 
 type CreateCommentProps = {
-  discussionId: string;
-};
+  discussionId: string
+}
 
 export const CreateComment = ({ discussionId }: CreateCommentProps) => {
-  const { addNotification } = useNotifications();
+  const { addNotification } = useNotifications()
   const createCommentMutation = useCreateComment({
     discussionId,
     mutationConfig: {
@@ -24,10 +24,10 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
         addNotification({
           title: 'Comment Created',
           type: 'success',
-        });
+        })
       },
     },
-  });
+  })
 
   return (
     <FormDrawer
@@ -55,7 +55,7 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
         onSubmit={(values) => {
           createCommentMutation.mutate({
             data: values,
-          });
+          })
         }}
         options={{
           defaultValues: {
@@ -74,5 +74,5 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
         )}
       </Form>
     </FormDrawer>
-  );
-};
+  )
+}

@@ -1,28 +1,28 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
-import { api } from '@/lib/api-client';
-import { QueryConfig } from '@/lib/react-query';
-import { Discussion } from '@/types/api';
+import { api } from '@/lib/api-client'
+import { QueryConfig } from '@/lib/react-query'
+import { Discussion } from '@/types/api'
 
 export const getDiscussion = ({
   discussionId,
 }: {
-  discussionId: string;
+  discussionId: string
 }): Promise<{ data: Discussion }> => {
-  return api.get(`/discussions/${discussionId}`);
-};
+  return api.get(`/discussions/${discussionId}`)
+}
 
 export const getDiscussionQueryOptions = (discussionId: string) => {
   return queryOptions({
     queryFn: () => getDiscussion({ discussionId }),
     queryKey: ['discussions', discussionId],
-  });
-};
+  })
+}
 
 type UseDiscussionOptions = {
-  discussionId: string;
-  queryConfig?: QueryConfig<typeof getDiscussionQueryOptions>;
-};
+  discussionId: string
+  queryConfig?: QueryConfig<typeof getDiscussionQueryOptions>
+}
 
 export const useDiscussion = ({
   discussionId,
@@ -31,5 +31,5 @@ export const useDiscussion = ({
   return useQuery({
     ...getDiscussionQueryOptions(discussionId),
     ...queryConfig,
-  });
-};
+  })
+}

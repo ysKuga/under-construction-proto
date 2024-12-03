@@ -1,27 +1,26 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { UseFormRegisterReturn } from 'react-hook-form';
+import * as React from 'react'
+import { UseFormRegisterReturn } from 'react-hook-form'
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils/cn'
 
-import { FieldWrapper, FieldWrapperPassThroughProps } from './field-wrapper';
+import { FieldWrapper, FieldWrapperPassThroughProps } from './field-wrapper'
 
 type Option = {
-  label: React.ReactNode;
-  value: number | string | string[];
-};
+  label: React.ReactNode
+  value: number | string | string[]
+}
 
 type SelectFieldProps = {
-  className?: string;
-  defaultValue?: string;
-  options: Option[];
-  registration: Partial<UseFormRegisterReturn>;
-} & FieldWrapperPassThroughProps;
+  className?: string
+  defaultValue?: string
+  options: Option[]
+  registration: Partial<UseFormRegisterReturn>
+} & FieldWrapperPassThroughProps
 
 export const Select = (props: SelectFieldProps) => {
-  const { className, defaultValue, error, label, options, registration } =
-    props;
+  const { className, defaultValue, error, label, options, registration } = props
   return (
     <FieldWrapper error={error} label={label}>
       <select
@@ -39,5 +38,5 @@ export const Select = (props: SelectFieldProps) => {
         ))}
       </select>
     </FieldWrapper>
-  );
-};
+  )
+}

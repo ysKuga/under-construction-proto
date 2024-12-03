@@ -1,22 +1,22 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw'
 
-import { env } from '@/config/env';
+import { env } from '@/config/env'
 
-import { db } from '../db';
-import { networkDelay } from '../utils';
+import { db } from '../db'
+import { networkDelay } from '../utils'
 
 export const teamsHandlers = [
   http.get(`${env.API_URL}/teams`, async () => {
-    await networkDelay();
+    await networkDelay()
 
     try {
-      const result = db.team.getAll();
-      return HttpResponse.json({ data: result });
+      const result = db.team.getAll()
+      return HttpResponse.json({ data: result })
     } catch (error: any) {
       return HttpResponse.json(
         { message: error?.message || 'Server Error' },
         { status: 500 },
-      );
+      )
     }
   }),
-];
+]

@@ -1,38 +1,38 @@
-'use client';
+'use client'
 
-import { ArchiveX } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { ArchiveX } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
-import { MDPreview } from '@/components/ui/md-preview';
-import { Spinner } from '@/components/ui/spinner';
-import { useUser } from '@/lib/auth';
-import { canDeleteComment } from '@/lib/authorization';
-import { formatDate } from '@/utils/format';
+import { Button } from '@/components/ui/button'
+import { MDPreview } from '@/components/ui/md-preview'
+import { Spinner } from '@/components/ui/spinner'
+import { useUser } from '@/lib/auth'
+import { canDeleteComment } from '@/lib/authorization'
+import { formatDate } from '@/utils/format'
 
-import { useInfiniteComments } from '../api/get-comments';
+import { useInfiniteComments } from '../api/get-comments'
 
-import { DeleteComment } from './delete-comment';
+import { DeleteComment } from './delete-comment'
 
 type CommentsListProps = {
-  discussionId: string;
-};
+  discussionId: string
+}
 
 export const CommentsList = ({ discussionId }: CommentsListProps) => {
-  const user = useUser();
-  const commentsQuery = useInfiniteComments({ discussionId });
-  const pathname = usePathname();
-  const isPublicView = pathname?.startsWith?.('/public/');
+  const user = useUser()
+  const commentsQuery = useInfiniteComments({ discussionId })
+  const pathname = usePathname()
+  const isPublicView = pathname?.startsWith?.('/public/')
 
   if (commentsQuery.isLoading) {
     return (
       <div className="flex h-48 w-full items-center justify-center">
         <Spinner size="lg" />
       </div>
-    );
+    )
   }
 
-  const comments = commentsQuery.data?.pages.flatMap((page) => page.data);
+  const comments = commentsQuery.data?.pages.flatMap((page) => page.data)
 
   if (!comments?.length)
     return (
@@ -44,7 +44,7 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
         <ArchiveX className="size-10" />
         <h4>No Comments Found</h4>
       </div>
-    );
+    )
 
   return (
     <>
@@ -87,5 +87,5 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
         </div>
       )}
     </>
-  );
-};
+  )
+}

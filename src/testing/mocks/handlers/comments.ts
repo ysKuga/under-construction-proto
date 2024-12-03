@@ -1,23 +1,23 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw'
 
-import { env } from '@/config/env';
+import { env } from '@/config/env'
 
-import { db, persistDb } from '../db';
-import { networkDelay, requireAuth, sanitizeUser } from '../utils';
+import { db, persistDb } from '../db'
+import { networkDelay, requireAuth, sanitizeUser } from '../utils'
 
 type CreateCommentBody = {
-  body: string;
-  discussionId: string;
-};
+  body: string
+  discussionId: string
+}
 
 export const commentsHandlers = [
   http.get(`${env.API_URL}/comments`, async ({ cookies, request }) => {
-    await networkDelay();
+    await networkDelay()
 
     try {
-      const url = new URL(request.url);
-      const discussionId = url.searchParams.get('discussionId') || '';
-      const page = Number(url.searchParams.get('page') || 1);
+      const url = new URL(request.url)
+      const discussionId = url.searchParams.get('discussionId') || ''
+      const page = Number(url.searchParams.get('page') || 1)
 
       const discussion = db.discussion.findFirst({
         where: {
@@ -25,12 +25,12 @@ export const commentsHandlers = [
             equals: discussionId,
           },
         },
-      });
+      })
 
       if (!discussion?.public) {
-        const { error } = requireAuth(cookies);
+        const { error } = requireAuth(cookies)
         if (error) {
-          return HttpResponse.json({ message: error }, { status: 401 });
+          return HttpResponse.json({ message: error }, { status: 401 })
         }
       }
 
@@ -40,9 +40,9 @@ export const commentsHandlers = [
             equals: discussionId,
           },
         },
-      });
+      })
 
-      const totalPages = Math.ceil(total / 10);
+      const totalPages = Math.ceil(total / 10)
 
       const comments = db.comment
         .findMany({
@@ -61,12 +61,12 @@ export const commentsHandlers = [
                 equals: authorId,
               },
             },
-          });
+          })
           return {
             ...comment,
             author: author ? sanitizeUser(author) : {},
-          };
-        });
+          }
+        })
       return HttpResponse.json({
         data: comments,
         meta: {
@@ -74,49 +74,49 @@ export const commentsHandlers = [
           total,
           totalPages,
         },
-      });
+      })
     } catch (error: any) {
       return HttpResponse.json(
         { message: error?.message || 'Server Error' },
         { status: 500 },
-      );
+      )
     }
   }),
 
   http.post(`${env.API_URL}/comments`, async ({ cookies, request }) => {
-    await networkDelay();
+    await networkDelay()
 
     try {
-      const { error, user } = requireAuth(cookies);
+      const { error, user } = requireAuth(cookies)
       if (error) {
-        return HttpResponse.json({ message: error }, { status: 401 });
+        return HttpResponse.json({ message: error }, { status: 401 })
       }
-      const data = (await request.json()) as CreateCommentBody;
+      const data = (await request.json()) as CreateCommentBody
       const result = db.comment.create({
         authorId: user?.id,
         ...data,
-      });
-      await persistDb('comment');
-      return HttpResponse.json(result);
+      })
+      await persistDb('comment')
+      return HttpResponse.json(result)
     } catch (error: any) {
       return HttpResponse.json(
         { message: error?.message || 'Server Error' },
         { status: 500 },
-      );
+      )
     }
   }),
 
   http.delete(
     `${env.API_URL}/comments/:commentId`,
     async ({ cookies, params }) => {
-      await networkDelay();
+      await networkDelay()
 
       try {
-        const { error, user } = requireAuth(cookies);
+        const { error, user } = requireAuth(cookies)
         if (error) {
-          return HttpResponse.json({ message: error }, { status: 401 });
+          return HttpResponse.json({ message: error }, { status: 401 })
         }
-        const commentId = params.commentId as string;
+        const commentId = params.commentId as string
         const result = db.comment.delete({
           where: {
             id: {
@@ -128,15 +128,15 @@ export const commentsHandlers = [
               },
             }),
           },
-        });
-        await persistDb('comment');
-        return HttpResponse.json(result);
+        })
+        await persistDb('comment')
+        return HttpResponse.json(result)
       } catch (error: any) {
         return HttpResponse.json(
           { message: error?.message || 'Server Error' },
           { status: 500 },
-        );
+        )
       }
     },
   ),
-];
+]

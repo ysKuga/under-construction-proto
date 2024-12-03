@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { Folder, Home, PanelLeft, User2, Users } from 'lucide-react';
-import NextLink from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { ErrorBoundary } from 'react-error-boundary';
+import { Folder, Home, PanelLeft, User2, Users } from 'lucide-react'
+import NextLink from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { ErrorBoundary } from 'react-error-boundary'
 
-import { Button } from '@/components/ui/button';
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button'
+import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown';
-import { Link } from '@/components/ui/link';
-import { paths } from '@/config/paths';
-import { useLogout, useUser } from '@/lib/auth';
-import { cn } from '@/utils/cn';
+} from '@/components/ui/dropdown'
+import { Link } from '@/components/ui/link'
+import { paths } from '@/config/paths'
+import { useLogout, useUser } from '@/lib/auth'
+import { cn } from '@/utils/cn'
 
 type SideNavigationItem = {
-  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
-  name: string;
-  to: string;
-};
+  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element
+  name: string
+  to: string
+}
 
 const Logo = () => {
   return (
@@ -33,16 +33,16 @@ const Logo = () => {
         Bulletproof React
       </span>
     </Link>
-  );
-};
+  )
+}
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const user = useUser();
-  const pathname = usePathname();
-  const router = useRouter();
+  const user = useUser()
+  const pathname = usePathname()
+  const router = useRouter()
   const logout = useLogout({
     onSuccess: () => router.push(paths.auth.login.getHref(pathname)),
-  });
+  })
   const navigation = [
     { icon: Home, name: 'Dashboard', to: paths.app.root.getHref() },
     { icon: Folder, name: 'Discussions', to: paths.app.discussions.getHref() },
@@ -51,7 +51,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       name: 'Users',
       to: paths.app.users.getHref(),
     },
-  ].filter(Boolean) as SideNavigationItem[];
+  ].filter(Boolean) as SideNavigationItem[]
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -61,7 +61,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <Logo />
           </div>
           {navigation.map((item) => {
-            const isActive = pathname === item.to;
+            const isActive = pathname === item.to
             return (
               <NextLink
                 className={cn(
@@ -81,7 +81,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 />
                 {item.name}
               </NextLink>
-            );
+            )
           })}
         </nav>
       </aside>
@@ -104,7 +104,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   <Logo />
                 </div>
                 {navigation.map((item) => {
-                  const isActive = pathname === item.to;
+                  const isActive = pathname === item.to
                   return (
                     <NextLink
                       className={cn(
@@ -124,7 +124,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                       />
                       {item.name}
                     </NextLink>
-                  );
+                  )
                 })}
               </nav>
             </DrawerContent>
@@ -162,24 +162,24 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </main>
       </div>
     </div>
-  );
-};
+  )
+}
 
 function Fallback({ error }: { error: Error }) {
-  return <p>Error: {error.message ?? 'Something went wrong!'}</p>;
+  return <p>Error: {error.message ?? 'Something went wrong!'}</p>
 }
 
 export const DashboardLayout = ({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) => {
-  const pathname = usePathname();
+  const pathname = usePathname()
   return (
     <Layout>
       <ErrorBoundary FallbackComponent={Fallback} key={pathname}>
         {children}
       </ErrorBoundary>
     </Layout>
-  );
-};
+  )
+}

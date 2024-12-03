@@ -2,24 +2,24 @@ import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
-} from '@tanstack/react-query';
-import { ReactNode } from 'react';
+} from '@tanstack/react-query'
+import { ReactNode } from 'react'
 
-import { AppProvider } from '@/app/provider';
-import { getUserQueryOptions } from '@/lib/auth';
-import '@/styles/globals.css';
+import { AppProvider } from '@/app/provider'
+import { getUserQueryOptions } from '@/lib/auth'
+import '@/styles/globals.css'
 
 export const metadata = {
   description: 'Showcasing Best Practices For Building React Applications',
   title: 'Bulletproof React',
-};
+}
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient()
 
-  await queryClient.prefetchQuery(getUserQueryOptions());
+  await queryClient.prefetchQuery(getUserQueryOptions())
 
-  const dehydratedState = dehydrate(queryClient);
+  const dehydratedState = dehydrate(queryClient)
 
   return (
     <html lang="en">
@@ -31,11 +31,11 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
         </AppProvider>
       </body>
     </html>
-  );
-};
+  )
+}
 
-export default RootLayout;
+export default RootLayout
 
 // We are not prerendering anything because the app is highly dynamic
 // and the data depends on the user so we need to send cookies with each request
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'

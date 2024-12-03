@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query'
 
-import { ContentLayout } from '@/components/layouts/content-layout';
-import { getInfiniteCommentsQueryOptions } from '@/features/comments/api/get-comments';
-import { CreateDiscussion } from '@/features/discussions/components/create-discussion';
-import { DiscussionsList } from '@/features/discussions/components/discussions-list';
+import { ContentLayout } from '@/components/layouts/content-layout'
+import { getInfiniteCommentsQueryOptions } from '@/features/comments/api/get-comments'
+import { CreateDiscussion } from '@/features/discussions/components/create-discussion'
+import { DiscussionsList } from '@/features/discussions/components/discussions-list'
 
 export const Discussions = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return (
     <ContentLayout title="Discussions">
@@ -21,10 +21,10 @@ export const Discussions = () => {
             // Prefetch the comments data when the user hovers over the link in the list
             queryClient.prefetchInfiniteQuery(
               getInfiniteCommentsQueryOptions(id),
-            );
+            )
           }}
         />
       </div>
     </ContentLayout>
-  );
-};
+  )
+}
