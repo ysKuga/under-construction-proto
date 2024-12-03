@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { UpdateProfile } from '@/features/users/components/update-profile';
-import { useUser } from '@/lib/auth';
+import { UpdateProfile } from '@/features/users/components/update-profile'
+import { useUser } from '@/lib/auth'
 
 type EntryProps = {
-  label: string;
-  value: string;
-};
+  label: string
+  value: string
+}
 const Entry = ({ label, value }: EntryProps) => (
   <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
     <dt className="text-sm font-medium text-gray-500">{label}</dt>
@@ -14,12 +14,12 @@ const Entry = ({ label, value }: EntryProps) => (
       {value}
     </dd>
   </div>
-);
+)
 
 export const Profile = () => {
-  const user = useUser();
+  const user = useUser()
 
-  if (!user) return null;
+  if (!user) return null
 
   return (
     <div className="overflow-hidden bg-white shadow sm:rounded-lg">
@@ -44,5 +44,5 @@ export const Profile = () => {
         </dl>
       </div>
     </div>
-  );
-};
+  )
+}

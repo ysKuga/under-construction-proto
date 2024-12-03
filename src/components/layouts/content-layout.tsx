@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode } from 'react'
 
 type ContentLayoutProps = {
-  children: ReactNode;
-  title?: string;
-};
+  children: ReactNode
+  title?: string
+}
 
 export const ContentLayout = ({ children, title = '' }: ContentLayoutProps) => {
   return (
@@ -15,5 +15,5 @@ export const ContentLayout = ({ children, title = '' }: ContentLayoutProps) => {
         {children}
       </div>
     </div>
-  );
-};
+  )
+}

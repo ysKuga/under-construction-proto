@@ -1,20 +1,20 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { z } from 'zod';
+import { Meta, StoryObj } from '@storybook/react'
+import { z } from 'zod'
 
-import { Button } from '../button';
+import { Button } from '../button'
 
-import { Form } from './form';
-import { FormDrawer } from './form-drawer';
-import { Input } from './input';
-import { Select } from './select';
-import { Textarea } from './textarea';
+import { Form } from './form'
+import { FormDrawer } from './form-drawer'
+import { Input } from './input'
+import { Select } from './select'
+import { Textarea } from './textarea'
 
 const MyForm = ({ hideSubmit = false }: { hideSubmit?: boolean }) => {
   return (
     <Form
       id="my-form"
       onSubmit={async (values) => {
-        alert(JSON.stringify(values, null, 2));
+        alert(JSON.stringify(values, null, 2))
       }}
       schema={z.object({
         description: z.string().min(1, 'Required'),
@@ -54,20 +54,20 @@ const MyForm = ({ hideSubmit = false }: { hideSubmit?: boolean }) => {
         </>
       )}
     </Form>
-  );
-};
+  )
+}
 
 const meta: Meta = {
   component: MyForm,
-};
+}
 
-export default meta;
+export default meta
 
-type Story = StoryObj<typeof MyForm>;
+type Story = StoryObj<typeof MyForm>
 
 export const Default: Story = {
   render: () => <MyForm />,
-};
+}
 
 export const AsFormDrawer: Story = {
   render: () => (
@@ -84,4 +84,4 @@ export const AsFormDrawer: Story = {
       <MyForm hideSubmit />
     </FormDrawer>
   ),
-};
+}

@@ -1,5 +1,5 @@
-import { Link } from '@/components/ui/link';
-import { paths } from '@/config/paths';
+import { Link } from '@/components/ui/link'
+import { paths } from '@/config/paths'
 
 const NotFoundPage = () => {
   return (
@@ -10,7 +10,7 @@ const NotFoundPage = () => {
         Go to Home
       </Link>
     </div>
-  );
-};
+  )
+}
 
-export default NotFoundPage;
+export default NotFoundPage

@@ -1,9 +1,9 @@
 export type ErrorProps = {
-  errorMessage?: null | string;
-};
+  errorMessage?: null | string
+}
 
 export const Error = ({ errorMessage }: ErrorProps) => {
-  if (!errorMessage) return null;
+  if (!errorMessage) return null
 
   return (
     <div
@@ -13,5 +13,5 @@ export const Error = ({ errorMessage }: ErrorProps) => {
     >
       {errorMessage}
     </div>
-  );
-};
+  )
+}

@@ -1,22 +1,22 @@
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils/cn'
 
 const sizes = {
   lg: 'h-16 w-16',
   md: 'h-8 w-8',
   sm: 'h-4 w-4',
   xl: 'h-24 w-24',
-};
+}
 
 const variants = {
   light: 'text-white',
   primary: 'text-slate-600',
-};
+}
 
 export type SpinnerProps = {
-  className?: string;
-  size?: keyof typeof sizes;
-  variant?: keyof typeof variants;
-};
+  className?: string
+  size?: keyof typeof sizes
+  variant?: keyof typeof variants
+}
 
 export const Spinner = ({
   className = '',
@@ -46,5 +46,5 @@ export const Spinner = ({
       </svg>
       <span className="sr-only">Loading</span>
     </>
-  );
-};
+  )
+}

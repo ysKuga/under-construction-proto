@@ -1,23 +1,23 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react'
 
-import { Table } from './table';
+import { Table } from './table'
 
 const meta: Meta<typeof Table> = {
   component: Table,
-};
+}
 
-export default meta;
+export default meta
 
 type User = {
-  createdAt: number;
-  email: string;
-  id: string;
-  name: string;
-  role: string;
-  title: string;
-};
+  createdAt: number
+  email: string
+  id: string
+  name: string
+  role: string
+  title: string
+}
 
-type Story = StoryObj<typeof Table<User>>;
+type Story = StoryObj<typeof Table<User>>
 
 const data: User[] = [
   {
@@ -36,7 +36,7 @@ const data: User[] = [
     role: 'Owner',
     title: 'Product Directives Officer',
   },
-];
+]
 
 export const Default: Story = {
   args: {
@@ -60,4 +60,4 @@ export const Default: Story = {
     ],
     data,
   },
-};
+}

@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useUser } from '@/lib/auth';
+import { useUser } from '@/lib/auth'
 
 export const DashboardInfo = () => {
-  const user = useUser();
+  const user = useUser()
 
   return (
     <>
@@ -30,5 +30,5 @@ export const DashboardInfo = () => {
         </ul>
       )}
     </>
-  );
-};
+  )
+}

@@ -3,49 +3,49 @@
 // with the backend instead of manually writing them out
 
 export type BaseEntity = {
-  createdAt: number;
-  id: string;
-};
+  createdAt: number
+  id: string
+}
 
 export type Entity<T> = {
-  [K in keyof T]: T[K];
-} & BaseEntity;
+  [K in keyof T]: T[K]
+} & BaseEntity
 
 export type Meta = {
-  page: number;
-  total: number;
-  totalPages: number;
-};
+  page: number
+  total: number
+  totalPages: number
+}
 
 export type User = Entity<{
-  bio: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'ADMIN' | 'USER';
-  teamId: string;
-}>;
+  bio: string
+  email: string
+  firstName: string
+  lastName: string
+  role: 'ADMIN' | 'USER'
+  teamId: string
+}>
 
 export type AuthResponse = {
-  jwt: string;
-  user: User;
-};
+  jwt: string
+  user: User
+}
 
 export type Team = Entity<{
-  description: string;
-  name: string;
-}>;
+  description: string
+  name: string
+}>
 
 export type Discussion = Entity<{
-  author: User;
-  body: string;
-  public: boolean;
-  teamId: string;
-  title: string;
-}>;
+  author: User
+  body: string
+  public: boolean
+  teamId: string
+  title: string
+}>
 
 export type Comment = Entity<{
-  author: User;
-  body: string;
-  discussionId: string;
-}>;
+  author: User
+  body: string
+  discussionId: string
+}>

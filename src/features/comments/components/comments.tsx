@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation'
 
-import { CommentsList } from './comments-list';
-import { CreateComment } from './create-comment';
+import { CommentsList } from './comments-list'
+import { CreateComment } from './create-comment'
 
 type CommentsProps = {
-  discussionId: string;
-};
+  discussionId: string
+}
 
 export const Comments = ({ discussionId }: CommentsProps) => {
-  const pathname = usePathname();
-  const isPublicView = pathname?.startsWith?.('/public/');
+  const pathname = usePathname()
+  const isPublicView = pathname?.startsWith?.('/public/')
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -20,5 +20,5 @@ export const Comments = ({ discussionId }: CommentsProps) => {
       </div>
       <CommentsList discussionId={discussionId} />
     </div>
-  );
-};
+  )
+}

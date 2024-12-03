@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { CircleAlert, CircleCheck, CircleX, Info } from 'lucide-react';
+import { CircleAlert, CircleCheck, CircleX, Info } from 'lucide-react'
 
 const icons = {
   error: <CircleX aria-hidden="true" className="size-6 text-red-500" />,
@@ -9,17 +9,17 @@ const icons = {
   warning: (
     <CircleAlert aria-hidden="true" className="size-6 text-yellow-500" />
   ),
-};
+}
 
 export type NotificationProps = {
   notification: {
-    id: string;
-    message?: string;
-    title: string;
-    type: keyof typeof icons;
-  };
-  onDismiss: (id: string) => void;
-};
+    id: string
+    message?: string
+    title: string
+    type: keyof typeof icons
+  }
+  onDismiss: (id: string) => void
+}
 
 export const Notification = ({
   notification: { id, message, title, type },
@@ -39,7 +39,7 @@ export const Notification = ({
               <button
                 className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
                 onClick={() => {
-                  onDismiss(id);
+                  onDismiss(id)
                 }}
               >
                 <span className="sr-only">Close</span>
@@ -50,5 +50,5 @@ export const Notification = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

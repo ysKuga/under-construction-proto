@@ -1,12 +1,12 @@
-import { Profile } from './_components/profile';
+import { Profile } from './_components/profile'
 
 export const metadata = {
   description: 'Profile',
   title: 'Profile',
-};
+}
 
 const ProfilePage = () => {
-  return <Profile />;
-};
+  return <Profile />
+}
 
-export default ProfilePage;
+export default ProfilePage

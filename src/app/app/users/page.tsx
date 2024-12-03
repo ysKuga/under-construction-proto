@@ -1,12 +1,12 @@
-import { ContentLayout } from '@/components/layouts/content-layout';
+import { ContentLayout } from '@/components/layouts/content-layout'
 
-import { AdminGuard } from './_components/admin-guard';
-import { Users } from './_components/users';
+import { AdminGuard } from './_components/admin-guard'
+import { Users } from './_components/users'
 
 export const metadata = {
   description: 'Users',
   title: 'Users',
-};
+}
 
 const UsersPage = () => {
   return (
@@ -15,7 +15,7 @@ const UsersPage = () => {
         <Users />
       </AdminGuard>
     </ContentLayout>
-  );
-};
+  )
+}
 
-export default UsersPage;
+export default UsersPage
