@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { Link } from '@/components/ui/link';
-import { paths } from '@/config/paths';
-import { checkLoggedIn } from '@/utils/auth';
+import { Button } from '@/components/ui/button'
+import { Link } from '@/components/ui/link'
+import { paths } from '@/config/paths'
+import { checkLoggedIn } from '@/utils/auth'
 
 const HomePage = () => {
-  const isLoggedIn = checkLoggedIn();
+  const isLoggedIn = checkLoggedIn()
 
   return (
     <div className="flex h-screen items-center bg-white">
@@ -74,7 +74,7 @@ const HomePage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default HomePage

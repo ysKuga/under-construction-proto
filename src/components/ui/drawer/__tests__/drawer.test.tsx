@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
-import { rtlRender, screen, userEvent, waitFor } from '@/testing/test-utils';
+import { Button } from '@/components/ui/button'
+import { rtlRender, screen, userEvent, waitFor } from '@/testing/test-utils'
 
 import {
   Drawer,
@@ -9,12 +9,12 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '../drawer';
+} from '../drawer'
 
-const openButtonText = 'Open Drawer';
-const titleText = 'Drawer Title';
-const cancelButtonText = 'Cancel';
-const drawerContentText = 'Hello From Drawer';
+const openButtonText = 'Open Drawer'
+const titleText = 'Drawer Title'
+const cancelButtonText = 'Cancel'
+const drawerContentText = 'Hello From Drawer'
 
 const TestDrawer = () => {
   return (
@@ -38,29 +38,29 @@ const TestDrawer = () => {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
 test('should handle basic drawer flow', async () => {
-  await rtlRender(<TestDrawer />);
+  await rtlRender(<TestDrawer />)
 
-  expect(screen.queryByText(titleText)).not.toBeInTheDocument();
+  expect(screen.queryByText(titleText)).not.toBeInTheDocument()
 
   await userEvent.click(
     screen.getByRole('button', {
       name: openButtonText,
     }),
-  );
+  )
 
-  expect(await screen.findByText(titleText)).toBeInTheDocument();
+  expect(await screen.findByText(titleText)).toBeInTheDocument()
 
   await userEvent.click(
     screen.getByRole('button', {
       name: cancelButtonText,
     }),
-  );
+  )
 
   await waitFor(() =>
     expect(screen.queryByText(titleText)).not.toBeInTheDocument(),
-  );
-});
+  )
+})

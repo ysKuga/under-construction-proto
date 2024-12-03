@@ -39,4 +39,4 @@ export const paths = {
       getHref: (id: string) => `/public/discussions/${id}`,
     },
   },
-} as const;
+} as const

@@ -1,18 +1,18 @@
-import { nanoid } from 'nanoid';
-import { create } from 'zustand';
+import { nanoid } from 'nanoid'
+import { create } from 'zustand'
 
 export type Notification = {
-  id: string;
-  message?: string;
-  title: string;
-  type: 'error' | 'info' | 'success' | 'warning';
-};
+  id: string
+  message?: string
+  title: string
+  type: 'error' | 'info' | 'success' | 'warning'
+}
 
 type NotificationsStore = {
-  addNotification: (notification: Omit<Notification, 'id'>) => void;
-  dismissNotification: (id: string) => void;
-  notifications: Notification[];
-};
+  addNotification: (notification: Omit<Notification, 'id'>) => void
+  dismissNotification: (id: string) => void
+  notifications: Notification[]
+}
 
 export const useNotifications = create<NotificationsStore>((set) => ({
   addNotification: (notification) =>
@@ -29,4 +29,4 @@ export const useNotifications = create<NotificationsStore>((set) => ({
       ),
     })),
   notifications: [],
-}));
+}))

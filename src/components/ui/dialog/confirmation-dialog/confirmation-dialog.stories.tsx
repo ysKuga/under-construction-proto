@@ -1,16 +1,16 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
-import { ConfirmationDialog } from './confirmation-dialog';
+import { ConfirmationDialog } from './confirmation-dialog'
 
 const meta: Meta<typeof ConfirmationDialog> = {
   component: ConfirmationDialog,
-};
+}
 
-export default meta;
+export default meta
 
-type Story = StoryObj<typeof ConfirmationDialog>;
+type Story = StoryObj<typeof ConfirmationDialog>
 
 export const Danger: Story = {
   args: {
@@ -20,7 +20,7 @@ export const Danger: Story = {
     title: 'Confirmation',
     triggerButton: <Button>Open</Button>,
   },
-};
+}
 
 export const Info: Story = {
   args: {
@@ -30,4 +30,4 @@ export const Info: Story = {
     title: 'Confirmation',
     triggerButton: <Button>Open</Button>,
   },
-};
+}

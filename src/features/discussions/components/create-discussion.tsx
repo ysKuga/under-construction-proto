@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { Plus } from 'lucide-react';
+import { Plus } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormDrawer,
@@ -10,33 +10,33 @@ import {
   Label,
   Switch,
   Textarea,
-} from '@/components/ui/form';
-import { useNotifications } from '@/components/ui/notifications';
-import { useUser } from '@/lib/auth';
-import { canCreateDiscussion } from '@/lib/authorization';
+} from '@/components/ui/form'
+import { useNotifications } from '@/components/ui/notifications'
+import { useUser } from '@/lib/auth'
+import { canCreateDiscussion } from '@/lib/authorization'
 
 import {
   createDiscussionInputSchema,
   useCreateDiscussion,
-} from '../api/create-discussion';
+} from '../api/create-discussion'
 
 export const CreateDiscussion = () => {
-  const { addNotification } = useNotifications();
+  const { addNotification } = useNotifications()
   const createDiscussionMutation = useCreateDiscussion({
     mutationConfig: {
       onSuccess: () => {
         addNotification({
           title: 'Discussion Created',
           type: 'success',
-        });
+        })
       },
     },
-  });
+  })
 
-  const user = useUser();
+  const user = useUser()
 
   if (!canCreateDiscussion(user?.data)) {
-    return null;
+    return null
   }
 
   return (
@@ -62,7 +62,7 @@ export const CreateDiscussion = () => {
       <Form
         id="create-discussion"
         onSubmit={(values) => {
-          createDiscussionMutation.mutate({ data: values });
+          createDiscussionMutation.mutate({ data: values })
         }}
         options={{
           defaultValues: {
@@ -101,5 +101,5 @@ export const CreateDiscussion = () => {
         )}
       </Form>
     </FormDrawer>
-  );
-};
+  )
+}

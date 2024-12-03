@@ -1,9 +1,9 @@
-import DOMPurify from 'isomorphic-dompurify';
-import { parse } from 'marked';
+import DOMPurify from 'isomorphic-dompurify'
+import { parse } from 'marked'
 
 export type MDPreviewProps = {
-  value: string;
-};
+  value: string
+}
 
 export const MDPreview = ({ value = '' }: MDPreviewProps) => {
   return (
@@ -13,5 +13,5 @@ export const MDPreview = ({ value = '' }: MDPreviewProps) => {
         __html: DOMPurify.sanitize(parse(value) as string),
       }}
     />
-  );
-};
+  )
+}

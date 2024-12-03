@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import NextLink from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import NextLink from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
-import { Button } from '@/components/ui/button';
-import { Form, Input } from '@/components/ui/form';
-import { paths } from '@/config/paths';
-import { loginInputSchema, useLogin } from '@/lib/auth';
+import { Button } from '@/components/ui/button'
+import { Form, Input } from '@/components/ui/form'
+import { paths } from '@/config/paths'
+import { loginInputSchema, useLogin } from '@/lib/auth'
 
 type LoginFormProps = {
-  onSuccess: () => void;
-};
+  onSuccess: () => void
+}
 
 export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const login = useLogin({
     onSuccess,
-  });
+  })
 
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get('redirectTo');
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams?.get('redirectTo')
   return (
     <div>
       <Form
         onSubmit={(values) => {
-          login.mutate(values);
+          login.mutate(values)
         }}
         schema={loginInputSchema}
       >
@@ -64,5 +64,5 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

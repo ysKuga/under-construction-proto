@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { CircleAlert, Info } from 'lucide-react';
-import * as React from 'react';
-import { useEffect } from 'react';
+import { CircleAlert, Info } from 'lucide-react'
+import * as React from 'react'
+import { useEffect } from 'react'
 
-import { Button } from '@/components/ui/button';
-import { useDisclosure } from '@/hooks/use-disclosure';
+import { Button } from '@/components/ui/button'
+import { useDisclosure } from '@/hooks/use-disclosure'
 
 import {
   Dialog,
@@ -14,17 +14,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../dialog';
+} from '../dialog'
 
 export type ConfirmationDialogProps = {
-  body?: string;
-  cancelButtonText?: string;
-  confirmButton: React.ReactElement;
-  icon?: 'danger' | 'info';
-  isDone?: boolean;
-  title: string;
-  triggerButton: React.ReactElement;
-};
+  body?: string
+  cancelButtonText?: string
+  confirmButton: React.ReactElement
+  icon?: 'danger' | 'info'
+  isDone?: boolean
+  title: string
+  triggerButton: React.ReactElement
+}
 
 export const ConfirmationDialog = ({
   body = '',
@@ -35,22 +35,22 @@ export const ConfirmationDialog = ({
   title,
   triggerButton,
 }: ConfirmationDialogProps) => {
-  const { close, isOpen, open } = useDisclosure();
-  const cancelButtonRef = React.useRef(null);
+  const { close, isOpen, open } = useDisclosure()
+  const cancelButtonRef = React.useRef(null)
 
   useEffect(() => {
     if (isDone) {
-      close();
+      close()
     }
-  }, [isDone, close]);
+  }, [isDone, close])
 
   return (
     <Dialog
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          close();
+          close()
         } else {
-          open();
+          open()
         }
       }}
       open={isOpen}
@@ -86,5 +86,5 @@ export const ConfirmationDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}

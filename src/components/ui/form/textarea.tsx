@@ -1,15 +1,15 @@
-import * as React from 'react';
-import { UseFormRegisterReturn } from 'react-hook-form';
+import * as React from 'react'
+import { UseFormRegisterReturn } from 'react-hook-form'
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils/cn'
 
-import { FieldWrapper, FieldWrapperPassThroughProps } from './field-wrapper';
+import { FieldWrapper, FieldWrapperPassThroughProps } from './field-wrapper'
 
 export type TextareaProps = {
-  className?: string;
-  registration: Partial<UseFormRegisterReturn>;
+  className?: string
+  registration: Partial<UseFormRegisterReturn>
 } & FieldWrapperPassThroughProps &
-  React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, error, label, registration, ...props }, ref) => {
@@ -25,9 +25,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           {...props}
         />
       </FieldWrapper>
-    );
+    )
   },
-);
-Textarea.displayName = 'Textarea';
+)
+Textarea.displayName = 'Textarea'
 
-export { Textarea };
+export { Textarea }

@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { Trash } from 'lucide-react';
+import { Trash } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { ConfirmationDialog } from '@/components/ui/dialog';
-import { useNotifications } from '@/components/ui/notifications';
+import { Button } from '@/components/ui/button'
+import { ConfirmationDialog } from '@/components/ui/dialog'
+import { useNotifications } from '@/components/ui/notifications'
 
-import { useDeleteComment } from '../api/delete-comment';
+import { useDeleteComment } from '../api/delete-comment'
 
 type DeleteCommentProps = {
-  discussionId: string;
-  id: string;
-};
+  discussionId: string
+  id: string
+}
 
 export const DeleteComment = ({ discussionId, id }: DeleteCommentProps) => {
-  const { addNotification } = useNotifications();
+  const { addNotification } = useNotifications()
   const deleteCommentMutation = useDeleteComment({
     discussionId,
     mutationConfig: {
@@ -22,10 +22,10 @@ export const DeleteComment = ({ discussionId, id }: DeleteCommentProps) => {
         addNotification({
           title: 'Comment Deleted',
           type: 'success',
-        });
+        })
       },
     },
-  });
+  })
 
   return (
     <ConfirmationDialog
@@ -53,5 +53,5 @@ export const DeleteComment = ({ discussionId, id }: DeleteCommentProps) => {
         </Button>
       }
     />
-  );
-};
+  )
+}

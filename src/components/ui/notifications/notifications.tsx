@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { Notification } from './notification';
-import { useNotifications } from './notifications-store';
+import { Notification } from './notification'
+import { useNotifications } from './notifications-store'
 
 export const Notifications = () => {
-  const { dismissNotification, notifications } = useNotifications();
+  const { dismissNotification, notifications } = useNotifications()
 
   return (
     <div
@@ -19,5 +19,5 @@ export const Notifications = () => {
         />
       ))}
     </div>
-  );
-};
+  )
+}

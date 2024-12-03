@@ -1,6 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react'
 
-import { Notification } from './notification';
+import { Notification } from './notification'
 
 const meta: Meta<typeof Notification> = {
   component: Notification,
@@ -8,11 +8,11 @@ const meta: Meta<typeof Notification> = {
     controls: { expanded: true },
   },
   title: 'Components/Notifications',
-};
+}
 
-export default meta;
+export default meta
 
-type Story = StoryObj<typeof Notification>;
+type Story = StoryObj<typeof Notification>
 
 export const Info: Story = {
   args: {
@@ -24,7 +24,7 @@ export const Info: Story = {
     },
     onDismiss: (id) => alert(`Dismissing Notification with id: ${id}`),
   },
-};
+}
 
 export const Success: Story = {
   args: {
@@ -36,7 +36,7 @@ export const Success: Story = {
     },
     onDismiss: (id) => alert(`Dismissing Notification with id: ${id}`),
   },
-};
+}
 
 export const Warning: Story = {
   args: {
@@ -48,7 +48,7 @@ export const Warning: Story = {
     },
     onDismiss: (id) => alert(`Dismissing Notification with id: ${id}`),
   },
-};
+}
 
 export const Error: Story = {
   args: {
@@ -60,4 +60,4 @@ export const Error: Story = {
     },
     onDismiss: (id) => alert(`Dismissing Notification with id: ${id}`),
   },
-};
+}

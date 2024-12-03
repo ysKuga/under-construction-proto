@@ -1,10 +1,10 @@
-import { ArchiveX } from 'lucide-react';
-import * as React from 'react';
+import { ArchiveX } from 'lucide-react'
+import * as React from 'react'
 
-import { BaseEntity } from '@/types/api';
-import { cn } from '@/utils/cn';
+import { BaseEntity } from '@/types/api'
+import { cn } from '@/utils/cn'
 
-import { TablePagination, TablePaginationProps } from './pagination';
+import { TablePagination, TablePaginationProps } from './pagination'
 
 const TableElement = React.forwardRef<
   HTMLTableElement,
@@ -17,16 +17,16 @@ const TableElement = React.forwardRef<
       {...props}
     />
   </div>
-));
-TableElement.displayName = 'Table';
+))
+TableElement.displayName = 'Table'
 
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
   <thead className={cn('[&_tr]:border-b', className)} ref={ref} {...props} />
-));
-TableHeader.displayName = 'TableHeader';
+))
+TableHeader.displayName = 'TableHeader'
 
 const TableBody = React.forwardRef<
   HTMLTableSectionElement,
@@ -37,8 +37,8 @@ const TableBody = React.forwardRef<
     ref={ref}
     {...props}
   />
-));
-TableBody.displayName = 'TableBody';
+))
+TableBody.displayName = 'TableBody'
 
 const TableFooter = React.forwardRef<
   HTMLTableSectionElement,
@@ -52,8 +52,8 @@ const TableFooter = React.forwardRef<
     ref={ref}
     {...props}
   />
-));
-TableFooter.displayName = 'TableFooter';
+))
+TableFooter.displayName = 'TableFooter'
 
 const TableRow = React.forwardRef<
   HTMLTableRowElement,
@@ -67,8 +67,8 @@ const TableRow = React.forwardRef<
     ref={ref}
     {...props}
   />
-));
-TableRow.displayName = 'TableRow';
+))
+TableRow.displayName = 'TableRow'
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
@@ -82,8 +82,8 @@ const TableHead = React.forwardRef<
     ref={ref}
     {...props}
   />
-));
-TableHead.displayName = 'TableHead';
+))
+TableHead.displayName = 'TableHead'
 
 const TableCell = React.forwardRef<
   HTMLTableCellElement,
@@ -97,8 +97,8 @@ const TableCell = React.forwardRef<
     ref={ref}
     {...props}
   />
-));
-TableCell.displayName = 'TableCell';
+))
+TableCell.displayName = 'TableCell'
 
 const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
@@ -109,8 +109,8 @@ const TableCaption = React.forwardRef<
     ref={ref}
     {...props}
   />
-));
-TableCaption.displayName = 'TableCaption';
+))
+TableCaption.displayName = 'TableCaption'
 
 export {
   TableBody,
@@ -121,19 +121,19 @@ export {
   TableHead,
   TableHeader,
   TableRow,
-};
+}
 
 type TableColumn<Entry> = {
-  Cell?({ entry }: { entry: Entry }): React.ReactElement;
-  field: keyof Entry;
-  title: string;
-};
+  Cell?({ entry }: { entry: Entry }): React.ReactElement
+  field: keyof Entry
+  title: string
+}
 
 export type TableProps<Entry> = {
-  columns: TableColumn<Entry>[];
-  data: Entry[];
-  pagination?: TablePaginationProps;
-};
+  columns: TableColumn<Entry>[]
+  data: Entry[]
+  pagination?: TablePaginationProps
+}
 
 export const Table = <Entry extends BaseEntity>({
   columns,
@@ -146,7 +146,7 @@ export const Table = <Entry extends BaseEntity>({
         <ArchiveX className="size-16" />
         <h4>No Entries Found</h4>
       </div>
-    );
+    )
   }
   return (
     <>
@@ -173,5 +173,5 @@ export const Table = <Entry extends BaseEntity>({
 
       {pagination && <TablePagination {...pagination} />}
     </>
-  );
-};
+  )
+}

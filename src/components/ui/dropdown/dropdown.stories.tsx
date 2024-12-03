@@ -1,7 +1,7 @@
-import type { Meta } from '@storybook/react';
-import React from 'react';
+import type { Meta } from '@storybook/react'
+import React from 'react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
 import {
   DropdownMenu,
@@ -16,13 +16,13 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from './dropdown';
+} from './dropdown'
 
 const meta: Meta = {
   component: DropdownMenu,
-};
+}
 
-export default meta;
+export default meta
 
 export const Default = () => (
   <DropdownMenu>
@@ -36,11 +36,11 @@ export const Default = () => (
       <DropdownMenuItem>Item Three</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-);
+)
 
 export const WithCheckboxItems = () => {
-  const [checked, setChecked] = React.useState(true);
-  const [checked2, setChecked2] = React.useState(false);
+  const [checked, setChecked] = React.useState(true)
+  const [checked2, setChecked2] = React.useState(false)
 
   return (
     <DropdownMenu>
@@ -62,11 +62,11 @@ export const WithCheckboxItems = () => {
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
 export const WithRadioItems = () => {
-  const [value, setValue] = React.useState('one');
+  const [value, setValue] = React.useState('one')
 
   return (
     <DropdownMenu>
@@ -85,8 +85,8 @@ export const WithRadioItems = () => {
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
 export const WithSubmenus = () => (
   <DropdownMenu>
@@ -105,4 +105,4 @@ export const WithSubmenus = () => (
       <DropdownMenuItem>Item Three</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-);
+)
