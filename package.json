@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "run-p dev:*",
+    "dev:next": "next dev",
+    "dev:path": "pathpida --ignorePath .gitignore --watch",
+    "build": "pathpida --ignorePath .gitignore && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
