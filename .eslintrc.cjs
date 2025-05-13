@@ -119,6 +119,11 @@ module.exports = {
         'prettier/prettier': ['error', {}, { usePrettierrc: true }],
         'react/prop-types': 'off',
         'react/react-in-jsx-scope': 'off',
+        'tailwindcss/no-custom-classname': ["warn", {
+          'whitelist': [
+            // `ui-` をプレフィクスとしてカスタムクラスを許容
+            'ui\\-\\.+'],
+        }],
       },
       settings: {
         'import/resolver': {
