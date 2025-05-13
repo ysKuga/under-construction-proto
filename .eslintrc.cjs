@@ -122,7 +122,8 @@ module.exports = {
         'tailwindcss/no-custom-classname': ["warn", {
           'whitelist': [
             // `ui-` をプレフィクスとしてカスタムクラスを許容
-            'ui\\-\\.+'],
+            'ui\\-.+',
+          ],
         }],
       },
       settings: {
