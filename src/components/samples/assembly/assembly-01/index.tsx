@@ -48,8 +48,23 @@ export const Assembly01 = (props: Assembly01Props) => {
         <PartBase className={cn(twCentering, '-top-12', 'h-10 w-16')}>
           {/* TODO 目などを設置 */}
         </PartBase>
-        <PartBase className={cn(twArm, '-left-6')} />
-        <PartBase className={cn(twArm, '-right-6')} />
+        <PartBase
+          className={cn(
+            twArm,
+            '-left-6',
+            // 回転アニメーション
+            'origin-top animate-spin direction-reverse',
+          )}
+        />
+        <PartBase
+          className={cn(
+            twArm,
+            '-right-6',
+            // 回転アニメーション
+            'origin-top animate-spin',
+          )}
+          style={{}}
+        />
         <PartBase className={cn(twFoot, 'left-0 -bottom-14')} />
         <PartBase className={cn(twFoot, 'right-0 -bottom-14')} />
       </StyledDiv>
