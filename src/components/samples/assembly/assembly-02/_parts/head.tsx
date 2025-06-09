@@ -13,7 +13,7 @@ type HeadProps = {
 /**
  * 頭
  */
-export const Foot = (props: HeadProps) => {
+export const Head = (props: HeadProps) => {
   const { className, style } = props
 
   return (
