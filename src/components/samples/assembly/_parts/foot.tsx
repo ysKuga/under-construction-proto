@@ -2,7 +2,7 @@ import { HTMLAttributes } from 'react'
 
 import { cn } from '@/utils/cn'
 
-import { PartBase } from '../../_parts/_base/part-base'
+import { PartBase } from './_base/part-base'
 
 /** foot 用基本スタイル */
 const twFoot = 'h-12 w-5'
