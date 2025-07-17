@@ -2,7 +2,7 @@ import { HTMLAttributes } from 'react'
 
 import { cn } from '@/utils/cn'
 
-import { PartBase } from '../../_parts/_base/part-base'
+import { PartBase } from './_base/part-base'
 
 /** arm 用基本スタイル */
 const twArm = 'h-16 w-4'

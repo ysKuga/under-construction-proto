@@ -2,9 +2,9 @@ import { Meta, StoryObj } from '@storybook/react'
 
 import { cn } from '@/utils/cn'
 
-import { Arm } from './_parts/arm'
-import { Foot } from './_parts/foot'
-import { Head } from './_parts/head'
+import { Arm } from '../_parts/arm'
+import { Foot } from '../_parts/foot'
+import { Head } from '../_parts/head'
 
 import { Assembly02 as StoryComponent } from '.'
 

@@ -3,7 +3,7 @@ import { HTMLAttributes } from 'react'
 import { twAbsoluteCentering } from '@/styles'
 import { cn } from '@/utils/cn'
 
-import { PartBase } from '../../_parts/_base/part-base'
+import { PartBase } from './_base/part-base'
 
 type HeadProps = {
   className?: string
