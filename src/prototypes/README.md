@@ -1,4 +1,4 @@
-# samples/
+# prototypes/
 
 試作の実装を格納する。
 
