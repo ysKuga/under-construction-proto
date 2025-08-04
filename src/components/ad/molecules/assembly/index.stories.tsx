@@ -18,7 +18,7 @@ type Story = StoryObj<typeof StoryComponent>
 
 /** Arm 用共通 style */
 const armStyle = {
-  top: '22%',
+  top: '34%',
   ...{
     height: '30%',
     width: '7%',
@@ -27,7 +27,7 @@ const armStyle = {
 
 /** Foot 用共通 style */
 const footStyle = {
-  bottom: '10%',
+  bottom: '3%',
   ...{
     height: '20%',
     width: '8%',
@@ -41,7 +41,7 @@ export const Primary: Story = {
       <>
         <Head
           style={{
-            top: '5%',
+            top: '16%',
             ...{
               height: '15%',
               width: '25%',
@@ -50,9 +50,9 @@ export const Primary: Story = {
         />
         <Body
           style={{
-            top: '22%',
+            top: '34%',
             ...{
-              height: '45%',
+              height: '40%',
               width: '30%',
             },
           }}
