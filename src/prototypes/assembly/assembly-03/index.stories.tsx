@@ -3,10 +3,10 @@ import { CSSProperties } from 'react'
 
 import { cn } from '@/utils/cn'
 
-import { Arm } from '../_parts/arm'
-import { Body } from '../_parts/body'
-import { Foot } from '../_parts/foot'
-import { Head } from '../_parts/head'
+import { Arm } from '../../../components/samples/_parts/arm'
+import { Body } from '../../../components/samples/_parts/body'
+import { Foot } from '../../../components/samples/_parts/foot'
+import { Head } from '../../../components/samples/_parts/head'
 
 import { Assembly03 as StoryComponent } from '.'
 

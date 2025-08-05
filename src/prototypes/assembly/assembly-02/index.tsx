@@ -3,7 +3,7 @@ import { HTMLAttributes, PropsWithChildren } from 'react'
 import { twAbsoluteCentering } from '@/styles'
 import { cn } from '@/utils/cn'
 
-import { StyledDiv } from '../_parts/_base/part-base'
+import { StyledDiv } from '../../../components/samples/_parts/_base/part-base'
 
 type Assembly02Props = PropsWithChildren<{
   /** 最外部の ui-container に設定される */

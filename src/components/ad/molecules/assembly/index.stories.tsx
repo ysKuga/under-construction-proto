@@ -1,10 +1,10 @@
 import { Meta, StoryObj } from '@storybook/react'
 import { CSSProperties } from 'react'
 
-import { Arm } from '@/prototypes/assembly/_parts/arm'
-import { Body } from '@/prototypes/assembly/_parts/body'
-import { Foot } from '@/prototypes/assembly/_parts/foot'
-import { Head } from '@/prototypes/assembly/_parts/head'
+import { Arm } from '@/components/samples/_parts/arm'
+import { Body } from '@/components/samples/_parts/body'
+import { Foot } from '@/components/samples/_parts/foot'
+import { Head } from '@/components/samples/_parts/head'
 import { cn } from '@/utils/cn'
 
 import { Assembly as StoryComponent } from '.'

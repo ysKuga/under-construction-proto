@@ -3,7 +3,7 @@ import { PropsWithChildren } from 'react'
 import { PropsWithStyle } from '@/types/props'
 import { cn } from '@/utils/cn'
 
-type AssemblyProps = PropsWithChildren<PropsWithStyle>
+export type AssemblyProps = PropsWithChildren<PropsWithStyle>
 
 /**
  * キャラクターなどの体などを表現する
