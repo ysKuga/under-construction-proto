@@ -1,10 +1,10 @@
 import { CSSProperties } from 'react'
 
 import { Assembly, AssemblyProps } from '@/components/ad/molecules'
-import { Arm } from '@/prototypes/assembly/_parts/arm'
-import { Body } from '@/prototypes/assembly/_parts/body'
-import { Foot } from '@/prototypes/assembly/_parts/foot'
-import { Head } from '@/prototypes/assembly/_parts/head'
+import { Arm } from '@/components/samples/_parts/arm'
+import { Body } from '@/components/samples/_parts/body'
+import { Foot } from '@/components/samples/_parts/foot'
+import { Head } from '@/components/samples/_parts/head'
 
 /** Arm 用共通 style */
 const armStyle = {
