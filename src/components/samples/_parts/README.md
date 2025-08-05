@@ -1,3 +1,3 @@
-# samples/assembly/_parts/
+# components/samples/_parts/
 
-Assembly の手や足などの部品について共通使用するものなどを格納する。
+サンプルの手や足などの部品について共通使用するものなどを格納する。
