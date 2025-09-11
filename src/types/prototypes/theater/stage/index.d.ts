@@ -1,5 +1,13 @@
 import { CSSProperties } from 'react'
 
+/** 行列の数を管理する stage の大きさの情報 */
+export type StageSize = {
+  /** 列数 */
+  cols: number
+  /** 行数 */
+  rows: number
+}
+
 /** stage における位置情報 */
 export type Position = {
   /**
