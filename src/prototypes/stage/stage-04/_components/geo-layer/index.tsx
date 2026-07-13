@@ -22,6 +22,8 @@ export const GeoLayer = (props: GeoLayerProps) => {
 
   const { dispatchMoveIntent, gridSize } = useActorPosition()
 
+  console.log('render: GeoLayer')
+
   const cellScale = useMemo(() => {
     return scale / gridSize.cols
   }, [scale, gridSize.cols])

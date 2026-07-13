@@ -24,6 +24,8 @@ type Stage04Props = {
 export const Stage04 = (props: Stage04Props) => {
   const { cols, rows, scale } = props
 
+  console.log('render: Stage04')
+
   return (
     <ActorPositionProvider gridSize={{ cols, rows }}>
       <div

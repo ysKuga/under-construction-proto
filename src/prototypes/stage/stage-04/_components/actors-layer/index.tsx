@@ -46,6 +46,8 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
 
   const { dispatchMoveIntent, gridSize, position } = useActorPosition()
 
+  console.log('render: ActorsLayer')
+
   useKeyboardMove()
 
   const cellScale = useMemo(() => {
