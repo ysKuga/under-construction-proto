@@ -2,7 +2,7 @@
 
 ## 目的
 
-`src/prototypes/stage/stage-04/` として、単純な升目表示とキャラクター移動ロジックを実装する。
+`src/prototypes/stage/stage-04/` として、単純な升目表示とキャラクター移動ロジックを実装する。\
 GitHub issue #35 (open) の残タスク「layer の串刺しについての context 使用実装」に対応する内容。
 
 ## 背景・制約
