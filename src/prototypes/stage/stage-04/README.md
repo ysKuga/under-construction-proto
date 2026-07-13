@@ -10,10 +10,10 @@ stage-03 を土台に、actor 移動をイベント駆動で実装。
 
 ## イベント駆動アーキテクチャ
 
-各操作は `MoveIntentEvent` (`{ source, target }`) を `dispatchMoveIntent` するのみ。
+各操作は `MoveIntentEvent` (`{ source, target }`) を `dispatchMoveIntent` するのみ。\
 実際の位置反映は `_contexts/actor-position-context.tsx` の `resolveMoveIntent` に一本化。
 
-`docs/concept/ideas/action-phase.md` の企図・予備・実行・成否・事後 5 段階フェーズ構想のうち、
+`docs/concept/ideas/action-phase.md` の企図・予備・実行・成否・事後 5 段階フェーズ構想のうち、\
 「企図 (Intent) → 即時 Resolution」のみを実装。経路探索は将来課題、スコープ外。
 
 ## 境界処理
@@ -37,5 +37,5 @@ stage-03 を土台に、actor 移動をイベント駆動で実装。
 
 ## 既知の仕様
 
-actor が乗っているセルは actor 側のボタンがクリックを受け取るため、
+actor が乗っているセルは actor 側のボタンがクリックを受け取るため、\
 「同一セルへの cell-click」は事実上到達不能。
