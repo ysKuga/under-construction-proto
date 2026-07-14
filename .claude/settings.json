@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(steering)",
+      "Skill(steering:*)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(gh issue *)",
+      "Bash(gh extension *)",
+      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/rendering/list-02/__verify__.test.tsx)",
+      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/rendering/list-03/__verify__.test.tsx)",
+      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/list-rendering/)",
+      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/stage/stage-04/__verify__.test.tsx)"
+    ]
+  }
+}
