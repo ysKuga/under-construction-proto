@@ -28,15 +28,19 @@ export type MoveIntentEvent = {
   target: GridPosition
 }
 
-type ActorPositionContextValue = {
+/**
+ * gridSize / dispatchMoveIntent は position の変化と無関係なため、
+ * position とは別の Context に分離する。GeoLayer はこちらのみ購読することで、
+ * actor の移動 (position 変化) に巻き込まれて再レンダリングされないようにする
+ */
+type ActorControlContextValue = {
   dispatchMoveIntent: (event: MoveIntentEvent) => void
   gridSize: GridSize
-  position: GridPosition
 }
 
-const ActorPositionContext = createContext<ActorPositionContextValue | null>(
-  null,
-)
+const ActorControlContext = createContext<ActorControlContextValue | null>(null)
+
+const ActorPositionContext = createContext<GridPosition | null>(null)
 
 /**
  * target を安全な範囲にクランプして確定する
@@ -75,19 +79,33 @@ export const ActorPositionProvider = (props: ActorPositionProviderProps) => {
     [gridSize],
   )
 
-  const value = useMemo(
-    () => ({ dispatchMoveIntent, gridSize, position }),
-    [dispatchMoveIntent, gridSize, position],
+  const controlValue = useMemo(
+    () => ({ dispatchMoveIntent, gridSize }),
+    [dispatchMoveIntent, gridSize],
   )
 
   return (
-    <ActorPositionContext.Provider value={value}>
-      {children}
-    </ActorPositionContext.Provider>
+    <ActorControlContext.Provider value={controlValue}>
+      <ActorPositionContext.Provider value={position}>
+        {children}
+      </ActorPositionContext.Provider>
+    </ActorControlContext.Provider>
   )
 }
 
-export const useActorPosition = (): ActorPositionContextValue => {
+export const useActorControl = (): ActorControlContextValue => {
+  const context = useContext(ActorControlContext)
+
+  if (context === null) {
+    throw new Error(
+      'useActorControl should be used within <ActorPositionProvider>',
+    )
+  }
+
+  return context
+}
+
+export const useActorPosition = (): GridPosition => {
   const context = useContext(ActorPositionContext)
 
   if (context === null) {

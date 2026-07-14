@@ -6,6 +6,7 @@ import { cn } from '@/utils/cn'
 import {
   GridPosition,
   GridSize,
+  useActorControl,
   useActorPosition,
 } from '../../_contexts/actor-position-context'
 import { useKeyboardMove } from '../../_hooks/use-keyboard-move'
@@ -44,7 +45,8 @@ const getNextSequentialPosition = (
 export const ActorsLayer = (props: ActorsLayerProps) => {
   const { scale } = props
 
-  const { dispatchMoveIntent, gridSize, position } = useActorPosition()
+  const { dispatchMoveIntent, gridSize } = useActorControl()
+  const actorPosition = useActorPosition()
 
   console.log('render: ActorsLayer')
 
@@ -57,7 +59,7 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
   const handleClick = () => {
     dispatchMoveIntent({
       source: 'actor-click',
-      target: getNextSequentialPosition(position, gridSize),
+      target: getNextSequentialPosition(actorPosition, gridSize),
     })
   }
 
@@ -65,11 +67,11 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
     <button onClick={handleClick} type="button">
       <Robot01
         className={cn('ui-cell', 'absolute', 'top-0')}
-        key={`${position.row}-${position.col}`}
+        key={`${actorPosition.row}-${actorPosition.col}`}
         style={{
           height: cellScale,
-          left: cellScale * position.col,
-          top: cellScale * position.row,
+          left: cellScale * actorPosition.col,
+          top: cellScale * actorPosition.row,
         }}
       />
     </button>

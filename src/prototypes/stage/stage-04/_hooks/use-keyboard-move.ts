@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 import {
   GridPosition,
+  useActorControl,
   useActorPosition,
 } from '../_contexts/actor-position-context'
 
@@ -31,7 +32,8 @@ const KEY_CODE_DIRECTION_MAP: Record<string, Direction> = {
  * - target は現在位置からの絶対座標のみを渡し、境界処理は resolver のクランプに委ねる
  */
 export const useKeyboardMove = (): void => {
-  const { dispatchMoveIntent, position } = useActorPosition()
+  const { dispatchMoveIntent } = useActorControl()
+  const actorPosition = useActorPosition()
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -48,8 +50,8 @@ export const useKeyboardMove = (): void => {
       dispatchMoveIntent({
         source: 'keyboard',
         target: {
-          col: position.col + delta.col,
-          row: position.row + delta.row,
+          col: actorPosition.col + delta.col,
+          row: actorPosition.row + delta.row,
         },
       })
     }
@@ -59,5 +61,5 @@ export const useKeyboardMove = (): void => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [dispatchMoveIntent, position])
+  }, [dispatchMoveIntent, actorPosition])
 }

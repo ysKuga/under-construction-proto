@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { StyledDiv } from '@/components/samples/_parts/_base/part-base'
 import { cn } from '@/utils/cn'
 
-import { useActorPosition } from '../../_contexts/actor-position-context'
+import { useActorControl } from '../../_contexts/actor-position-context'
 
 type GeoLayerProps = {
   /** scale による大きさの指定 */
@@ -20,7 +20,7 @@ type GeoLayerProps = {
 export const GeoLayer = (props: GeoLayerProps) => {
   const { scale } = props
 
-  const { dispatchMoveIntent, gridSize } = useActorPosition()
+  const { dispatchMoveIntent, gridSize } = useActorControl()
 
   console.log('render: GeoLayer')
 
