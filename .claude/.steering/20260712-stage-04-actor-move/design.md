@@ -34,5 +34,6 @@ GitHub issue #35 (open) の残タスク「layer の串刺しについての cont
 
 ## 懸念・リスク
 
-1. **全体再レンダリング**: 操作 (移動) のたびに stage 全体が再レンダリングされている。`ActorPositionContext` の value を `position` と `dispatch+gridSize` に分割するなどの最適化が必要。stage-03 の README で見送っていた点と同種の課題。
+1. ~~**全体再レンダリング**: 操作 (移動) のたびに stage 全体が再レンダリングされている。~~ → 対応済み。`ActorPositionContext` を `ActorControlContext` (dispatchMoveIntent + gridSize) と position 単体の Context に分割し、`GeoLayer` は前者のみ購読することで position 変化時の再レンダリングを回避した (list-rendering (#48/#49) で検証したパターンを移植)。`ActorsLayer` は自身の表示更新に position が必要なため、移動のたびに再レンダリングされるのは意図通り。
 2. **隣接以外クリック時のジャンプ**: セルクリックで隣接以外のセルを指定した場合、経路探索なしで直接ワープする。計画時点で意図的にスコープ外としたが、将来 `action-phase.md` の予備〜実行フェーズを実装する際に見直しが必要。
+3. **複数移動要素対応 (次 PR)**: ユーザー操作後にランダム移動する要素など、actor が複数になるケースは未対応。次 PR での実装時、レンダリングが対象要素のみに限定されるか (list-rendering で検証した normalized state パターンが複数 actor でも通用するか) を焦点とする。
