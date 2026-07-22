@@ -36,6 +36,14 @@
 #     "any.go":
 #       runner: go run
 
+pre-commit:
+  parallel: true
+  commands:
+    eslint:
+      glob: "*.{js,jsx,ts,tsx}"
+      run: yarn eslint --fix {staged_files}
+      stage_fixed: true
+
 prepare-commit-msg:
   commands:
     # main などへのコミット抑止 (`--allow-empty` を考慮してこちらに設置している)

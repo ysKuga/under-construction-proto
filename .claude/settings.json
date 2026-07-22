@@ -7,10 +7,21 @@
       "Bash(gh auth *)",
       "Bash(gh issue *)",
       "Bash(gh extension *)",
-      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/rendering/list-02/__verify__.test.tsx)",
-      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/rendering/list-03/__verify__.test.tsx)",
-      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/list-rendering/)",
-      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run src/prototypes/stage/stage-04/__verify__.test.tsx)"
+      "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run *)",
+      "Bash(git stash *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | { read -r f; case \"$f\" in *.js|*.jsx|*.ts|*.tsx) npx eslint --fix \"$f\" ;; esac; } 2>/dev/null || true"
+          }
+        ]
+      }
     ]
   }
 }
