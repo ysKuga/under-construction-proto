@@ -8,7 +8,13 @@
       "Bash(gh issue *)",
       "Bash(gh extension *)",
       "Bash(NEXT_PUBLIC_API_URL=\"http://localhost:3000\" npx vitest run *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(npx tsc *)",
+      "Bash(chromium-cli --session *)",
+      "Bash(npx playwright *)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(curl -s http://localhost:6006/stories.json)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k\\) for k in d.get\\('stories',d\\).keys\\(\\) if 'time' in k.lower\\(\\)]\")"
     ]
   },
   "hooks": {
