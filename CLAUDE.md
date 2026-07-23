@@ -39,3 +39,11 @@ const actorPosition = useActorPosition()
   zod スキーマ `NEXT_PUBLIC_API_URL` 必須(`API_URL` ではない点 注意)。
 - `__mocks__/zustand.ts` は `create`/`createStore` のみモック対象、`useStore` 未対応。\
   zustand vanilla store + `useStore` パターンのテストは `vi.unmock('zustand')` 要。
+
+## 実ブラウザ動作確認
+
+Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存ライブラリ (`libnss3` 等) 未導入の場合あり。
+
+- 事前に `npx playwright install-deps` 実行要 (Claude からは実行不可、ユーザー側で実行)。\
+  `sudo npx ...` は不可 (npx が現在ユーザ環境に導入されており sudo の PATH に無い)。npx 自体は非 sudo で起動、内部で apt 導入が必要な箇所のみ権限昇格される。
+- 導入済なら Playwright script で `chromium.launch()` 直接可、`chromium-cli` 不在時の代替手段。
