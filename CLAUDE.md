@@ -31,6 +31,53 @@ const actorPosition = useActorPosition()
 
 複数プロパティ 分割代入で受ける場合(`const { dispatchMoveIntent, gridSize } = useActorControl()` 等)は対象外、各プロパティ名そのまま使用。
 
+### JSDoc 構成
+
+ホバー表示は Markdown 解釈される。タイトル(簡潔な要約) → 1行空け → 詳細(箇条書き) の構成にする。
+
+```ts
+/**
+ * タイトル
+ *
+ * - 詳細1
+ * - 詳細2
+ */
+```
+
+- 単一行で完結する短い説明(プロパティの一言コメント等)はタイトルのみで可、詳細不要・空行不要。
+- 詳細内の1文が複数行にまたがり、かつ改行を維持したい場合(別の詳細と混ざらないようにしたい場合)、行末に `\` 必須。\
+  単に見た目の折返しで1文を分割しているだけなら不要(表示時に自動で連結される)。
+
+### プロパティ JSDoc
+
+type/関数戻り値オブジェクトの各プロパティ、`/** ... */` で個別コメント付与。型全体のコメントとは別に、フィールド単位で意味を明示する。
+
+```ts
+type Stage04Props = {
+  /** 列数 */
+  cols: number
+  /** 行数 */
+  rows: number
+}
+```
+
+### 関数引数 JSDoc
+
+公開関数(export 対象)の引数、`@param` で個別コメント付与。内部 helper・自明な引数(useReducer の reducer 等 契約上決まる形)は対象外。`@param` 群は JSDoc 構成でいう「詳細」に相当、タイトルとの間を1行空ける。
+
+```ts
+/**
+ * 状態遷移を1ステップ進める
+ *
+ * @param state 現在の状態
+ * @param event 受信した生イベント
+ */
+export const reducePointerState = (
+  state: PointerState,
+  event: PointerRawEventType,
+): PointerTransition => /* ... */
+```
+
 ## テスト実行
 
 一時検証テスト(`__verify__.test.tsx` 等)実行時、`NEXT_PUBLIC_API_URL=http://localhost:3000` 付与のみで標準 `vitest.config.ts` 使用可。setupFiles 外した一時 config 作成不要。
