@@ -28,7 +28,16 @@
       "Bash(yarn lint)",
       "Bash(NEXT_PUBLIC_API_URL=http://localhost:3000 yarn test run *)",
       "Bash(git add *)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(mkdir -p *)",
+      "Bash(lsof -ti:6006 -sTCP:LISTEN)",
+      "Bash(xargs -r kill)",
+      "Bash(curl -sf http://localhost:6006)",
+      "Bash(rm -f scratch/verify.mjs)"
+    ],
+    "additionalDirectories": [
+      "./src",
+      "/home/yskuga/work/ysKuga/under-construction-proto"
     ]
   },
   "hooks": {
