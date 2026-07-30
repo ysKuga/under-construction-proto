@@ -81,7 +81,40 @@ Gemini 生成
 
 ---
 
-## 4. プログラミング（C# / TypeScriptなど）での実装イメージ
+## 4. 各段階の所要時間と割込み (Interrupt)
+
+各段階は瞬時に遷移するとは限らず、行動ごとに固有の所要時間を持つ。
+
+### 所要時間 (Duration)
+
+- `Intent → PreAction → Execution → Outcome → Resolution` の各遷移は所要時間 (duration) を持つ。
+- 行動ごとに **PreAction** の所要時間が最も大きく変動する (無詠唱の通常攻撃は 0、大技の詠唱は数ターン、既存の「詠唱（チャージ）」記述に対応)。
+- **Outcome**/**Resolution** は判定結果の適用に要する演出時間として扱う。
+
+### 割込み可能段階 (Interruptible Until)
+
+- 行動ごとに「どの段階まで割込み (中断) を受け付けるか」を定義する。この段階を超えると行動は確定し、以降は割込みで止められない。
+  - 例: 通常攻撃は **PreAction** まで割込み可能、**Execution** 以降は確定。
+  - 例: 見切り・カウンター系の技は **Execution** の完了直前まで割込み可能 (相手の動きを見てから割込みを間に合わせる必要がある)。
+- この割込み可能な最終段階を `interruptibleUntil` と呼ぶ。
+
+### 「後の先」の表現
+
+「後の先」(相手の動きを見てから、相手より先に成立させる技) は、割込み側が対象の Intent/PreAction/Execution の完了前に割込みを成立させることで表現する。
+
+成立条件: 割込み側の行動が、対象の `interruptibleUntil` 段階が終了するまでの残り時間より短い時間で到達すること。\
+割込み側は対象より後に動き出しても、対象が確定 (割込み不可になる時点) するまでに追いつける速さが必要になる。
+
+### 今後の検討: interrupt と intercept
+
+「割込み (interrupt)」と「迎撃 (intercept)」は別概念として扱い、それぞれ検討していく (現時点では未分離、区別せず記述している)。
+
+- interrupt: 対象の行動そのものを中断・変更させる (対象の `ActionPhase` 遷移を止める)。
+- intercept: 対象の行動は止めず、その結果 (命中・成立) に割って入る、または先に成立させる (対象の遷移は止まらない)。
+
+---
+
+## 5. プログラミング（C# / TypeScriptなど）での実装イメージ
 
 システム内でフェーズを管理するための `Enum（列挙型）` の定義例です。
 
@@ -102,5 +135,17 @@ enum ActionResultType {
     Critical,
     Evaded,
     Blocked
+}
+
+// 段階ごとの所要時間
+interface ActionTiming {
+    phase: ActionPhase;
+    durationMs: number; // この段階の遷移に要する時間
+}
+
+// 行動定義 (所要時間・割込み可能範囲を持つ)
+interface ActionDefinition {
+    interruptibleUntil: ActionPhase; // この段階の完了までは割込みを受け付ける
+    timings: ActionTiming[];         // 段階ごとの所要時間
 }
 ```
