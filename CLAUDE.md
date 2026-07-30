@@ -94,3 +94,16 @@ Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存�
 - 事前に `npx playwright install-deps` 実行要 (Claude からは実行不可、ユーザー側で実行)。\
   `sudo npx ...` は不可 (npx が現在ユーザ環境に導入されており sudo の PATH に無い)。npx 自体は非 sudo で起動、内部で apt 導入が必要な箇所のみ権限昇格される。
 - 導入済なら Playwright script で `chromium.launch()` 直接可、`chromium-cli` 不在時の代替手段。
+- 検証スクリプトは `scratch/verify.mjs` 固定名で作成(都度別名 `verify-xxx.mjs` は禁止)。\
+  許可リスト肥大化防止のため。内容は毎回上書き、`scratch/` は gitignore 対象。
+
+### Storybook 常駐
+
+動作確認毎、起動・停止 繰返し禁止。ユーザー側で立ち上げっぱなしにする運用。
+
+- 確認前 `ps aux | grep storybook` 等で起動有無確認。起動中なら `localhost:6006` そのまま利用、再起動不要。
+- 未起動時のみ起動、`run_in_background` 使用。確認後も停止しない(次回以降 再利用のため)。
+
+## コミット
+
+@.claude/rules/commit.md
