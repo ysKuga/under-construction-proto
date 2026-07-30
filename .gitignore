@@ -36,6 +36,9 @@ yarn-error.log*
 # local
 mocked-db.json
 
+# 動作確認用一時スクリプト
+/scratch/
+
 /.next
 /.vite
 tsconfig.tsbuildinfo
