@@ -3,6 +3,7 @@ import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 
 import { useActorStore } from '../../_contexts/actor-store-context'
+import { formatCoord } from '../../_lib/format-coord'
 import { getTickMs } from '../../_lib/get-tick-ms'
 import {
   DEFAULT_MIN_PATH_STEPS,
@@ -48,11 +49,14 @@ export const ActorItem = memo((props: ActorItemProps) => {
     <li className="flex items-center gap-2 whitespace-nowrap border-b border-solid border-gray-200 p-2">
       <span className="min-w-16 text-gray-400">{id}</span>
       <span className="min-w-20">
-        ({position.x}, {position.y})
+        ({formatCoord(position.x)}, {formatCoord(position.y)})
       </span>
       <span className="min-w-16 text-gray-400">path: {path.length}</span>
       <span className="min-w-28 text-gray-400">
-        target: {intentTarget ? `(${intentTarget.x}, ${intentTarget.y})` : '-'}
+        target:{' '}
+        {intentTarget
+          ? `(${formatCoord(intentTarget.x)}, ${formatCoord(intentTarget.y)})`
+          : '-'}
       </span>
       <span className="min-w-24 text-gray-400">eta: {etaMs}ms</span>
       <label className="flex items-center gap-1 text-gray-400">

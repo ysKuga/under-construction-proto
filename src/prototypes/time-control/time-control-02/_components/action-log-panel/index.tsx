@@ -9,6 +9,7 @@ import {
 
 import { useActorStore } from '../../_contexts/actor-store-context'
 import { buildHistory } from '../../_lib/build-history'
+import { formatCoord } from '../../_lib/format-coord'
 import { ActorId } from '../../types'
 
 type ActionLogPanelProps = {
@@ -53,7 +54,7 @@ export const ActionLogPanel = (props: ActionLogPanelProps) => {
               return (
                 <TableCell className="whitespace-nowrap" key={id}>
                   {entry
-                    ? `${entry.phase} (${entry.target.x}, ${entry.target.y})`
+                    ? `${entry.phase} (${formatCoord(entry.target.x)}, ${formatCoord(entry.target.y)})`
                     : ''}
                 </TableCell>
               )
