@@ -22,11 +22,15 @@ test('minSteps 未指定なら短距離でも1 step (現行互換)', () => {
   expect(path).toHaveLength(1)
 })
 
-test('minSteps を指定すると短距離でもその step 数以上に分割される', () => {
+test('minSteps が距離基準の step 数を上回る場合、各 step は stepDistance ぶん進み target を超えうる', () => {
   const path = generateMovePath({ x: 0, y: 0 }, { x: 1, y: 0 }, 10, 4)
 
-  expect(path).toHaveLength(4)
-  expect(path[path.length - 1]).toEqual({ x: 1, y: 0 })
+  expect(path).toEqual([
+    { x: 10, y: 0 },
+    { x: 20, y: 0 },
+    { x: 30, y: 0 },
+    { x: 40, y: 0 },
+  ])
 })
 
 test('minSteps より距離基準の step 数が多い場合は距離基準を優先する', () => {
