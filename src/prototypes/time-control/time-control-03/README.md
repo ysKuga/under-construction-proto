@@ -6,11 +6,11 @@
 
 02 では `actionLog` の `gameTimeMs` が actor 毎独立の `tickCountById * tickMs` で算出されており、複数 actor が断続的に行動決定すると履歴の行順序が実際の決定順と食い違う問題があった (詳細は `.claude/.steering/20260727-time-control-02-next-steps/design.md`)。
 
-03 ではこれを解消するため、単一の store (`actor-store.ts`) に同居していた責務を 6 store に分割し、`gameTimeMs` を全 actor 共通の単一クロック (`commonGameTimeMs`) から払い出す方式に変更した。
+03 ではこれを解消するため、単一の store (`actor-store.ts`) に同居していた責務を 6 store に分割した。`gameTimeMs` は actor 毎に累積させる (`lastGameTimeMsById`、02 の `tickCountById * tickMs` と同じ考え方) が、企図イベントのみ全 actor 共通の `commonGameTimeMs` (各 actor の到達済みゲーム時間の最大値) を参照する。actor 毎に累積させているのは、tickRate (tick 発生頻度) が actor ごとに異なる場合に他 actor の進行状況に引きずられないようにするため (tickRate が同じ actor 同士は結果的に同一 gameTimeMs になり履歴上1行にまとまる)。
 
 ## store 構成
 
-- **`game-clock-store`**: 共通ゲームクロック (`commonGameTimeMs`) とあらゆるイベントの時系列ログ (`eventLog`)。`logEvent(payload, advanceTickMs?)` は `advanceTickMs` を省略すると現在のクロック値をそのまま使い (企図向け)、指定するとその分クロックを進めてから新しい値を使う (tick 消費向け)。実行順で単調増加・非重複を保証する
+- **`game-clock-store`**: 共通ゲームクロック (`commonGameTimeMs`) とあらゆるイベントの時系列ログ (`eventLog`)。`logEvent(payload, advanceTickMs?)` は `advanceTickMs` を省略すると現在の `commonGameTimeMs` をそのまま使い (企図向け)、指定するとその actor 自身が最後に到達したゲーム時間にその分を加算した値を使う (tick 消費向け)。同一 actor の tick は累積し後退・重複しない
 - **`actor-store`**: actor の実装 (移動速度・tick 発生頻度) に直接関係する情報のみ。`actorById: Record<ActorId, ActorInfo>` (フィールドごとに `xxxById` を分けず、actor 単位でオブジェクトにまとめている)
 - **`actor-settings-store`**: 経路の最低 step 数・行動進行モードなど、ユーザー操作で変わる設定
 - **`path-store`**: actor ごとの残り移動経路 (`pathById`) のみ

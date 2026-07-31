@@ -1,6 +1,6 @@
 import { createStore, StoreApi } from 'zustand/vanilla'
 
-import { ActionLogEntry, EventLog } from '../types'
+import { ActionLogEntry, ActorId, EventLog } from '../types'
 
 /**
  * 共通ゲームクロックに乗るイベント種別の総称
@@ -11,7 +11,7 @@ import { ActionLogEntry, EventLog } from '../types'
 export type GameEvent = ActionLogEntry
 
 export type GameClockState = {
-  /** 全 actor・全イベント共通の経過ゲーム時間 (ms) */
+  /** 全 actor・全イベント共通の経過ゲーム時間 (ms)。各 actor の到達済みゲーム時間の最大値 */
   commonGameTimeMs: number
   /** 共通ゲームクロック由来の gameTimeMs を持つ、あらゆるイベントの時系列ログ */
   eventLog: EventLog<GameEvent>
@@ -20,8 +20,12 @@ export type GameClockState = {
    *
    * - `advanceTickMs` 省略時はクロックを進めず、現在の commonGameTimeMs を\
    *   そのまま使う (企図など「まだ何も消費していない」イベント向け)
-   * - `advanceTickMs` 指定時はクロックをその分進めてから新しい値を使う\
-   *   (tick の消費を伴うイベント向け。実行順で単調増加・非重複を保証する)
+   * - `advanceTickMs` 指定時は、そのイベントの actor 自身が最後に到達したゲーム時間\
+   *   (`lastGameTimeMsById`、未到達なら0) にその分を加算した値を使う。actor 毎に\
+   *   累積するため、tickRate が違う actor 同士でも互いの進行状況に引きずられない\
+   *   (同じ tickMs で進む actor 同士は結果的に同じ値になり、履歴上1行にまとまる)
+   * - commonGameTimeMs は記録した gameTimeMs の最大値まで進む (表示・スケジュール\
+   *   プレビューの起点用、後退しない)
    *
    * @param payload gameTimeMs を除いたイベント本体
    * @param advanceTickMs クロックを進める量 (ms)
@@ -41,24 +45,46 @@ const INITIAL_STATE = {
   eventLog: [],
 } satisfies Partial<GameClockState>
 
-export const createGameClockStore = (): GameClockStore =>
-  createStore<GameClockState>((set, get) => ({
+export const createGameClockStore = (): GameClockStore => {
+  /** actor 毎に最後に到達したゲーム時間。tick 消費イベントの起点として使う */
+  let lastGameTimeMsById: Partial<Record<ActorId, number>> = {}
+
+  return createStore<GameClockState>((set, get) => ({
     ...INITIAL_STATE,
     logEvent: (<TEvent extends GameEvent>(
       payload: Omit<TEvent, 'gameTimeMs'>,
-      advanceTickMs = 0,
+      advanceTickMs?: number,
     ): TEvent => {
-      const gameTimeMs = get().commonGameTimeMs + advanceTickMs
+      if (advanceTickMs === undefined) {
+        const event = {
+          ...payload,
+          gameTimeMs: get().commonGameTimeMs,
+        } as TEvent
+
+        set((state) => ({
+          eventLog: [...state.eventLog, { event, time: Date.now() }],
+        }))
+
+        return event
+      }
+
+      const { actorId } = payload as unknown as { actorId: ActorId }
+      const baseTimeMs = lastGameTimeMsById[actorId] ?? 0
+      const gameTimeMs = baseTimeMs + advanceTickMs
       const event = { ...payload, gameTimeMs } as TEvent
 
+      lastGameTimeMsById[actorId] = gameTimeMs
+
       set((state) => ({
-        commonGameTimeMs: gameTimeMs,
+        commonGameTimeMs: Math.max(state.commonGameTimeMs, gameTimeMs),
         eventLog: [...state.eventLog, { event, time: Date.now() }],
       }))
 
       return event
     }) as GameClockState['logEvent'],
     reset: () => {
+      lastGameTimeMsById = {}
       set(INITIAL_STATE)
     },
   }))
+}
