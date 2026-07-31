@@ -19,6 +19,12 @@ type ActorItemProps = {
   id: ActorId
 }
 
+/** tick 選択肢 (50ms 刻み、50〜500ms) */
+const TICK_MS_OPTIONS = Array.from(
+  { length: 10 },
+  (_, index) => (index + 1) * 50,
+)
+
 /**
  * actor 1体分の表示・操作
  *
@@ -70,17 +76,19 @@ export const ActorItem = memo((props: ActorItemProps) => {
       <span className="min-w-16 text-gray-400">path: {path.length}</span>
       <label className="flex min-w-28 items-center gap-1 text-gray-400">
         tick:
-        <input
-          className="w-14 rounded border border-solid border-gray-300 px-1"
-          min={1}
+        <select
+          className="rounded border border-solid border-gray-300 px-1"
           onChange={(event) => {
-            // 固定step数入力と同様、入力途中もそのまま反映する。\
-            // 下限チェックは行わない (setTickMs 参照)
             setTickMs(id, Number(event.target.value))
           }}
-          type="number"
           value={Math.round(tickMs)}
-        />
+        >
+          {TICK_MS_OPTIONS.map((ms) => (
+            <option key={ms} value={ms}>
+              {ms}
+            </option>
+          ))}
+        </select>
         ms
       </label>
       <span className="min-w-28 text-gray-400">
