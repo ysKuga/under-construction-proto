@@ -42,7 +42,7 @@ test('dispatchMoveIntent は position を変更せず経路のみ生成する', 
     .dispatchMoveIntent({ actorId: 'a', target: { x: 6, y: 0 } })
 
   expect(positionStore.getState().positionById.a).toBeUndefined()
-  expect(pathStore.getState().pathById.a).toHaveLength(3)
+  expect(pathStore.getState().pathById.a).toHaveLength(6)
 })
 
 test('dispatchMoveIntent は gameClockStore に intent のみ記録し、クロックを進めない', () => {
@@ -67,7 +67,7 @@ test('dispatchMoveIntent は gameClockStore に intent のみ記録し、クロ�
 test('speed が高い actor は1tickあたりの移動距離が長くなる', () => {
   const { actorStore, intentStore, pathStore } = setup()
 
-  actorStore.setState({ actorById: { a: { speed: 0.02, tickRate: 2 } } }) // tickMs=200 -> stepDistance=4 (デフォルトの2倍)
+  actorStore.setState({ actorById: { a: { speed: 0.02, tickRate: 2 } } }) // tickMs=200 -> stepDistance=4 (デフォルトの4倍)
   intentStore
     .getState()
     .dispatchMoveIntent({ actorId: 'a', target: { x: 8, y: 0 } })

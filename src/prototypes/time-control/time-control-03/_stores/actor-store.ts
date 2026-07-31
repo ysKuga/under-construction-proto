@@ -47,10 +47,10 @@ export type ActorState = {
 
 export type ActorStore = StoreApi<ActorState>
 
-/** actor の情報未設定時のデフォルト値 */
+/** actor の情報未設定時のデフォルト値 (tickRate は tickMs=100 相当) */
 export const DEFAULT_ACTOR_INFO: ActorInfo = {
   speed: 0.01,
-  tickRate: 2,
+  tickRate: BASE_TICK_MS / 100,
 }
 
 const INITIAL_STATE = {
