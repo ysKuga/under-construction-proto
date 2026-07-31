@@ -50,7 +50,8 @@ export const ActorItem = memo((props: ActorItemProps) => {
       DEFAULT_ACTOR_SETTINGS.isFixedPathSteps,
   )
   const intentTarget = path[path.length - 1]
-  const etaMs = path.length * getTickMs(tickRate)
+  const tickMs = getTickMs(tickRate)
+  const etaMs = path.length * tickMs
   const dispatchMoveIntent = useIntentStore((state) => state.dispatchMoveIntent)
   const setFixedPathSteps = useActorSettingsStore(
     (state) => state.setFixedPathSteps,
@@ -66,6 +67,7 @@ export const ActorItem = memo((props: ActorItemProps) => {
         ({formatCoord(position.x)}, {formatCoord(position.y)})
       </span>
       <span className="min-w-16 text-gray-400">path: {path.length}</span>
+      <span className="min-w-20 text-gray-400">tick: {tickMs}ms</span>
       <span className="min-w-28 text-gray-400">
         target:{' '}
         {intentTarget
