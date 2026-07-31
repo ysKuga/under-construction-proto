@@ -91,12 +91,6 @@ export const ActorItem = memo((props: ActorItemProps) => {
         </select>
         ms
       </label>
-      <span className="min-w-28 text-gray-400">
-        target:{' '}
-        {intentTarget
-          ? `(${formatCoord(intentTarget.x)}, ${formatCoord(intentTarget.y)})`
-          : '-'}
-      </span>
       <span className="min-w-24 text-gray-400">eta: {etaMs}ms</span>
       <label className="flex items-center gap-1 text-gray-400">
         <input
@@ -137,6 +131,12 @@ export const ActorItem = memo((props: ActorItemProps) => {
       >
         set target
       </Button>
+      <span className="text-gray-400">
+        target:{' '}
+        {intentTarget
+          ? `(${formatCoord(intentTarget.x)}, ${formatCoord(intentTarget.y)})`
+          : '-'}
+      </span>
     </li>
   )
 })
