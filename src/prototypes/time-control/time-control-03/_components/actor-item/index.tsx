@@ -59,6 +59,7 @@ export const ActorItem = memo((props: ActorItemProps) => {
   const setIsFixedPathSteps = useActorSettingsStore(
     (state) => state.setIsFixedPathSteps,
   )
+  const setTickMs = useActorStore((state) => state.setTickMs)
 
   return (
     <li className="flex items-center gap-2 whitespace-nowrap border-b border-solid border-gray-200 p-2">
@@ -67,7 +68,21 @@ export const ActorItem = memo((props: ActorItemProps) => {
         ({formatCoord(position.x)}, {formatCoord(position.y)})
       </span>
       <span className="min-w-16 text-gray-400">path: {path.length}</span>
-      <span className="min-w-20 text-gray-400">tick: {tickMs}ms</span>
+      <label className="flex min-w-28 items-center gap-1 text-gray-400">
+        tick:
+        <input
+          className="w-14 rounded border border-solid border-gray-300 px-1"
+          min={1}
+          onChange={(event) => {
+            // 固定step数入力と同様、入力途中もそのまま反映する。\
+            // 下限チェックは行わない (setTickMs 参照)
+            setTickMs(id, Number(event.target.value))
+          }}
+          type="number"
+          value={Math.round(tickMs)}
+        />
+        ms
+      </label>
       <span className="min-w-28 text-gray-400">
         target:{' '}
         {intentTarget

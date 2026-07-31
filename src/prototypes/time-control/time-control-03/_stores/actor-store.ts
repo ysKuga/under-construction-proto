@@ -1,5 +1,6 @@
 import { createStore, StoreApi } from 'zustand/vanilla'
 
+import { BASE_TICK_MS } from '../../time-control-02/_lib/get-tick-ms'
 import { ActorId } from '../types'
 
 /**
@@ -32,6 +33,16 @@ export type ActorState = {
   actorById: Record<ActorId, ActorInfo>
   /** actor の情報を初期状態に戻す */
   reset: () => void
+  /**
+   * actor の tickMs (tick の実時間長) を設定する
+   *
+   * - 内部では `tickRate = BASE_TICK_MS / tickMs` に変換して保持する\
+   *   (`ActorInfo` は tickRate のみを持つため)
+   *
+   * @param actorId 対象 actor
+   * @param tickMs tick の実時間長 (ms)
+   */
+  setTickMs: (actorId: ActorId, tickMs: number) => void
 }
 
 export type ActorStore = StoreApi<ActorState>
@@ -51,5 +62,16 @@ export const createActorStore = (): ActorStore =>
     ...INITIAL_STATE,
     reset: () => {
       set(INITIAL_STATE)
+    },
+    setTickMs: (actorId, tickMs) => {
+      set((state) => ({
+        actorById: {
+          ...state.actorById,
+          [actorId]: {
+            ...(state.actorById[actorId] ?? DEFAULT_ACTOR_INFO),
+            tickRate: BASE_TICK_MS / tickMs,
+          },
+        },
+      }))
     },
   }))
