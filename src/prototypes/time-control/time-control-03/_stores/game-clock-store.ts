@@ -40,19 +40,6 @@ export type GameClockState = {
 
 export type GameClockStore = StoreApi<GameClockState>
 
-/**
- * eventLog から特定 actor 分のみ抽出する
- *
- * - `useGameClockStore` の selector 内で使い、`shallow` と組み合わせれば\
- *   他 actor のイベント追加時に配列参照が変わっても要素は同一参照のまま→\
- *   shallow 比較で不一致と判定されず、実 DOM 更新は発生しない (`ActorMarker` 参照)
- */
-export const getEventLogByActorId = (
-  eventLog: EventLog<GameEvent>,
-  actorId: ActorId,
-): EventLog<GameEvent> =>
-  eventLog.filter((entry) => entry.event.actorId === actorId)
-
 const INITIAL_STATE = {
   commonGameTimeMs: 0,
   eventLog: [],

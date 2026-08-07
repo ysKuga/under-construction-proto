@@ -1,6 +1,7 @@
 import { STAGE_SIZE } from '../../../time-control-02/_lib/stage-coords'
 import { ActorId } from '../../types'
-import { ActorMarker } from '../actor-marker'
+import { CurrentPositionMarker } from '../current-position-marker'
+import { PlannedPathMarker } from '../planned-path-marker'
 
 type StageViewProps = {
   /** 表示する actor の一覧 */
@@ -11,7 +12,9 @@ type StageViewProps = {
  * actor の座標を CSS の絶対位置で表現する stage
  *
  * - Position { x: 0, y: 0 } を中央に、y 下向きの screen 座標系のまま `top`/`left` に対応させる
- * - 現在位置に加え、残り経路 (`pathById`) の各点も表示する
+ * - 現在位置 (`CurrentPositionMarker`) と予定位置 (`PlannedPathMarker`) を別コンポーネントに\
+ *   分離し、`set target` (企図) では予定位置のみ、行動決定では現在位置のみが\
+ *   再レンダリングされるようにする
  */
 export const StageView = (props: StageViewProps) => {
   const { actorIds } = props
@@ -22,7 +25,10 @@ export const StageView = (props: StageViewProps) => {
       style={{ height: STAGE_SIZE, width: STAGE_SIZE }}
     >
       {actorIds.map((id) => (
-        <ActorMarker id={id} key={id} />
+        <PlannedPathMarker id={id} key={`planned-${id}`} />
+      ))}
+      {actorIds.map((id) => (
+        <CurrentPositionMarker id={id} key={`current-${id}`} />
       ))}
     </div>
   )
