@@ -4,6 +4,7 @@ import { useActorSettingsStore } from '../../_contexts/actor-settings-store-cont
 import { useActorStore } from '../../_contexts/actor-store-context'
 import { useGameClockStore } from '../../_contexts/game-clock-store-context'
 import { usePathStore } from '../../_contexts/path-store-context'
+import { usePlannedPathStore } from '../../_contexts/planned-path-store-context'
 import { usePositionStore } from '../../_contexts/position-store-context'
 import { DEFAULT_ACTOR_SETTINGS } from '../../_stores/actor-settings-store'
 import { ActorId } from '../../types'
@@ -37,6 +38,7 @@ export const ActionBar = (props: ActionBarProps) => {
   const resetPosition = usePositionStore((state) => state.reset)
   const resetActor = useActorStore((state) => state.reset)
   const resetPath = usePathStore((state) => state.reset)
+  const resetPlannedPath = usePlannedPathStore((state) => state.reset)
   const resetGameClock = useGameClockStore((state) => state.reset)
 
   return (
@@ -64,6 +66,7 @@ export const ActionBar = (props: ActionBarProps) => {
           resetActor()
           resetActorSettings()
           resetPath()
+          resetPlannedPath()
           resetPosition()
           resetGameClock()
         }}
