@@ -3,12 +3,14 @@ import { createActorStore } from '../_stores/actor-store'
 import { createGameClockStore } from '../_stores/game-clock-store'
 import { createIntentStore } from '../_stores/intent-store'
 import { createPathStore } from '../_stores/path-store'
+import { createPlannedPathStore } from '../_stores/planned-path-store'
 import { createPositionStore } from '../_stores/position-store'
 
 const setup = () => {
   const actorStore = createActorStore()
   const actorSettingsStore = createActorSettingsStore()
   const pathStore = createPathStore()
+  const plannedPathStore = createPlannedPathStore()
   const gameClockStore = createGameClockStore()
   const positionStore = createPositionStore(
     actorStore,
@@ -20,6 +22,7 @@ const setup = () => {
     actorStore,
     actorSettingsStore,
     pathStore,
+    plannedPathStore,
     positionStore,
     gameClockStore,
   )
@@ -30,6 +33,7 @@ const setup = () => {
     gameClockStore,
     intentStore,
     pathStore,
+    plannedPathStore,
     positionStore,
   }
 }
@@ -43,6 +47,18 @@ test('dispatchMoveIntent は position を変更せず経路のみ生成する', 
 
   expect(positionStore.getState().positionById.a).toBeUndefined()
   expect(pathStore.getState().pathById.a).toHaveLength(6)
+})
+
+test('dispatchMoveIntent は plannedPathStore にも同じ経路を書き込む', () => {
+  const { intentStore, pathStore, plannedPathStore } = setup()
+
+  intentStore
+    .getState()
+    .dispatchMoveIntent({ actorId: 'a', target: { x: 6, y: 0 } })
+
+  expect(plannedPathStore.getState().plannedPathById.a).toEqual(
+    pathStore.getState().pathById.a,
+  )
 })
 
 test('dispatchMoveIntent は gameClockStore に intent のみ記録し、クロックを進めない', () => {
