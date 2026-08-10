@@ -1,7 +1,8 @@
 import { memo } from 'react'
 
-import { toPixelStyle } from '../../../time-control-02/_lib/stage-coords'
 import { usePlannedPathStore } from '../../_contexts/planned-path-store-context'
+import { useStageTransform } from '../../_contexts/stage-transform-context'
+import { toPixelStyle } from '../../_lib/stage-coords'
 import { DEFAULT_PLANNED_PATH } from '../../_stores/planned-path-store'
 import { ActorId } from '../../types'
 
@@ -25,6 +26,7 @@ export const PlannedPathMarker = memo((props: PlannedPathMarkerProps) => {
   const plannedPath = usePlannedPathStore(
     (state) => state.plannedPathById[id] ?? DEFAULT_PLANNED_PATH,
   )
+  const transform = useStageTransform()
 
   return (
     <>
@@ -32,7 +34,7 @@ export const PlannedPathMarker = memo((props: PlannedPathMarkerProps) => {
         <div
           className="absolute size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gray-300"
           key={index}
-          style={toPixelStyle(step)}
+          style={toPixelStyle(step, transform)}
         />
       ))}
     </>

@@ -23,7 +23,7 @@
 
 依存関係は生成時の注入 (直接呼び出し) で済ませている。将来 Custom Event 経由の疎結合化 (`design.md` 実装計画3) に移行する際の置換点になる想定。
 
-02 から変更不要なファイル (`_lib/generate-move-path.ts`/`get-tick-ms.ts`/`stage-coords.ts`/`build-history.ts`/`format-coord.ts`、`types.ts`) はコピーせず import している (`src/prototypes/CLAUDE.md` の依存ルール)。
+02 から変更不要なファイル (`_lib/generate-move-path.ts`/`get-tick-ms.ts`/`build-history.ts`/`format-coord.ts`、`types.ts`) はコピーせず import している (`src/prototypes/CLAUDE.md` の依存ルール)。`_lib/stage-coords.ts` は表示領域への自動フィット (後述) 実装に伴いロジック変更が生じたため、02 のファイルは変更せず 03 側に新規実装している。
 
 ## action-phase との対応
 
@@ -50,6 +50,13 @@
 ## スケジュールプレビュー
 
 `行動決定` を押す前に、各 actor の tick タイミングを共通ゲームクロック起点でマージした表 (`SchedulePreview`) を表示する。`_lib/build-schedule.ts` の `buildSchedule` が、actor ごとの残り経路 (`pathById`) と `tickRate`、`commonGameTimeMs` から `tickMs` の倍数でタイムスタンプを算出し、同一時刻に複数 actor の tick が重なる場合は1行にまとめる。実行エンジン (`auto` 進行時の actor 個別 `setTimeout` ループ) 自体は変更していないため、あくまで「このまま `行動決定` を押したらどうなるか」の予定表であり、実際のログ (`ActionLogPanel`) とは別コンポーネント。
+
+## 表示領域への自動フィット (bounding box fit)
+
+actor が移動して原点から離れても表示領域内に収まるよう、全 actor の目標地点から算出した scale・中心 (`StageTransform`) で描画する。
+
+- **`_lib/stage-coords.ts`**: `computeFitTransform` が、全 actor の目標地点の bounding box から中心座標と scale を算出する。scale は縮小のみ (元の `STAGE_SCALE` が上限、拡大はしない)、bounding box 中心を新たな原点にする。
+- **`_contexts/stage-transform-context.tsx`**: `StageTransformProvider` が transform を算出し `Context` で配布する。算出元は `positionStore` ではなく `plannedPathStore` (各 actor の予定経路の終点)。`plannedPathStore` は `set target` (企図) 確定時のみ更新され行動決定では変化しないため、行動決定中の逐次 tick 更新のたびに bounding box を再計算せずに済む (`positionStore` を購読すると tick 毎に全 actor が再レンダリングされ続けてしまう)。目標未設定の actor は `DEFAULT_POSITION` で補う。
 
 ## スコープ外
 

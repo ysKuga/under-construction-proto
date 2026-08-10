@@ -1,7 +1,8 @@
 import { memo } from 'react'
 
-import { toPixelStyle } from '../../../time-control-02/_lib/stage-coords'
 import { usePositionStore } from '../../_contexts/position-store-context'
+import { useStageTransform } from '../../_contexts/stage-transform-context'
+import { toPixelStyle } from '../../_lib/stage-coords'
 import { DEFAULT_POSITION } from '../../_stores/position-store'
 import { ActorId } from '../../types'
 
@@ -25,11 +26,12 @@ export const CurrentPositionMarker = memo(
     const position = usePositionStore(
       (state) => state.positionById[id] ?? DEFAULT_POSITION,
     )
+    const transform = useStageTransform()
 
     return (
       <div
         className="absolute flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white"
-        style={toPixelStyle(position)}
+        style={toPixelStyle(position, transform)}
         title={id}
       >
         {id.split('-').pop()}
