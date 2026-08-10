@@ -33,6 +33,7 @@
       "Bash(lsof -ti:6006 -sTCP:LISTEN)",
       "Bash(xargs -r kill)",
       "Bash(curl -sf http://localhost:6006)",
+      "Bash(rm scratch/verify.mjs)",
       "Bash(rm -f scratch/verify.mjs)",
       "Bash(node scratch/verify.mjs)",
       "Read(//tmp/**)",
@@ -41,10 +42,7 @@
       "Bash(curl -s \"http://localhost:6006/index.json\")",
       "Bash(git ls-tree *)"
     ],
-    "additionalDirectories": [
-      "./src",
-      "/home/yskuga/work/ysKuga/under-construction-proto"
-    ]
+    "additionalDirectories": ["./src"]
   },
   "hooks": {
     "PostToolUse": [
