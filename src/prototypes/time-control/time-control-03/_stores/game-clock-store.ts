@@ -1,6 +1,6 @@
 import { createStore, StoreApi } from 'zustand/vanilla'
 
-import { ActionLogEntry, ActorId, EventLog } from '../types'
+import { ActionLogEntry, EventLog } from '../types'
 
 /**
  * 共通ゲームクロックに乗るイベント種別の総称
@@ -11,7 +11,7 @@ import { ActionLogEntry, ActorId, EventLog } from '../types'
 export type GameEvent = ActionLogEntry
 
 export type GameClockState = {
-  /** 全 actor・全イベント共通の経過ゲーム時間 (ms)。各 actor の到達済みゲーム時間の最大値 */
+  /** 全 actor・全イベント共通の経過ゲーム時間 (ms)。直近まで記録された到達済みゲーム時間 */
   commonGameTimeMs: number
   /** 共通ゲームクロック由来の gameTimeMs を持つ、あらゆるイベントの時系列ログ */
   eventLog: EventLog<GameEvent>
@@ -20,11 +20,10 @@ export type GameClockState = {
    *
    * - `advanceTickMs` 省略時はクロックを進めず、現在の commonGameTimeMs を\
    *   そのまま使う (企図など「まだ何も消費していない」イベント向け)
-   * - `advanceTickMs` 指定時は、そのイベントの actor 自身が最後に到達したゲーム時間\
-   *   (`lastGameTimeMsById`、未到達なら0) にその分を加算した値を使う。actor 毎に\
-   *   累積するため、tickRate が違う actor 同士でも互いの進行状況に引きずられない\
-   *   (同じ tickMs で進む actor 同士は結果的に同じ値になり、履歴上1行にまとまる)
-   * - commonGameTimeMs は記録した gameTimeMs の最大値まで進む (表示・スケジュール\
+   * - `advanceTickMs` 指定時は、現在の commonGameTimeMs にその分を加算した値を使う。\
+   *   全 actor 共通の到達点を起点にするため、後から行動決定した actor のイベントが\
+   *   過去の gameTimeMs に紛れ込み履歴の行順序が決定順と食い違う、という事態を防ぐ
+   * - commonGameTimeMs は記録した gameTimeMs の値まで進む (表示・スケジュール\
    *   プレビューの起点用、後退しない)
    *
    * @param payload gameTimeMs を除いたイベント本体
@@ -33,6 +32,23 @@ export type GameClockState = {
   logEvent: <TEvent extends GameEvent>(
     payload: Omit<TEvent, 'gameTimeMs'>,
     advanceTickMs?: number,
+  ) => TEvent
+  /**
+   * gameTimeMs を呼び出し側が確定した絶対値で指定してイベントを記録する
+   *
+   * - 複数 actor の tick を1バッチとして記録する際に使う。バッチ開始時点の\
+   *   commonGameTimeMs を全 actor 共通の起点にすれば、同一 tickMs の actor は\
+   *   同じ gameTimeMs になり履歴上1行にまとまる (`logEvent` の advanceTickMs 版は\
+   *   呼び出す度に commonGameTimeMs を参照するため、同一バッチ内で逐次呼ぶと\
+   *   後続の actor ほど値がずれてしまう)
+   * - commonGameTimeMs は指定した gameTimeMs までしか進まない (後退しない)
+   *
+   * @param payload gameTimeMs を除いたイベント本体
+   * @param gameTimeMs 確定済みの gameTimeMs
+   */
+  logEventAt: <TEvent extends GameEvent>(
+    payload: Omit<TEvent, 'gameTimeMs'>,
+    gameTimeMs: number,
   ) => TEvent
   /** 共通ゲームクロック・履歴を初期状態に戻す */
   reset: () => void
@@ -45,11 +61,8 @@ const INITIAL_STATE = {
   eventLog: [],
 } satisfies Partial<GameClockState>
 
-export const createGameClockStore = (): GameClockStore => {
-  /** actor 毎に最後に到達したゲーム時間。tick 消費イベントの起点として使う */
-  let lastGameTimeMsById: Partial<Record<ActorId, number>> = {}
-
-  return createStore<GameClockState>((set, get) => ({
+export const createGameClockStore = (): GameClockStore =>
+  createStore<GameClockState>((set, get) => ({
     ...INITIAL_STATE,
     logEvent: (<TEvent extends GameEvent>(
       payload: Omit<TEvent, 'gameTimeMs'>,
@@ -68,12 +81,21 @@ export const createGameClockStore = (): GameClockStore => {
         return event
       }
 
-      const { actorId } = payload as unknown as { actorId: ActorId }
-      const baseTimeMs = lastGameTimeMsById[actorId] ?? 0
-      const gameTimeMs = baseTimeMs + advanceTickMs
+      const gameTimeMs = get().commonGameTimeMs + advanceTickMs
       const event = { ...payload, gameTimeMs } as TEvent
 
-      lastGameTimeMsById[actorId] = gameTimeMs
+      set((state) => ({
+        commonGameTimeMs: gameTimeMs,
+        eventLog: [...state.eventLog, { event, time: Date.now() }],
+      }))
+
+      return event
+    }) as GameClockState['logEvent'],
+    logEventAt: (<TEvent extends GameEvent>(
+      payload: Omit<TEvent, 'gameTimeMs'>,
+      gameTimeMs: number,
+    ): TEvent => {
+      const event = { ...payload, gameTimeMs } as TEvent
 
       set((state) => ({
         commonGameTimeMs: Math.max(state.commonGameTimeMs, gameTimeMs),
@@ -81,10 +103,8 @@ export const createGameClockStore = (): GameClockStore => {
       }))
 
       return event
-    }) as GameClockState['logEvent'],
+    }) as GameClockState['logEventAt'],
     reset: () => {
-      lastGameTimeMsById = {}
       set(INITIAL_STATE)
     },
   }))
-}

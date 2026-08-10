@@ -28,31 +28,10 @@ test('advanceTickMs 指定時はクロックをその分進めてから新しい
   expect(store.getState().commonGameTimeMs).toBe(200)
 })
 
-test('同じ tickMs の複数 actor が同じタイミングで tick すると同一 gameTimeMs になる', () => {
+test('後から tick する actor は、共通到達点 (commonGameTimeMs) に自分の advanceTickMs を加算した値になる', () => {
   const store = createGameClockStore()
 
-  const eventA = store
-    .getState()
-    .logEvent<ActionLogEntry>(
-      { actorId: 'a', phase: 'execution', target: { x: 1, y: 0 } },
-      100,
-    )
-  const eventB = store
-    .getState()
-    .logEvent<ActionLogEntry>(
-      { actorId: 'b', phase: 'execution', target: { x: 0, y: 1 } },
-      100,
-    )
-
-  expect(eventA.gameTimeMs).toBe(100)
-  expect(eventB.gameTimeMs).toBe(100)
-  expect(store.getState().commonGameTimeMs).toBe(100)
-})
-
-test('tickMs が異なる actor は互いの進行状況に引きずられず、それぞれ自分のペースで進む', () => {
-  const store = createGameClockStore()
-
-  // 1 step 目: A,B は tickMs=100 -> 100、C は tickMs=150 -> 150
+  // A が 300ms まで進む (tickMs=100 で3回)
   store
     .getState()
     .logEvent<ActionLogEntry>(
@@ -60,42 +39,28 @@ test('tickMs が異なる actor は互いの進行状況に引きずられず、
       100,
     )
   store
-    .getState()
-    .logEvent<ActionLogEntry>(
-      { actorId: 'b', phase: 'execution', target: { x: 0, y: 1 } },
-      100,
-    )
-  store
-    .getState()
-    .logEvent<ActionLogEntry>(
-      { actorId: 'c', phase: 'execution', target: { x: 0, y: 0 } },
-      150,
-    )
-
-  // 2 step 目: C の 150 到達が A,B の次の到達値 (200) を汚染してはいけない
-  const eventA2 = store
     .getState()
     .logEvent<ActionLogEntry>(
       { actorId: 'a', phase: 'execution', target: { x: 2, y: 0 } },
       100,
     )
-  const eventB2 = store
+  store
     .getState()
     .logEvent<ActionLogEntry>(
-      { actorId: 'b', phase: 'execution', target: { x: 0, y: 2 } },
+      { actorId: 'a', phase: 'resolution', target: { x: 3, y: 0 } },
       100,
     )
-  const eventC2 = store
+
+  // 続けて B が tickMs=150 で行動決定すると、A の到達点 (300) に加算される
+  const eventB = store
     .getState()
     .logEvent<ActionLogEntry>(
-      { actorId: 'c', phase: 'execution', target: { x: 0, y: 0 } },
+      { actorId: 'b', phase: 'execution', target: { x: 0, y: 1 } },
       150,
     )
 
-  expect(eventA2.gameTimeMs).toBe(200)
-  expect(eventB2.gameTimeMs).toBe(200)
-  expect(eventC2.gameTimeMs).toBe(300)
-  expect(store.getState().commonGameTimeMs).toBe(300)
+  expect(eventB.gameTimeMs).toBe(450)
+  expect(store.getState().commonGameTimeMs).toBe(450)
 })
 
 test('同一 actor の tick は累積し、後退・重複しない', () => {
