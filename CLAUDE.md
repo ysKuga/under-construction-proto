@@ -78,6 +78,14 @@ export const reducePointerState = (
 ): PointerTransition => /* ... */
 ```
 
+### JSDoc
+
+@.claude/rules/jsdoc.md
+
+### React
+
+@.claude/rules/react/hooks.md
+
 ## テスト実行
 
 一時検証テスト(`__verify__.test.tsx` 等)実行時、`NEXT_PUBLIC_API_URL=http://localhost:3000` 付与のみで標準 `vitest.config.ts` 使用可。setupFiles 外した一時 config 作成不要。
