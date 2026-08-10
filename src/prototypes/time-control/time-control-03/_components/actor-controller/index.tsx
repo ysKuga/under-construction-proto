@@ -11,6 +11,7 @@ import { usePathStore } from '../../_contexts/path-store-context'
 import { usePositionStore } from '../../_contexts/position-store-context'
 import { DEFAULT_ACTOR_SETTINGS } from '../../_stores/actor-settings-store'
 import { DEFAULT_ACTOR_INFO } from '../../_stores/actor-store'
+import { DEFAULT_PATH } from '../../_stores/path-store'
 import { DEFAULT_POSITION } from '../../_stores/position-store'
 import { ActorId } from '../../types'
 
@@ -41,7 +42,7 @@ export const ActorController = memo((props: ActorControllerProps) => {
   const position = usePositionStore(
     (state) => state.positionById[id] ?? DEFAULT_POSITION,
   )
-  const path = usePathStore((state) => state.pathById[id] ?? [])
+  const path = usePathStore((state) => state.pathById[id] ?? DEFAULT_PATH)
   const tickRate = useActorStore(
     (state) => state.actorById[id]?.tickRate ?? DEFAULT_ACTOR_INFO.tickRate,
   )

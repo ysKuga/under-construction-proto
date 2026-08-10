@@ -2,6 +2,7 @@ import { memo } from 'react'
 
 import { toPixelStyle } from '../../../time-control-02/_lib/stage-coords'
 import { usePlannedPathStore } from '../../_contexts/planned-path-store-context'
+import { DEFAULT_PLANNED_PATH } from '../../_stores/planned-path-store'
 import { ActorId } from '../../types'
 
 type PlannedPathMarkerProps = {
@@ -22,7 +23,7 @@ export const PlannedPathMarker = memo((props: PlannedPathMarkerProps) => {
   const { id } = props
 
   const plannedPath = usePlannedPathStore(
-    (state) => state.plannedPathById[id] ?? [],
+    (state) => state.plannedPathById[id] ?? DEFAULT_PLANNED_PATH,
   )
 
   return (
