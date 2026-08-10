@@ -1,6 +1,6 @@
 import { ActionBar } from './_components/action-bar'
 import { ActionLogPanel } from './_components/action-log-panel'
-import { ActorItem } from './_components/actor-item'
+import { ActorController } from './_components/actor-controller'
 import { SchedulePreview } from './_components/schedule-preview'
 import { StageView } from './_components/stage-view'
 import { StoresProvider } from './_contexts/stores-provider'
@@ -29,7 +29,7 @@ export const TimeControl03 = (props: TimeControl03Props) => {
         <StageView actorIds={actorIds} />
         <ul className="ui-container">
           {actorIds.map((id) => (
-            <ActorItem id={id} key={id} />
+            <ActorController id={id} key={id} />
           ))}
         </ul>
       </div>

@@ -23,7 +23,7 @@ type ActionLogPanelProps = {
  * - `SchedulePreview` と同じ構造: 先頭に経過時間 (`gameTimeMs`) 列、続けて actor 列
  * - `gameTimeMs` は共通ゲームクロック由来の決定論的な値のため、\
  *   同一 tick で複数 actor が行動した場合は1行にまとまる
- * - intent は actor 行 (`ActorItem`) 側で表示するため、タイムラインには含めない
+ * - intent は actor 行 (`ActorController`) 側で表示するため、タイムラインには含めない
  */
 export const ActionLogPanel = (props: ActionLogPanelProps) => {
   const { actorIds } = props

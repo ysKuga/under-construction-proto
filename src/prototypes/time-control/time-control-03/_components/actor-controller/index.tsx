@@ -14,7 +14,7 @@ import { DEFAULT_ACTOR_INFO } from '../../_stores/actor-store'
 import { DEFAULT_POSITION } from '../../_stores/position-store'
 import { ActorId } from '../../types'
 
-type ActorItemProps = {
+type ActorControllerProps = {
   /** 表示対象の actor */
   id: ActorId
 }
@@ -26,7 +26,7 @@ const TICK_MS_OPTIONS = Array.from(
 )
 
 /**
- * actor 1体分の表示・操作
+ * actor 1体分の操作コントローラー
  *
  * - memo + 自身の id のみを鍵にした selector により、他 actor の移動では\
  *   再レンダリングされない
@@ -35,7 +35,7 @@ const TICK_MS_OPTIONS = Array.from(
  * - 現在の企図 (intent) は経路 (`pathById`) の最終要素 (= target) から表示する。\
  *   経路が空なら企図なし/到達済み
  */
-export const ActorItem = memo((props: ActorItemProps) => {
+export const ActorController = memo((props: ActorControllerProps) => {
   const { id } = props
 
   const position = usePositionStore(
@@ -141,4 +141,4 @@ export const ActorItem = memo((props: ActorItemProps) => {
   )
 })
 
-ActorItem.displayName = 'ActorItem'
+ActorController.displayName = 'ActorController'
