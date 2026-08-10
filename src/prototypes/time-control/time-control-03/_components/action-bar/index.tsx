@@ -34,7 +34,7 @@ export const ActionBar = (props: ActionBarProps) => {
     (state) => state.setProgressMode,
   )
   const resetActorSettings = useActorSettingsStore((state) => state.reset)
-  const dispatchAction = usePositionStore((state) => state.dispatchAction)
+  const dispatchActions = usePositionStore((state) => state.dispatchActions)
   const resetPosition = usePositionStore((state) => state.reset)
   const resetActor = useActorStore((state) => state.reset)
   const resetPath = usePathStore((state) => state.reset)
@@ -45,7 +45,7 @@ export const ActionBar = (props: ActionBarProps) => {
     <div className="flex gap-2 p-2">
       <Button
         onClick={() => {
-          actorIds.forEach((id) => dispatchAction(id))
+          dispatchActions(actorIds)
         }}
         type="button"
       >
