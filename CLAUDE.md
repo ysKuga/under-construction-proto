@@ -96,6 +96,7 @@ Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存�
 - 導入済なら Playwright script で `chromium.launch()` 直接可、`chromium-cli` 不在時の代替手段。
 - 検証スクリプトは `scratch/verify.mjs` 固定名で作成(都度別名 `verify-xxx.mjs` は禁止)。\
   許可リスト肥大化防止のため。内容は毎回上書き、`scratch/` は gitignore 対象。
+- 検証完了後、`scratch/verify.mjs` 削除する。放置禁止。
 
 ### Storybook 常駐
 
