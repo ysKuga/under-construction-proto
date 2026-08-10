@@ -19,6 +19,9 @@ export type PathState = {
 
 export type PathStore = StoreApi<PathState>
 
+/** 未行動 actor のデフォルト経路 (固定参照、selector の再レンダリング抑制用) */
+export const DEFAULT_PATH: MovePath = []
+
 const INITIAL_STATE = {
   pathById: {},
 } satisfies Partial<PathState>
