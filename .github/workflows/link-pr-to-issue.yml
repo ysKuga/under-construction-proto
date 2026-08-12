@@ -1,0 +1,59 @@
+name: Link PR to issue
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  link-pr-to-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Append PR link to issue body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref
+            const match = branch.match(/^(\d+)-/)
+            if (!match) {
+              core.info(`branch "${branch}" has no leading issue number, skip`)
+              return
+            }
+
+            const issueNumber = Number(match[1])
+            const prNumber = context.payload.pull_request.number
+            const prRef = `#${prNumber}`
+
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+            })
+
+            if (issue.body && issue.body.includes(prRef)) {
+              core.info(`issue #${issueNumber} already references ${prRef}, skip`)
+              return
+            }
+
+            const marker = '## PR\n\n'
+            const prLine = `- ${prRef} \n`
+            let body = issue.body || ''
+
+            if (body.includes(marker)) {
+              const insertAt = body.indexOf(marker) + marker.length
+              body = body.slice(0, insertAt) + prLine + body.slice(insertAt)
+            } else {
+              body = `${body.trimEnd()}\n\n${marker}${prLine}`
+            }
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body,
+            })
+
+            core.info(`linked ${prRef} to issue #${issueNumber}`)
