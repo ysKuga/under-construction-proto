@@ -4,53 +4,60 @@
 
 - `_stores/` と `_contexts/` に分散している store 実装・context 実装を、store 単位のディレクトリにまとめる
 - store 用 context の共通生成関数を導入し、重複している定型コードを削減する
-- `_stores` ⇔ `_contexts` 間の依存方向を ESLint で明示的に制約する
+- `_stores` 内の store 間依存を、実装 (`store.ts`) ではなく型・定数のみに限定し、循環 import の余地を無くす
 
 ## 背景・制約
 
-- 現状構成:
+- 旧構成:
   - `_stores/*.ts`: `create-xxx-store` (zustand vanilla store 生成関数) + `XxxState`/`XxxStore` 型
   - `_contexts/*-store-context.tsx`: 対応する `XxxStoreContext` (React Context) + `useXxxStore` (selector hook)
   - `_contexts/stores-provider.tsx`: 全 store を生成し、対応する Context.Provider をネストして配布する集約 provider
   - `_contexts/stage-transform-context.tsx`: store に依存しない、計算値 (stage transform) を配布するだけの context (共通化対象外)
 - 対象 store は7つ: `game-clock` / `actor` / `actor-settings` / `path` / `planned-path` / `position` / `intent`
-  - 依存関係 (`stores-provider.tsx` の生成順から): `position` は `actor`/`actor-settings`/`path`/`game-clock` に依存、`intent` はさらに `planned-path`/`position` にも依存
-- 各 `*-store-context.tsx` の実装パターン比較:
+  - 依存関係: `position` は `actor`/`actor-settings`/`path`/`game-clock` に依存、`intent` はさらに `planned-path`/`position` にも依存
+- 旧 `*-store-context.tsx` の実装パターン比較:
   - 基本形 (`actor-settings`/`actor`/`intent`/`path`/`planned-path` の5つ): `createContext<Store | null>(null)` → `useContext` → `null` なら throw → `useStore(store, selector)` という完全同型の実装
   - `game-clock-store-context.tsx`: 基本形 + `useGameClockStore` に `equalityFn` 引数を追加
-  - `position-store-context.tsx`: context 取得部分を内部関数 `usePositionStoreContext` に切り出し、`useStore` で包む `usePositionStore` (selector 版) と生 store をそのまま返す `usePositionStoreApi` (ref 経由の直接購読向け) の2つを export
-- ESLint (`.eslintrc.cjs`) は `import/no-restricted-paths` で `src/features` 間の依存を既に制御している。`_stores`/`_contexts` 間には同種のルールが未設定
-- `src/prototypes/CLAUDE.md` のバージョン間依存ルール (`time-control-01 → 02 → 03` の一方向 import) は今回のディレクトリ再編でも維持する
+  - `position-store-context.tsx`: `usePositionStore` (selector 版) と生 store をそのまま返す `usePositionStoreApi` (ref 経由の直接購読向け) の2つを export
+- `src/prototypes/CLAUDE.md` のバージョン間依存ルール (`time-control-01 → 02 → 03` の一方向 import) は今回のディレクトリ再編でも維持 (逆依存の混入なし、確認済み)
 
 ## 決定事項
 
-- 新ディレクトリ命名は既存の `_stores`/`_contexts`/`_components`/`_lib` の慣習 (アンダースコア prefix = Next.js private folder 規約) を踏襲し、`_stores/<name>/` とする (`stores/<name>/` ではない)
-- `_contexts/` は非 store 系 context 専用ディレクトリとして存続させる (`stage-transform-context.tsx` はここに残す)
-  - `stores-provider.tsx` の移設要否は実装計画内で個別に検討する (store 集約役という点では store 側寄りだが、非 store 系 context 専用という方針とは矛盾しうる)
+- 新ディレクトリ命名は既存の `_stores`/`_contexts`/`_components`/`_lib` の慣習 (アンダースコア prefix = Next.js private folder 規約) を踏襲し、`_stores/<name>/` とする
+- `_contexts/` は非 store 系 context (`stage-transform-context.tsx`) と、全 store を集約する `stores-provider.tsx` の置き場として存続
+- 共通 context 生成関数 `createStoreContext` は prototype 内ではなく `src/stores/utils/create-store-context.ts` に配置 (店固有ではない汎用実装のため昇格)
+  - シグネチャ: `createStoreContext<State>(storeName: string)` → `{ StoreContext, useStoreApi, useStoreSelector }`
+  - `storeName` (例 `'ActorSettings'`) からエラーメッセージ用の hook 名・Context 名を動的生成
+  - `equalityFn` は `useStoreSelector` の optional 第2引数として標準搭載、`game-clock` 以外は単に渡さないだけで対応
+  - `position` の `usePositionStoreApi` (生 store 版) は `useStoreApi` を context.tsx 側で追加 export する形で対応
+- 各 store 配下、型・定数を `types.ts`/`constants.ts` に分離 (定数を持たない store は `constants.ts` 自体作らない)
+- 種類別ファイル (`types.ts`/`constants.ts`) の集約 index `_stores/_types/index.ts`・`_stores/_constants/index.ts` を新設
+  - 汎用ルールとして `.claude/rules/aggregation-index.md` に切り出し、`CLAUDE.md` から読込む形にした
+  - store が増える・型/定数分離が進むたびに集約 index への re-export を追加していく運用
+- 各 store の `index.ts` は実装 (`store.ts`) と hook/context (`context.tsx`) のみ re-export。`types.ts`/`constants.ts` は re-export しない
+  - 理由: re-export すると型・定数の取得経路が「集約 index」と「対象自身の index.ts (実装も引き連れる)」の2通り生まれ、後者を誤って通ると実装依存の混入・循環 import の余地が生じるため
+- 参照経路ルール (確定):
+  - 対象内部 (`store.ts`/`context.tsx`): `./types` `./constants` 直接
+  - 他 store (`position/store.ts` 等): `_types`/`_constants` 集約 index 経由
+  - component・`_lib` 等の外部消費者: 種類別ファイルへ直接 (`_stores/actor-settings/constants` 等、集約 index は経由しない)
+- ESLint (`import/no-restricted-paths`) によるルール機構化は今回は見送り。上記ルールは規約 (CLAUDE.md/rules) 運用のみで担保する
 
-## 実装計画
+## 実装計画 (完了)
 
-- [ ] store 単位ディレクトリへの再編
-  - [ ] `_stores/<name>/store.ts` (旧 `_stores/<name>-store.ts` の中身を移設)
-  - [ ] `_stores/<name>/context.tsx` (旧 `_contexts/<name>-store-context.tsx` の中身を移設)
-  - [ ] `_stores/<name>/index.ts` (store.ts・context.tsx の re-export)
-  - [ ] 対象7 store (`game-clock`/`actor`/`actor-settings`/`path`/`planned-path`/`position`/`intent`) 分すべて実施
-  - [ ] 旧 `_stores/*.ts` / `_contexts/*-store-context.tsx` の削除、全 import 元の参照更新
-- [ ] store 用 context 共通生成関数の実装
-  - [ ] 置き場所決定 (`_stores/_lib/create-store-context.ts` 想定。固まった後の共通置き場 `time-control/_lib/` への昇格は将来検討、`src/prototypes/CLAUDE.md` ルールに従う)
-  - [ ] 基本形5 store をこの共通関数に置き換え
-  - [ ] `game-clock` の `equalityFn` 引数差異の扱い決定 (共通関数の selector hook に元々 optional 引数として持たせ、基本形5 store は単に渡さないだけにするか要検討)
-  - [ ] `position` の `useXxxStoreApi` (生 store 返却) 差異の扱い決定 (共通関数側で context 取得用の内部 hook も export し、必要な store のみ追加で使う形にするか要検討)
-- [ ] `stores-provider.tsx` の配置先決定・実施 (`_contexts/` 存続 or `_stores/` 側へ移設)
-- [ ] ESLint 依存ルール整備
-  - [ ] `_stores/<name>/store.ts` から 他 store の `context.tsx` への import を禁止 (store 同士は `store.ts` 経由のみで依存させる)
-  - [ ] `_contexts/` (非 store 系) から `_stores/*/store.ts` への直接 import を禁止し、`_stores/*/context.tsx` (または `index.ts`) 経由に限定
-  - [ ] `import/no-restricted-paths` の `zones` に time-control-03 用エントリを追加
-- [ ] 全 import 元 (`_components/*` 等) の参照パス更新、`yarn lint` / 既存テストで確認
+- [x] store 単位ディレクトリへの再編 (`game-clock`/`actor`/`actor-settings`/`path`/`planned-path`/`position`/`intent` 全7 store)
+  - 各 store とも「新設 (`_types`/`_constants` 反映含む) → 参照元切替 → 旧ファイル削除」の3コミットで実施
+- [x] store 用 context 共通生成関数 (`src/stores/utils/create-store-context.ts`) の実装・適用
+- [x] `equalityFn`・`usePositionStoreApi` の差異吸収
+- [x] 各 store の型・定数分離 (`types.ts`/`constants.ts`) と `_types`/`_constants` 集約 index の整備
+- [x] 各 store `index.ts` から types/constants の re-export を除去、参照経路ルールの確立
+- [x] `stores-provider.tsx` は `_contexts/` に残置 (対応済み)
+- [ ] ESLint 依存ルール整備 — 見送り (規約運用のみ、上記「決定事項」参照)
+- [x] 全 import 元 (`_components/*`・`_lib/*`・`__tests__/*` 等) の参照パス更新、型チェック・lint・既存テスト (`__tests__/`) 通過確認
+
+## 将来検討
+
+今回 PR 対象外の項目は `20260812-time-control-03-stores-context-followups/design.md` へ移行済み。
 
 ## 懸念・リスク
 
-- 共通生成関数のジェネリクス設計 (`State`/`Store` の型パラメータ、`equalityFn` optional 引数、エラーメッセージ内の hook 名文字列化) が複雑化しすぎないか要検証
-- `position` のような「selector 版 + 生 store 版」の2 export パターンが今後増える場合、共通関数の API 拡張方針を先に決めておかないと再度ばらつく可能性
-- ディレクトリ再編は import パスの変更範囲が広い (`_components/*` 含む) ため、一括置換後の型チェック・lint・既存テスト (`__tests__/`) 通過を必ず確認する
-- `time-control-02` 以前のバージョンから `time-control-03` の store/context を import している箇所がないか事前確認要 (`src/prototypes/CLAUDE.md` の一方向依存ルール上、無いはずだが要確認)
+- `intent` store は他 store から型参照されないが、一貫性のため `_types` へは登録済み (未使用 re-export として残る)
