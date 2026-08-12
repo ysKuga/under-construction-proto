@@ -5,3 +5,4 @@
  *   ここに re-export を追加していく
  */
 export * from '../actor-settings/types'
+export * from '../actor/types'
