@@ -1,6 +1,6 @@
 import { createStoreContext } from '@/stores/utils/create-store-context'
 
-import { ActorSettingsState } from './store'
+import { ActorSettingsState } from './types'
 
 const { StoreContext, useStoreSelector } =
   createStoreContext<ActorSettingsState>('ActorSettings')
