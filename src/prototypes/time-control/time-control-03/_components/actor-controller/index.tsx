@@ -7,11 +7,10 @@ import { getTickMs } from '../../../time-control-02/_lib/get-tick-ms'
 import { useIntentStore } from '../../_contexts/intent-store-context'
 import { usePathStore } from '../../_contexts/path-store-context'
 import { usePositionStore } from '../../_contexts/position-store-context'
-import { DEFAULT_ACTOR_INFO, useActorStore } from '../../_stores/actor'
-import {
-  DEFAULT_ACTOR_SETTINGS,
-  useActorSettingsStore,
-} from '../../_stores/actor-settings'
+import { useActorStore } from '../../_stores/actor'
+import { DEFAULT_ACTOR_INFO } from '../../_stores/actor/constants'
+import { useActorSettingsStore } from '../../_stores/actor-settings'
+import { DEFAULT_ACTOR_SETTINGS } from '../../_stores/actor-settings/constants'
 import { DEFAULT_PATH } from '../../_stores/path-store'
 import { DEFAULT_POSITION } from '../../_stores/position-store'
 import { ActorId } from '../../types'

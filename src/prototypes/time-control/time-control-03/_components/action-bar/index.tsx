@@ -4,10 +4,8 @@ import { usePathStore } from '../../_contexts/path-store-context'
 import { usePlannedPathStore } from '../../_contexts/planned-path-store-context'
 import { usePositionStore } from '../../_contexts/position-store-context'
 import { useActorStore } from '../../_stores/actor'
-import {
-  DEFAULT_ACTOR_SETTINGS,
-  useActorSettingsStore,
-} from '../../_stores/actor-settings'
+import { useActorSettingsStore } from '../../_stores/actor-settings'
+import { DEFAULT_ACTOR_SETTINGS } from '../../_stores/actor-settings/constants'
 import { useGameClockStore } from '../../_stores/game-clock'
 import { ActorId } from '../../types'
 

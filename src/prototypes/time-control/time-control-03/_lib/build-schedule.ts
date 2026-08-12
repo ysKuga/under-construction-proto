@@ -1,5 +1,6 @@
 import { getTickMs } from '../../time-control-02/_lib/get-tick-ms'
-import { ActorInfo, DEFAULT_ACTOR_INFO } from '../_stores/actor'
+import { DEFAULT_ACTOR_INFO } from '../_stores/actor/constants'
+import { ActorInfo } from '../_stores/actor/types'
 import { ActorId, MovePath, ScheduleRow } from '../types'
 
 /**
