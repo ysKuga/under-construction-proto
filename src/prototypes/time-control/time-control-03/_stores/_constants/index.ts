@@ -6,3 +6,4 @@
  */
 export * from '../actor-settings/constants'
 export * from '../actor/constants'
+export * from '../path/constants'
