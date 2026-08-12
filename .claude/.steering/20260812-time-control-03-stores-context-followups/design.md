@@ -16,10 +16,13 @@
   - component が store 内部のデフォルト値定数に直接依存する形になっており、定数の値・構造が変わると呼び出し側の import・フォールバック記述も影響を受ける
   - 対応案: `_stores/<name>/` 側に「デフォルト値込みで値を取得する getter」(例: `getActorSettings(state, actorId)`) を定義し、component 側はデフォルト値定数を import せず getter 経由で値を取得する形にする
   - 対象: `actor-settings`/`actor`/`path`/`planned-path`/`position` 等、デフォルト値定数を持つ store 全般
-- [ ] ESLint (`import/no-restricted-paths`) による参照経路ルールの機構化
-  - 元 PR で確定した参照経路ルール (対象内部は直接、他 store は `_types`/`_constants` 集約経由、外部消費者は種類別ファイルへ直接) は現状 規約運用のみで、機構的な強制がない
-  - 違反を機械的に検出したい場合、`zones` 設計を検討する
+- [x] ~~ESLint (`import/no-restricted-paths`) による参照経路ルールの機構化~~ → 見送り
+
+## 決定事項
+
+- ESLint (`import/no-restricted-paths`) による機構化は見送り。参照経路ルールは規約運用のまま継続
+- 本フォローアップは「デフォルト値 getter 化の検討」から着手
 
 ## 懸念・リスク
 
-- 参照経路ルールが規約運用のみのため、レビュー時の見落としリスクは残ったまま (機構化までの暫定リスクとして認識)
+- 参照経路ルールが規約運用のみのため、レビュー時の見落としリスクは残ったまま (見送り済み、暫定リスクとして認識)
