@@ -7,6 +7,7 @@
 export * from '../actor-settings/types'
 export * from '../actor/types'
 export * from '../game-clock/types'
+export * from '../intent/types'
 export * from '../path/types'
 export * from '../planned-path/types'
 export * from '../position/types'
