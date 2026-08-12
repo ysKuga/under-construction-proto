@@ -16,11 +16,12 @@
 
 ## 実装計画
 
-- [ ] 経路探索アルゴリズム選定(グリッド上の単純さ優先、BFS想定)
-- [ ] 「予備」フェーズ: クリック地点までの経路計算、到達不能判定
-- [ ] 「実行」フェーズ: 経路に沿った逐次移動([stage-time-control](../20260716-stage-time-control/design.md) の時間管理機構に依存)
-- [ ] `MoveIntentEvent` / `resolveMoveIntent` との統合方針決定
-- [ ] 既存の隣接クリック・キーボード移動への影響確認(regression)
+- [x] 経路探索アルゴリズム選定(グリッド上の単純さ優先、BFS想定)
+- [x] 「予備」フェーズ: クリック地点までの経路計算、到達不能判定
+- [x] 「実行」フェーズ: 経路に沿った逐次移動([stage-time-control](../20260716-stage-time-control/design.md) の時間管理機構に依存)
+- [x] `MoveIntentEvent` / `resolveMoveIntent` との統合方針決定
+- ~~既存の隣接クリック・キーボード移動への影響確認(regression)~~
+  - 一旦対応範囲外で
 
 ## 決定事項
 
