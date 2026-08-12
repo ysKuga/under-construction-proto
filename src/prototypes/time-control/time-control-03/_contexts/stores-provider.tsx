@@ -9,15 +9,13 @@ import {
   createGameClockStore,
   GameClockStoreContext,
 } from '../_stores/game-clock'
-import { createIntentStore } from '../_stores/intent-store'
+import { createIntentStore, IntentStoreContext } from '../_stores/intent'
 import { createPathStore, PathStoreContext } from '../_stores/path'
 import {
   createPlannedPathStore,
   PlannedPathStoreContext,
 } from '../_stores/planned-path'
 import { createPositionStore, PositionStoreContext } from '../_stores/position'
-
-import { IntentStoreContext } from './intent-store-context'
 
 type StoresProviderProps = {
   children: ReactNode

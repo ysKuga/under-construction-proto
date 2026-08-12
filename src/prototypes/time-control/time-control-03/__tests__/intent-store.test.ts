@@ -1,7 +1,7 @@
 import { createActorStore } from '../_stores/actor'
 import { createActorSettingsStore } from '../_stores/actor-settings'
 import { createGameClockStore } from '../_stores/game-clock'
-import { createIntentStore } from '../_stores/intent-store'
+import { createIntentStore } from '../_stores/intent'
 import { createPathStore } from '../_stores/path'
 import { createPlannedPathStore } from '../_stores/planned-path'
 import { createPositionStore } from '../_stores/position'
