@@ -9,10 +9,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import { usePathStore } from '../../_contexts/path-store-context'
 import { buildSchedule } from '../../_lib/build-schedule'
 import { useActorStore } from '../../_stores/actor'
 import { useGameClockStore } from '../../_stores/game-clock'
+import { usePathStore } from '../../_stores/path'
 import { ActorId } from '../../types'
 
 type SchedulePreviewProps = {

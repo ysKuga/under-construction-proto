@@ -10,12 +10,11 @@ import {
   GameClockStoreContext,
 } from '../_stores/game-clock'
 import { createIntentStore } from '../_stores/intent-store'
-import { createPathStore } from '../_stores/path-store'
+import { createPathStore, PathStoreContext } from '../_stores/path'
 import { createPlannedPathStore } from '../_stores/planned-path-store'
 import { createPositionStore } from '../_stores/position-store'
 
 import { IntentStoreContext } from './intent-store-context'
-import { PathStoreContext } from './path-store-context'
 import { PlannedPathStoreContext } from './planned-path-store-context'
 import { PositionStoreContext } from './position-store-context'
 

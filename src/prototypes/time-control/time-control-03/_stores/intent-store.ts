@@ -5,8 +5,12 @@ import { generateMovePath } from '../_lib/generate-move-path'
 import { ActionLogEntry, MoveIntent } from '../types'
 
 import { DEFAULT_ACTOR_INFO, DEFAULT_ACTOR_SETTINGS } from './_constants'
-import { ActorSettingsStore, ActorStore, GameClockStore } from './_types'
-import { PathStore } from './path-store'
+import {
+  ActorSettingsStore,
+  ActorStore,
+  GameClockStore,
+  PathStore,
+} from './_types'
 import { PlannedPathStore } from './planned-path-store'
 import { DEFAULT_POSITION, PositionStore } from './position-store'
 
@@ -21,7 +25,7 @@ export type IntentStore = StoreApi<IntentState>
 /**
  * @param actorStore 移動速度・tick 発生頻度 (`_stores/actor/store.ts`)
  * @param actorSettingsStore 経路の最低 step 数 (`_stores/actor-settings/store.ts`)
- * @param pathStore 生成した経路の書き込み先 (`_stores/path-store.ts`)
+ * @param pathStore 生成した経路の書き込み先 (`_stores/path/store.ts`)
  * @param plannedPathStore 予定位置表示用の経路の書き込み先 (`_stores/planned-path-store.ts`)
  * @param positionStore 企図元の現在位置 (`_stores/position-store.ts`)
  * @param gameClockStore 共通ゲームクロック・履歴ログ (`_stores/game-clock/store.ts`)
