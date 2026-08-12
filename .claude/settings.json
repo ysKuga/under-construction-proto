@@ -40,9 +40,16 @@
       "Bash(gh pr *)",
       "Bash(git mv *)",
       "Bash(curl -s \"http://localhost:6006/index.json\")",
-      "Bash(git ls-tree *)"
+      "Bash(git ls-tree *)",
+      "Bash(find / -iname \"*.md\" -path \"*skills*steering*\")",
+      "Read(.claude/**)",
+      "Bash(find / -path *)",
+      "Bash(mkdir -p *)",
+      "Bash(echo \"exit: $?\")"
     ],
-    "additionalDirectories": ["./src"]
+    "additionalDirectories": [
+      "./src"
+    ]
   },
   "hooks": {
     "PostToolUse": [
