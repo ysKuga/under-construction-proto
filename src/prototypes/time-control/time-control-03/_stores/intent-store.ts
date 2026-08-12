@@ -4,10 +4,7 @@ import { getTickMs } from '../../time-control-02/_lib/get-tick-ms'
 import { generateMovePath } from '../_lib/generate-move-path'
 import { ActionLogEntry, MoveIntent } from '../types'
 
-import {
-  ActorSettingsStore,
-  DEFAULT_ACTOR_SETTINGS,
-} from './actor-settings-store'
+import { ActorSettingsStore, DEFAULT_ACTOR_SETTINGS } from './actor-settings'
 import { ActorStore, DEFAULT_ACTOR_INFO } from './actor-store'
 import { GameClockStore } from './game-clock-store'
 import { PathStore } from './path-store'
@@ -24,7 +21,7 @@ export type IntentStore = StoreApi<IntentState>
 
 /**
  * @param actorStore 移動速度・tick 発生頻度 (`_stores/actor-store.ts`)
- * @param actorSettingsStore 経路の最低 step 数 (`_stores/actor-settings-store.ts`)
+ * @param actorSettingsStore 経路の最低 step 数 (`_stores/actor-settings/store.ts`)
  * @param pathStore 生成した経路の書き込み先 (`_stores/path-store.ts`)
  * @param plannedPathStore 予定位置表示用の経路の書き込み先 (`_stores/planned-path-store.ts`)
  * @param positionStore 企図元の現在位置 (`_stores/position-store.ts`)

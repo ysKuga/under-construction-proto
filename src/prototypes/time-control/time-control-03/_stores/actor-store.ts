@@ -19,7 +19,7 @@ export type ActorInfo = {
 /**
  * actor の実装に直接関係する情報のみを保持する store
  *
- * - 経路の最低 step 数・行動進行モードは `_stores/actor-settings-store.ts` に分離
+ * - 経路の最低 step 数・行動進行モードは `_stores/actor-settings/store.ts` に分離
  * - position・経路・企図のロジックは持たない (それぞれ position-store/path-store/\
  *   intent-store に分離済み)
  * - `actorById` は自身の actor id のみを鍵にした selector で購読すれば、\

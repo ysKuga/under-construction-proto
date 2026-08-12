@@ -1,6 +1,6 @@
 import { createStore, StoreApi } from 'zustand/vanilla'
 
-import { ActorId, ProgressMode } from '../types'
+import { ActorId, ProgressMode } from '../../types'
 
 /** actor ごとの操作設定 (経路の step 数指定・行動進行モード) */
 export type ActorSettings = {
@@ -15,7 +15,7 @@ export type ActorSettings = {
 /**
  * actor の操作設定 (経路の step 数指定・行動進行モード) のみを保持する store
  *
- * - 移動速度・tick 発生頻度は actor の実装に直接関係するため `_stores/actor-store.ts` に分離
+ * - 移動速度・tick 発生頻度は actor の実装に直接関係するため `_stores/actor/store.ts` に分離
  */
 export type ActorSettingsState = {
   /** 操作設定を初期状態に戻す */
