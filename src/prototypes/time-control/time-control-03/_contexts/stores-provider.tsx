@@ -5,13 +5,15 @@ import {
   ActorSettingsStoreContext,
   createActorSettingsStore,
 } from '../_stores/actor-settings'
-import { createGameClockStore } from '../_stores/game-clock-store'
+import {
+  createGameClockStore,
+  GameClockStoreContext,
+} from '../_stores/game-clock'
 import { createIntentStore } from '../_stores/intent-store'
 import { createPathStore } from '../_stores/path-store'
 import { createPlannedPathStore } from '../_stores/planned-path-store'
 import { createPositionStore } from '../_stores/position-store'
 
-import { GameClockStoreContext } from './game-clock-store-context'
 import { IntentStoreContext } from './intent-store-context'
 import { PathStoreContext } from './path-store-context'
 import { PlannedPathStoreContext } from './planned-path-store-context'

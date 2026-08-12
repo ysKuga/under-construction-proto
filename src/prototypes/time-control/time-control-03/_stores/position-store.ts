@@ -4,8 +4,7 @@ import { getTickMs } from '../../time-control-02/_lib/get-tick-ms'
 import { ActionLogEntry, ActorId, Position } from '../types'
 
 import { DEFAULT_ACTOR_INFO, DEFAULT_ACTOR_SETTINGS } from './_constants'
-import { ActorSettingsStore, ActorStore } from './_types'
-import { GameClockStore } from './game-clock-store'
+import { ActorSettingsStore, ActorStore, GameClockStore } from './_types'
 import { PathStore } from './path-store'
 
 export type PositionState = {
@@ -41,7 +40,7 @@ const INITIAL_STATE = {
  * @param actorStore 移動速度・tick 発生頻度 (`_stores/actor/store.ts`)
  * @param actorSettingsStore 行動進行モード (`_stores/actor-settings/store.ts`)
  * @param pathStore 残り移動経路 (`_stores/path-store.ts`)
- * @param gameClockStore 共通ゲームクロック・履歴ログ (`_stores/game-clock-store.ts`)
+ * @param gameClockStore 共通ゲームクロック・履歴ログ (`_stores/game-clock/store.ts`)
  */
 export const createPositionStore = (
   actorStore: ActorStore,
