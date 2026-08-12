@@ -6,3 +6,4 @@
  */
 export * from '../actor-settings/types'
 export * from '../actor/types'
+export * from '../game-clock/types'
