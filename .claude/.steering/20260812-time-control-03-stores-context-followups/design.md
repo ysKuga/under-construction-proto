@@ -11,17 +11,19 @@
 
 ## 実装計画
 
-- [ ] デフォルト値 getter 化の検討
-  - 現状、`DEFAULT_ACTOR_SETTINGS`/`DEFAULT_ACTOR_INFO`/`DEFAULT_PATH` 等のデフォルト値定数は、component 側で `state.xxxById[id] ?? DEFAULT_XXX.yyy` の形で直接 import して使う実装が各所に見られる (`_components/actor-controller/index.tsx` 等)
-  - component が store 内部のデフォルト値定数に直接依存する形になっており、定数の値・構造が変わると呼び出し側の import・フォールバック記述も影響を受ける
-  - 対応案: `_stores/<name>/` 側に「デフォルト値込みで値を取得する getter」(例: `getActorSettings(state, actorId)`) を定義し、component 側はデフォルト値定数を import せず getter 経由で値を取得する形にする
-  - 対象: `actor-settings`/`actor`/`path`/`planned-path`/`position` 等、デフォルト値定数を持つ store 全般
+- [x] デフォルト値 getter 化
+  - `actor-settings`/`actor`/`path`/`planned-path`/`position` の5 store、`types.ts`/`store.ts` に `get<Name>(actorId)` メソッド追加 (state 内メソッドとして実装、`get().xxxById[id] ?? DEFAULT_XXX` を返す)
+  - component/`_lib`/`_contexts` 側の `state.xxxById[id] ?? DEFAULT_XXX` 直参照を `state.get<Name>(id)` 呼出に置換 (対象: `actor-controller`/`current-position-marker`/`planned-path-marker`/`action-bar`/`stage-transform-context`)
+  - `_lib/build-schedule.ts` は `Record<ActorId, ActorInfo>` を丸ごと受け取る純粋関数設計のため対象外 (getter 化するとシグネチャ変更 + テスト5箇所書換が必要になり範囲肥大化するため据置)
+  - store 内部 (setter 内・他 store からのクロスストア参照) の既存 fallback はスコープ外のまま維持
 - [x] ~~ESLint (`import/no-restricted-paths`) による参照経路ルールの機構化~~ → 見送り
 
 ## 決定事項
 
 - ESLint (`import/no-restricted-paths`) による機構化は見送り。参照経路ルールは規約運用のまま継続
-- 本フォローアップは「デフォルト値 getter 化の検討」から着手
+- デフォルト値 getter 化: 「getter」は selector 関数ではなく store state 自身のメソッドとして実装 (`getActorSettings(actorId)` 等、内部で `get().xxxById[id] ?? DEFAULT_XXX` を返す)。export 経路は既存 `index.ts` (`export * from './store'`) そのままで対応可能なため、新規集約 index は作成せず
+- `stage-transform-context.tsx` の `DEFAULT_POSITION` はコンポーネント内ローカル定義にせず `_stores/position/constants` から直接 import のまま維持 (`useShallow` 購読時、ローカル変数だと毎レンダーで新規オブジェクト参照になり shallow 比較が常に不一致判定される回帰リスクがあったため)
+- 型チェック (`tsc --noEmit`)・対象テスト (10 files / 51 tests)・ESLint、いずれも通過確認済み
 
 ## 懸念・リスク
 
