@@ -1,4 +1,4 @@
-import { createActorStore } from '../_stores/actor-store'
+import { createActorStore } from '../_stores/actor'
 
 test('未設定 actor の情報はデフォルト値', () => {
   const store = createActorStore()

@@ -1,10 +1,10 @@
-import { createActorSettingsStore } from '../_stores/actor-settings-store'
-import { createActorStore } from '../_stores/actor-store'
-import { createGameClockStore } from '../_stores/game-clock-store'
-import { createIntentStore } from '../_stores/intent-store'
-import { createPathStore } from '../_stores/path-store'
-import { createPlannedPathStore } from '../_stores/planned-path-store'
-import { createPositionStore } from '../_stores/position-store'
+import { createActorStore } from '../_stores/actor'
+import { createActorSettingsStore } from '../_stores/actor-settings'
+import { createGameClockStore } from '../_stores/game-clock'
+import { createIntentStore } from '../_stores/intent'
+import { createPathStore } from '../_stores/path'
+import { createPlannedPathStore } from '../_stores/planned-path'
+import { createPositionStore } from '../_stores/position'
 
 const setup = () => {
   const actorStore = createActorStore()

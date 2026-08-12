@@ -1,0 +1,13 @@
+/**
+ * 各 store の types.ts を再 export する集約 index
+ *
+ * - 型分離済み (`_stores/<name>/types.ts` を持つ) store が増えるたびに、\
+ *   ここに re-export を追加していく
+ */
+export * from '../actor-settings/types'
+export * from '../actor/types'
+export * from '../game-clock/types'
+export * from '../intent/types'
+export * from '../path/types'
+export * from '../planned-path/types'
+export * from '../position/types'

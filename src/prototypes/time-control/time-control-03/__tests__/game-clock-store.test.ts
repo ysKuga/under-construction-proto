@@ -1,4 +1,4 @@
-import { createGameClockStore } from '../_stores/game-clock-store'
+import { createGameClockStore } from '../_stores/game-clock'
 import { ActionLogEntry } from '../types'
 
 test('advanceTickMs 省略時はクロックを進めず現在値をそのまま使う', () => {

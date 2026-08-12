@@ -1,0 +1,49 @@
+import { createStore } from 'zustand/vanilla'
+
+import { DEFAULT_ACTOR_SETTINGS } from './constants'
+import { ActorSettingsState, ActorSettingsStore } from './types'
+
+const INITIAL_STATE = {
+  settingsById: {},
+} satisfies Partial<ActorSettingsState>
+
+export const createActorSettingsStore = (): ActorSettingsStore =>
+  createStore<ActorSettingsState>((set) => ({
+    ...INITIAL_STATE,
+    reset: () => {
+      set(INITIAL_STATE)
+    },
+    setFixedPathSteps: (actorId, steps) => {
+      set((state) => ({
+        settingsById: {
+          ...state.settingsById,
+          [actorId]: {
+            ...(state.settingsById[actorId] ?? DEFAULT_ACTOR_SETTINGS),
+            fixedPathSteps: steps,
+          },
+        },
+      }))
+    },
+    setIsFixedPathSteps: (actorId, isFixed) => {
+      set((state) => ({
+        settingsById: {
+          ...state.settingsById,
+          [actorId]: {
+            ...(state.settingsById[actorId] ?? DEFAULT_ACTOR_SETTINGS),
+            isFixedPathSteps: isFixed,
+          },
+        },
+      }))
+    },
+    setProgressMode: (actorId, mode) => {
+      set((state) => ({
+        settingsById: {
+          ...state.settingsById,
+          [actorId]: {
+            ...(state.settingsById[actorId] ?? DEFAULT_ACTOR_SETTINGS),
+            progressMode: mode,
+          },
+        },
+      }))
+    },
+  }))

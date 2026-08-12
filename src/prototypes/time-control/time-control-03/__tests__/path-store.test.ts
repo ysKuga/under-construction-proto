@@ -1,4 +1,4 @@
-import { createPathStore } from '../_stores/path-store'
+import { createPathStore } from '../_stores/path'
 
 test('未設定 actor の経路は空扱い', () => {
   const store = createPathStore()

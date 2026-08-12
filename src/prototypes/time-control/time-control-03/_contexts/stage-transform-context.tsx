@@ -2,11 +2,10 @@ import { createContext, ReactNode, useContext, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { computeFitTransform, StageTransform } from '../_lib/stage-coords'
-import { DEFAULT_PLANNED_PATH } from '../_stores/planned-path-store'
-import { DEFAULT_POSITION } from '../_stores/position-store'
+import { usePlannedPathStore } from '../_stores/planned-path'
+import { DEFAULT_PLANNED_PATH } from '../_stores/planned-path/constants'
+import { DEFAULT_POSITION } from '../_stores/position/constants'
 import { ActorId } from '../types'
-
-import { usePlannedPathStore } from './planned-path-store-context'
 
 const StageTransformContext = createContext<null | StageTransform>(null)
 

@@ -1,20 +1,21 @@
 import { ReactNode, useState } from 'react'
 
-import { createActorSettingsStore } from '../_stores/actor-settings-store'
-import { createActorStore } from '../_stores/actor-store'
-import { createGameClockStore } from '../_stores/game-clock-store'
-import { createIntentStore } from '../_stores/intent-store'
-import { createPathStore } from '../_stores/path-store'
-import { createPlannedPathStore } from '../_stores/planned-path-store'
-import { createPositionStore } from '../_stores/position-store'
-
-import { ActorSettingsStoreContext } from './actor-settings-store-context'
-import { ActorStoreContext } from './actor-store-context'
-import { GameClockStoreContext } from './game-clock-store-context'
-import { IntentStoreContext } from './intent-store-context'
-import { PathStoreContext } from './path-store-context'
-import { PlannedPathStoreContext } from './planned-path-store-context'
-import { PositionStoreContext } from './position-store-context'
+import { ActorStoreContext, createActorStore } from '../_stores/actor'
+import {
+  ActorSettingsStoreContext,
+  createActorSettingsStore,
+} from '../_stores/actor-settings'
+import {
+  createGameClockStore,
+  GameClockStoreContext,
+} from '../_stores/game-clock'
+import { createIntentStore, IntentStoreContext } from '../_stores/intent'
+import { createPathStore, PathStoreContext } from '../_stores/path'
+import {
+  createPlannedPathStore,
+  PlannedPathStoreContext,
+} from '../_stores/planned-path'
+import { createPositionStore, PositionStoreContext } from '../_stores/position'
 
 type StoresProviderProps = {
   children: ReactNode

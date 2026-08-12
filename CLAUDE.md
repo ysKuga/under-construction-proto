@@ -86,6 +86,10 @@ export const reducePointerState = (
 
 @.claude/rules/react/hooks.md
 
+### ディレクトリ構成
+
+@.claude/rules/aggregation-index.md
+
 ## テスト実行
 
 一時検証テスト(`__verify__.test.tsx` 等)実行時、`NEXT_PUBLIC_API_URL=http://localhost:3000` 付与のみで標準 `vitest.config.ts` 使用可。setupFiles 外した一時 config 作成不要。

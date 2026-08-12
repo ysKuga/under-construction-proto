@@ -1,7 +1,5 @@
-import {
-  createActorSettingsStore,
-  DEFAULT_ACTOR_SETTINGS,
-} from '../_stores/actor-settings-store'
+import { createActorSettingsStore } from '../_stores/actor-settings'
+import { DEFAULT_ACTOR_SETTINGS } from '../_stores/actor-settings/constants'
 
 test('未設定 actor の設定はデフォルト値', () => {
   const store = createActorSettingsStore()

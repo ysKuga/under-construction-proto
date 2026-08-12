@@ -1,4 +1,4 @@
-import { createPlannedPathStore } from '../_stores/planned-path-store'
+import { createPlannedPathStore } from '../_stores/planned-path'
 
 test('未設定 actor の予定経路は空扱い', () => {
   const store = createPlannedPathStore()

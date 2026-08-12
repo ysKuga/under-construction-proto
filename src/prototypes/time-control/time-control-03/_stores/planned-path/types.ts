@@ -1,6 +1,6 @@
-import { createStore, StoreApi } from 'zustand/vanilla'
+import { StoreApi } from 'zustand/vanilla'
 
-import { ActorId, MovePath } from '../types'
+import { ActorId, MovePath } from '../../types'
 
 /**
  * actor ごとの「予定位置」表示専用の経路を保持する store
@@ -19,23 +19,3 @@ export type PlannedPathState = {
 }
 
 export type PlannedPathStore = StoreApi<PlannedPathState>
-
-/** 未企図 actor のデフォルト予定経路 (固定参照、selector の再レンダリング抑制用) */
-export const DEFAULT_PLANNED_PATH: MovePath = []
-
-const INITIAL_STATE = {
-  plannedPathById: {},
-} satisfies Partial<PlannedPathState>
-
-export const createPlannedPathStore = (): PlannedPathStore =>
-  createStore<PlannedPathState>((set) => ({
-    ...INITIAL_STATE,
-    reset: () => {
-      set(INITIAL_STATE)
-    },
-    setPlannedPath: (actorId, path) => {
-      set((state) => ({
-        plannedPathById: { ...state.plannedPathById, [actorId]: path },
-      }))
-    },
-  }))

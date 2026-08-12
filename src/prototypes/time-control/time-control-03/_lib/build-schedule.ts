@@ -1,5 +1,6 @@
 import { getTickMs } from '../../time-control-02/_lib/get-tick-ms'
-import { ActorInfo, DEFAULT_ACTOR_INFO } from '../_stores/actor-store'
+import { DEFAULT_ACTOR_INFO } from '../_stores/actor/constants'
+import { ActorInfo } from '../_stores/actor/types'
 import { ActorId, MovePath, ScheduleRow } from '../types'
 
 /**
@@ -11,9 +12,9 @@ import { ActorId, MovePath, ScheduleRow } from '../types'
  * - 複数 actor 間の実際の実行順序 (auto 進行の実時間ずれ) までは正確にシミュレートしない近似値
  *
  * @param actorIds 対象 actor 一覧
- * @param pathById actor ごとの残り経路 (`_stores/path-store.ts`)
- * @param actorById actor ごとの移動速度・tick 発生頻度 (`_stores/actor-store.ts`)
- * @param commonGameTimeMs 共通ゲームクロックの現在値 (`_stores/game-clock-store.ts`)
+ * @param pathById actor ごとの残り経路 (`_stores/path/store.ts`)
+ * @param actorById actor ごとの移動速度・tick 発生頻度 (`_stores/actor/store.ts`)
+ * @param commonGameTimeMs 共通ゲームクロックの現在値 (`_stores/game-clock/store.ts`)
  */
 export const buildSchedule = (
   actorIds: ActorId[],
