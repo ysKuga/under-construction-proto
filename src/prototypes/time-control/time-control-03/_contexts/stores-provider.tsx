@@ -11,11 +11,13 @@ import {
 } from '../_stores/game-clock'
 import { createIntentStore } from '../_stores/intent-store'
 import { createPathStore, PathStoreContext } from '../_stores/path'
-import { createPlannedPathStore } from '../_stores/planned-path-store'
+import {
+  createPlannedPathStore,
+  PlannedPathStoreContext,
+} from '../_stores/planned-path'
 import { createPositionStore } from '../_stores/position-store'
 
 import { IntentStoreContext } from './intent-store-context'
-import { PlannedPathStoreContext } from './planned-path-store-context'
 import { PositionStoreContext } from './position-store-context'
 
 type StoresProviderProps = {

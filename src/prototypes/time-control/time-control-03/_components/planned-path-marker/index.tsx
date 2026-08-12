@@ -1,9 +1,9 @@
 import { memo } from 'react'
 
-import { usePlannedPathStore } from '../../_contexts/planned-path-store-context'
 import { useStageTransform } from '../../_contexts/stage-transform-context'
 import { toPixelStyle } from '../../_lib/stage-coords'
-import { DEFAULT_PLANNED_PATH } from '../../_stores/planned-path-store'
+import { usePlannedPathStore } from '../../_stores/planned-path'
+import { DEFAULT_PLANNED_PATH } from '../../_stores/planned-path/constants'
 import { ActorId } from '../../types'
 
 type PlannedPathMarkerProps = {
