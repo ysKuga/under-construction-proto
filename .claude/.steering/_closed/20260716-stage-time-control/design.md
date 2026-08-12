@@ -20,9 +20,9 @@ stage 内の時間経過を管理する機構を実装する。\
 
 ## 実装計画
 
-- [ ] `EventLog`: 時刻付きイベントログ(`{ time, event }[]` 形式、持ち越し型)。React 非依存、TypeScript のみ
-- [ ] mousedown/focusout/mouseup による drag/click/drop 状態機械(習作)。生 DOM イベントを `EventLog` に積み、時間進行時に解釈する形で実装
-- [ ] ターン制/リアルタイム切替・速度指定・加速は設計方針の検討に留め、実装は次段階以降(今回スコープ外)
+- [x] `EventLog`: 時刻付きイベントログ(`{ time, event }[]` 形式、持ち越し型)。React 非依存、TypeScript のみ
+- [x] mousedown/focusout/mouseup による drag/click/drop 状態機械(習作)。生 DOM イベントを `EventLog` に積み、時間進行時に解釈する形で実装
+- [x] ターン制/リアルタイム切替・速度指定・加速は設計方針の検討に留め、実装は次段階以降(今回スコープ外)
 
 ## 決定事項
 
