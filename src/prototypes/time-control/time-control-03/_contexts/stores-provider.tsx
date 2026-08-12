@@ -15,10 +15,9 @@ import {
   createPlannedPathStore,
   PlannedPathStoreContext,
 } from '../_stores/planned-path'
-import { createPositionStore } from '../_stores/position-store'
+import { createPositionStore, PositionStoreContext } from '../_stores/position'
 
 import { IntentStoreContext } from './intent-store-context'
-import { PositionStoreContext } from './position-store-context'
 
 type StoresProviderProps = {
   children: ReactNode

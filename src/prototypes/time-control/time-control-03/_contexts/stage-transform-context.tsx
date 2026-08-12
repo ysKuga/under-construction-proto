@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { computeFitTransform, StageTransform } from '../_lib/stage-coords'
 import { usePlannedPathStore } from '../_stores/planned-path'
 import { DEFAULT_PLANNED_PATH } from '../_stores/planned-path/constants'
-import { DEFAULT_POSITION } from '../_stores/position-store'
+import { DEFAULT_POSITION } from '../_stores/position/constants'
 import { ActorId } from '../types'
 
 const StageTransformContext = createContext<null | StageTransform>(null)

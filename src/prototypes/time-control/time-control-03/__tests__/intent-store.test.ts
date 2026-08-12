@@ -4,7 +4,7 @@ import { createGameClockStore } from '../_stores/game-clock'
 import { createIntentStore } from '../_stores/intent-store'
 import { createPathStore } from '../_stores/path'
 import { createPlannedPathStore } from '../_stores/planned-path'
-import { createPositionStore } from '../_stores/position-store'
+import { createPositionStore } from '../_stores/position'
 
 const setup = () => {
   const actorStore = createActorStore()

@@ -1,12 +1,12 @@
 import { memo, useEffect, useRef } from 'react'
 
 import { getTickMs } from '../../../time-control-02/_lib/get-tick-ms'
-import { usePositionStoreApi } from '../../_contexts/position-store-context'
 import { useStageTransform } from '../../_contexts/stage-transform-context'
 import { toPixelStyle } from '../../_lib/stage-coords'
 import { useActorStore } from '../../_stores/actor'
 import { DEFAULT_ACTOR_INFO } from '../../_stores/actor/constants'
-import { DEFAULT_POSITION } from '../../_stores/position-store'
+import { usePositionStoreApi } from '../../_stores/position'
+import { DEFAULT_POSITION } from '../../_stores/position/constants'
 import { ActorId, Position } from '../../types'
 
 type CurrentPositionMarkerProps = {
