@@ -3,8 +3,8 @@ import { createStore, StoreApi } from 'zustand/vanilla'
 import { getTickMs } from '../../time-control-02/_lib/get-tick-ms'
 import { ActionLogEntry, ActorId, Position } from '../types'
 
-import { ActorStore, DEFAULT_ACTOR_INFO } from './actor'
-import { ActorSettingsStore, DEFAULT_ACTOR_SETTINGS } from './actor-settings'
+import { DEFAULT_ACTOR_INFO, DEFAULT_ACTOR_SETTINGS } from './_constants'
+import { ActorSettingsStore, ActorStore } from './_types'
 import { GameClockStore } from './game-clock-store'
 import { PathStore } from './path-store'
 
