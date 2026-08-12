@@ -3,7 +3,6 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { computeFitTransform, StageTransform } from '../_lib/stage-coords'
 import { usePlannedPathStore } from '../_stores/planned-path'
-import { DEFAULT_PLANNED_PATH } from '../_stores/planned-path/constants'
 import { DEFAULT_POSITION } from '../_stores/position/constants'
 import { ActorId } from '../types'
 
@@ -33,7 +32,7 @@ export const StageTransformProvider = (props: StageTransformProviderProps) => {
   const targets = usePlannedPathStore(
     useShallow((state) =>
       actorIds.map((id) => {
-        const path = state.plannedPathById[id] ?? DEFAULT_PLANNED_PATH
+        const path = state.getPlannedPath(id)
 
         return path[path.length - 1] ?? DEFAULT_POSITION
       }),

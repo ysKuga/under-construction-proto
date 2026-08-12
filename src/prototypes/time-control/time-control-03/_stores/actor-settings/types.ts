@@ -18,6 +18,8 @@ export type ActorSettings = {
  * - 移動速度・tick 発生頻度は actor の実装に直接関係するため `_stores/actor/store.ts` に分離
  */
 export type ActorSettingsState = {
+  /** actor ごとの操作設定を取得する (未設定時はデフォルト値を返す) */
+  getActorSettings: (actorId: ActorId) => ActorSettings
   /** 操作設定を初期状態に戻す */
   reset: () => void
   /** 固定 step 数を設定する (`isFixedPathSteps` が true の時のみ意味を持つ) */

@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button'
 
 import { useActorStore } from '../../_stores/actor'
 import { useActorSettingsStore } from '../../_stores/actor-settings'
-import { DEFAULT_ACTOR_SETTINGS } from '../../_stores/actor-settings/constants'
 import { useGameClockStore } from '../../_stores/game-clock'
 import { usePathStore } from '../../_stores/path'
 import { usePlannedPathStore } from '../../_stores/planned-path'
@@ -26,9 +25,7 @@ export const ActionBar = (props: ActionBarProps) => {
   const { actorIds } = props
 
   const progressMode = useActorSettingsStore(
-    (state) =>
-      state.settingsById[actorIds[0]]?.progressMode ??
-      DEFAULT_ACTOR_SETTINGS.progressMode,
+    (state) => state.getActorSettings(actorIds[0]).progressMode,
   )
   const setProgressMode = useActorSettingsStore(
     (state) => state.setProgressMode,

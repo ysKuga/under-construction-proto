@@ -1,5 +1,6 @@
 import { createStore } from 'zustand/vanilla'
 
+import { DEFAULT_PLANNED_PATH } from './constants'
 import { PlannedPathState, PlannedPathStore } from './types'
 
 const INITIAL_STATE = {
@@ -7,8 +8,10 @@ const INITIAL_STATE = {
 } satisfies Partial<PlannedPathState>
 
 export const createPlannedPathStore = (): PlannedPathStore =>
-  createStore<PlannedPathState>((set) => ({
+  createStore<PlannedPathState>((set, get) => ({
     ...INITIAL_STATE,
+    getPlannedPath: (actorId) =>
+      get().plannedPathById[actorId] ?? DEFAULT_PLANNED_PATH,
     reset: () => {
       set(INITIAL_STATE)
     },

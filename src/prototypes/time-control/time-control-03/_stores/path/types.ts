@@ -9,6 +9,8 @@ import { ActorId, MovePath } from '../../types'
  *   それぞれ本 store を経由して読み書きする
  */
 export type PathState = {
+  /** actor の残り移動経路を取得する (未設定時はデフォルト値を返す) */
+  getPath: (actorId: ActorId) => MovePath
   /** actor ごとの残り移動経路 */
   pathById: Record<ActorId, MovePath>
   /** 経路を初期状態に戻す */

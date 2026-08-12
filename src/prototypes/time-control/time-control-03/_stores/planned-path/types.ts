@@ -10,6 +10,8 @@ import { ActorId, MovePath } from '../../types'
  *   (`PlannedPathMarker` が行動決定で再レンダリングされないようにするため)
  */
 export type PlannedPathState = {
+  /** actor の予定経路を取得する (未設定時はデフォルト値を返す) */
+  getPlannedPath: (actorId: ActorId) => MovePath
   /** actor ごとの予定経路 (表示専用) */
   plannedPathById: Record<ActorId, MovePath>
   /** 予定経路を初期状態に戻す */

@@ -30,6 +30,8 @@ export type ActorInfo = {
 export type ActorState = {
   /** actor ごとの情報 */
   actorById: Record<ActorId, ActorInfo>
+  /** actor の情報を取得する (未設定時はデフォルト値を返す) */
+  getActorInfo: (actorId: ActorId) => ActorInfo
   /** actor の情報を初期状態に戻す */
   reset: () => void
   /**

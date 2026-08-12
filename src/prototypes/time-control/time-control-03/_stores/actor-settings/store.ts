@@ -8,8 +8,10 @@ const INITIAL_STATE = {
 } satisfies Partial<ActorSettingsState>
 
 export const createActorSettingsStore = (): ActorSettingsStore =>
-  createStore<ActorSettingsState>((set) => ({
+  createStore<ActorSettingsState>((set, get) => ({
     ...INITIAL_STATE,
+    getActorSettings: (actorId) =>
+      get().settingsById[actorId] ?? DEFAULT_ACTOR_SETTINGS,
     reset: () => {
       set(INITIAL_STATE)
     },
