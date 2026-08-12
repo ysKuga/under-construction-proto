@@ -10,6 +10,7 @@ import {
   PathStore,
 } from '../_types'
 
+import { DEFAULT_POSITION } from './constants'
 import { PositionState, PositionStore } from './types'
 
 const INITIAL_STATE = {
@@ -28,7 +29,7 @@ export const createPositionStore = (
   pathStore: PathStore,
   gameClockStore: GameClockStore,
 ): PositionStore =>
-  createStore<PositionState>((set) => {
+  createStore<PositionState>((set, get) => {
     /**
      * 経路の次の1歩を進める
      *
@@ -116,6 +117,7 @@ export const createPositionStore = (
         actorIds.forEach((actorId) => applyNextStep(actorId, baseTimeMs, 1))
         actorIds.forEach((actorId) => startAutoIfNeeded(actorId, baseTimeMs))
       },
+      getPosition: (actorId) => get().positionById[actorId] ?? DEFAULT_POSITION,
       reset: () => {
         set(INITIAL_STATE)
       },

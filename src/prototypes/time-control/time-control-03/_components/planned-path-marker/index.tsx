@@ -3,7 +3,6 @@ import { memo } from 'react'
 import { useStageTransform } from '../../_contexts/stage-transform-context'
 import { toPixelStyle } from '../../_lib/stage-coords'
 import { usePlannedPathStore } from '../../_stores/planned-path'
-import { DEFAULT_PLANNED_PATH } from '../../_stores/planned-path/constants'
 import { ActorId } from '../../types'
 
 type PlannedPathMarkerProps = {
@@ -23,9 +22,7 @@ type PlannedPathMarkerProps = {
 export const PlannedPathMarker = memo((props: PlannedPathMarkerProps) => {
   const { id } = props
 
-  const plannedPath = usePlannedPathStore(
-    (state) => state.plannedPathById[id] ?? DEFAULT_PLANNED_PATH,
-  )
+  const plannedPath = usePlannedPathStore((state) => state.getPlannedPath(id))
   const transform = useStageTransform()
 
   return (

@@ -10,8 +10,9 @@ const INITIAL_STATE = {
 } satisfies Partial<ActorState>
 
 export const createActorStore = (): ActorStore =>
-  createStore<ActorState>((set) => ({
+  createStore<ActorState>((set, get) => ({
     ...INITIAL_STATE,
+    getActorInfo: (actorId) => get().actorById[actorId] ?? DEFAULT_ACTOR_INFO,
     reset: () => {
       set(INITIAL_STATE)
     },

@@ -4,9 +4,7 @@ import { getTickMs } from '../../../time-control-02/_lib/get-tick-ms'
 import { useStageTransform } from '../../_contexts/stage-transform-context'
 import { toPixelStyle } from '../../_lib/stage-coords'
 import { useActorStore } from '../../_stores/actor'
-import { DEFAULT_ACTOR_INFO } from '../../_stores/actor/constants'
 import { usePositionStoreApi } from '../../_stores/position'
-import { DEFAULT_POSITION } from '../../_stores/position/constants'
 import { ActorId, Position } from '../../types'
 
 type CurrentPositionMarkerProps = {
@@ -31,9 +29,7 @@ export const CurrentPositionMarker = memo(
 
     const positionStoreApi = usePositionStoreApi()
     const transform = useStageTransform()
-    const tickRate = useActorStore(
-      (state) => state.actorById[id]?.tickRate ?? DEFAULT_ACTOR_INFO.tickRate,
-    )
+    const tickRate = useActorStore((state) => state.getActorInfo(id).tickRate)
     const tickMs = getTickMs(tickRate)
     const markerRef = useRef<HTMLDivElement>(null)
 
@@ -52,13 +48,10 @@ export const CurrentPositionMarker = memo(
         markerRef.current.style.top = `${top}px`
       }
 
-      applyPosition(
-        positionStoreApi.getState().positionById[id] ?? DEFAULT_POSITION,
-        false,
-      )
+      applyPosition(positionStoreApi.getState().getPosition(id), false)
 
       return positionStoreApi.subscribe((state) =>
-        applyPosition(state.positionById[id] ?? DEFAULT_POSITION, true),
+        applyPosition(state.getPosition(id), true),
       )
     }, [id, positionStoreApi, tickMs, transform])
 

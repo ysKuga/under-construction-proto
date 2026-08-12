@@ -5,14 +5,10 @@ import { Button } from '@/components/ui/button'
 import { formatCoord } from '../../../time-control-02/_lib/format-coord'
 import { getTickMs } from '../../../time-control-02/_lib/get-tick-ms'
 import { useActorStore } from '../../_stores/actor'
-import { DEFAULT_ACTOR_INFO } from '../../_stores/actor/constants'
 import { useActorSettingsStore } from '../../_stores/actor-settings'
-import { DEFAULT_ACTOR_SETTINGS } from '../../_stores/actor-settings/constants'
 import { useIntentStore } from '../../_stores/intent'
 import { usePathStore } from '../../_stores/path'
-import { DEFAULT_PATH } from '../../_stores/path/constants'
 import { usePositionStore } from '../../_stores/position'
-import { DEFAULT_POSITION } from '../../_stores/position/constants'
 import { ActorId } from '../../types'
 
 type ActorControllerProps = {
@@ -39,22 +35,14 @@ const TICK_MS_OPTIONS = Array.from(
 export const ActorController = memo((props: ActorControllerProps) => {
   const { id } = props
 
-  const position = usePositionStore(
-    (state) => state.positionById[id] ?? DEFAULT_POSITION,
-  )
-  const path = usePathStore((state) => state.pathById[id] ?? DEFAULT_PATH)
-  const tickRate = useActorStore(
-    (state) => state.actorById[id]?.tickRate ?? DEFAULT_ACTOR_INFO.tickRate,
-  )
+  const position = usePositionStore((state) => state.getPosition(id))
+  const path = usePathStore((state) => state.getPath(id))
+  const tickRate = useActorStore((state) => state.getActorInfo(id).tickRate)
   const fixedPathSteps = useActorSettingsStore(
-    (state) =>
-      state.settingsById[id]?.fixedPathSteps ??
-      DEFAULT_ACTOR_SETTINGS.fixedPathSteps,
+    (state) => state.getActorSettings(id).fixedPathSteps,
   )
   const isFixedPathSteps = useActorSettingsStore(
-    (state) =>
-      state.settingsById[id]?.isFixedPathSteps ??
-      DEFAULT_ACTOR_SETTINGS.isFixedPathSteps,
+    (state) => state.getActorSettings(id).isFixedPathSteps,
   )
   const intentTarget = path[path.length - 1]
   const tickMs = getTickMs(tickRate)

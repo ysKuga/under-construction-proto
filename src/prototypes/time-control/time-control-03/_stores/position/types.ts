@@ -16,6 +16,8 @@ export type PositionState = {
    * @param actorIds 対象 actor 一覧
    */
   dispatchActions: (actorIds: ActorId[]) => void
+  /** actor の現在位置を取得する (未移動時はデフォルト値を返す) */
+  getPosition: (actorId: ActorId) => Position
   /** actor ごとの現在位置。未移動の actor は含まれない */
   positionById: Record<ActorId, Position>
   /** 現在位置を初期状態に戻す */
