@@ -1,7 +1,6 @@
-import { createStore, StoreApi } from 'zustand/vanilla'
+import { StoreApi } from 'zustand/vanilla'
 
-import { BASE_TICK_MS } from '../../time-control-02/_lib/get-tick-ms'
-import { ActorId } from '../types'
+import { ActorId } from '../../types'
 
 /**
  * actor の実装 (移動速度・tick 発生頻度) に直接関係する情報
@@ -46,32 +45,3 @@ export type ActorState = {
 }
 
 export type ActorStore = StoreApi<ActorState>
-
-/** actor の情報未設定時のデフォルト値 (tickRate は tickMs=100 相当) */
-export const DEFAULT_ACTOR_INFO: ActorInfo = {
-  speed: 0.01,
-  tickRate: BASE_TICK_MS / 100,
-}
-
-const INITIAL_STATE = {
-  actorById: {},
-} satisfies Partial<ActorState>
-
-export const createActorStore = (): ActorStore =>
-  createStore<ActorState>((set) => ({
-    ...INITIAL_STATE,
-    reset: () => {
-      set(INITIAL_STATE)
-    },
-    setTickMs: (actorId, tickMs) => {
-      set((state) => ({
-        actorById: {
-          ...state.actorById,
-          [actorId]: {
-            ...(state.actorById[actorId] ?? DEFAULT_ACTOR_INFO),
-            tickRate: BASE_TICK_MS / tickMs,
-          },
-        },
-      }))
-    },
-  }))

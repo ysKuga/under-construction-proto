@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button'
 
-import { useActorStore } from '../../_contexts/actor-store-context'
 import { useGameClockStore } from '../../_contexts/game-clock-store-context'
 import { usePathStore } from '../../_contexts/path-store-context'
 import { usePlannedPathStore } from '../../_contexts/planned-path-store-context'
 import { usePositionStore } from '../../_contexts/position-store-context'
+import { useActorStore } from '../../_stores/actor'
 import {
   DEFAULT_ACTOR_SETTINGS,
   useActorSettingsStore,

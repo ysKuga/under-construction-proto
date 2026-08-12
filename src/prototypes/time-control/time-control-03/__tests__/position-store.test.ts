@@ -1,5 +1,5 @@
+import { createActorStore } from '../_stores/actor'
 import { createActorSettingsStore } from '../_stores/actor-settings'
-import { createActorStore } from '../_stores/actor-store'
 import { createGameClockStore } from '../_stores/game-clock-store'
 import { createPathStore } from '../_stores/path-store'
 import { createPositionStore } from '../_stores/position-store'

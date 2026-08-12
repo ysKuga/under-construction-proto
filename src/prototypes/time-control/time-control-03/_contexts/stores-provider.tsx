@@ -1,17 +1,16 @@
 import { ReactNode, useState } from 'react'
 
+import { ActorStoreContext, createActorStore } from '../_stores/actor'
 import {
   ActorSettingsStoreContext,
   createActorSettingsStore,
 } from '../_stores/actor-settings'
-import { createActorStore } from '../_stores/actor-store'
 import { createGameClockStore } from '../_stores/game-clock-store'
 import { createIntentStore } from '../_stores/intent-store'
 import { createPathStore } from '../_stores/path-store'
 import { createPlannedPathStore } from '../_stores/planned-path-store'
 import { createPositionStore } from '../_stores/position-store'
 
-import { ActorStoreContext } from './actor-store-context'
 import { GameClockStoreContext } from './game-clock-store-context'
 import { IntentStoreContext } from './intent-store-context'
 import { PathStoreContext } from './path-store-context'
