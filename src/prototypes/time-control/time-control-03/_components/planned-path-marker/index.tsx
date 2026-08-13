@@ -2,7 +2,7 @@ import { memo } from 'react'
 
 import { useStageTransform } from '../../_contexts/stage-transform-context'
 import { toPixelStyle } from '../../_lib/stage-coords'
-import { usePlannedPathStore } from '../../_stores/planned-path'
+import { usePlannedPathStore } from '../../_stores'
 import { ActorId } from '../../types'
 
 type PlannedPathMarkerProps = {

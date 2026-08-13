@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button'
 
-import { useActorStore } from '../../_stores/actor'
-import { useActorSettingsStore } from '../../_stores/actor-settings'
-import { useGameClockStore } from '../../_stores/game-clock'
-import { usePathStore } from '../../_stores/path'
-import { usePlannedPathStore } from '../../_stores/planned-path'
-import { usePositionStore } from '../../_stores/position'
+import {
+  useActorSettingsStore,
+  useActorStore,
+  useGameClockStore,
+  usePathStore,
+  usePlannedPathStore,
+  usePositionStore,
+} from '../../_stores'
 import { ActorId } from '../../types'
 
 type ActionBarProps = {

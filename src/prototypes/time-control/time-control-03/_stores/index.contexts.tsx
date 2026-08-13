@@ -1,21 +1,15 @@
 import { ReactNode, useState } from 'react'
 
-import { ActorStoreContext, createActorStore } from '../_stores/actor'
+import { ActorStoreContext, createActorStore } from './actor'
 import {
   ActorSettingsStoreContext,
   createActorSettingsStore,
-} from '../_stores/actor-settings'
-import {
-  createGameClockStore,
-  GameClockStoreContext,
-} from '../_stores/game-clock'
-import { createIntentStore, IntentStoreContext } from '../_stores/intent'
-import { createPathStore, PathStoreContext } from '../_stores/path'
-import {
-  createPlannedPathStore,
-  PlannedPathStoreContext,
-} from '../_stores/planned-path'
-import { createPositionStore, PositionStoreContext } from '../_stores/position'
+} from './actor-settings'
+import { createGameClockStore, GameClockStoreContext } from './game-clock'
+import { createIntentStore, IntentStoreContext } from './intent'
+import { createPathStore, PathStoreContext } from './path'
+import { createPlannedPathStore, PlannedPathStoreContext } from './planned-path'
+import { createPositionStore, PositionStoreContext } from './position'
 
 type StoresProviderProps = {
   children: ReactNode

@@ -10,9 +10,7 @@ import {
 } from '@/components/ui/table'
 
 import { buildSchedule } from '../../_lib/build-schedule'
-import { useActorStore } from '../../_stores/actor'
-import { useGameClockStore } from '../../_stores/game-clock'
-import { usePathStore } from '../../_stores/path'
+import { useActorStore, useGameClockStore, usePathStore } from '../../_stores'
 import { ActorId } from '../../types'
 
 type SchedulePreviewProps = {
