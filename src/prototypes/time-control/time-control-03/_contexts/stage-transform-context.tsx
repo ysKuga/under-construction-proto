@@ -1,12 +1,22 @@
-import { createContext, ReactNode, useContext, useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+
+import { createRequiredContext } from '@/utils/create-required-context'
 
 import { computeFitTransform, StageTransform } from '../_lib/stage-coords'
 import { usePlannedPathStore } from '../_stores/planned-path'
 import { DEFAULT_POSITION } from '../_stores/position/constants'
 import { ActorId } from '../types'
 
-const StageTransformContext = createContext<null | StageTransform>(null)
+const { Context: StageTransformContext, useContextValue: useStageTransform } =
+  createRequiredContext<StageTransform>(
+    'useStageTransform should be used within <StageTransformProvider>',
+  )
+
+export {
+  /** 現在の stage transform を取得する */
+  useStageTransform,
+}
 
 type StageTransformProviderProps = {
   /** transform 算出対象の actor 一覧 */
@@ -45,17 +55,4 @@ export const StageTransformProvider = (props: StageTransformProviderProps) => {
       {children}
     </StageTransformContext.Provider>
   )
-}
-
-/** 現在の stage transform を取得する */
-export const useStageTransform = (): StageTransform => {
-  const transform = useContext(StageTransformContext)
-
-  if (transform === null) {
-    throw new Error(
-      'useStageTransform should be used within <StageTransformProvider>',
-    )
-  }
-
-  return transform
 }
