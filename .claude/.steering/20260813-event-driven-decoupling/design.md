@@ -13,14 +13,17 @@ component/hooks 分離だけでは解決しない「部品への全体依存」�
 
 ## 実装計画
 
-- [ ] `src/hooks/use-event-listener.ts` — 汎用 hook。`useEventListener<E extends Event>(type, handler, target = window)`。`src/hooks/use-disclosure.ts` と同じ flat 構成・命名規約に合わせる
-- [ ] `src/hooks/use-event-dispatcher.ts` — 汎用 hook。`useEventDispatcher(target = window)`、dispatch 関数を返す。`useEventListener` と対になる `useEvent` prefix で統一
-- [ ] `time-control-03` 側に scope 専用 `EventTarget` を持つ context を用意し、配下へ配布
-- [ ] `time-control-03/_hooks/use-event-listener-time-control.ts` — `useEventListenerTimeControl(type, handler)`。context から scope 専用 EventTarget を取得し `useEventListener` へ委譲する冗長回避ラッパー
-- [ ] `TimeControlEventMap` (カスタムイベントの dictionary 型)を定義し、ペイロード型を一元管理
-- [ ] `action-bar` の `useResetAll` を、reset-all イベントの dispatch のみに置き換え
-- [ ] 各 store 側(または store に紐づく上位 hook)で `useEventListenerTimeControl('reset-all', ...)` を購読させ、自分自身の reset を実行させる
-- [ ] time-control-04 作成のタイミングで `useEventListenerTimeControl` / `TimeControlEventMap` を `time-control/_lib/` へ昇格するか判断
+第一弾 (reset-all のみ、PR [#61](https://github.com/ysKuga/under-construction-proto/pull/61)) は完了。
+
+- [x] `src/hooks/use-event-listener.ts` — 汎用 hook。`useEventListener<E extends Event>(type, handler, target = window)`。`src/hooks/use-disclosure.ts` と同じ flat 構成・命名規約に合わせる
+- [x] `src/hooks/use-event-dispatcher.ts` — 汎用 hook。`useEventDispatcher(target = window)`、dispatch 関数を返す。`useEventListener` と対になる `useEvent` prefix で統一
+- [x] `time-control-03` 側に scope 専用 `EventTarget` を持つ context を用意し、配下へ配布 (`_events/_contexts/scope-event-context.ts`)
+- [x] time-control-03 固有のラッパー hook — `useTimeControl03EventListener`/`useTimeControl03EventDispatcher` (`_events/_hooks/_utils/`)。命名は「(1) `_hooks/index -> index.hooks`」ではなく「対象名 (`TimeControl03`) を prefix にした具体名」に変更、詳細は決定事項参照
+- [x] `TimeControl03EventMap` (カスタムイベントの dictionary 型)を定義し、ペイロード型を一元管理 (`_events/index.types.ts`)
+- [x] `action-bar` の `useResetAll` を、reset-all イベントの dispatch のみに置き換え
+- [x] reset-all の購読・全 store reset 実行 (`_events/_hooks/use-reset-all-listener/`)。`ScopeEventProvider` (`StoresProvider` の内側に配置) が `ScopeEventListeners` 経由でまとめて有効化する構成に決着、詳細は決定事項参照
+- [ ] **他 events (reset-all 以外のパターン) への移行は別 PR で実施する**。今回の PR は reset-all の疎結合化のみに限定し、`_events` の構成パターンを確立することを目的とした
+- [ ] time-control-04 作成のタイミングで `_events`/`_providers` を `time-control/_lib/` へ昇格するか判断
 
 ## 決定事項
 
@@ -30,6 +33,14 @@ component/hooks 分離だけでは解決しない「部品への全体依存」�
 - **命名は `useEvent` prefix で統一**(`useEventListener` / `useEventDispatcher`)。time-control 固有の冗長回避ラッパーは `useEventListenerTimeControl` のように用途名をサフィックスする。
 - **プロパティ(部品の所有物)とロジックは別軸で扱う**。HTML の `input` の `value` が分かりやすい例。ロジックは event 化して部品から切り離す一方、プロパティは部品への紐づけを保つ。プロパティは context + store の実装で部品内部のやり取りをしやすくし、カスタムイベントへの payload もこの context/store から組み立てる。
 - **配置は当面 `time-control-03` 配下**。`time-control-04` 作成時に昇格するかどうかを判断する運用とする(既存の昇格ルールの具体的トリガーとして採用)。
+- **`_events` は自己完結モジュールとして構成**(`index.ts`/`index.contexts.tsx`/`index.hooks.ts`/`index.types.ts` + `_hooks/`、子ディレクトリを持たない)。個別イベントの実装(reset-all 等)は `_events` の外ではなく `_events/_hooks/` 配下に部品 hook として置く(`_stores` の各 store ディレクトリと同様、対象自身の内部実装として扱う)。
+  - `_hooks/index.tsx` に `ScopeEventListeners` という component を置き、各購読 hook (`use-reset-all-listener` 等)をここでまとめて呼ぶ。新しい購読を増やす際はここに1行足すだけでよい。
+  - `_hooks/_utils/` に `useTimeControl03EventListener`/`useTimeControl03EventDispatcher` の実装を置く(汎用 `src/hooks/` のラッパー)。「hooks を作るたびに utils を作る」という機械的なルールにはせず、基盤が複数ファイルに分かれ束ねる必要がある場合にのみ導入する運用。
+- **命名は最終的に `useTimeControl03EventListener`/`useTimeControl03EventDispatcher`/`TimeControl03EventMap` に決着**(検討当初の `useEventListenerTimeControl`/`TimeControlEventMap` から変更)。現段階では time-control-03 専用であることを明示するため、対象名を prefix にした具体名にした。`time-control-04` 作成時に `_lib/` へ昇格するかどうかの判断とセットで、命名の一般化も再検討する。
+- **`ScopeEventProvider` は `StoresProvider` の内側に配置**。`ScopeEventListeners` (reset-all 等の購読をまとめて有効化する component) が store の Context を参照する必要があるため。結果として `_events` が `_stores` を import する一方向依存になり、`_stores` は event 実装を一切知らない。
+- **Context 定義 (`ScopeEventContext`/`useScopeEventTarget`) は `_events/_contexts/scope-event-context.ts` に分離**。`index.contexts.tsx` (Provider 実装) 自体に置くと、`index.contexts.tsx → _hooks/index.tsx (ScopeEventListeners) → use-reset-all-listener → _hooks/_utils (useTimeControl03EventListener) → index.contexts.tsx` という import 循環が発生する (`eslint-plugin-import` の `no-cycle` で検出済み)。Context 定義だけを独立ファイルに切り出すことで解消した。
+- **`_providers/index.tsx`(`TimeControl03Providers`)を新設**し、`StoresProvider`/`ScopeEventProvider` のネストを集約。`time-control-03/index.tsx` 側は `<TimeControl03Providers>` を呼ぶだけになる。
+- **`_events` 集約 index からの参照ルール**: `_events` の外部消費者 (`action-bar` 等) は `_events`(集約 index)経由で参照する。`_events` 内部の実装 (`use-reset-all-listener` 等)は集約 index を経由せず `_hooks/_utils/` から直接参照する(集約 index 経由だと上記の import 循環を誘発するため)。
 
 ## 懸念・リスク
 
