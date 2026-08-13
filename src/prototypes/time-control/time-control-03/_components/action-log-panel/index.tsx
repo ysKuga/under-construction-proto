@@ -9,7 +9,7 @@ import {
 
 import { buildHistory } from '../../../time-control-02/_lib/build-history'
 import { formatCoord } from '../../../time-control-02/_lib/format-coord'
-import { useGameClockStore } from '../../_stores/game-clock'
+import { useGameClockStore } from '../../_stores'
 import { ActorId } from '../../types'
 
 type ActionLogPanelProps = {

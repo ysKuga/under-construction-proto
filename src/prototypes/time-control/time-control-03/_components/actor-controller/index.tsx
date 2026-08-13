@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button'
 
 import { formatCoord } from '../../../time-control-02/_lib/format-coord'
 import { getTickMs } from '../../../time-control-02/_lib/get-tick-ms'
-import { useActorStore } from '../../_stores/actor'
-import { useActorSettingsStore } from '../../_stores/actor-settings'
-import { useIntentStore } from '../../_stores/intent'
-import { usePathStore } from '../../_stores/path'
-import { usePositionStore } from '../../_stores/position'
+import {
+  useActorSettingsStore,
+  useActorStore,
+  useIntentStore,
+  usePathStore,
+  usePositionStore,
+} from '../../_stores'
 import { ActorId } from '../../types'
 
 type ActorControllerProps = {
