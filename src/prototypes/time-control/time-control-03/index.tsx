@@ -3,7 +3,7 @@ import { ActionLogPanel } from './_components/action-log-panel'
 import { ActorController } from './_components/actor-controller'
 import { SchedulePreview } from './_components/schedule-preview'
 import { StageView } from './_components/stage-view'
-import { StoresProvider } from './_stores'
+import { StoresProvider } from './_stores/index.contexts'
 import { ActorId } from './types'
 
 type TimeControl03Props = {
