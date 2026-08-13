@@ -1,0 +1,17 @@
+import { useDispatchDecision } from './_hooks/use-dispatch-decision'
+import { useProgressMode } from './_hooks/use-progress-mode'
+import { useResetAll } from './_hooks/use-reset-all'
+import { ActionBarProps, UseActionBarReturn } from './index.types'
+
+/**
+ * ActionBar の操作ロジック
+ *
+ * @param props ActionBar に渡される props
+ */
+export const useActionBar = (props: ActionBarProps): UseActionBarReturn => {
+  const { progressMode, toggleProgressMode } = useProgressMode(props)
+  const { dispatchDecision } = useDispatchDecision(props)
+  const { resetAll } = useResetAll()
+
+  return { dispatchDecision, progressMode, resetAll, toggleProgressMode }
+}
