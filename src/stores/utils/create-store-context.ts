@@ -1,6 +1,7 @@
-import { createContext, useContext } from 'react'
 import { useStore } from 'zustand'
 import { StoreApi } from 'zustand/vanilla'
+
+import { createRequiredContext } from '@/utils/create-required-context'
 
 /**
  * store 用 Context 一式を生成する
@@ -14,19 +15,10 @@ import { StoreApi } from 'zustand/vanilla'
  * @param storeName store 名 (例: `ActorSettings`)。エラーメッセージの hook 名・Context 名生成に使う
  */
 export const createStoreContext = <State>(storeName: string) => {
-  const StoreContext = createContext<null | StoreApi<State>>(null)
-
-  const useStoreApi = (): StoreApi<State> => {
-    const store = useContext(StoreContext)
-
-    if (store === null) {
-      throw new Error(
-        `use${storeName}Store should be used within <${storeName}StoreContext.Provider>`,
-      )
-    }
-
-    return store
-  }
+  const { Context: StoreContext, useContextValue: useStoreApi } =
+    createRequiredContext<StoreApi<State>>(
+      `use${storeName}Store should be used within <${storeName}StoreContext.Provider>`,
+    )
 
   /**
    * @param selector 購読する state の一部を取り出す関数
