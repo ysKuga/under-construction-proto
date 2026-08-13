@@ -120,3 +120,7 @@ Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存�
 ## コミット
 
 @.claude/rules/commit.md
+
+## PR
+
+@.claude/rules/pr.md
