@@ -3,7 +3,7 @@ import { ActionLogPanel } from './_components/action-log-panel'
 import { ActorController } from './_components/actor-controller'
 import { SchedulePreview } from './_components/schedule-preview'
 import { StageView } from './_components/stage-view'
-import { StoresProvider } from './_stores/index.contexts'
+import { TimeControl03Providers } from './_providers'
 import { ActorId } from './types'
 
 type TimeControl03Props = {
@@ -23,7 +23,7 @@ export const TimeControl03 = (props: TimeControl03Props) => {
   const { actorIds } = props
 
   return (
-    <StoresProvider>
+    <TimeControl03Providers>
       <ActionBar actorIds={actorIds} />
       <div className="flex gap-4">
         <StageView actorIds={actorIds} />
@@ -45,6 +45,6 @@ export const TimeControl03 = (props: TimeControl03Props) => {
           <ActionLogPanel actorIds={actorIds} />
         </div>
       </div>
-    </StoresProvider>
+    </TimeControl03Providers>
   )
 }
