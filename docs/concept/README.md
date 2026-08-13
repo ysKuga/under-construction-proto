@@ -8,6 +8,7 @@
 - 概念について (issue #2、本ファイル下記)
 - [flow/](flow/README.md) — 関心について (issue #3)
 - [ideas/](ideas/README.md) — あいであなど (issue #4)
+- [event-driven-ui/](event-driven-ui/README.md) — UI とロジックの分離について
 
 ## 概念について
 
