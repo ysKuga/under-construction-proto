@@ -3,26 +3,10 @@ import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 
 import { formatCoord } from '../../../time-control-02/_lib/format-coord'
-import { getTickMs } from '../../../time-control-02/_lib/get-tick-ms'
-import {
-  useActorSettingsStore,
-  useActorStore,
-  useIntentStore,
-  usePathStore,
-  usePositionStore,
-} from '../../_stores'
-import { ActorId } from '../../types'
 
-type ActorControllerProps = {
-  /** 表示対象の actor */
-  id: ActorId
-}
-
-/** tick 選択肢 (50ms 刻み、50〜500ms) */
-const TICK_MS_OPTIONS = Array.from(
-  { length: 10 },
-  (_, index) => (index + 1) * 50,
-)
+import { TICK_MS_OPTIONS } from './_hooks/use-tick-setting'
+import { useActorController } from './index.hooks'
+import { ActorControllerProps } from './index.types'
 
 /**
  * actor 1体分の操作コントローラー
@@ -37,26 +21,19 @@ const TICK_MS_OPTIONS = Array.from(
 export const ActorController = memo((props: ActorControllerProps) => {
   const { id } = props
 
-  const position = usePositionStore((state) => state.getPosition(id))
-  const path = usePathStore((state) => state.getPath(id))
-  const tickRate = useActorStore((state) => state.getActorInfo(id).tickRate)
-  const fixedPathSteps = useActorSettingsStore(
-    (state) => state.getActorSettings(id).fixedPathSteps,
-  )
-  const isFixedPathSteps = useActorSettingsStore(
-    (state) => state.getActorSettings(id).isFixedPathSteps,
-  )
-  const intentTarget = path[path.length - 1]
-  const tickMs = getTickMs(tickRate)
-  const etaMs = path.length * tickMs
-  const dispatchMoveIntent = useIntentStore((state) => state.dispatchMoveIntent)
-  const setFixedPathSteps = useActorSettingsStore(
-    (state) => state.setFixedPathSteps,
-  )
-  const setIsFixedPathSteps = useActorSettingsStore(
-    (state) => state.setIsFixedPathSteps,
-  )
-  const setTickMs = useActorStore((state) => state.setTickMs)
+  const {
+    dispatchTarget,
+    etaMs,
+    fixedPathSteps,
+    intentTarget,
+    isFixedPathSteps,
+    path,
+    position,
+    setFixedPathSteps,
+    setIsFixedPathSteps,
+    setTickMsOption,
+    tickMs,
+  } = useActorController(props)
 
   return (
     <li className="flex items-center gap-2 whitespace-nowrap border-b border-solid border-gray-200 p-2">
@@ -70,7 +47,7 @@ export const ActorController = memo((props: ActorControllerProps) => {
         <select
           className="rounded border border-solid border-gray-300 px-1"
           onChange={(event) => {
-            setTickMs(id, Number(event.target.value))
+            setTickMsOption(Number(event.target.value))
           }}
           value={Math.round(tickMs)}
         >
@@ -87,7 +64,7 @@ export const ActorController = memo((props: ActorControllerProps) => {
         <input
           checked={isFixedPathSteps}
           onChange={(event) => {
-            setIsFixedPathSteps(id, event.target.checked)
+            setIsFixedPathSteps(event.target.checked)
           }}
           type="checkbox"
         />
@@ -101,25 +78,13 @@ export const ActorController = memo((props: ActorControllerProps) => {
             // 厳密な下限チェックは使用時 (dispatchMoveIntent) 側で行う。\
             // ここで弾くと controlled input の value が古い値に押し戻され、\
             // 入力中の値が消えて事実上編集不能になる
-            setFixedPathSteps(id, Number(event.target.value))
+            setFixedPathSteps(Number(event.target.value))
           }}
           type="number"
           value={fixedPathSteps}
         />
       </label>
-      <Button
-        onClick={() => {
-          dispatchMoveIntent({
-            actorId: id,
-            target: {
-              x: position.x + Math.round(Math.random() * 6 - 3),
-              y: position.y + Math.round(Math.random() * 6 - 3),
-            },
-          })
-        }}
-        size="sm"
-        type="button"
-      >
+      <Button onClick={dispatchTarget} size="sm" type="button">
         set target
       </Button>
       <span className="text-gray-400">
