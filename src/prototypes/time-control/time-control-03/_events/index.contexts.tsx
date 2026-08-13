@@ -1,9 +1,9 @@
 import { ReactNode, useState } from 'react'
 
+import { ScopeEventContext } from './_contexts/scope-event-context'
 import { ScopeEventListeners } from './_hooks'
-import { ScopeEventContext } from './scope-event-context'
 
-export { useScopeEventTarget } from './scope-event-context'
+export { useScopeEventTarget } from './_contexts/scope-event-context'
 
 type ScopeEventProviderProps = {
   /** EventTarget を参照する子要素 */
