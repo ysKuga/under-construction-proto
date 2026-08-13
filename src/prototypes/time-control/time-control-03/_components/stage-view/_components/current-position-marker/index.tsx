@@ -1,10 +1,10 @@
 import { memo, useEffect, useRef } from 'react'
 
-import { getTickMs } from '../../../time-control-02/_lib/get-tick-ms'
-import { useStageTransform } from '../../_contexts/stage-transform-context'
-import { toPixelStyle } from '../../_lib/stage-coords'
-import { useActorStore, usePositionStoreApi } from '../../_stores'
-import { ActorId, Position } from '../../types'
+import { getTickMs } from '../../../../../time-control-02/_lib/get-tick-ms'
+import { useStageTransform } from '../../../../_contexts/stage-transform-context'
+import { toPixelStyle } from '../../../../_lib/stage-coords'
+import { useActorStore, usePositionStoreApi } from '../../../../_stores'
+import { ActorId, Position } from '../../../../types'
 
 type CurrentPositionMarkerProps = {
   /** 表示対象の actor */

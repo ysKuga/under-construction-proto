@@ -1,8 +1,9 @@
 import { StageTransformProvider } from '../../_contexts/stage-transform-context'
 import { STAGE_SIZE } from '../../_lib/stage-coords'
 import { ActorId } from '../../types'
-import { CurrentPositionMarker } from '../current-position-marker'
-import { PlannedPathMarker } from '../planned-path-marker'
+
+import { CurrentPositionMarker } from './_components/current-position-marker'
+import { PlannedPathMarker } from './_components/planned-path-marker'
 
 type StageViewProps = {
   /** 表示する actor の一覧 */
