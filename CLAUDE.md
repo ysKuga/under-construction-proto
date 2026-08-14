@@ -86,6 +86,7 @@ export const reducePointerState = (
 
 @.claude/rules/react/hooks.md
 @.claude/rules/react/component-nesting.md
+@.claude/rules/react/props-with-children.md
 
 ### ディレクトリ構成
 
