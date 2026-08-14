@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 
+import { AsyncSampleButton } from './_components/async-sample-button'
 import { useActionBar } from './index.hooks'
 
 /**
@@ -12,13 +13,8 @@ import { useActionBar } from './index.hooks'
  * - async sample: async listener 実演用サンプルイベント発行
  */
 export const ActionBar = () => {
-  const {
-    dispatchAsyncSample,
-    dispatchDecision,
-    progressMode,
-    resetAll,
-    toggleProgressMode,
-  } = useActionBar()
+  const { dispatchDecision, progressMode, resetAll, toggleProgressMode } =
+    useActionBar()
 
   return (
     <div className="flex gap-2 p-2">
@@ -31,9 +27,7 @@ export const ActionBar = () => {
       <Button onClick={resetAll} type="button" variant="destructive">
         reset
       </Button>
-      <Button onClick={dispatchAsyncSample} type="button" variant="outline">
-        async sample
-      </Button>
+      <AsyncSampleButton />
     </div>
   )
 }
