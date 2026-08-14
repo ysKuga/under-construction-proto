@@ -6,12 +6,12 @@ import {
   usePlannedPathStore,
   usePositionStore,
 } from '../../../_stores'
-import { UseActionBarReturn } from '../index.types'
+import { useTimeControl03EventListener } from '../../_hooks/use-time-control-03-event-listener'
 
 /**
- * 全 store (状態を持たない intent-store 以外) を初期状態に戻す
+ * reset-all イベントを購読し、全 store (状態を持たない intent-store 以外) を初期状態に戻す
  */
-export const useResetAll = (): Pick<UseActionBarReturn, 'resetAll'> => {
+export const useResetAllEventListener = () => {
   const resetActorSettings = useActorSettingsStore((state) => state.reset)
   const resetPosition = usePositionStore((state) => state.reset)
   const resetActor = useActorStore((state) => state.reset)
@@ -19,14 +19,12 @@ export const useResetAll = (): Pick<UseActionBarReturn, 'resetAll'> => {
   const resetPlannedPath = usePlannedPathStore((state) => state.reset)
   const resetGameClock = useGameClockStore((state) => state.reset)
 
-  const resetAll = () => {
+  useTimeControl03EventListener('reset-all', () => {
     resetActor()
     resetActorSettings()
     resetPath()
     resetPlannedPath()
     resetPosition()
     resetGameClock()
-  }
-
-  return { resetAll }
+  })
 }

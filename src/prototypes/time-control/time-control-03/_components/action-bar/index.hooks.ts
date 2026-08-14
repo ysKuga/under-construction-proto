@@ -1,6 +1,7 @@
+import { useTimeControl03EventDispatcher } from '../../_events'
+
 import { useDispatchDecision } from './_hooks/use-dispatch-decision'
 import { useProgressMode } from './_hooks/use-progress-mode'
-import { useResetAll } from './_hooks/use-reset-all'
 import { ActionBarProps, UseActionBarReturn } from './index.types'
 
 /**
@@ -11,7 +12,11 @@ import { ActionBarProps, UseActionBarReturn } from './index.types'
 export const useActionBar = (props: ActionBarProps): UseActionBarReturn => {
   const { progressMode, toggleProgressMode } = useProgressMode(props)
   const { dispatchDecision } = useDispatchDecision(props)
-  const { resetAll } = useResetAll()
+  const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
+
+  const resetAll = () => {
+    timeControl03EventDispatcher['reset-all']()
+  }
 
   return { dispatchDecision, progressMode, resetAll, toggleProgressMode }
 }
