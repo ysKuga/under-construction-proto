@@ -13,19 +13,19 @@ _events/
   _contexts/
     scope-event-context.ts  # ScopeEventContext / useScopeEventTarget (Context 定義のみ)
   _hooks/
-    index.tsx                                  # ScopeEventListeners。各購読 hook をまとめて呼ぶ component
     use-time-control-03-event-dispatcher.ts     # 汎用 useEventDispatcher の scope 向けラッパー
     use-time-control-03-event-listener.ts       # 汎用 useEventListener の scope 向けラッパー
-  _event-listener/
-    use-xxx-event-listener/                     # イベントごとの購読 + 実処理 (例: use-reset-all-event-listener)
+  _event-listeners/
+    index.tsx                                   # ScopeEventListeners。各購読 hook をまとめて呼ぶ component
+    use-xxx-event-listener/                      # イベントごとの購読 + 実処理 (例: use-reset-all-event-listener)
 ```
 
-`_stores` の各 store ディレクトリと同様、個別イベントの実装 (`use-reset-all-event-listener` 等) は `_events` の内部実装として `_event-listener/` 配下に置く。`_event-listener` 配下の実装は `_hooks` 直下 (`useTimeControl03EventListener` 等) に依存してよい。
+`_stores` の各 store ディレクトリと同様、個別イベントの実装 (`use-reset-all-event-listener` 等) は `_events` の内部実装として `_event-listeners/` 配下に置く。`_event-listeners` 配下の実装は `_hooks` 直下 (`useTimeControl03EventListener` 等) に依存してよい。
 
 ## 新しいイベントを追加する手順
 
 1. `index.types.ts` の `TimeControl03EventMap` にイベント名と payload 型を追加する
-2. 購読が必要なら `_event-listener/use-xxx-event-listener/` を新設し、`_hooks/index.tsx` の `ScopeEventListeners` に呼び出しを1行足す
+2. 購読が必要なら `_event-listeners/use-xxx-event-listener/` を新設し、`_event-listeners/index.tsx` の `ScopeEventListeners` に呼び出しを1行足す
 3. 発行側は `useTimeControl03EventDispatcher()` の戻り値オブジェクトから該当イベント名で呼ぶ (`dispatcher['event-name']()`)
 
 ## 依存関係

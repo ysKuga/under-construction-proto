@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react'
 
 import { ScopeEventContext } from './_contexts/scope-event-context'
-import { ScopeEventListeners } from './_hooks'
+import { ScopeEventListeners } from './_event-listeners'
 
 export { useScopeEventTarget } from './_contexts/scope-event-context'
 

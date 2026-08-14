@@ -1,4 +1,4 @@
-import { useResetAllEventListener } from '../_event-listener/use-reset-all-event-listener'
+import { useResetAllEventListener } from './use-reset-all-event-listener'
 
 /**
  * scope 全体のイベント購読をまとめて有効化する
