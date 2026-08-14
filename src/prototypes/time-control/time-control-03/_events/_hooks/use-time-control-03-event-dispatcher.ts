@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { useEventDispatcher } from '@/hooks/use-event-dispatcher'
+import { useEventDispatcher } from '@/hooks/event'
 
 import { useScopeEventTarget } from '../_contexts/scope-event-context'
 import { TimeControl03EventMap } from '../index.types'
@@ -14,7 +14,7 @@ import { TimeControl03EventMap } from '../index.types'
 type TimeControl03EventDispatcher = {
   [K in keyof TimeControl03EventMap]: (
     detail?: TimeControl03EventMap[K],
-  ) => void
+  ) => Promise<void>
 }
 
 /**

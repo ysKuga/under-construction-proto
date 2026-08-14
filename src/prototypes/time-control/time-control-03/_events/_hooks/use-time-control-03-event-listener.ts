@@ -1,4 +1,4 @@
-import { useEventListener } from '@/hooks/use-event-listener'
+import { useEventListener } from '@/hooks/event'
 
 import { useScopeEventTarget } from '../_contexts/scope-event-context'
 import { TimeControl03EventMap } from '../index.types'
@@ -14,7 +14,9 @@ export const useTimeControl03EventListener = <
   K extends keyof TimeControl03EventMap,
 >(
   type: K,
-  handler: (event: CustomEvent<TimeControl03EventMap[K]>) => void,
+  handler: (
+    event: CustomEvent<TimeControl03EventMap[K]>,
+  ) => Promise<void> | void,
   options: { allowMultiple?: boolean } = {},
 ) => {
   const eventTarget = useScopeEventTarget()

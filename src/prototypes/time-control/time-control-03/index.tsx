@@ -1,6 +1,7 @@
 import { ActionBar } from './_components/action-bar'
 import { ActionLogPanel } from './_components/action-log-panel'
 import { ActorController } from './_components/actor-controller'
+import { AsyncSampleStatus } from './_components/async-sample-status'
 import { SchedulePreview } from './_components/schedule-preview'
 import { StageView } from './_components/stage-view'
 import { TimeControl03Providers } from './index.providers'
@@ -20,6 +21,7 @@ export const TimeControl03 = (props: TimeControl03Props) => {
   return (
     <TimeControl03Providers {...props}>
       <ActionBar />
+      <AsyncSampleStatus />
       <div className="flex gap-4">
         <StageView />
         <ul className="ui-container">

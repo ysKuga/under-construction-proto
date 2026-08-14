@@ -20,5 +20,10 @@ export const useActionBar = (): UseActionBarReturn => {
   const resetAll: UseActionBarReturn['resetAll'] =
     timeControl03EventDispatcher['reset-all']
 
-  return { dispatchDecision, progressMode, resetAll, toggleProgressMode }
+  return {
+    dispatchDecision,
+    progressMode,
+    resetAll,
+    toggleProgressMode,
+  }
 }

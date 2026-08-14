@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 
+import { AsyncSampleButton } from './_components/async-sample-button'
 import { useActionBar } from './index.hooks'
 
 /**
@@ -9,6 +10,7 @@ import { useActionBar } from './index.hooks'
  * - mode: 進行モード (auto/manual) を全 actor 一括で切り替える。\
  *   actor ごとの個別切り替えは廃止、常に全員同一モードで揃える
  * - reset: 全 store (状態を持たない intent-store 以外) を初期状態に戻す
+ * - async sample: async listener 実演用サンプルイベント発行
  */
 export const ActionBar = () => {
   const { dispatchDecision, progressMode, resetAll, toggleProgressMode } =
@@ -25,6 +27,7 @@ export const ActionBar = () => {
       <Button onClick={resetAll} type="button" variant="destructive">
         reset
       </Button>
+      <AsyncSampleButton />
     </div>
   )
 }
