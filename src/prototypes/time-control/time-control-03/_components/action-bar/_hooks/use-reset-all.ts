@@ -5,10 +5,10 @@ import { UseActionBarReturn } from '../index.types'
  * reset-all イベントを発行する
  */
 export const useResetAll = (): Pick<UseActionBarReturn, 'resetAll'> => {
-  const dispatch = useTimeControl03EventDispatcher()
+  const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
   const resetAll = () => {
-    dispatch('reset-all')
+    timeControl03EventDispatcher['reset-all']()
   }
 
   return { resetAll }
