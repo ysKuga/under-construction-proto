@@ -1,4 +1,4 @@
-import { usePositionStore } from '../../../_stores'
+import { useTimeControl03EventDispatcher } from '../../../_events'
 import { ActionBarProps, UseActionBarReturn } from '../index.types'
 
 /**
@@ -11,10 +11,10 @@ export const useDispatchDecision = (
 ): Pick<UseActionBarReturn, 'dispatchDecision'> => {
   const { actorIds } = props
 
-  const dispatchActions = usePositionStore((state) => state.dispatchActions)
+  const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
   const dispatchDecision = () => {
-    dispatchActions(actorIds)
+    timeControl03EventDispatcher['dispatch-decision']({ actorIds })
   }
 
   return { dispatchDecision }
