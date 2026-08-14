@@ -1,7 +1,7 @@
 import { useEventListener } from '@/hooks/use-event-listener'
 
-import { useScopeEventTarget } from '../../_contexts/scope-event-context'
-import { TimeControl03EventMap } from '../../index.types'
+import { useScopeEventTarget } from '../_contexts/scope-event-context'
+import { TimeControl03EventMap } from '../index.types'
 
 /**
  * scope (この time-control-03 instance) 専用 EventTarget 上のイベントを購読する

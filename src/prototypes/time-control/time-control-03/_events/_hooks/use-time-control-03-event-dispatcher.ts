@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 
 import { useEventDispatcher } from '@/hooks/use-event-dispatcher'
 
-import { useScopeEventTarget } from '../../_contexts/scope-event-context'
-import { TimeControl03EventMap } from '../../index.types'
+import { useScopeEventTarget } from '../_contexts/scope-event-context'
+import { TimeControl03EventMap } from '../index.types'
 
 /**
  * イベント名ごとに dispatch 関数を持つオブジェクト

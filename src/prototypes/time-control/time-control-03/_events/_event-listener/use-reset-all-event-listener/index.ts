@@ -6,12 +6,12 @@ import {
   usePlannedPathStore,
   usePositionStore,
 } from '../../../_stores'
-import { useTimeControl03EventListener } from '../_utils/use-time-control-03-event-listener'
+import { useTimeControl03EventListener } from '../../_hooks/use-time-control-03-event-listener'
 
 /**
  * reset-all イベントを購読し、全 store (状態を持たない intent-store 以外) を初期状態に戻す
  */
-export const useResetAllListener = () => {
+export const useResetAllEventListener = () => {
   const resetActorSettings = useActorSettingsStore((state) => state.reset)
   const resetPosition = usePositionStore((state) => state.reset)
   const resetActor = useActorStore((state) => state.reset)
