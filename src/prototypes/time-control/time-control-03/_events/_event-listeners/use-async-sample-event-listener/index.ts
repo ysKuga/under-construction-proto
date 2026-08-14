@@ -9,15 +9,9 @@ const SAMPLE_DELAY_MS = 800
  *   Promise + setTimeout による遅延処理のみ完結させる (実際の API 呼出等は行わない)
  */
 export const useAsyncSampleEventListener = () => {
-  useTimeControl03EventListener('async-sample', () => {
-    const run = async () => {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, SAMPLE_DELAY_MS)
-      })
-
-      alert('aaa')
-    }
-
-    void run()
+  useTimeControl03EventListener('async-sample', async () => {
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, SAMPLE_DELAY_MS)
+    })
   })
 }

@@ -14,7 +14,7 @@ import { TimeControl03EventMap } from '../index.types'
 type TimeControl03EventDispatcher = {
   [K in keyof TimeControl03EventMap]: (
     detail?: TimeControl03EventMap[K],
-  ) => void
+  ) => Promise<void>
 }
 
 /**
