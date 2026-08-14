@@ -18,9 +18,8 @@ export const useActionBar = (props: ActionBarProps): UseActionBarReturn => {
     timeControl03EventDispatcher['dispatch-decision']({ actorIds })
   }
 
-  const resetAll = () => {
-    timeControl03EventDispatcher['reset-all']()
-  }
+  const resetAll: UseActionBarReturn['resetAll'] =
+    timeControl03EventDispatcher['reset-all']
 
   return { dispatchDecision, progressMode, resetAll, toggleProgressMode }
 }
