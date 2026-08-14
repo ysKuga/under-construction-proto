@@ -91,6 +91,7 @@ export const reducePointerState = (
 ### ディレクトリ構成
 
 @.claude/rules/aggregation-index.md
+@.claude/rules/sibling-import.md
 
 ### 命名の一貫性
 
