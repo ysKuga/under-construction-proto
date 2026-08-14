@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { getPendingPromises } from './use-event-listener'
+import { getPendingPromises } from '../_registries'
 
 /**
  * EventTarget へイベントを発行する dispatcher を返す
