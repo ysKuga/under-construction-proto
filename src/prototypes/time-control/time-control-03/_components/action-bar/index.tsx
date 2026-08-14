@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 
 import { useActionBar } from './index.hooks'
-import { ActionBarProps } from './index.types'
 
 /**
  * 全 actor 一括の操作パネル
@@ -11,9 +10,9 @@ import { ActionBarProps } from './index.types'
  *   actor ごとの個別切り替えは廃止、常に全員同一モードで揃える
  * - reset: 全 store (状態を持たない intent-store 以外) を初期状態に戻す
  */
-export const ActionBar = (props: ActionBarProps) => {
+export const ActionBar = () => {
   const { dispatchDecision, progressMode, resetAll, toggleProgressMode } =
-    useActionBar(props)
+    useActionBar()
 
   return (
     <div className="flex gap-2 p-2">

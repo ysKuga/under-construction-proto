@@ -11,12 +11,7 @@ import {
 
 import { buildSchedule } from '../../_lib/build-schedule'
 import { useActorStore, useGameClockStore, usePathStore } from '../../_stores'
-import { ActorId } from '../../types'
-
-type SchedulePreviewProps = {
-  /** 列として表示する actor の一覧 */
-  actorIds: ActorId[]
-}
+import { useTimeControl03Props } from '../../index.contexts'
 
 type ScheduleCellProps = {
   /** この行 (tick) で行動があるか */
@@ -47,8 +42,8 @@ ScheduleCell.displayName = 'ScheduleCell'
  * - 経過時間は行ごとに専用列 (先頭) へまとめる。actor 列には行動の有無のみ表示する\
  *   (同一行に複数 actor が並ぶ場合、経過時間を列ごとに重複表示しないため)
  */
-export const SchedulePreview = (props: SchedulePreviewProps) => {
-  const { actorIds } = props
+export const SchedulePreview = () => {
+  const { actorIds } = useTimeControl03Props()
 
   const pathById = usePathStore((state) => state.pathById)
   const actorById = useActorStore((state) => state.actorById)

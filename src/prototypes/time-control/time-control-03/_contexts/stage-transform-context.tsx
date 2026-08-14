@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react'
+import { PropsWithChildren, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { createRequiredContext } from '@/utils/create-required-context'
@@ -6,7 +6,7 @@ import { createRequiredContext } from '@/utils/create-required-context'
 import { computeFitTransform, StageTransform } from '../_lib/stage-coords'
 import { usePlannedPathStore } from '../_stores/planned-path'
 import { DEFAULT_POSITION } from '../_stores/position/constants'
-import { ActorId } from '../types'
+import { useTimeControl03Props } from '../index.contexts'
 
 const { Context: StageTransformContext, useContextValue: useStageTransform } =
   createRequiredContext<StageTransform>(
@@ -18,12 +18,7 @@ export {
   useStageTransform,
 }
 
-type StageTransformProviderProps = {
-  /** transform 算出対象の actor 一覧 */
-  actorIds: ActorId[]
-  /** transform を参照する子要素 */
-  children: ReactNode
-}
+type StageTransformProviderProps = PropsWithChildren
 
 /**
  * 全 actor の目標地点 (予定経路の終点) から算出した stage transform を配布する
@@ -37,7 +32,9 @@ type StageTransformProviderProps = {
  *   新しい目標を設定した場合のみ再計算される
  */
 export const StageTransformProvider = (props: StageTransformProviderProps) => {
-  const { actorIds, children } = props
+  const { children } = props
+
+  const { actorIds } = useTimeControl03Props()
 
   const targets = usePlannedPathStore(
     useShallow((state) =>
