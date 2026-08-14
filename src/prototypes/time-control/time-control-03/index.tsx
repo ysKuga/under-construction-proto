@@ -3,13 +3,8 @@ import { ActionLogPanel } from './_components/action-log-panel'
 import { ActorController } from './_components/actor-controller'
 import { SchedulePreview } from './_components/schedule-preview'
 import { StageView } from './_components/stage-view'
-import { TimeControl03Providers } from './_providers'
-import { ActorId } from './types'
-
-type TimeControl03Props = {
-  /** 表示する actor の一覧 */
-  actorIds: ActorId[]
-}
+import { TimeControl03Providers } from './index.providers'
+import { TimeControl03Props } from './index.types'
 
 /**
  * 複数 actor の移動と履歴管理のデモ (time-control-02 の store 責務分割版)
@@ -23,10 +18,10 @@ export const TimeControl03 = (props: TimeControl03Props) => {
   const { actorIds } = props
 
   return (
-    <TimeControl03Providers>
-      <ActionBar actorIds={actorIds} />
+    <TimeControl03Providers {...props}>
+      <ActionBar />
       <div className="flex gap-4">
-        <StageView actorIds={actorIds} />
+        <StageView />
         <ul className="ui-container">
           {actorIds.map((id) => (
             <ActorController id={id} key={id} />
@@ -38,11 +33,11 @@ export const TimeControl03 = (props: TimeControl03Props) => {
           <p className="text-gray-400">
             予定 (行動決定前のスケジュールプレビュー)
           </p>
-          <SchedulePreview actorIds={actorIds} />
+          <SchedulePreview />
         </div>
         <div className="flex-1">
           <p className="text-gray-400">履歴</p>
-          <ActionLogPanel actorIds={actorIds} />
+          <ActionLogPanel />
         </div>
       </div>
     </TimeControl03Providers>

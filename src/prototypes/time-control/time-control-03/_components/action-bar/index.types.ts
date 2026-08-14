@@ -1,9 +1,4 @@
-import { ActorId, ProgressMode } from '../../types'
-
-export type ActionBarProps = {
-  /** 操作対象の actor 一覧 */
-  actorIds: ActorId[]
-}
+import { ProgressMode } from '../../types'
 
 export type UseActionBarReturn = {
   /** 行動決定実行 */

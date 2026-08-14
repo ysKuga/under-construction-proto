@@ -10,12 +10,7 @@ import {
 import { buildHistory } from '../../../time-control-02/_lib/build-history'
 import { formatCoord } from '../../../time-control-02/_lib/format-coord'
 import { useGameClockStore } from '../../_stores'
-import { ActorId } from '../../types'
-
-type ActionLogPanelProps = {
-  /** 列として表示する actor の一覧 */
-  actorIds: ActorId[]
-}
+import { useTimeControl03Props } from '../../index.contexts'
 
 /**
  * eventLog のみを購読する履歴パネル。actor の position 更新では再レンダリングされない
@@ -24,8 +19,8 @@ type ActionLogPanelProps = {
  * - `gameTimeMs` は共通ゲームクロック由来の決定論的な値
  * - intent は actor 行 (`ActorController`) 側で表示するため、タイムラインには含めない
  */
-export const ActionLogPanel = (props: ActionLogPanelProps) => {
-  const { actorIds } = props
+export const ActionLogPanel = () => {
+  const { actorIds } = useTimeControl03Props()
 
   const eventLog = useGameClockStore((state) => state.eventLog)
 
