@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 /**
  * useEventListener のオプション
@@ -55,6 +55,7 @@ const registerPendingPromise = (
     pendingPromises.get(target) ?? new Map<string, Promise<void>[]>()
   promises.set(type, [...(promises.get(type) ?? []), promise])
   pendingPromises.set(target, promises)
+  notifyPendingChange(target, type)
 }
 
 const unregisterPendingPromise = (
@@ -64,11 +65,43 @@ const unregisterPendingPromise = (
 ) => {
   const promises = pendingPromises.get(target)?.get(type)
   promises?.splice(promises.indexOf(promise), 1)
+  notifyPendingChange(target, type)
 }
 
 /** dispatcher が type 発行直後に読む、実行中の handler Promise 一覧 */
 export const getPendingPromises = (target: EventTarget, type: string) =>
   pendingPromises.get(target)?.get(type) ?? []
+
+/** target・type ごとの pending 変化 (登録数の増減) を購読する listener 一覧 */
+const pendingChangeListeners = new WeakMap<
+  EventTarget,
+  Map<string, Set<() => void>>
+>()
+
+const notifyPendingChange = (target: EventTarget, type: string) => {
+  pendingChangeListeners
+    .get(target)
+    ?.get(type)
+    ?.forEach((listener) => listener())
+}
+
+/** pending 変化 (`registerPendingPromise`/`unregisterPendingPromise`) を購読する */
+const subscribePendingChange = (
+  target: EventTarget,
+  type: string,
+  listener: () => void,
+) => {
+  const types =
+    pendingChangeListeners.get(target) ?? new Map<string, Set<() => void>>()
+  const listeners = types.get(type) ?? new Set<() => void>()
+  listeners.add(listener)
+  types.set(type, listeners)
+  pendingChangeListeners.set(target, types)
+
+  return () => {
+    listeners.delete(listener)
+  }
+}
 
 /**
  * EventTarget のイベントを購読する
@@ -107,4 +140,43 @@ export const useEventListener = <E extends Event = Event>(
       unregisterListener(target, type)
     }
   }, [target, type, handler, allowMultiple])
+}
+
+/**
+ * useEventPending のオプション
+ */
+export type UseEventPendingOptions = {
+  /** 監視対象。省略時 window */
+  target?: EventTarget
+}
+
+/**
+ * target・type の handler が現在 Promise 実行中かどうかを観測する
+ *
+ * - `useEventListener` 自体は呼ばない (実 listener を追加登録しない)。既存の\
+ *   実 listener (別の `useEventListener` 呼出) が持つ実行中 Promise の有無を\
+ *   registry 経由で覗くだけ
+ *
+ * @param type イベント名
+ * @param options 監視対象の指定
+ */
+export const useEventPending = (
+  type: string,
+  options: UseEventPendingOptions = {},
+) => {
+  const { target = window } = options
+
+  const [isPending, setIsPending] = useState(
+    () => getPendingPromises(target, type).length > 0,
+  )
+
+  useEffect(() => {
+    setIsPending(getPendingPromises(target, type).length > 0)
+
+    return subscribePendingChange(target, type, () => {
+      setIsPending(getPendingPromises(target, type).length > 0)
+    })
+  }, [target, type])
+
+  return { isPending }
 }
