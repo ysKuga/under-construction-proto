@@ -1,4 +1,4 @@
-import { useEventListener } from '@/hooks/use-event-listener'
+import { useEventListener } from '@/hooks/event'
 
 import { useScopeEventTarget } from '../_contexts/scope-event-context'
 import { TimeControl03EventMap } from '../index.types'
