@@ -8,4 +8,6 @@ export type TimeControl03EventMap = {
   'dispatch-decision': undefined
   /** 全 store (状態を持たない intent-store 以外) を初期状態に戻す */
   'reset-all': undefined
+  /** 対象 actor 一括の進行モード(auto/manual) 切替 */
+  'toggle-progress-mode': undefined
 }

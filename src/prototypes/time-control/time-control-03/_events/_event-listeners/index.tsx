@@ -1,6 +1,7 @@
 import { useAsyncSampleEventListener } from './use-async-sample-event-listener'
 import { useDispatchDecisionEventListener } from './use-dispatch-decision-event-listener'
 import { useResetAllEventListener } from './use-reset-all-event-listener'
+import { useToggleProgressModeEventListener } from './use-toggle-progress-mode-event-listener'
 
 /**
  * scope 全体のイベント購読をまとめて有効化する
@@ -11,6 +12,7 @@ export const ScopeEventListeners = () => {
   useAsyncSampleEventListener()
   useDispatchDecisionEventListener()
   useResetAllEventListener()
+  useToggleProgressModeEventListener()
 
   return null
 }

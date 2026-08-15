@@ -7,7 +7,7 @@ import { UseActionBarReturn } from './index.types'
  * ActionBar の操作ロジック
  */
 export const useActionBar = (): UseActionBarReturn => {
-  const { progressMode, toggleProgressMode } = useProgressMode()
+  const { progressMode } = useProgressMode()
   const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
   const dispatchDecision: UseActionBarReturn['dispatchDecision'] =
@@ -15,6 +15,9 @@ export const useActionBar = (): UseActionBarReturn => {
 
   const resetAll: UseActionBarReturn['resetAll'] =
     timeControl03EventDispatcher['reset-all']
+
+  const toggleProgressMode: UseActionBarReturn['toggleProgressMode'] =
+    timeControl03EventDispatcher['toggle-progress-mode']
 
   return {
     dispatchDecision,
