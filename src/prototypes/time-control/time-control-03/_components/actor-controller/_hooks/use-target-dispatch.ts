@@ -1,4 +1,4 @@
-import { useIntentStore, usePositionStore } from '../../../_stores'
+import { useTimeControl03EventDispatcher } from '../../../_events'
 import { ActorControllerProps, UseActorControllerReturn } from '../index.types'
 
 /**
@@ -11,17 +11,11 @@ export const useTargetDispatch = (
 ): Pick<UseActorControllerReturn, 'dispatchTarget'> => {
   const { id } = props
 
-  const position = usePositionStore((state) => state.getPosition(id))
-  const dispatchMoveIntent = useIntentStore((state) => state.dispatchMoveIntent)
+  const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
-  const dispatchTarget = () => {
-    dispatchMoveIntent({
-      actorId: id,
-      target: {
-        x: position.x + Math.round(Math.random() * 6 - 3),
-        y: position.y + Math.round(Math.random() * 6 - 3),
-      },
-    })
+  const dispatchTarget: UseActorControllerReturn['dispatchTarget'] = () => {
+    // timeControl03EventListener\('dispatch-target'
+    timeControl03EventDispatcher['dispatch-target']({ actorId: id })
   }
 
   return { dispatchTarget }

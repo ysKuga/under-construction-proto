@@ -1,3 +1,4 @@
+import { useTimeControl03EventDispatcher } from '../../../_events'
 import { useActorSettingsStore } from '../../../_stores'
 import { ActorControllerProps, UseActorControllerReturn } from '../index.types'
 
@@ -23,19 +24,23 @@ export const useFixedPathSetting = (
   const isFixedPathSteps = useActorSettingsStore(
     (state) => state.getActorSettings(id).isFixedPathSteps,
   )
-  const setFixedPathStepsStore = useActorSettingsStore(
-    (state) => state.setFixedPathSteps,
-  )
-  const setIsFixedPathStepsStore = useActorSettingsStore(
-    (state) => state.setIsFixedPathSteps,
-  )
+  const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
-  const setFixedPathSteps = (steps: number) => {
-    setFixedPathStepsStore(id, steps)
+  const setFixedPathSteps: UseActorControllerReturn['setFixedPathSteps'] = (
+    steps,
+  ) => {
+    // timeControl03EventListener\('set-fixed-path-steps'
+    timeControl03EventDispatcher['set-fixed-path-steps']({ actorId: id, steps })
   }
 
-  const setIsFixedPathSteps = (checked: boolean) => {
-    setIsFixedPathStepsStore(id, checked)
+  const setIsFixedPathSteps: UseActorControllerReturn['setIsFixedPathSteps'] = (
+    checked,
+  ) => {
+    // timeControl03EventListener\('set-is-fixed-path-steps'
+    timeControl03EventDispatcher['set-is-fixed-path-steps']({
+      actorId: id,
+      checked,
+    })
   }
 
   return {

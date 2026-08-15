@@ -12,6 +12,7 @@ export const useAsyncSampleButton = () => {
     useTimeControl03EventPending('async-sample')
 
   const dispatchAsyncSample = () => {
+    // timeControl03EventListener\('async-sample'
     timeControl03EventDispatcher['async-sample']()
   }
 

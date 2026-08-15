@@ -1,6 +1,11 @@
 import { useAsyncSampleEventListener } from './use-async-sample-event-listener'
 import { useDispatchDecisionEventListener } from './use-dispatch-decision-event-listener'
+import { useDispatchTargetEventListener } from './use-dispatch-target-event-listener'
 import { useResetAllEventListener } from './use-reset-all-event-listener'
+import { useSetFixedPathStepsEventListener } from './use-set-fixed-path-steps-event-listener'
+import { useSetIsFixedPathStepsEventListener } from './use-set-is-fixed-path-steps-event-listener'
+import { useSetTickMsEventListener } from './use-set-tick-ms-event-listener'
+import { useToggleProgressModeEventListener } from './use-toggle-progress-mode-event-listener'
 
 /**
  * scope 全体のイベント購読をまとめて有効化する
@@ -10,7 +15,12 @@ import { useResetAllEventListener } from './use-reset-all-event-listener'
 export const ScopeEventListeners = () => {
   useAsyncSampleEventListener()
   useDispatchDecisionEventListener()
+  useDispatchTargetEventListener()
   useResetAllEventListener()
+  useSetFixedPathStepsEventListener()
+  useSetIsFixedPathStepsEventListener()
+  useSetTickMsEventListener()
+  useToggleProgressModeEventListener()
 
   return null
 }
