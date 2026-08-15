@@ -5,7 +5,6 @@ import { createRequiredContext } from '@/utils/create-required-context'
 
 import { computeFitTransform, StageTransform } from '../_lib/stage-coords'
 import { usePlannedPathStore } from '../_stores/planned-path'
-import { DEFAULT_POSITION } from '../_stores/position/constants'
 import { useTimeControl03Props } from '../index.contexts'
 
 const { Context: StageTransformContext, useContextValue: useStageTransform } =
@@ -37,13 +36,7 @@ export const StageTransformProvider = (props: StageTransformProviderProps) => {
   const { actorIds } = useTimeControl03Props()
 
   const targets = usePlannedPathStore(
-    useShallow((state) =>
-      actorIds.map((id) => {
-        const path = state.getPlannedPath(id)
-
-        return path[path.length - 1] ?? DEFAULT_POSITION
-      }),
-    ),
+    useShallow((state) => state.getTargets(actorIds)),
   )
   const transform = useMemo(() => computeFitTransform(targets), [targets])
 

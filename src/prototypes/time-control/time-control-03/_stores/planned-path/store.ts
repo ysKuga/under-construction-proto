@@ -1,5 +1,7 @@
 import { createStore } from 'zustand/vanilla'
 
+import { DEFAULT_POSITION } from '../position/constants'
+
 import { DEFAULT_PLANNED_PATH } from './constants'
 import { PlannedPathState, PlannedPathStore } from './types'
 
@@ -12,6 +14,12 @@ export const createPlannedPathStore = (): PlannedPathStore =>
     ...INITIAL_STATE,
     getPlannedPath: (actorId) =>
       get().plannedPathById[actorId] ?? DEFAULT_PLANNED_PATH,
+    getTargets: (actorIds) =>
+      actorIds.map((actorId) => {
+        const path = get().getPlannedPath(actorId)
+
+        return path[path.length - 1] ?? DEFAULT_POSITION
+      }),
     reset: () => {
       set(INITIAL_STATE)
     },
