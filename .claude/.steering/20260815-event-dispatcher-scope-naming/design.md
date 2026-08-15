@@ -17,14 +17,19 @@
 
 ## 実装計画
 
-- [ ] 未着手 (検討段階)
+- [x] `TimeControl03EventMap` の全 8 イベント名に `TimeControl03-` scope prefix 付与
+- [x] `_event-listeners/` 配下 8 listener の購読 type 文字列・JSDoc を prefix 済み名へ更新
+- [x] dispatcher 呼出全 8 箇所 (grep コメント含む) を prefix 済み名へ更新
+- [ ] hook 名の汎用化 (`useTimeControl03EventDispatcher` → `useEventDispatcher` 等) は未着手、副次対応として保留
+- [ ] `TimeControl03EventMap` のキーを template literal 型 (例: `` `TimeControl03-${string}` ``) で制約する案は未着手
 
 ## 決定事項
 
 - 2026-08-15: 検討継続、実装は保留。方針(命名変更のみ先行 or EventTarget 切替まで含める)が固まってから実装着手する
+- 2026-08-16: 主目的をイベント名 scope prefix 化 (`'TimeControl03-dispatch-target'` 等) と確定、実装完了。\
+  window 等への EventTarget 共有化は今回対象外、hook 名の汎用化は副次対応として別途保留
 
 ## 懸念・リスク
 
-- イベント名への scope prefix 埋め込みは、現行の「scope 専用 EventTarget による衝突回避」という設計思想と方向性がずれる可能性がある。EventTarget を window 等の共有先へ切り替える具体的動機が未確認
-- 汎用 hook 名への統一は `@/hooks/event` 版との名前衝突を招く。ジャンプ・JSDoc 前提の運用で許容するかは要合意
-- 対象は `_event-listeners/` 配下の全 listener (7イベント分) + dispatcher 呼出全箇所、影響範囲は広い
+- イベント名への scope prefix 埋め込みは、現行の「scope 専用 EventTarget による衝突回避」という設計思想と方向性がずれる可能性がある。EventTarget を window 等の共有先へ切り替える具体的動機が未確認 → 今回は EventTarget 共有化を対象外としたため、この懸念は現時点では顕在化しない
+- 汎用 hook 名への統一は `@/hooks/event` 版との名前衝突を招く。ジャンプ・JSDoc 前提の運用で許容するかは要合意 (未着手のため継続課題)
