@@ -1,6 +1,8 @@
 import { useAsyncSampleEventListener } from './use-async-sample-event-listener'
 import { useDispatchDecisionEventListener } from './use-dispatch-decision-event-listener'
 import { useResetAllEventListener } from './use-reset-all-event-listener'
+import { useSetFixedPathStepsEventListener } from './use-set-fixed-path-steps-event-listener'
+import { useSetIsFixedPathStepsEventListener } from './use-set-is-fixed-path-steps-event-listener'
 import { useToggleProgressModeEventListener } from './use-toggle-progress-mode-event-listener'
 
 /**
@@ -12,6 +14,8 @@ export const ScopeEventListeners = () => {
   useAsyncSampleEventListener()
   useDispatchDecisionEventListener()
   useResetAllEventListener()
+  useSetFixedPathStepsEventListener()
+  useSetIsFixedPathStepsEventListener()
   useToggleProgressModeEventListener()
 
   return null
