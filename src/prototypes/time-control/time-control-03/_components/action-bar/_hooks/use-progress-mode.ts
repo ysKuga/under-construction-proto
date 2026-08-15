@@ -17,6 +17,8 @@ export const useProgressMode = (): Pick<
   const progressMode = useActorSettingsStore(
     (state) => state.getActorSettings(actorIds[0]).progressMode,
   )
+
+  // TODO event-listener への移行
   const toggleProgressModeStore = useActorSettingsStore(
     (state) => state.toggleProgressMode,
   )
