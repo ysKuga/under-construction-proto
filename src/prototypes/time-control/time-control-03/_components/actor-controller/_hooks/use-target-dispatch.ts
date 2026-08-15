@@ -14,6 +14,7 @@ export const useTargetDispatch = (
   const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
   const dispatchTarget: UseActorControllerReturn['dispatchTarget'] = () => {
+    // timeControl03EventListener\('dispatch-target'
     timeControl03EventDispatcher['dispatch-target']({ actorId: id })
   }
 

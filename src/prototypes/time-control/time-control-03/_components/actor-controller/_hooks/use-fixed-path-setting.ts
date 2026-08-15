@@ -29,12 +29,14 @@ export const useFixedPathSetting = (
   const setFixedPathSteps: UseActorControllerReturn['setFixedPathSteps'] = (
     steps,
   ) => {
+    // timeControl03EventListener\('set-fixed-path-steps'
     timeControl03EventDispatcher['set-fixed-path-steps']({ actorId: id, steps })
   }
 
   const setIsFixedPathSteps: UseActorControllerReturn['setIsFixedPathSteps'] = (
     checked,
   ) => {
+    // timeControl03EventListener\('set-is-fixed-path-steps'
     timeControl03EventDispatcher['set-is-fixed-path-steps']({
       actorId: id,
       checked,
