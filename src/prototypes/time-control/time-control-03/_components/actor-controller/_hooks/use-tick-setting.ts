@@ -26,8 +26,11 @@ export const useTickSetting = (
   const setTickMsOption: UseActorControllerReturn['setTickMsOption'] = (
     value,
   ) => {
-    // timeControl03EventListener\('set-tick-ms'
-    timeControl03EventDispatcher['set-tick-ms']({ actorId: id, tickMs: value })
+    // timeControl03EventListener\('TimeControl03-set-tick-ms'
+    timeControl03EventDispatcher['TimeControl03-set-tick-ms']({
+      actorId: id,
+      tickMs: value,
+    })
   }
 
   return { setTickMsOption, tickMs }

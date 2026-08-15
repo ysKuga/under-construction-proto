@@ -8,12 +8,13 @@ import {
  */
 export const useAsyncSampleButton = () => {
   const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
-  const { isPending: isDispatching } =
-    useTimeControl03EventPending('async-sample')
+  const { isPending: isDispatching } = useTimeControl03EventPending(
+    'TimeControl03-async-sample',
+  )
 
   const dispatchAsyncSample = () => {
-    // timeControl03EventListener\('async-sample'
-    timeControl03EventDispatcher['async-sample']()
+    // timeControl03EventListener\('TimeControl03-async-sample'
+    timeControl03EventDispatcher['TimeControl03-async-sample']()
   }
 
   return { dispatchAsyncSample, isDispatching }

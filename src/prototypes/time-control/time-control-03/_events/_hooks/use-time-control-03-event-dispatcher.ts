@@ -8,7 +8,7 @@ import { TimeControl03EventMap } from '../index.types'
 /**
  * イベント名ごとに dispatch 関数を持つオブジェクト
  *
- * - `TimeControl03EventMap` のキーに付与した JSDoc を、`dispatcher['reset-all']()` の\
+ * - `TimeControl03EventMap` のキーに付与した JSDoc を、`dispatcher['TimeControl03-reset-all']()` の\
  *   呼出箇所でホバー表示できるようにする狙いでオブジェクト形式にしている
  */
 type TimeControl03EventDispatcher = {
