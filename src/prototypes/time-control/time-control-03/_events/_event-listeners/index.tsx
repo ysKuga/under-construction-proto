@@ -4,6 +4,7 @@ import { useDispatchTargetEventListener } from './use-dispatch-target-event-list
 import { useResetAllEventListener } from './use-reset-all-event-listener'
 import { useSetFixedPathStepsEventListener } from './use-set-fixed-path-steps-event-listener'
 import { useSetIsFixedPathStepsEventListener } from './use-set-is-fixed-path-steps-event-listener'
+import { useSetTickMsEventListener } from './use-set-tick-ms-event-listener'
 import { useToggleProgressModeEventListener } from './use-toggle-progress-mode-event-listener'
 
 /**
@@ -18,6 +19,7 @@ export const ScopeEventListeners = () => {
   useResetAllEventListener()
   useSetFixedPathStepsEventListener()
   useSetIsFixedPathStepsEventListener()
+  useSetTickMsEventListener()
   useToggleProgressModeEventListener()
 
   return null

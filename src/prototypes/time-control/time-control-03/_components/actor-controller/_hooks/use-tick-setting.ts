@@ -1,4 +1,5 @@
 import { getTickMs } from '../../../../time-control-02/_lib/get-tick-ms'
+import { useTimeControl03EventDispatcher } from '../../../_events'
 import { useActorStore } from '../../../_stores'
 import { ActorControllerProps, UseActorControllerReturn } from '../index.types'
 
@@ -20,10 +21,13 @@ export const useTickSetting = (
 
   const tickRate = useActorStore((state) => state.getActorInfo(id).tickRate)
   const tickMs = getTickMs(tickRate)
-  const setTickMs = useActorStore((state) => state.setTickMs)
+  const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
-  const setTickMsOption = (value: number) => {
-    setTickMs(id, value)
+  const setTickMsOption: UseActorControllerReturn['setTickMsOption'] = (
+    value,
+  ) => {
+    // timeControl03EventListener\('set-tick-ms'
+    timeControl03EventDispatcher['set-tick-ms']({ actorId: id, tickMs: value })
   }
 
   return { setTickMsOption, tickMs }
