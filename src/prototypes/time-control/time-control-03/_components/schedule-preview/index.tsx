@@ -9,9 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import { buildSchedule } from '../../_lib/build-schedule'
-import { useActorStore, useGameClockStore, usePathStore } from '../../_stores'
-import { useTimeControl03Props } from '../../index.contexts'
+import { useSchedulePreview } from './index.hooks'
 
 type ScheduleCellProps = {
   /** この行 (tick) で行動があるか */
@@ -43,18 +41,7 @@ ScheduleCell.displayName = 'ScheduleCell'
  *   (同一行に複数 actor が並ぶ場合、経過時間を列ごとに重複表示しないため)
  */
 export const SchedulePreview = () => {
-  const { actorIds } = useTimeControl03Props()
-
-  const pathById = usePathStore((state) => state.pathById)
-  const actorById = useActorStore((state) => state.actorById)
-  const commonGameTimeMs = useGameClockStore((state) => state.commonGameTimeMs)
-
-  const schedule = buildSchedule(
-    actorIds,
-    pathById,
-    actorById,
-    commonGameTimeMs,
-  )
+  const { actorIds, schedule } = useSchedulePreview()
 
   return (
     <TableElement className="table-fixed">

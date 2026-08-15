@@ -1,18 +1,18 @@
-import { useState } from 'react'
-
-import { useTimeControl03EventDispatcher } from '../../../../_events'
+import {
+  useTimeControl03EventDispatcher,
+  useTimeControl03EventPending,
+} from '../../../../_events'
 
 /**
  * AsyncSampleButton の操作ロジック
  */
 export const useAsyncSampleButton = () => {
   const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
-  const [isDispatching, setIsDispatching] = useState(false)
+  const { isPending: isDispatching } =
+    useTimeControl03EventPending('async-sample')
 
-  const dispatchAsyncSample = async () => {
-    setIsDispatching(true)
-    await timeControl03EventDispatcher['async-sample']()
-    setIsDispatching(false)
+  const dispatchAsyncSample = () => {
+    timeControl03EventDispatcher['async-sample']()
   }
 
   return { dispatchAsyncSample, isDispatching }

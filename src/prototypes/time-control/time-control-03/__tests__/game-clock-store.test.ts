@@ -83,6 +83,31 @@ test('同一 actor の tick は累積し、後退・重複しない', () => {
   expect(event2.gameTimeMs).toBe(200)
 })
 
+test('getHistory は eventLog を対象に履歴行を生成する', () => {
+  const store = createGameClockStore()
+
+  store
+    .getState()
+    .logEvent<ActionLogEntry>(
+      { actorId: 'a', phase: 'execution', target: { x: 1, y: 0 } },
+      100,
+    )
+
+  expect(store.getState().getHistory(['a'])).toEqual([
+    {
+      entryByActorId: {
+        a: {
+          actorId: 'a',
+          gameTimeMs: 100,
+          phase: 'execution',
+          target: { x: 1, y: 0 },
+        },
+      },
+      gameTimeMs: 100,
+    },
+  ])
+})
+
 test('reset で eventLog・commonGameTimeMs が初期状態に戻る', () => {
   const store = createGameClockStore()
 

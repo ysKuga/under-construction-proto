@@ -7,7 +7,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import { buildHistory } from '../../../time-control-02/_lib/build-history'
 import { formatCoord } from '../../../time-control-02/_lib/format-coord'
 import { useGameClockStore } from '../../_stores'
 import { useTimeControl03Props } from '../../index.contexts'
@@ -22,9 +21,7 @@ import { useTimeControl03Props } from '../../index.contexts'
 export const ActionLogPanel = () => {
   const { actorIds } = useTimeControl03Props()
 
-  const eventLog = useGameClockStore((state) => state.eventLog)
-
-  const rows = buildHistory(actorIds, eventLog)
+  const historyRows = useGameClockStore((state) => state.getHistory(actorIds))
 
   return (
     <TableElement className="table-fixed">
@@ -37,7 +34,7 @@ export const ActionLogPanel = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {rows.map((row) => (
+        {historyRows.map((row) => (
           <TableRow key={row.gameTimeMs}>
             <TableCell className="whitespace-nowrap">
               {row.gameTimeMs}ms

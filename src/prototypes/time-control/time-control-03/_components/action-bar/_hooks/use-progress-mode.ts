@@ -12,19 +12,18 @@ export const useProgressMode = (): Pick<
   const { actorIds } = useTimeControl03Props()
 
   // 全 actor 常に同一 mode 前提の代表値取得。
-  // actor 毎 個別 mode 持たせる要件が復活したら要見直し(toggleProgressMode の forEach 一括更新も同様)
+  // actor 毎 個別 mode 持たせる要件が復活したら要見直し(store 側の toggleProgressMode 一括更新も同様)
   // * あるいは progressMode を統一してそれを保持する store を新設
   const progressMode = useActorSettingsStore(
     (state) => state.getActorSettings(actorIds[0]).progressMode,
   )
-  const setProgressMode = useActorSettingsStore(
-    (state) => state.setProgressMode,
+
+  // TODO event-listener への移行
+  const toggleProgressModeStore = useActorSettingsStore(
+    (state) => state.toggleProgressMode,
   )
 
-  const toggleProgressMode = () => {
-    const nextMode = progressMode === 'auto' ? 'manual' : 'auto'
-    actorIds.forEach((id) => setProgressMode(id, nextMode))
-  }
+  const toggleProgressMode = () => toggleProgressModeStore(actorIds)
 
   return { progressMode, toggleProgressMode }
 }

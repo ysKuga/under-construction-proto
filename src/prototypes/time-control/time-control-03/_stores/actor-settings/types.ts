@@ -30,6 +30,12 @@ export type ActorSettingsState = {
   setProgressMode: (actorId: ActorId, mode: ProgressMode) => void
   /** actor ごとの操作設定 */
   settingsById: Record<ActorId, ActorSettings>
+  /**
+   * 対象 actor 全員の行動進行モードを一括反転する
+   *
+   * - 現在値は先頭 actor の設定を代表値として判定する
+   */
+  toggleProgressMode: (actorIds: ActorId[]) => void
 }
 
 export type ActorSettingsStore = StoreApi<ActorSettingsState>

@@ -1,5 +1,6 @@
 import { createStore } from 'zustand/vanilla'
 
+import { buildHistory } from './lib'
 import { GameClockState, GameClockStore, GameEvent } from './types'
 
 const INITIAL_STATE = {
@@ -10,6 +11,7 @@ const INITIAL_STATE = {
 export const createGameClockStore = (): GameClockStore =>
   createStore<GameClockState>((set, get) => ({
     ...INITIAL_STATE,
+    getHistory: (actorIds) => buildHistory(actorIds, get().eventLog),
     logEvent: (<TEvent extends GameEvent>(
       payload: Omit<TEvent, 'gameTimeMs'>,
       advanceTickMs?: number,

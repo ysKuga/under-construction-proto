@@ -48,4 +48,21 @@ export const createActorSettingsStore = (): ActorSettingsStore =>
         },
       }))
     },
+    toggleProgressMode: (actorIds) => {
+      const currentMode = get().getActorSettings(actorIds[0]).progressMode
+      const nextMode = currentMode === 'auto' ? 'manual' : 'auto'
+
+      set((state) => ({
+        settingsById: actorIds.reduce(
+          (settingsById, actorId) => ({
+            ...settingsById,
+            [actorId]: {
+              ...(state.settingsById[actorId] ?? DEFAULT_ACTOR_SETTINGS),
+              progressMode: nextMode,
+            },
+          }),
+          state.settingsById,
+        ),
+      }))
+    },
   }))

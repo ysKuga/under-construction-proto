@@ -44,6 +44,16 @@ test('setProgressMode は対象 actor の progressMode のみ更新する', () =
   })
 })
 
+test('toggleProgressMode は対象 actor 全員の progressMode を一括反転する', () => {
+  const store = createActorSettingsStore()
+
+  store.getState().setProgressMode('a', 'manual')
+  store.getState().toggleProgressMode(['a', 'b'])
+
+  expect(store.getState().settingsById.a?.progressMode).toBe('auto')
+  expect(store.getState().settingsById.b?.progressMode).toBe('auto')
+})
+
 test('reset で全 actor の設定が初期状態に戻る', () => {
   const store = createActorSettingsStore()
 

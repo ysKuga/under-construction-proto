@@ -1,6 +1,6 @@
 import { StoreApi } from 'zustand/vanilla'
 
-import { ActionLogEntry, EventLog } from '../../types'
+import { ActionLogEntry, ActorId, EventLog, HistoryRow } from '../../types'
 
 /**
  * 共通ゲームクロックに乗るイベント種別の総称
@@ -15,6 +15,14 @@ export type GameClockState = {
   commonGameTimeMs: number
   /** 共通ゲームクロック由来の gameTimeMs を持つ、あらゆるイベントの時系列ログ */
   eventLog: EventLog<GameEvent>
+  /**
+   * eventLog から、gameTimeMs でマージした履歴行を生成する
+   *
+   * - 同一 gameTimeMs の複数 actor は1行にまとめる
+   *
+   * @param actorIds 対象 actor 一覧
+   */
+  getHistory: (actorIds: ActorId[]) => HistoryRow[]
   /**
    * イベントを記録する
    *
