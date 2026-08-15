@@ -8,6 +8,8 @@ export type TimeControl03EventMap = {
   'async-sample': undefined
   /** 対象 actor 一括の行動決定実行 */
   'dispatch-decision': undefined
+  /** actor 個別の target 企図実行 (現在位置からランダムオフセット) */
+  'dispatch-target': { actorId: ActorId }
   /** 全 store (状態を持たない intent-store 以外) を初期状態に戻す */
   'reset-all': undefined
   /** actor 個別の固定 step 数設定 */
