@@ -19,15 +19,12 @@ export const useActionBar = (): UseActionBarReturn => {
 
   const timeControl03EventDispatcher = useTimeControl03EventDispatcher()
 
-  // timeControl03EventListener\('TimeControl03-dispatch-decision'
   const dispatchDecision: UseActionBarReturn['dispatchDecision'] =
     timeControl03EventDispatcher['TimeControl03-dispatch-decision']
 
-  // timeControl03EventListener\('TimeControl03-reset-all'
   const resetAll: UseActionBarReturn['resetAll'] =
     timeControl03EventDispatcher['TimeControl03-reset-all']
 
-  // timeControl03EventListener\('TimeControl03-toggle-progress-mode'
   const toggleProgressMode: UseActionBarReturn['toggleProgressMode'] =
     timeControl03EventDispatcher['TimeControl03-toggle-progress-mode']
 

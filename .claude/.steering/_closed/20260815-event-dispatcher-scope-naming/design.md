@@ -11,7 +11,6 @@
 ## 背景・制約
 
 - 現行実装: `_events/README.md` 参照。scope (time-control-03 instance) 専用の `EventTarget` を `ScopeEventProvider` で生成・配布、`TimeControl03EventMap` で type-safe に payload 対応
-- dispatcher 呼出箇所 (`timeControl03EventDispatcher['xxx']`) には、対応する listener へ grep ジャンプできるよう `// timeControl03EventListener\('xxx'` コメントを暫定で付与済み (7箇所: action-bar/index.hooks.ts 3, async-sample-button 1, use-fixed-path-setting.ts 2, use-target-dispatch.ts 1)
 - `_events/_hooks/use-time-control-03-event-dispatcher.ts` 等が `@/hooks/event` の汎用 `useEventDispatcher`/`useEventListener` をラップする構成。ラッパー側を同名にすると `@/hooks/event` 版との名前衝突が起きるが、JSDoc・定義ジャンプで判別可能という判断
 - prototype 間の依存ルール ([src/prototypes/CLAUDE.md](../../../src/prototypes/CLAUDE.md)) により、time-control-03 固有の変更は同ディレクトリ内で完結させる
 

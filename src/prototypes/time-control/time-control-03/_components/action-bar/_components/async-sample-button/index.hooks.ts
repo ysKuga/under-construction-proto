@@ -13,7 +13,6 @@ export const useAsyncSampleButton = () => {
   )
 
   const dispatchAsyncSample = () => {
-    // timeControl03EventListener\('TimeControl03-async-sample'
     timeControl03EventDispatcher['TimeControl03-async-sample']()
   }
 
