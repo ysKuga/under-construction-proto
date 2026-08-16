@@ -2,6 +2,8 @@ import { ActorId } from '../types'
 
 /**
  * イベント名 → payload 型の対応表
+ *
+ * - key prefix: `TimeControl03-`
  */
 export type TimeControl03EventMap = {
   /** async listener 実演用サンプル (store 未使用、listener 内で Promise + setTimeout 完結) */

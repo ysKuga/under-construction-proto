@@ -24,7 +24,7 @@ _events/
 
 ## 新しいイベントを追加する手順
 
-1. `index.types.ts` の `TimeControl03EventMap` にイベント名と payload 型を追加する
+1. `index.types.ts` の `TimeControl03EventMap` にイベント名と payload 型を追加する。イベント名には `TimeControl03-` prefix を付与する(grep 検索性のため、詳細は `index.types.ts` の JSDoc 参照)
 2. 購読が必要なら `_event-listeners/use-xxx-event-listener/` を新設し、`_event-listeners/index.tsx` の `ScopeEventListeners` に呼び出しを1行足す
 3. 発行側は `useTimeControl03EventDispatcher()` の戻り値オブジェクトから該当イベント名で呼ぶ (`dispatcher['event-name']()`)
 
