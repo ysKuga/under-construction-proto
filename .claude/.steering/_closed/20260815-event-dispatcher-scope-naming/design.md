@@ -20,7 +20,7 @@
 - [x] `TimeControl03EventMap` の全 8 イベント名に `TimeControl03-` scope prefix 付与
 - [x] `_event-listeners/` 配下 8 listener の購読 type 文字列・JSDoc を prefix 済み名へ更新
 - [x] dispatcher 呼出全 8 箇所 (grep コメント含む) を prefix 済み名へ更新
-- [ ] hook 名の汎用化 (`useTimeControl03EventDispatcher` → `useEventDispatcher` 等) は未着手、副次対応として保留
+- [x] hook 名の汎用化 (`useTimeControl03EventDispatcher` → `useEventDispatcher` 等) は不採用と決定 (詳細は下記懸念参照)
 - [x] `TimeControl03EventMap` のキーを template literal 型で制約する案は検証実施、不採用と決定 (詳細は下記懸念参照)
 
 ## 決定事項
@@ -30,11 +30,15 @@
   window 等への EventTarget 共有化は今回対象外、hook 名の汎用化は副次対応として別途保留
 - 2026-08-16: `TimeControl03EventMap` のキーを `` Record<`TimeControl03-${string}`, unknown> `` への generic 制約で\
   prefix 強制する案を検証、TypeScript の仕様上機能しないと判明したため不採用
+- 2026-08-16: hook 名の汎用化 (`useTimeControl03EventDispatcher` → `useEventDispatcher` 等) は不採用と決定。\
+  複数 scope のイベントを同一箇所で扱う場合を考慮すると、hook 名で scope が読み取れる現状(`useTimeControl03Event...`)の\
+  方が有用と判断
 
 ## 懸念・リスク
 
 - イベント名への scope prefix 埋め込みは、現行の「scope 専用 EventTarget による衝突回避」という設計思想と方向性がずれる可能性がある。EventTarget を window 等の共有先へ切り替える具体的動機が未確認 → 今回は EventTarget 共有化を対象外としたため、この懸念は現時点では顕在化しない
-- 汎用 hook 名への統一は `@/hooks/event` 版との名前衝突を招く。ジャンプ・JSDoc 前提の運用で許容するかは要合意 (未着手のため継続課題)
+- 汎用 hook 名への統一は `@/hooks/event` 版との名前衝突を招く上、複数 scope のイベントを同一箇所で扱う場合に\
+  どの scope の hook か名前から読み取れなくなる。この点を理由に不採用とした
 - template literal 型による key 制約は不採用。`` T extends Record<`TimeControl03-${string}`, unknown> `` という generic 制約は、\
   object literal の key が pattern から外れていても値型 (`unknown`) にさえ適合すれば通過してしまい、定義箇所ではエラーにならない\
   (TS の pattern index signature は動的アクセス時の型制約であり、静的な key 名の形式検証には使えない)。実際に prefix を\
