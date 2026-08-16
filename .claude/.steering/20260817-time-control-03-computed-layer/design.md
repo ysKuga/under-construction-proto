@@ -21,9 +21,9 @@ component が扱う入力を props/store/computed の3層に分離する設計�
 - [x] `index.providers.tsx` に `ComputedProvider` を `StoresProvider` の内側・`ScopeEventProvider` の外側に配置
 - [x] `_components/action-bar/index.hooks.ts` の `progressMode` 算出を `_computed` 経由に置換
 - [x] `_computed/README.md` 新設 (構成・依存関係・参照ルール・追加手順)
-- [ ] `_computed/README.md` に「関連」節を追加、docs/concept 新設ページへ逆リンク
-- [ ] `docs/concept/component-input-layers/README.md` 新設 (props/store/computed 3層分離の一般化)
-- [ ] `docs/concept/README.md` に新設ページへのリンク追加
+- [x] `_computed/README.md` に「関連」節を追加、docs/concept 新設ページへ逆リンク
+- [x] `docs/concept/component-input-layers/README.md` 新設 (props/store/computed 3層分離の一般化)
+- [x] `docs/concept/README.md` に新設ページへのリンク追加
 
 ## 決定事項
 
