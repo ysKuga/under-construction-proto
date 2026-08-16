@@ -20,6 +20,8 @@ export type UseEventListenerOptions = {
 /**
  * EventTarget のイベントを購読する
  *
+ * - イベント名には scope prefix (例: `ComponentName-`) の付与を検討する(grep 検索性のため)
+ *
  * @param type イベント名
  * @param handler イベント発火時に呼ぶ処理。Promise を返す場合、dispatcher の\
  *   戻り値 (`useEventDispatcher`) がその完了を待つ
