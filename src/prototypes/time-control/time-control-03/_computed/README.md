@@ -33,3 +33,9 @@ _computed/
 1. `types.ts` の `ComputedState` にフィールドを追加する
 2. `store.ts` の `createComputedStore` で算出ロジックと、依存元 store の `subscribe` による再算出を追加する
 3. 依存元 store が `actor-settings-store` 以外なら、`index.contexts.tsx` の `ComputedProvider` で該当 store の `useXxxStoreApi` を取得し `createComputedStore` へ渡す
+
+## 関連
+
+- 概念: [docs/concept/component-input-layers/README.md](../../../../../docs/concept/component-input-layers/README.md)
+- 実装計画・決定事項: `.claude/.steering/20260817-time-control-03-computed-layer/design.md`
+- 実装例・store 構成: [time-control-03/README.md](../README.md)
