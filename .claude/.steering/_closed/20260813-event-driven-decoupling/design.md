@@ -22,8 +22,7 @@ component/hooks 分離だけでは解決しない「部品への全体依存」�
 - [x] `TimeControl03EventMap` (カスタムイベントの dictionary 型)を定義し、ペイロード型を一元管理 (`_events/index.types.ts`)
 - [x] `action-bar` の `useResetAll` を、reset-all イベントの dispatch のみに置き換え
 - [x] reset-all の購読・全 store reset 実行 (`_events/_hooks/use-reset-all-listener/`)。`ScopeEventProvider` (`StoresProvider` の内側に配置) が `ScopeEventListeners` 経由でまとめて有効化する構成に決着、詳細は決定事項参照
-- [ ] **他 events (reset-all 以外のパターン) への移行は別 PR で実施する**。今回の PR は reset-all の疎結合化のみに限定し、`_events` の構成パターンを確立することを目的とした
-- [ ] time-control-04 作成のタイミングで `_events`/`_providers` を `time-control/_lib/` へ昇格するか判断
+- [x] **他 events (reset-all 以外のパターン) への移行は別 PR で実施する**。今回の PR は reset-all の疎結合化のみに限定し、`_events` の構成パターンを確立することを目的とした → 全8イベント移行完了 (PR #60〜67)
 
 ## 決定事項
 
