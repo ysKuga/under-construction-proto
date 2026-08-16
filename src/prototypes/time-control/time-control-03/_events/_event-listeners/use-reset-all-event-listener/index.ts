@@ -9,7 +9,7 @@ import {
 import { useTimeControl03EventListener } from '../../_hooks/use-time-control-03-event-listener'
 
 /**
- * reset-all イベントを購読し、全 store (状態を持たない intent-store 以外) を初期状態に戻す
+ * TimeControl03-reset-all イベントを購読し、全 store (状態を持たない intent-store 以外) を初期状態に戻す
  */
 export const useResetAllEventListener = () => {
   const resetActorSettings = useActorSettingsStore((state) => state.reset)
@@ -19,7 +19,7 @@ export const useResetAllEventListener = () => {
   const resetPlannedPath = usePlannedPathStore((state) => state.reset)
   const resetGameClock = useGameClockStore((state) => state.reset)
 
-  useTimeControl03EventListener('reset-all', () => {
+  useTimeControl03EventListener('TimeControl03-reset-all', () => {
     resetActor()
     resetActorSettings()
     resetPath()
