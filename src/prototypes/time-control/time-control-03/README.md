@@ -23,6 +23,8 @@
 
 依存関係は生成時の注入 (直接呼び出し) で済ませている。将来 Custom Event 経由の疎結合化 (`design.md` 実装計画3) に移行する際の置換点になる想定。
 
+`progressMode` (全 actor 代表値) 等、props・store から算出する派生値は `_computed` に集約する (詳細: [_computed/README.md](_computed/README.md))。
+
 02 から変更不要なファイル (`_lib/generate-move-path.ts`/`get-tick-ms.ts`/`build-history.ts`/`format-coord.ts`、`types.ts`) はコピーせず import している (`src/prototypes/CLAUDE.md` の依存ルール)。`_lib/stage-coords.ts` は表示領域への自動フィット (後述) 実装に伴いロジック変更が生じたため、02 のファイルは変更せず 03 側に新規実装している。
 
 ## action-phase との対応
@@ -32,7 +34,7 @@
 ## 移動フロー (Intent → Execution)
 
 1. **set target** ボタン (actor ごと、`intent-store` の `dispatchMoveIntent`): 移動先を宣言するのみ。この時点では `positionById` は変化しない。`speed`(距離/ms) と `tickMs`(後述) から1tickあたりの移動距離を求め、`generateMovePath` (02 の `_lib/generate-move-path.ts`) で移動先までの経路 (`MovePath`) を生成し `path-store` に格納する。
-2. **行動決定** ボタン (全 actor 一括、`ActionBar` コンポーネント): `position-store` の `dispatchActions` で各 actor の企図をまとめて実行する。`actor-settings-store` の `progressMode` に応じて挙動が変わる。
+2. **行動決定** ボタン (全 actor 一括、`ActionBar` コンポーネント): `position-store` の `dispatchActions` で各 actor の企図をまとめて実行する。`_computed` 経由の `progressMode` (先頭 actor の `actor-settings-store` 設定を代表値とする) に応じて挙動が変わる。
    - `manual`: 1回の押下で経路の先頭1 tick 分だけ進む (`game-clock-store` に `execution` を記録、最終 tick のみ `resolution`)。
    - `auto`: 押下後、actor ごとの `tickMs` 間隔の内部タイマーで経路を最後まで自動消化する。
 3. **mode** ボタン (全 actor 一括、`ActionBar` コンポーネント): `auto`/`manual` を切り替える。actor ごとの個別切り替えは廃止、常に全員同一モードで揃える。
