@@ -8,10 +8,10 @@ import { createContext, useContext } from 'react'
  * @param errorMessage 未 Provider 時に throw するエラーメッセージ
  */
 export const createRequiredContext = <Value>(errorMessage: string) => {
-  const Context = createContext<null | Value>(null)
+  const RequiredContext = createContext<null | Value>(null)
 
-  const useContextValue = (): Value => {
-    const value = useContext(Context)
+  const useRequiredContext = (): Value => {
+    const value = useContext(RequiredContext)
 
     if (value === null) {
       throw new Error(errorMessage)
@@ -20,5 +20,5 @@ export const createRequiredContext = <Value>(errorMessage: string) => {
     return value
   }
 
-  return { Context, useContextValue }
+  return { RequiredContext, useRequiredContext }
 }

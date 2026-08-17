@@ -5,5 +5,10 @@ import { GameClockState } from './types'
 const { StoreContext, useStoreSelector } =
   createStoreContext<GameClockState>('GameClock')
 
+/** GameClock store 用 Context */
 export const GameClockStoreContext = StoreContext
-export const useGameClockStore = useStoreSelector
+
+/** GameClock store を selector 購読する */
+export const useGameClockStore = <T,>(
+  ...args: Parameters<typeof useStoreSelector<T>>
+): T => useStoreSelector(...args)

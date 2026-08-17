@@ -11,8 +11,13 @@ import { ComputedState } from './types'
 const { StoreContext, useStoreSelector } =
   createStoreContext<ComputedState>('Computed')
 
+/** Computed store 用 Context */
 export const ComputedStoreContext = StoreContext
-export const useTimeControl03Computed = useStoreSelector
+
+/** Computed store を selector 購読する */
+export const useTimeControl03Computed = <T,>(
+  ...args: Parameters<typeof useStoreSelector<T>>
+): T => useStoreSelector(...args)
 
 /**
  * props (actorIds)・store (actor-settings/planned-path) から算出する派生値を生成し配布する

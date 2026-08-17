@@ -15,7 +15,7 @@ import { createRequiredContext } from '@/utils/create-required-context'
  * @param storeName store 名 (例: `ActorSettings`)。エラーメッセージの hook 名・Context 名生成に使う
  */
 export const createStoreContext = <State>(storeName: string) => {
-  const { Context: StoreContext, useContextValue: useStoreApi } =
+  const { RequiredContext: StoreContext, useRequiredContext: useStoreApi } =
     createRequiredContext<StoreApi<State>>(
       `use${storeName}Store should be used within <${storeName}StoreContext.Provider>`,
     )

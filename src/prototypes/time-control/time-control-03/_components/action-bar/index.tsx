@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 
 import { AsyncSampleButton } from './_components/async-sample-button'
+import { ProgressModeButton } from './_components/progress-mode-button'
 import { useActionBar } from './index.hooks'
 
 /**
@@ -13,17 +14,14 @@ import { useActionBar } from './index.hooks'
  * - async sample: async listener 実演用サンプルイベント発行
  */
 export const ActionBar = () => {
-  const { dispatchDecision, progressMode, resetAll, toggleProgressMode } =
-    useActionBar()
+  const { dispatchDecision, resetAll } = useActionBar()
 
   return (
     <div className="flex gap-2 p-2">
       <Button onClick={dispatchDecision} type="button">
         行動決定
       </Button>
-      <Button onClick={toggleProgressMode} type="button" variant="outline">
-        mode: {progressMode}
-      </Button>
+      <ProgressModeButton />
       <Button onClick={resetAll} type="button" variant="destructive">
         reset
       </Button>
