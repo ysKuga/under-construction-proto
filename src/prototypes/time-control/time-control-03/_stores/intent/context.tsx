@@ -5,5 +5,10 @@ import { IntentState } from './types'
 const { StoreContext, useStoreSelector } =
   createStoreContext<IntentState>('Intent')
 
+/** Intent store 用 Context */
 export const IntentStoreContext = StoreContext
-export const useIntentStore = useStoreSelector
+
+/** Intent store を selector 購読する */
+export const useIntentStore = <T,>(
+  ...args: Parameters<typeof useStoreSelector<T>>
+): T => useStoreSelector(...args)
