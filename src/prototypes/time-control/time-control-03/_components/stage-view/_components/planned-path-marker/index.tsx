@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { useStageTransform } from '../../../../_contexts/stage-transform-context'
+import { useTimeControl03Computed } from '../../../../_computed'
 import { toPixelStyle } from '../../../../_lib/stage-coords'
 import { usePlannedPathStore } from '../../../../_stores'
 import { ActorId } from '../../../../types'
@@ -23,7 +23,7 @@ export const PlannedPathMarker = memo((props: PlannedPathMarkerProps) => {
   const { id } = props
 
   const plannedPath = usePlannedPathStore((state) => state.getPlannedPath(id))
-  const transform = useStageTransform()
+  const transform = useTimeControl03Computed((state) => state.stageTransform)
 
   return (
     <>

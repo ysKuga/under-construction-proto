@@ -9,6 +9,7 @@
 - [flow/](flow/README.md) — 関心について (issue #3)
 - [ideas/](ideas/README.md) — あいであなど (issue #4)
 - [event-driven-ui/](event-driven-ui/README.md) — UI とロジックの分離について
+- [component-input-layers/](component-input-layers/README.md) — component の入力 (props/store/computed) 分離について
 
 ## 概念について
 

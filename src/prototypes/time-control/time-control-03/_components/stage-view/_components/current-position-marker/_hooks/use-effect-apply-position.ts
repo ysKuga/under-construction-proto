@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 import { getTickMs } from '../../../../../../time-control-02/_lib/get-tick-ms'
-import { useStageTransform } from '../../../../../_contexts/stage-transform-context'
+import { useTimeControl03Computed } from '../../../../../_computed'
 import { toPixelStyle } from '../../../../../_lib/stage-coords'
 import { useActorStore, usePositionStoreApi } from '../../../../../_stores'
 import { Position } from '../../../../../types'
@@ -21,7 +21,7 @@ export const useEffectApplyPosition = (props: CurrentPositionMarkerProps) => {
   const { id } = props
 
   const positionStoreApi = usePositionStoreApi()
-  const transform = useStageTransform()
+  const transform = useTimeControl03Computed((state) => state.stageTransform)
   const tickRate = useActorStore((state) => state.getActorInfo(id).tickRate)
   const tickMs = getTickMs(tickRate)
   const markerRef = useRef<HTMLDivElement>(null)
