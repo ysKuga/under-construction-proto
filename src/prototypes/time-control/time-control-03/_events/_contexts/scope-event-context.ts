@@ -1,8 +1,8 @@
 import { createRequiredContext } from '@/utils/create-required-context'
 
 export const {
-  Context: ScopeEventContext,
-  useContextValue: useScopeEventTarget,
+  RequiredContext: ScopeEventContext,
+  useRequiredContext: useScopeEventTarget,
 } = createRequiredContext<EventTarget>(
   'useScopeEventTarget should be used within <ScopeEventProvider>',
 )

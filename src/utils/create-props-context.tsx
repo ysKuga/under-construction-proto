@@ -13,15 +13,17 @@ import { createRequiredContext } from './create-required-context'
  * @param name Provider/hook の対象名 (例: `'TimeControl03'`)
  */
 export const createPropsContext = <Props extends object>(name: string) => {
-  const { Context, useContextValue } = createRequiredContext<
+  const { RequiredContext, useRequiredContext } = createRequiredContext<
     PropsWithChildren<Props>
   >(`use${name}Props should be used within <${name}Providers>`)
 
   const Provider = (props: PropsWithChildren<Props>) => (
-    <Context.Provider value={props}>{props.children}</Context.Provider>
+    <RequiredContext.Provider value={props}>
+      {props.children}
+    </RequiredContext.Provider>
   )
 
-  const useProps = (): Props => useContextValue()
+  const useProps = (): Props => useRequiredContext()
 
   return { Provider, useProps }
 }
