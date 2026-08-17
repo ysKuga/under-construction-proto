@@ -1,15 +1,15 @@
 # time-control-03/_computed
 
-props・store から算出する派生値 (computed) を保持する。「全 actor 常に同一 progressMode 前提」のような、TimeControl03 スコープでのみ意味を持つ判断を1箇所に集約し、`ActionBar` 等の個別 component へ埋め込まない。
+props・store から算出する派生値 (computed) を保持する。「全 actor 常に同一 progressMode 前提」「全 actor の目標地点から stage transform を算出する」のような、TimeControl03 スコープでのみ意味を持つ判断を1箇所に集約し、`ActionBar`/`StageView` 等の個別 component へ埋め込まない。
 
 ## 構成
 
 ```
 _computed/
   index.ts             # 外部公開用の集約 index (index.contexts / store を re-export)
-  index.contexts.tsx   # ComputedProvider。props(actorIds)・actor-settings-store から
-                        # 派生値を算出し、Context として配布する。ComputedStoreContext /
-                        # useTimeControl03Computed もここで定義する
+  index.contexts.tsx   # ComputedProvider。props(actorIds)・依存元 store (actor-settings/
+                        # planned-path) から派生値を算出し、Context として配布する。
+                        # ComputedStoreContext / useTimeControl03Computed もここで定義する
   store.ts              # createComputedStore。zustand vanilla store として派生値を保持し、
                          # 依存元 store の変化に追従して再計算する
   types.ts               # ComputedState (派生値の型) / ComputedStore
@@ -21,8 +21,9 @@ _computed/
 
 - `props` (`TimeControl03Props` の `actorIds`): 算出対象の actor を決める
 - `_stores` (`actor-settings-store`): `progressMode` の算出元。`useActorSettingsStoreApi` (生 store) を購読し、変化のたびに再算出する
+- `_stores` (`planned-path-store`): `stageTransform` の算出元。`usePlannedPathStoreApi` (生 store) を購読し、各 actor の目標地点 (`getTargets`) が実際に変化した時のみ (`zustand/shallow` で比較) `computeFitTransform` を再実行する
 
-`ComputedProvider` は `actor-settings-store` の Context を参照するため、`StoresProvider` の内側に配置する前提。`_computed → _stores` の一方向依存になる (`_stores` 側は `_computed` を一切知らない)。
+`ComputedProvider` は依存元 store の Context を参照するため、`StoresProvider` の内側に配置する前提。`_computed → _stores` の一方向依存になる (`_stores` 側は `_computed` を一切知らない)。
 
 ## 参照ルール
 

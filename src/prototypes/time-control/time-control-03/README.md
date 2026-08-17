@@ -58,7 +58,7 @@
 actor が移動して原点から離れても表示領域内に収まるよう、全 actor の目標地点から算出した scale・中心 (`StageTransform`) で描画する。
 
 - **`_lib/stage-coords.ts`**: `computeFitTransform` が、全 actor の目標地点の bounding box から中心座標と scale を算出する。scale は縮小のみ (元の `STAGE_SCALE` が上限、拡大はしない)、bounding box 中心を新たな原点にする。
-- **`_contexts/stage-transform-context.tsx`**: `StageTransformProvider` が transform を算出し `Context` で配布する。算出元は `positionStore` ではなく `plannedPathStore` (各 actor の予定経路の終点)。`plannedPathStore` は `set target` (企図) 確定時のみ更新され行動決定では変化しないため、行動決定中の逐次 tick 更新のたびに bounding box を再計算せずに済む (`positionStore` を購読すると tick 毎に全 actor が再レンダリングされ続けてしまう)。目標未設定の actor は `DEFAULT_POSITION` で補う。
+- **`_computed`**: `stageTransform` として transform を算出し配布する (`useTimeControl03Computed((state) => state.stageTransform)`)。算出元は `positionStore` ではなく `plannedPathStore` (各 actor の予定経路の終点)。`plannedPathStore` は `set target` (企図) 確定時のみ更新され行動決定では変化しないため、行動決定中の逐次 tick 更新のたびに bounding box を再計算せずに済む (`positionStore` を購読すると tick 毎に全 actor が再レンダリングされ続けてしまう)。各 actor の目標地点が実際に変化した時のみ (`zustand/shallow` 比較) 再計算する。目標未設定の actor は `DEFAULT_POSITION` で補う。
 
 ## スコープ外
 
