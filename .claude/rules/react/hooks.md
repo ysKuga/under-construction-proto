@@ -29,3 +29,20 @@ component-name/
 
 - ラインコメントで処理内容 簡潔に記述する
 - カスタムフック化を優先する。フック名は `useEffect〜` とする
+
+## create~Context 系ユーティリティの再 export
+
+`createStoreContext`/`createPropsContext`/`createRequiredContext` 等の戻り値、`export const useX = useY` で直接代入 再 export しない。関数でラップして export する。
+
+- 理由: 直接代入だとエディタの定義ジャンプが utility 内部の実装へ飛び、各 store/context 側の宣言箇所に辿り着けない
+- selector 購読系、`Parameters<typeof useStoreSelector<T>>` で引数型を由来元から自動導出し、型定義の重複を避ける
+
+```ts
+// 悪い例
+export const usePositionStore = useStoreSelector
+
+// 良い例
+export const usePositionStore = <T,>(
+  ...args: Parameters<typeof useStoreSelector<T>>
+): T => useStoreSelector(...args)
+```
