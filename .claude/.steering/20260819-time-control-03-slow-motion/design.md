@@ -18,19 +18,21 @@
 
 ## 実装計画
 
-- [ ] `timeScale` の置き場所決定 (`game-clock` store に追加 vs 新規 store)
-- [ ] ポーズとの統合要否決定 (`timeScale = 0` で統合するか、`isPaused` を別軸で持つか)
-- [ ] `game-clock` store に `timeScale` state + `setTimeScale` action 追加
-- [ ] `position` store の `continueAuto` を fixed-step accumulator 方式に変更 (`REALTIME_STEP_MS` 固定間隔 + `accumulatedMs` 積算、`accumulatedMs >= tickMs` でtick消化)
-- [ ] 倍速時の複数tick同時消化対応 (`while (accumulatedMs >= tickMs)`)
-- [ ] `TimeControl03-set-time-scale` イベント新設 (dispatcher/listener、`toggle-progress-mode` と同パターン)
-- [ ] UI操作追加 (action-bar 内、`progress-mode-button` 同列に速度切替ボタン/スライダー)
-- [ ] テスト追加 (`actor-settings-store.test.ts` 等、既存パターン踏襲)
+- [x] `timeScale` の置き場所決定 (`game-clock` store に追加 vs 新規 store)
+- [x] ポーズとの統合要否決定 (`timeScale = 0` で統合するか、`isPaused` を別軸で持つか)
+- [x] `game-clock` store に `timeScale` state + `setTimeScale` action 追加
+- [x] `position` store の `continueAuto` を fixed-step accumulator 方式に変更 (`REALTIME_STEP_MS` 固定間隔 + `accumulatedMs` 積算、`accumulatedMs >= tickMs` でtick消化)
+- [x] 倍速時の複数tick同時消化対応 (`while (accumulatedMs >= tickMs)`)
+- [x] `TimeControl03-set-time-scale` イベント新設 (dispatcher/listener、`toggle-progress-mode` と同パターン)
+- [x] UI操作追加 (action-bar 内、`progress-mode-button` 同列に速度切替ボタン列 `TimeScaleControl`。候補値 `[0, 0.5, 1, 2, 4]`、0 は "pause" 表示)
+- [x] テスト追加 (`game-clock-store.test.ts`/`position-store.test.ts` に追加、既存パターン踏襲)
 
 ## 決定事項
 
 - tick消化判定の実時間刻み方式を採用: 待ち時間ずれ緩和のため、`tickMs` を実時間側で `REALTIME_STEP_MS` (仮10ms) 単位に分割しポーリングする fixed-step accumulator 方式を採る
 - 上記の実時間刻み定数の名前は `REALTIME_STEP_MS` に決定
+- ポーズを今回のスコープに統合する。`timeScale = 0` をポーズ相当として扱い、UI からも明示的に選択可能にする (accumulator が増えないため自然に停止する構造をそのまま利用)
+- 実装完了。ユニットテスト (`game-clock-store.test.ts`/`position-store.test.ts`) 全通過、Storybook 実機確認でも pause 中の完全停止・4x 再開後の正常な倍速進行を確認済み
 
 ## 懸念・リスク
 
