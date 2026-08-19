@@ -26,6 +26,20 @@ export const createActorSettingsStore = (): ActorSettingsStore =>
         },
       }))
     },
+    setFixedPathStepsAll: (actorIds, steps) => {
+      set((state) => ({
+        settingsById: actorIds.reduce(
+          (settingsById, actorId) => ({
+            ...settingsById,
+            [actorId]: {
+              ...(state.settingsById[actorId] ?? DEFAULT_ACTOR_SETTINGS),
+              fixedPathSteps: steps,
+            },
+          }),
+          state.settingsById,
+        ),
+      }))
+    },
     setIsFixedPathSteps: (actorId, isFixed) => {
       set((state) => ({
         settingsById: {
@@ -35,6 +49,20 @@ export const createActorSettingsStore = (): ActorSettingsStore =>
             isFixedPathSteps: isFixed,
           },
         },
+      }))
+    },
+    setIsFixedPathStepsAll: (actorIds, isFixed) => {
+      set((state) => ({
+        settingsById: actorIds.reduce(
+          (settingsById, actorId) => ({
+            ...settingsById,
+            [actorId]: {
+              ...(state.settingsById[actorId] ?? DEFAULT_ACTOR_SETTINGS),
+              isFixedPathSteps: isFixed,
+            },
+          }),
+          state.settingsById,
+        ),
       }))
     },
     setProgressMode: (actorId, mode) => {

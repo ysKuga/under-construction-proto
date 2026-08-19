@@ -24,8 +24,12 @@ export type ActorSettingsState = {
   reset: () => void
   /** 固定 step 数を設定する (`isFixedPathSteps` が true の時のみ意味を持つ) */
   setFixedPathSteps: (actorId: ActorId, steps: number) => void
+  /** 対象 actor 全員の固定 step 数を一括設定する */
+  setFixedPathStepsAll: (actorIds: ActorId[], steps: number) => void
   /** 経路の step 数を固定するかどうかを設定する */
   setIsFixedPathSteps: (actorId: ActorId, isFixed: boolean) => void
+  /** 対象 actor 全員の固定 step 有効/無効を一括設定する */
+  setIsFixedPathStepsAll: (actorIds: ActorId[], isFixed: boolean) => void
   /** 行動進行モードを設定する */
   setProgressMode: (actorId: ActorId, mode: ProgressMode) => void
   /** actor ごとの操作設定 */
