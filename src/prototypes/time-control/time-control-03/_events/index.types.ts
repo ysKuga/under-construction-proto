@@ -23,6 +23,8 @@ export type TimeControl03EventMap = {
   }
   /** actor 個別の tick 時間設定 */
   'TimeControl03-set-tick-ms': { actorId: ActorId; tickMs: number }
+  /** 実時間に対するゲーム内時間の進行倍率設定 (0 でポーズ相当) */
+  'TimeControl03-set-time-scale': { timeScale: number }
   /** 対象 actor 一括の進行モード(auto/manual) 切替 */
   'TimeControl03-toggle-progress-mode': undefined
 }
