@@ -1,4 +1,4 @@
-# docs/concept/event-driven-ui
+# docs/concept/implementation/event-driven-ui
 
 UI (部品) とロジックの分離について。`docs/concept/README.md` の「疎通」節の詳細。
 

@@ -18,6 +18,7 @@
 - [README.md](docs/concept/README.md) — 概念 (issue #2)
 - [flow/](docs/concept/flow/README.md) — 関心 (issue #3)
 - [ideas/](docs/concept/ideas/README.md) — あいであ (issue #4)
+- [implementation/](docs/concept/implementation/README.md) — 実装方針
 
 ## コーディング規約
 

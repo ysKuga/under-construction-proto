@@ -8,8 +8,9 @@
 - 概念について (issue #2、本ファイル下記)
 - [flow/](flow/README.md) — 関心について (issue #3)
 - [ideas/](ideas/README.md) — あいであなど (issue #4)
-- [event-driven-ui/](event-driven-ui/README.md) — UI とロジックの分離について
-- [component-input-layers/](component-input-layers/README.md) — component の入力 (props/store/computed) 分離について
+- [implementation/](implementation/README.md) — 実装方針について
+  - [event-driven-ui/](implementation/event-driven-ui/README.md) — UI とロジックの分離について
+  - [component-input-layers/](implementation/component-input-layers/README.md) — component の入力 (props/store/computed) 分離について
 
 ## 概念について
 

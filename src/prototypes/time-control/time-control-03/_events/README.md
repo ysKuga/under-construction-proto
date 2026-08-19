@@ -43,6 +43,6 @@ event 駆動化は移植容易性と引き換えに、「通知発行で何が�
 
 ## 関連
 
-- 概念: [docs/concept/event-driven-ui/README.md](../../../../../docs/concept/event-driven-ui/README.md)
+- 概念: [docs/concept/implementation/event-driven-ui/README.md](../../../../../docs/concept/implementation/event-driven-ui/README.md)
 - 実装計画・決定事項: `.claude/.steering/20260813-event-driven-decoupling/design.md`
 - 実装例・store 構成: [time-control-03/README.md](../README.md)

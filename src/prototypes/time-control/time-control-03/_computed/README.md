@@ -37,6 +37,6 @@ _computed/
 
 ## 関連
 
-- 概念: [docs/concept/component-input-layers/README.md](../../../../../docs/concept/component-input-layers/README.md)
+- 概念: [docs/concept/implementation/component-input-layers/README.md](../../../../../docs/concept/implementation/component-input-layers/README.md)
 - 実装計画・決定事項: `.claude/.steering/20260817-time-control-03-computed-layer/design.md`
 - 実装例・store 構成: [time-control-03/README.md](../README.md)

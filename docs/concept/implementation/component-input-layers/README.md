@@ -1,6 +1,6 @@
 # component の入力 (props/store/computed) 分離
 
-component が扱う入力の分離について。[docs/concept/README.md](../README.md) の一覧の詳細。
+component が扱う入力の分離について。[docs/concept/README.md](../../README.md) の一覧の詳細。
 
 ## 課題
 
@@ -34,6 +34,6 @@ component が受け取る値の性質 (呼び出し元由来か、内部状態�
 
 ## 関連
 
-- 実装例: [time-control-03/_computed/README.md](../../../src/prototypes/time-control/time-control-03/_computed/README.md)
+- 実装例: [time-control-03/_computed/README.md](../../../../src/prototypes/time-control/time-control-03/_computed/README.md)
 - 実装計画・決定事項: `.claude/.steering/20260817-time-control-03-computed-layer/design.md`
 - store 層の元になった前例: `.claude/.steering/_closed/20260812-time-control-03-stores-context-restructure/design.md`
