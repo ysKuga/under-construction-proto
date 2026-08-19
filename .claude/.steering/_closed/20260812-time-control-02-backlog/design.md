@@ -26,20 +26,16 @@
   - [x] 角度の単位・基準・回転方向を決定 (ラジアン、y下向き screen 座標系、決定事項参照)
   - [x] `Position { x, y }` との関係整理: 2点間を極座標 (`distance`/`angleRad`) で算出する共通ユーティリティ方針を採用 (決定事項参照)
   - [x] 視界 (Field of View) 判定処理の方針を決定: Facing と対象方向の角度差 (正規化後) が閾値以内かで判定 (決定事項参照)
-  - [ ] 視界の距離上限 (見える範囲) の具体値を決定
-  - [ ] action-phase.md の `MoveIntent`/`target` との関係 (target 座標から算出 vs 明示的に dispatch する)
-- [ ] 2. Collision 概念の追加
+  - [x] 視界の距離上限 (見える範囲) の具体値を決定 → `.claude/.steering/20260819-direction-followups/` へ分割
+  - [x] action-phase.md の `MoveIntent`/`target` との関係 (target 座標から算出 vs 明示的に dispatch する) → `.claude/.steering/20260819-direction-followups/` へ分割
+- [x] 2. Collision 概念の追加
   - [x] 体格 (Physique) の概念を採用: 体の大きさを円 (半径) で表現するシンプルなモデル (決定事項参照)
   - [x] 段階を「回避検討 → 衝突」の2段階とする方針を決定 (決定事項参照)
-  - [ ] 「回避検討」の発生条件 (判定機会) の具体化: action-phase.md のどの段階に対応させるか
-  - [ ] 移動先に既に別 actor が存在する場合の挙動候補を列挙 (移動拒否/入替/スタック許容/押し出し 等)
-  - [ ] 衝突判定・解決を担う専用 store の設計 (`actor-store.ts` の `positionById` から座標→actorId の逆引きが必要になる可能性)
-  - [ ] `dispatchMoveIntent` との関係: 衝突判定は intent 側で行うか、resolution 側で行うか (action-phase.md の PreAction/Outcome との対応も検討)
-- [ ] 3. Custom Event 経由の疎結合化 (アーキテクチャ全体方針)
-  - [ ] `src/hooks/useEventListener.ts` の設計 (useEffect ベース、`window`/`EventTarget` どちらを対象にするか)
-  - [ ] 各 store (actor-store, 将来の collision-store 等) が dispatch 系関数の直接 import ではなく、Custom Event の発行・購読で連携する設計への移行方針
-  - [ ] イベント名・payload の型付け方針 (`CustomEvent<T>` のジェネリクス活用など)
-  - [ ] 移行範囲: プロトタイプ限定ではなく `src/hooks/` への本実装 (共通実装) として位置付け
+  - [x] 「回避検討」の発生条件 (判定機会) の具体化: action-phase.md のどの段階に対応させるか → `.claude/.steering/20260819-collision-design/` へ分割
+  - [x] 移動先に既に別 actor が存在する場合の挙動候補を列挙 (移動拒否/入替/スタック許容/押し出し 等) → `.claude/.steering/20260819-collision-design/` へ分割
+  - [x] 衝突判定・解決を担う専用 store の設計 (`actor-store.ts` の `positionById` から座標→actorId の逆引きが必要になる可能性) → `.claude/.steering/20260819-collision-design/` へ分割
+  - [x] `dispatchMoveIntent` との関係: 衝突判定は intent 側で行うか、resolution 側で行うか (action-phase.md の PreAction/Outcome との対応も検討) → `.claude/.steering/20260819-collision-design/` へ分割
+- [x] 3. Custom Event 経由の疎結合化 (アーキテクチャ全体方針) → `.claude/.steering/_closed/20260813-event-driven-decoupling/` で実質対応済み (全8イベント移行完了、`useEventListener`/`useEventDispatcher` 実装済み)。time-control-02 固有の追加検討は不要と判断
 
 ## 決定事項
 
