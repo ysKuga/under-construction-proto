@@ -108,6 +108,16 @@ test('getHistory は eventLog を対象に履歴行を生成する', () => {
   ])
 })
 
+test('setTimeScale で timeScale を更新する', () => {
+  const store = createGameClockStore()
+
+  expect(store.getState().timeScale).toBe(1)
+
+  store.getState().setTimeScale(0.5)
+
+  expect(store.getState().timeScale).toBe(0.5)
+})
+
 test('reset で eventLog・commonGameTimeMs が初期状態に戻る', () => {
   const store = createGameClockStore()
 

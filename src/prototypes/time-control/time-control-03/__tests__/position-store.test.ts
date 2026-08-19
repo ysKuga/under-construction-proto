@@ -85,6 +85,49 @@ test('dispatchAction (auto) はタイマーで最後まで自動進行する', (
   expect(pathStore.getState().pathById.a).toHaveLength(0)
 })
 
+test('dispatchAction (auto) は timeScale=0.5 で通常の倍の実時間をかけて次 tick まで進む', () => {
+  const { actorStore, gameClockStore, pathStore, positionStore } = setup()
+
+  actorStore.getState().reset()
+  actorStore.setState({ actorById: { a: { speed: 0.01, tickRate: 2 } } })
+  pathStore.getState().setPath('a', [
+    { x: 2, y: 0 },
+    { x: 4, y: 0 },
+  ])
+  gameClockStore.getState().setTimeScale(0.5)
+
+  positionStore.getState().dispatchAction('a')
+  expect(positionStore.getState().positionById.a).toEqual({ x: 2, y: 0 })
+
+  vi.advanceTimersByTime(200)
+  expect(positionStore.getState().positionById.a).toEqual({ x: 2, y: 0 })
+
+  vi.advanceTimersByTime(200)
+  expect(positionStore.getState().positionById.a).toEqual({ x: 4, y: 0 })
+})
+
+test('dispatchAction (auto) は timeScale=0 で tick を消化せず停止し、timeScale を戻すと再開する', () => {
+  const { actorStore, gameClockStore, pathStore, positionStore } = setup()
+
+  actorStore.getState().reset()
+  actorStore.setState({ actorById: { a: { speed: 0.01, tickRate: 2 } } })
+  pathStore.getState().setPath('a', [
+    { x: 2, y: 0 },
+    { x: 4, y: 0 },
+  ])
+  gameClockStore.getState().setTimeScale(0)
+
+  positionStore.getState().dispatchAction('a')
+  expect(positionStore.getState().positionById.a).toEqual({ x: 2, y: 0 })
+
+  vi.advanceTimersByTime(10000)
+  expect(positionStore.getState().positionById.a).toEqual({ x: 2, y: 0 })
+
+  gameClockStore.getState().setTimeScale(1)
+  vi.advanceTimersByTime(200)
+  expect(positionStore.getState().positionById.a).toEqual({ x: 4, y: 0 })
+})
+
 test('dispatchActions は同一 tickMs の複数 actor を同一 gameTimeMs で記録する', () => {
   const { actorStore, gameClockStore, pathStore, positionStore } = setup()
 

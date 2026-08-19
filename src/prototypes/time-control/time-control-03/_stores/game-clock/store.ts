@@ -6,6 +6,7 @@ import { GameClockState, GameClockStore, GameEvent } from './types'
 const INITIAL_STATE = {
   commonGameTimeMs: 0,
   eventLog: [],
+  timeScale: 1,
 } satisfies Partial<GameClockState>
 
 export const createGameClockStore = (): GameClockStore =>
@@ -54,5 +55,8 @@ export const createGameClockStore = (): GameClockStore =>
     }) as GameClockState['logEventAt'],
     reset: () => {
       set(INITIAL_STATE)
+    },
+    setTimeScale: (timeScale) => {
+      set({ timeScale })
     },
   }))

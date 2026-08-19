@@ -38,10 +38,28 @@ test('setProgressMode は対象 actor の progressMode のみ更新する', () =
   store.getState().setProgressMode('a', 'manual')
 
   expect(store.getState().settingsById.a).toEqual({
+    ...DEFAULT_ACTOR_SETTINGS,
     fixedPathSteps: 3,
-    isFixedPathSteps: false,
     progressMode: 'manual',
   })
+})
+
+test('setFixedPathStepsAll は対象 actor 全員の fixedPathSteps を一括更新する', () => {
+  const store = createActorSettingsStore()
+
+  store.getState().setFixedPathStepsAll(['a', 'b'], 5)
+
+  expect(store.getState().settingsById.a?.fixedPathSteps).toBe(5)
+  expect(store.getState().settingsById.b?.fixedPathSteps).toBe(5)
+})
+
+test('setIsFixedPathStepsAll は対象 actor 全員の isFixedPathSteps を一括更新する', () => {
+  const store = createActorSettingsStore()
+
+  store.getState().setIsFixedPathStepsAll(['a', 'b'], false)
+
+  expect(store.getState().settingsById.a?.isFixedPathSteps).toBe(false)
+  expect(store.getState().settingsById.b?.isFixedPathSteps).toBe(false)
 })
 
 test('toggleProgressMode は対象 actor 全員の progressMode を一括反転する', () => {

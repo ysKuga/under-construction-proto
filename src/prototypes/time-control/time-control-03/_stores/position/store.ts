@@ -13,6 +13,14 @@ import {
 import { DEFAULT_POSITION } from './constants'
 import { PositionState, PositionStore } from './types'
 
+/**
+ * auto 進行の tick 消化判定を行う実時間刻み (ms)
+ *
+ * - `timeScale` の変化はこの刻み単位でしか反映されない (最大 REALTIME_STEP_MS 分の遅延)。\
+ *   tickMs (数百ms) 単位の反映より十分小さいため、fixed-step accumulator 方式の解像度として採用
+ */
+const REALTIME_STEP_MS = 10
+
 const INITIAL_STATE = {
   positionById: {},
 } satisfies Partial<PositionState>
@@ -92,17 +100,38 @@ export const createPositionStore = (
       const tickMs = getTickMs(tickRate)
       let tickCount = 1
 
-      const continueAuto = () => {
+      /**
+       * REALTIME_STEP_MS 刻みで発火し、timeScale を都度反映しながら tick を消化する
+       *
+       * - accumulatedMs は「まだ tick 消化に使っていない、timeScale 適用後の経過時間」。\
+       *   tickMs を超えた分だけ tick を消化し、余りを次回に持ち越す
+       * - timeScale = 0 の間は accumulatedMs が増えないため、tick が消化されず自然に\
+       *   停止する (ポーズ相当)
+       *
+       * @param accumulatedMs 直前の呼び出しからの持ち越し分
+       */
+      const continueAuto = (accumulatedMs: number) => {
         if ((pathStore.getState().pathById[actorId] ?? []).length === 0) {
           return
         }
 
-        tickCount += 1
-        applyNextStep(actorId, baseTimeMs, tickCount)
-        setTimeout(continueAuto, tickMs)
+        const timeScale = gameClockStore.getState().timeScale
+        let nextAccumulatedMs = accumulatedMs + REALTIME_STEP_MS * timeScale
+
+        while (nextAccumulatedMs >= tickMs) {
+          tickCount += 1
+          applyNextStep(actorId, baseTimeMs, tickCount)
+          nextAccumulatedMs -= tickMs
+
+          if ((pathStore.getState().pathById[actorId] ?? []).length === 0) {
+            return
+          }
+        }
+
+        setTimeout(() => continueAuto(nextAccumulatedMs), REALTIME_STEP_MS)
       }
 
-      setTimeout(continueAuto, tickMs)
+      setTimeout(() => continueAuto(0), REALTIME_STEP_MS)
     }
 
     return {

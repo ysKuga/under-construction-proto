@@ -11,11 +11,15 @@ export const useActionBar = (): UseActionBarReturn => {
   const dispatchDecision: UseActionBarReturn['dispatchDecision'] =
     timeControl03EventDispatcher['TimeControl03-dispatch-decision']
 
+  const dispatchTargetAll: UseActionBarReturn['dispatchTargetAll'] =
+    timeControl03EventDispatcher['TimeControl03-dispatch-target-all']
+
   const resetAll: UseActionBarReturn['resetAll'] =
     timeControl03EventDispatcher['TimeControl03-reset-all']
 
   return {
     dispatchDecision,
+    dispatchTargetAll,
     resetAll,
   }
 }

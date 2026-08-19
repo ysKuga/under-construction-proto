@@ -60,6 +60,16 @@ export type GameClockState = {
   ) => TEvent
   /** 共通ゲームクロック・履歴を初期状態に戻す */
   reset: () => void
+  /**
+   * 実時間に対するゲーム内時間の進行倍率を設定する
+   *
+   * - 0 はポーズ相当 (auto 進行が実時間経過しても tick を消化しなくなる)
+   *
+   * @param timeScale 進行倍率
+   */
+  setTimeScale: (timeScale: number) => void
+  /** 実時間に対するゲーム内時間の進行倍率。1 が等倍、0 はポーズ相当 */
+  timeScale: number
 }
 
 export type GameClockStore = StoreApi<GameClockState>
