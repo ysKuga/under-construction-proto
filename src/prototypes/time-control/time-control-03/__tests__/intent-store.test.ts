@@ -39,8 +39,9 @@ const setup = () => {
 }
 
 test('dispatchMoveIntent は position を変更せず経路のみ生成する', () => {
-  const { intentStore, pathStore, positionStore } = setup()
+  const { actorSettingsStore, intentStore, pathStore, positionStore } = setup()
 
+  actorSettingsStore.getState().setIsFixedPathSteps('a', false)
   intentStore
     .getState()
     .dispatchMoveIntent({ actorId: 'a', target: { x: 6, y: 0 } })
@@ -81,8 +82,9 @@ test('dispatchMoveIntent は gameClockStore に intent のみ記録し、クロ�
 })
 
 test('speed が高い actor は1tickあたりの移動距離が長くなる', () => {
-  const { actorStore, intentStore, pathStore } = setup()
+  const { actorSettingsStore, actorStore, intentStore, pathStore } = setup()
 
+  actorSettingsStore.getState().setIsFixedPathSteps('a', false)
   actorStore.setState({ actorById: { a: { speed: 0.02, tickRate: 2 } } }) // tickMs=200 -> stepDistance=4 (デフォルトの4倍)
   intentStore
     .getState()
@@ -95,6 +97,7 @@ test('isFixedPathSteps が false の場合、fixedPathSteps を指定しても�
   const { actorSettingsStore, intentStore, pathStore } = setup()
 
   actorSettingsStore.getState().setFixedPathSteps('a', 3)
+  actorSettingsStore.getState().setIsFixedPathSteps('a', false)
   intentStore
     .getState()
     .dispatchMoveIntent({ actorId: 'a', target: { x: 1, y: 0 } })
