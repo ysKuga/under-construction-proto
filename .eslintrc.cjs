@@ -117,6 +117,26 @@ module.exports = {
         'linebreak-style': ['error', 'unix'],
         "perfectionist/sort-imports": "off",
         'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+        'react/no-unknown-property': [
+          'error',
+          {
+            // @react-three/fiber の JSX intrinsic (mesh/group/boxGeometry 等) は
+            // DOM 要素として認識されないため、使用する three.js 由来 property を個別許可する
+            ignore: [
+              'args',
+              'castShadow',
+              'intensity',
+              'metalness',
+              'position',
+              'raycast',
+              'receiveShadow',
+              'rotation',
+              'roughness',
+              'shadow-mapSize',
+              'side',
+            ],
+          },
+        ],
         'react/prop-types': 'off',
         'react/react-in-jsx-scope': 'off',
         'tailwindcss/no-custom-classname': ["warn", {
