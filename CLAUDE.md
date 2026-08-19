@@ -125,6 +125,10 @@ Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存�
 - 確認前 `ps aux | grep storybook` 等で起動有無確認。起動中なら `localhost:6006` そのまま利用、再起動不要。
 - 未起動時のみ起動、`run_in_background` 使用。確認後も停止しない(次回以降 再利用のため)。
 
+## パッケージ導入
+
+@.claude/rules/package.md
+
 ## コミット
 
 @.claude/rules/commit.md
