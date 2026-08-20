@@ -20,7 +20,7 @@ import { useLogout, useUser } from '@/lib/auth'
 import { cn } from '@/utils/cn'
 
 type SideNavigationItem = {
-  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element
+  icon: (props: React.SVGProps<SVGSVGElement>) => React.JSX.Element
   name: string
   to: string
 }
