@@ -31,6 +31,14 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 - `eslint.config.cjs` で Flat Config 移行済み
 - Node 22.16.0 / TypeScript 5.9.3 → 要件（Node20.9+/TS5.1+）を満たす
 
+追加調査（個別 API の使用有無を網羅確認、該当ゼロ）:
+
+- `revalidateTag` / `unstable_cacheLife` / `unstable_cacheTag` / `unstable_rootParams` — プロジェクト内未使用。第二引数必須化・unstable_ prefix除去の影響なし
+- `sitemap.ts` / `generateSitemaps` / `opengraph-image` / `twitter-image` / `icon` / `apple-icon` 等の metadata ファイル規約 — 該当ファイル自体が存在しない。非同期 `id`/`params` 化の影響なし
+- `next/legacy/image`、`next.config` の `images.domains` — 未使用
+- 実ファイルは [next.config.mjs](../../../next.config.mjs)（`next.config.ts` ではない）。`reactStrictMode: true` のみのシンプルな内容で `images` 設定自体が無い → `minimumCacheTTL`/`imageSizes`/`qualities` デフォルト変更の影響なし
+- `next/image` コンポーネント自体の使用箇所なし（`src/` 内で import なし）
+
 ### @react-three/fiber v8 → v9（完了）
 
 `@react-three/fiber@^9.7.0`、`@react-three/drei@^10.7.8` へアップグレード。対象は `src/prototypes/box-bot/3d/box-bot-3d-01` 配下のみ、他 prototype は無風。
