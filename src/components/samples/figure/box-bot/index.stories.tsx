@@ -109,12 +109,15 @@ const fovForScale = (baseSize: number, canvasSize: number) =>
  *
  * - ジャンプ演出(頭部が上昇)で頭が Canvas 上端を超えないよう、Canvas 自体はセルよりも一回り大きく確保し、fov で本体の見かけの大きさを維持する
  */
+/** Grid3D の Canvas 拡大率。ジャンプ演出込みで頭が見切れない値 */
+const GRID3D_CANVAS_SCALE = 2.8
+
 export const Grid3D: Story = {
   render: () => {
     const cols = 5
     const rows = 3
     const cellSize = 96
-    const canvasSize = cellSize * 2.8
+    const canvasSize = cellSize * GRID3D_CANVAS_SCALE
 
     return (
       <div
@@ -211,6 +214,13 @@ export const OverlapGrid3D: Story = {
   },
 }
 
+/** Circle の円のサイズ(px) */
+const CIRCLE_SIZE = 240
+/** Circle の canvasSize デフォルト値(px) */
+const CIRCLE_DEFAULT_CANVAS_SIZE = 360
+/** Circle の shadowScale。円内に影が収まる値 */
+const CIRCLE_SHADOW_SCALE = 2.5
+
 /**
  * 円形の背景の上に本体を重ねて表示
  *
@@ -221,21 +231,21 @@ export const Circle: StoryObj<{
   /**
    * Canvas の一辺(px)
    *
-   * - 円(240)より大きくするほどはみ出しの許容量が増える
+   * - 円より大きくするほどはみ出しの許容量が増える
    */
   canvasSize?: number
 }> = {
   args: {
-    canvasSize: 360,
+    canvasSize: CIRCLE_DEFAULT_CANVAS_SIZE,
   },
   argTypes: {
     canvasSize: {
-      control: { max: 800, min: 240, step: 20, type: 'range' },
+      control: { max: 800, min: CIRCLE_SIZE, step: 20, type: 'range' },
     },
   },
   render: (args) => {
-    const circleSize = 240
-    const canvasSize = args.canvasSize ?? 360
+    const circleSize = CIRCLE_SIZE
+    const canvasSize = args.canvasSize ?? CIRCLE_DEFAULT_CANVAS_SIZE
     const padding = (canvasSize - circleSize) / 2
 
     return (
@@ -258,7 +268,7 @@ export const Circle: StoryObj<{
           <StoryComponent
             fov={fovForScale(circleSize, canvasSize)}
             mode="3d"
-            shadowScale={2.5}
+            shadowScale={CIRCLE_SHADOW_SCALE}
             style={{
               height: canvasSize,
               left: '50%',
