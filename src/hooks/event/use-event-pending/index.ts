@@ -31,9 +31,15 @@ export const useEventPending = (
     () => getPendingPromises(target, type).length > 0,
   )
 
-  useEffect(() => {
+  const [prevTarget, setPrevTarget] = useState(target)
+  const [prevType, setPrevType] = useState(type)
+  if (target !== prevTarget || type !== prevType) {
+    setPrevTarget(target)
+    setPrevType(type)
     setIsPending(getPendingPromises(target, type).length > 0)
+  }
 
+  useEffect(() => {
     return subscribePendingChange(target, type, () => {
       setIsPending(getPendingPromises(target, type).length > 0)
     })
