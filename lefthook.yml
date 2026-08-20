@@ -45,6 +45,7 @@ pre-commit:
       stage_fixed: true
     oxlint:
       glob: '*.{js,jsx,ts,tsx}'
+      exclude: 'next-env.d.ts'
       run: yarn oxlint --fix {staged_files}
       stage_fixed: true
 

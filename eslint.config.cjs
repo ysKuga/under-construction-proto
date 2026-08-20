@@ -3,6 +3,17 @@ const { FlatCompat } = require('@eslint/eslintrc')
 const js = require('@eslint/js')
 const tsParser = require('@typescript-eslint/parser')
 const checkFile = require('eslint-plugin-check-file')
+// eslint-config-next はネイティブ flat config を export、FlatCompat を通すと
+// react-hooks plugin の自己参照で circular structure エラーになるため直接 require する。
+// 'next/typescript' は @typescript-eslint plugin をプロジェクト側と重複登録するため除外
+const nextCoreWebVitals = require('eslint-config-next/core-web-vitals')
+  .filter((config) => config.name !== 'next/typescript')
+  .map((config) => ({
+    ...config,
+    ignores: [...(config.ignores ?? []), 'e2e/**'],
+  }))
+// eslint-plugin-vitest は ESLint10 未対応（メンテ停止）のため公式 @vitest/eslint-plugin へ移行
+const vitestPlugin = require('@vitest/eslint-plugin')
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 const storybook = require('eslint-plugin-storybook')
 const { defineConfig, globalIgnores } = require('eslint/config')
@@ -18,7 +29,6 @@ module.exports = defineConfig([
   {
     extends: compat.extends(
       'eslint:recommended',
-      'next/core-web-vitals',
       'plugin:perfectionist/recommended-alphabetical-legacy',
     ),
 
@@ -34,6 +44,7 @@ module.exports = defineConfig([
       sourceType: 'module',
     },
   },
+  ...nextCoreWebVitals,
   globalIgnores([
     'node_modules/*',
     'public/mockServiceWorker.js',
@@ -50,7 +61,6 @@ module.exports = defineConfig([
         'plugin:testing-library/react',
         'plugin:jest-dom/recommended',
         'plugin:tailwindcss/recommended',
-        'plugin:vitest/legacy-recommended',
       ),
     ),
 
@@ -198,6 +208,11 @@ module.exports = defineConfig([
         version: 'detect',
       },
     },
+  },
+  {
+    ...vitestPlugin.configs.recommended,
+    files: ['**/*.ts', '**/*.tsx'],
+    ignores: ['e2e/**'],
   },
   {
     files: ['src/**/*'],
