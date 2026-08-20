@@ -1,6 +1,9 @@
 import { cn } from '@/utils/cn'
 
-import { PartBase, StyledDiv } from '../../../components/samples/_parts/_base/part-base'
+import {
+  PartBase,
+  StyledDiv,
+} from '../../../components/samples/_parts/_base/part-base'
 
 /**
  * absolute 用中央寄せ

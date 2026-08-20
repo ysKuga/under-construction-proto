@@ -8,6 +8,7 @@ module.exports = {
     'node_modules/*',
     'public/mockServiceWorker.js',
     'generators/*',
+    'next-env.d.ts',
   ],
   overrides: [
     {
