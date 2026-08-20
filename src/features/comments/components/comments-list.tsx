@@ -36,14 +36,15 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
 
   if (!comments?.length)
     return (
-      <div
+      <ul
         aria-label="comments"
         className="flex h-40 flex-col items-center justify-center bg-white text-gray-500"
-        role="list"
       >
-        <ArchiveX className="size-10" />
-        <h4>No Comments Found</h4>
-      </div>
+        <li className="flex flex-col items-center">
+          <ArchiveX className="size-10" />
+          <h4>No Comments Found</h4>
+        </li>
+      </ul>
     )
 
   return (
