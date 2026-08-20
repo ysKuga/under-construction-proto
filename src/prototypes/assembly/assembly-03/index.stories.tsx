@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react'
+import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { CSSProperties } from 'react'
 
 import { cn } from '@/utils/cn'
