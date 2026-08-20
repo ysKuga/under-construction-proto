@@ -86,7 +86,11 @@ export const Grid: Story = {
   },
 }
 
-/** 基準 fov(deg)。BoxBot3D デフォルトと同じ値 */
+/**
+ * 基準 fov(deg)
+ *
+ * - BoxBot3D デフォルトと同じ値
+ */
 const BASE_FOV = 34
 
 /**
@@ -214,7 +218,11 @@ export const OverlapGrid3D: Story = {
  * - canvasSize(Canvas の一辺)は控え目にすると見切れの原因になるため、args から調整可能にしておく。本体の見かけの大きさが変わらないよう、拡大率に応じて fov も合わせて調整する
  */
 export const Circle: StoryObj<{
-  /** Canvas の一辺(px)。円(240)より大きくするほどはみ出しの許容量が増える */
+  /**
+   * Canvas の一辺(px)
+   *
+   * - 円(240)より大きくするほどはみ出しの許容量が増える
+   */
   canvasSize?: number
 }> = {
   args: {

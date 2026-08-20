@@ -7,11 +7,19 @@ export interface BoxBot3DConfig {
   arm: {
     /** 奥行き */
     d: number
-    /** 左腕の角度(z 軸回転)。leftUp = false(下げ)時の値 */
+    /**
+     * 左腕の角度(z 軸回転)
+     *
+     * - leftUp = false(下げ)時の値
+     */
     leftAngle: number
     /** 左腕の長さ */
     leftLen: number
-    /** 右腕の角度(z 軸回転)。rightUp = true(上げ)時の値 */
+    /**
+     * 右腕の角度(z 軸回転)
+     *
+     * - rightUp = true(上げ)時の値
+     */
     rightAngle: number
     /** 右腕の長さ */
     rightLen: number
@@ -70,9 +78,17 @@ export interface BoxBot3DConfig {
   paper: string
   /** ジッターの固定シード */
   seed: number
-  /** 手描きジッター振幅(world)。0 = 直線 */
+  /**
+   * 手描きジッター振幅(world)
+   *
+   * - 0 = 直線
+   */
   sketch: number
-  /** 分割密度(1あたりの分割数)。大きいほど細かく震える */
+  /**
+   * 分割密度(1あたりの分割数)
+   *
+   * - 大きいほど細かく震える
+   */
   sketchDetail: number
 }
 
@@ -104,7 +120,11 @@ export interface UseBoxBotModelReturn {
   interactive: boolean
   /** 左腕の回転支点グループ ref */
   leftArm: RefObject<Group | null>
-  /** 左腕の目標角度(z 軸)。leftUp 状態に応じた現在の目標値 */
+  /**
+   * 左腕の目標角度(z 軸)
+   *
+   * - leftUp 状態に応じた現在の目標値
+   */
   leftArmAngle: number
   /** 脚の x オフセット */
   legX: number
@@ -112,7 +132,11 @@ export interface UseBoxBotModelReturn {
   legY: number
   /** 右腕の回転支点グループ ref */
   rightArm: RefObject<Group | null>
-  /** 右腕の目標角度(z 軸)。rightUp 状態に応じた現在の目標値 */
+  /**
+   * 右腕の目標角度(z 軸)
+   *
+   * - rightUp 状態に応じた現在の目標値
+   */
   rightArmAngle: number
   /** 全体のホップ・スケール制御グループ ref */
   root: RefObject<Group | null>
