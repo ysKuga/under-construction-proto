@@ -8,20 +8,16 @@ import { Head } from '@/components/samples/_parts/head'
 
 /** Arm 用共通 style */
 const armStyle = {
+  height: '30%',
   top: '34%',
-  ...{
-    height: '30%',
-    width: '7%',
-  },
+  width: '7%',
 } satisfies CSSProperties
 
 /** Foot 用共通 style */
 const footStyle = {
   bottom: '3%',
-  ...{
-    height: '20%',
-    width: '8%',
-  },
+  height: '20%',
+  width: '8%',
 } satisfies CSSProperties
 
 export type Robot01Props = Omit<AssemblyProps, 'children'>
@@ -36,20 +32,16 @@ export const Robot01 = (props: Robot01Props) => {
     <Assembly className={className} style={style}>
       <Head
         style={{
+          height: '15%',
           top: '16%',
-          ...{
-            height: '15%',
-            width: '25%',
-          },
+          width: '25%',
         }}
       />
       <Body
         style={{
+          height: '40%',
           top: '34%',
-          ...{
-            height: '40%',
-            width: '30%',
-          },
+          width: '30%',
         }}
       />
       <Arm

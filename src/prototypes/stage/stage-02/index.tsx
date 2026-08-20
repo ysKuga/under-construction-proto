@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { Robot01 } from '@/components/samples/figure/robot-01'
 import { cn } from '@/utils/cn'
