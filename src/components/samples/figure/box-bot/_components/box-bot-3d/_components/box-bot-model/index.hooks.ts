@@ -44,7 +44,7 @@ const HOP_H = 0.55
 export function useBoxBotModel({
   autoRotate = false,
   interactive = true,
-  rotateSpeed = 0.4,
+  rotateSpeed = 0,
   ...opts
 }: BoxBotModelProps): UseBoxBotModelReturn {
   const cfg: BoxBot3DConfig = {
