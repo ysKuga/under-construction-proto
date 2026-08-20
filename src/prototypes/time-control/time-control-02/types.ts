@@ -18,11 +18,7 @@ export type Position = {
  * - 今回は intent/resolution のみ実際に発火する
  */
 export type ActionPhase =
-  | 'execution'
-  | 'intent'
-  | 'outcome'
-  | 'pre-action'
-  | 'resolution'
+  'execution' | 'intent' | 'outcome' | 'pre-action' | 'resolution'
 
 /** 段階ごとの所要時間 */
 export type ActionTiming = {
