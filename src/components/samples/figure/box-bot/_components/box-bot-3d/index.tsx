@@ -32,6 +32,7 @@ export default function BoxBot3D({
   interactive = true,
   orbit = true,
   rotateSpeed,
+  shadowScale = 8,
   style,
   ...cfg
 }: BoxBot3DProps) {
@@ -63,7 +64,7 @@ export default function BoxBot3D({
           far={4}
           opacity={0.35}
           position={[0, -1.42, 0]}
-          scale={8}
+          scale={shadowScale}
         />
         {orbit && (
           <OrbitControls

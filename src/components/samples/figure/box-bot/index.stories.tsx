@@ -121,11 +121,12 @@ export const Grid3D: Story = {
   },
 }
 
-/** 表示領域を円形にクリップ(style.borderRadius + overflow) */
+/** 表示領域を円形にクリップ(style.borderRadius + overflow)。影の見切れを避けるため shadowScale を縮小 */
 export const Circle: Story = {
   args: {
     background: '#ffffff',
     mode: '3d',
+    shadowScale: 2.5,
     style: {
       borderRadius: '50%',
       height: 240,

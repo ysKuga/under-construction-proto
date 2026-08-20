@@ -6,6 +6,8 @@ export interface BoxBot3DProps extends BoxBotModelProps {
   background?: string
   className?: string
   orbit?: boolean
+  /** 接地影(ContactShadows)の広がり(world)。円形クリップ時など見切れを避けたい場合に縮小する */
+  shadowScale?: number
   style?: CSSProperties
 }
 
