@@ -41,7 +41,7 @@ pre-commit:
   commands:
     eslint:
       glob: "*.{js,jsx,ts,tsx}"
-      run: yarn eslint --fix {staged_files}
+      run: echo {staged_files} | xargs -n1 yarn eslint --fix
       stage_fixed: true
 
 prepare-commit-msg:
