@@ -6,5 +6,7 @@
   },
   "tailwindCSS.experimental.classRegex": [
     "(?:const|let|var)\\s+[\\w$_][_\\w\\d]*\\s*=\\s*['\\\"](.*?)['\\\"]"
-  ]
+  ],
+  "oxc.enable": true,
+  "oxc.configPath": ".oxlintrc.json"
 }
