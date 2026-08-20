@@ -15,7 +15,7 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 - [x] Storybook 8 → 10 アップグレード（`npx storybook@latest upgrade` を試験実行、差分確認）
 - [x] React 18 → 19 アップグレード（別ブランチ `react-19-upgrade` で実施）
 - [x] `@react-three/fiber` v8 → v9 + `@react-three/drei` 追随、box-bot-3d-01 の型修正・実機確認
-- [ ] Next 15 → 16 アップグレード（`npx @next/codemod@canary upgrade latest`）
+- [x] Next 15 → 16 アップグレード（`npx @next/codemod@canary upgrade latest`）
 - [x] 他ライブラリ（radix-ui, react-hook-form, motion, react-spring 等）の React19 対応個別確認
 
 ## 決定事項
@@ -38,6 +38,20 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 - `next/legacy/image`、`next.config` の `images.domains` — 未使用
 - 実ファイルは [next.config.mjs](../../../next.config.mjs)（`next.config.ts` ではない）。`reactStrictMode: true` のみのシンプルな内容で `images` 設定自体が無い → `minimumCacheTTL`/`imageSizes`/`qualities` デフォルト変更の影響なし
 - `next/image` コンポーネント自体の使用箇所なし（`src/` 内で import なし）
+
+### Next 15 → 16（完了）
+
+`next@16.3.1` へアップグレード。`npx @next/codemod@canary upgrade latest` は `npm install` の ESLint peer dependency 衝突で失敗、後続の transform（eslint.config.cjs 書換等）まで到達せず。`package.json` の依存バージョンのみ更新された状態から、以降は手動対応。
+
+**codemod の不備と手動修正内容:**
+
+- codemod が `npm install`（プロジェクトは yarn 運用）を使い失敗。`yarn install` に切替えて依存解決
+- codemod が `eslint-config-next` を `16.3.1` に、かつ `eslint` を `9.39.5` → `10.8.1` へ自動更新。しかし `eslint-config-next` の peer 要件は `eslint: >=9.0.0` で 10 必須ではなく、`eslint-plugin-react`/`eslint-plugin-jsx-a11y`/`eslint-plugin-react-hooks`/`eslint-plugin-testing-library` 等の主要 plugin が ESLint10 未対応（内部 API 変更で `TypeError`/`ConfigError` 発生）のため `eslint: 9.39.5` へ差し戻し
+- `eslint-config-next` 16 系はネイティブ flat config（配列）を export するようになり、[eslint.config.cjs](../../../eslint.config.cjs) 内の `FlatCompat.extends('next/core-web-vitals')` 経由の読込みが `TypeError: Converting circular structure to JSON` で失敗（`eslint-plugin-react-hooks` の自己参照構造が原因）。`require('eslint-config-next/core-web-vitals')` で直接 require しスプレッドする形に変更。`next/typescript` エントリはプロジェクト側で別途 `@typescript-eslint` を導入済みのため plugin 名重複エラーとなり除外、`e2e/**` 除外は各エントリへ `ignores` を付与して踏襲
+- `eslint-plugin-vitest`（メンテ停止、ESLint10 非対応で `LegacyESLint` 読込に失敗）を廃止し公式 `@vitest/eslint-plugin` へ移行。`plugin:vitest/legacy-recommended` を `vitestPlugin.configs.recommended` に置換
+- [next-env.d.ts](../../../next-env.d.ts) / [tsconfig.json](../../../tsconfig.json) は `next build` 実行時に Next16 の要件へ自動更新（`jsx: preserve` → `react-jsx`、`.next/dev/types/**/*.ts` の include 追加等）。フォーマットが Prettier ルールと不一致だったため `npx prettier --write` で整形し直した
+
+**検証結果:** `yarn lint` / `yarn check-types` / `NEXT_PUBLIC_API_URL=http://localhost:3000 yarn test run`（30ファイル133テスト）/ `NEXT_PUBLIC_API_URL=http://localhost:3000 yarn build`（Turbopack）全て通過。常駐 Storybook（`components-ui-button--default`）も Playwright ヘッドレスで再検証、コンソール/ページエラー0件。
 
 ### @react-three/fiber v8 → v9（完了）
 
@@ -107,4 +121,4 @@ Skipping docgen for ".storybook/preview.tsx" because it is not included in the a
 - `npx storybook@latest upgrade` のような公式自動アップグレードツールでも、生成物をそのまま信用せず lint/型チェック/テストの実行結果で検証する必要がある（今回 eslint.config.cjs の構文エラー、存在しないパッケージへの import、moduleResolution起因の型解決不能など複数の不備があった）。
 - `moduleResolution: "bundler"` への変更はプロジェクト全体の TypeScript 設定変更のため、他の import 解決にも影響しうる。今回の変更後 `yarn check-types` は通過済みだが、広範囲な副作用が完全に無いとは言い切れない。
 - `@react-three/drei` v10 系の Line/ContactShadows/OrbitControls は box-bot-3d-01 の `Default` story で実描画確認済みだが、`Sizes`/`Static`/`Straight` 等の他 story やインタラクション（クリックでのホップ・腕の上げ下げ）までは未検証。
-- Next 15 → 16 本体のアップグレードは本ブランチ（`react-19-upgrade`）未着手。別 PR で対応予定。
+- ESLint 10 への追随は今回見送った（`eslint-plugin-react` 等主要 plugin が未対応）。plugin 側の対応が進み次第、別途アップグレード検討の余地あり。
