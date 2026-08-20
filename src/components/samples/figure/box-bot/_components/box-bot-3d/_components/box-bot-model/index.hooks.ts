@@ -64,7 +64,7 @@ export function useBoxBotModel({
   const hop = React.useRef(-1)
 
   const [leftUp, setLeftUp] = React.useState(false)
-  const [rightUp, setRightUp] = React.useState(true)
+  const [rightUp, setRightUp] = React.useState(false)
 
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
@@ -92,23 +92,26 @@ export function useBoxBotModel({
     setRightUp((v) => !v)
   }
 
+  // leftUp/rightUp 状態に応じた腕の目標角度。JSX の初期 rotation とも共有し、
+  // 表示直後に目標角度へアニメーションしてしまう(初期値とのズレ)のを防ぐ
+  const leftArmAngle = leftUp ? -2.25 : cfg.arm.leftAngle
+  const rightArmAngle = rightUp ? cfg.arm.rightAngle : 0.5
+
   // 自動回転・腕の角度・ホップ(ジャンプ)アニメーションを毎フレーム更新
   useFrame((_, dt) => {
     if (autoRotate && spin.current) spin.current.rotation.y += rotateSpeed * dt
 
-    const lt = leftUp ? -2.25 : cfg.arm.leftAngle
-    const rt = rightUp ? cfg.arm.rightAngle : 0.5
     if (leftArm.current)
       leftArm.current.rotation.z = approach(
         leftArm.current.rotation.z,
-        lt,
+        leftArmAngle,
         9,
         dt,
       )
     if (rightArm.current)
       rightArm.current.rotation.z = approach(
         rightArm.current.rotation.z,
-        rt,
+        rightArmAngle,
         9,
         dt,
       )
@@ -148,9 +151,11 @@ export function useBoxBotModel({
     hover,
     interactive,
     leftArm,
+    leftArmAngle,
     legX,
     legY,
     rightArm,
+    rightArmAngle,
     root,
     shoulderX,
     shoulderY,

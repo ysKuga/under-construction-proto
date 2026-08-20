@@ -13,9 +13,11 @@ export function BoxBotModel(props: BoxBotModelProps) {
     hover,
     interactive,
     leftArm,
+    leftArmAngle,
     legX,
     legY,
     rightArm,
+    rightArmAngle,
     root,
     shoulderX,
     shoulderY,
@@ -47,7 +49,7 @@ export function BoxBotModel(props: BoxBotModelProps) {
         <group
           position={[-shoulderX, shoulderY, 0]}
           ref={leftArm}
-          rotation={[0, 0, cfg.arm.leftAngle]}
+          rotation={[0, 0, leftArmAngle]}
           {...(interactive ? { onClick: toggleLeft, ...hover } : {})}
         >
           <SketchBox
@@ -60,7 +62,7 @@ export function BoxBotModel(props: BoxBotModelProps) {
         <group
           position={[shoulderX, shoulderY, 0]}
           ref={rightArm}
-          rotation={[0, 0, cfg.arm.rightAngle]}
+          rotation={[0, 0, rightArmAngle]}
           {...(interactive ? { onClick: toggleRight, ...hover } : {})}
         >
           <SketchBox

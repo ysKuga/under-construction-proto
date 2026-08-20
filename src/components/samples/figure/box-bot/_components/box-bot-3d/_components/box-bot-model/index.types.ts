@@ -56,12 +56,16 @@ export interface UseBoxBotModelReturn {
   interactive: boolean
   /** 左腕の回転支点グループ ref */
   leftArm: RefObject<Group | null>
+  /** 左腕の目標角度(z 軸)。leftUp 状態に応じた現在の目標値 */
+  leftArmAngle: number
   /** 脚の x オフセット */
   legX: number
   /** 脚の y 座標 */
   legY: number
   /** 右腕の回転支点グループ ref */
   rightArm: RefObject<Group | null>
+  /** 右腕の目標角度(z 軸)。rightUp 状態に応じた現在の目標値 */
+  rightArmAngle: number
   /** 全体のホップ・スケール制御グループ ref */
   root: RefObject<Group | null>
   /** 肩の x オフセット */
