@@ -226,7 +226,10 @@ export const OverlapGrid3D: Story = {
  * args から調整可能にしておく。本体の見かけの大きさが変わらないよう、
  * 拡大率に応じて fov も合わせて調整する。
  */
-export const Circle: StoryObj<{ canvasSize?: number }> = {
+export const Circle: StoryObj<{
+  /** Canvas の一辺(px)。円(240)より大きくするほどはみ出しの許容量が増える */
+  canvasSize?: number
+}> = {
   args: {
     canvasSize: 360,
   },
