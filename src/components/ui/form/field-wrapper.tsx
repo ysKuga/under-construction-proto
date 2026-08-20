@@ -4,17 +4,17 @@ import { type FieldError } from 'react-hook-form'
 import { Error } from './error'
 import { Label } from './label'
 
+export type FieldWrapperPassThroughProps = Omit<
+  FieldWrapperProps,
+  'children' | 'className'
+>
+
 type FieldWrapperProps = {
   children: React.ReactNode
   className?: string
   error?: FieldError | undefined
   label?: string
 }
-
-export type FieldWrapperPassThroughProps = Omit<
-  FieldWrapperProps,
-  'children' | 'className'
->
 
 export const FieldWrapper = (props: FieldWrapperProps) => {
   const { children, error, label } = props

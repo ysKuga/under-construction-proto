@@ -8,6 +8,8 @@ const meta: Meta<typeof Table> = {
 
 export default meta
 
+type Story = StoryObj<typeof Table<User>>
+
 type User = {
   createdAt: number
   email: string
@@ -16,8 +18,6 @@ type User = {
   role: string
   title: string
 }
-
-type Story = StoryObj<typeof Table<User>>
 
 const data: User[] = [
   {

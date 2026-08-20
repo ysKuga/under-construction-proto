@@ -2,14 +2,6 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { ActionLogEntry, ActorId, EventLog, HistoryRow } from '../../types'
 
-/**
- * 共通ゲームクロックに乗るイベント種別の総称
- *
- * - 現状は `ActionLogEntry` のみ。Collision 等の別イベント種別を追加する際は\
- *   ここに Union で追加していく想定 (game-clock-store 自体の実装変更は不要)
- */
-export type GameEvent = ActionLogEntry
-
 export type GameClockState = {
   /** 全 actor・全イベント共通の経過ゲーム時間 (ms)。直近まで記録された到達済みゲーム時間 */
   commonGameTimeMs: number
@@ -73,3 +65,11 @@ export type GameClockState = {
 }
 
 export type GameClockStore = StoreApi<GameClockState>
+
+/**
+ * 共通ゲームクロックに乗るイベント種別の総称
+ *
+ * - 現状は `ActionLogEntry` のみ。Collision 等の別イベント種別を追加する際は\
+ *   ここに Union で追加していく想定 (game-clock-store 自体の実装変更は不要)
+ */
+export type GameEvent = ActionLogEntry

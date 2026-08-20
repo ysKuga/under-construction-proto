@@ -123,16 +123,16 @@ export {
   TableRow,
 }
 
-type TableColumn<Entry> = {
-  Cell?({ entry }: { entry: Entry }): React.ReactElement
-  field: keyof Entry
-  title: string
-}
-
 export type TableProps<Entry> = {
   columns: TableColumn<Entry>[]
   data: Entry[]
   pagination?: TablePaginationProps
+}
+
+type TableColumn<Entry> = {
+  Cell?({ entry }: { entry: Entry }): React.ReactElement
+  field: keyof Entry
+  title: string
 }
 
 export const Table = <Entry extends BaseEntity>({

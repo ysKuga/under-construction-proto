@@ -1,7 +1,5 @@
 import type { CSSProperties } from 'react'
 
-export type Pt = [number, number]
-
 export interface BoxBotConfig {
   animate: boolean
   arms: { left: Pt[]; right: Pt[] }
@@ -30,3 +28,5 @@ export interface BoxBotProps extends Partial<BoxBotConfig> {
   viewBox?: string
   width?: number | string
 }
+
+export type Pt = [number, number]

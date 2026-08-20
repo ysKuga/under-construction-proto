@@ -11,23 +11,6 @@ type RequestOptions = {
   params?: Record<string, boolean | null | number | string | undefined>
 }
 
-function buildUrlWithParams(
-  url: string,
-  params?: RequestOptions['params'],
-): string {
-  if (!params) return url
-  const filteredParams = Object.fromEntries(
-    Object.entries(params).filter(
-      ([, value]) => value !== undefined && value !== null,
-    ),
-  )
-  if (Object.keys(filteredParams).length === 0) return url
-  const queryString = new URLSearchParams(
-    filteredParams as Record<string, string>,
-  ).toString()
-  return `${url}?${queryString}`
-}
-
 // Create a separate function for getting server-side cookies that can be imported where needed
 export function getServerCookies() {
   if (typeof window !== 'undefined') return ''
@@ -45,6 +28,23 @@ export function getServerCookies() {
       return ''
     }
   })
+}
+
+function buildUrlWithParams(
+  url: string,
+  params?: RequestOptions['params'],
+): string {
+  if (!params) return url
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(
+      ([, value]) => value !== undefined && value !== null,
+    ),
+  )
+  if (Object.keys(filteredParams).length === 0) return url
+  const queryString = new URLSearchParams(
+    filteredParams as Record<string, string>,
+  ).toString()
+  return `${url}?${queryString}`
 }
 
 async function fetchApi<T>(
