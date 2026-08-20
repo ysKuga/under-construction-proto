@@ -20,7 +20,6 @@ Next.js 14→15 アップグレード実施(本ブランチ完了分)。加え o
 - [x] build/lint/test/check-types 全緑確認
 - [x] Node.js 24系(Krypton, Active LTS)へアップグレード(別ブランチ node-24-upgrade、next-15-upgrade派生)。.nvmrc 22→24、@types/node 20→24、nvm install 24でローカル環境にも追加
 - [x] oxlint 導入検討(oxc-full-migration ブランチで完了。oxlint 併用導入・ESLint v9(flat config)移行・oxfmt 導入・pre-commit 組込みまで実施、詳細は該当ブランチのコミット履歴・docs/package/lint/oxlint・docs/package/format 参照)
-- [ ] Next.js 16 移行検討(React19必須)
 - [x] Storybook バージョンアップ検討(現状8.6.18、最新10.5.9。9系も存在(9.1.20)、8→9→10で2メジャー差、破壊的変更調査要る)
 
 ## 決定事項
