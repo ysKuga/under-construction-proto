@@ -55,21 +55,21 @@ export interface UseBoxBotModelReturn {
   /** インタラクション有効か */
   interactive: boolean
   /** 左腕の回転支点グループ ref */
-  leftArm: RefObject<Group>
+  leftArm: RefObject<Group | null>
   /** 脚の x オフセット */
   legX: number
   /** 脚の y 座標 */
   legY: number
   /** 右腕の回転支点グループ ref */
-  rightArm: RefObject<Group>
+  rightArm: RefObject<Group | null>
   /** 全体のホップ・スケール制御グループ ref */
-  root: RefObject<Group>
+  root: RefObject<Group | null>
   /** 肩の x オフセット */
   shoulderX: number
   /** 肩の y 座標 */
   shoulderY: number
   /** 自動回転グループ ref */
-  spin: RefObject<Group>
+  spin: RefObject<Group | null>
   /** 腕/頭/胴クリックでホップ開始 */
   startHop: (e: ThreeEvent<MouseEvent>) => void
   /** 左腕クリックで上げ下げ切替 */

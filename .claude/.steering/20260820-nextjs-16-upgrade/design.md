@@ -13,10 +13,10 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 ## 実装計画
 
 - [x] Storybook 8 → 10 アップグレード（`npx storybook@latest upgrade` を試験実行、差分確認）
-- [ ] React 18 → 19 アップグレード
-- [ ] `@react-three/fiber` v8 → v9 + `@react-three/drei` 追随、box-bot-3d-01 の型修正・実機確認
+- [x] React 18 → 19 アップグレード（別ブランチ `react-19-upgrade` で実施）
+- [x] `@react-three/fiber` v8 → v9 + `@react-three/drei` 追随、box-bot-3d-01 の型修正・実機確認
 - [ ] Next 15 → 16 アップグレード（`npx @next/codemod@canary upgrade latest`）
-- [ ] 他ライブラリ（radix-ui, react-hook-form, motion, react-spring 等）の React19 対応個別確認
+- [x] 他ライブラリ（radix-ui, react-hook-form, motion, react-spring 等）の React19 対応個別確認
 
 ## 決定事項
 
@@ -31,21 +31,33 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 - `eslint.config.cjs` で Flat Config 移行済み
 - Node 22.16.0 / TypeScript 5.9.3 → 要件（Node20.9+/TS5.1+）を満たす
 
-### @react-three/fiber v8 → v9（影響範囲小さい）
+### @react-three/fiber v8 → v9（完了）
 
-対象は `src/prototypes/box-bot/3d/box-bot-3d-01` 配下 5 ファイルのみ、他 prototype は無風。
-
-- `index.tsx`
-- `_components/box-bot-model/index.tsx`
-- `_components/box-bot-model/index.hooks.ts`
-- `_components/box-bot-model/index.types.ts`
-- `_components/box-bot-model/_components/sketch-box/index.tsx`
+`@react-three/fiber@^9.7.0`、`@react-three/drei@^10.7.8` へアップグレード。対象は `src/prototypes/box-bot/3d/box-bot-3d-01` 配下のみ、他 prototype は無風。
 
 修正内容:
 
-- `index.types.ts` 内 `RefObject<Group>` 型 4 箇所（leftArm/rightArm/root/spin）を `RefObject<Group | null>` に修正（React19 の `@types/react` 変更に伴う型不整合）
-- StrictMode 継承の仕様変更あり（v9 は Canvas 内で親 StrictMode を継承）→ `next.config.ts` の `reactStrictMode: true` と合わせて実機確認要
-- box-bot-3d-01 は `index.stories.tsx` を持つため、Storybook 経由の描画確認も必要
+- [index.types.ts](../../../src/prototypes/box-bot/3d/box-bot-3d-01/_components/box-bot-model/index.types.ts) 内 `RefObject<Group>` 型 4 箇所（leftArm/rightArm/root/spin）を `RefObject<Group | null>` に修正（React19 の `@types/react` 変更に伴う型不整合。予想通りの修正で済んだ）
+
+**実機確認結果:** Storybook（`yarn storybook`）経由で box-bot-3d-01 の `Default` story を Playwright ヘッドレスで検証。canvas 描画確認、コンソール/ページエラーともに0件。StrictMode 継承変更による副作用も見られなかった。
+
+### React 18 → 19（完了）
+
+`react`/`react-dom`/`@types/react`/`@types/react-dom` を `^19.2.8`/`^19.2.18`/`^19.2.4` 系へ更新。
+
+**破壊的変更で実際に刺さった箇所:**
+
+- [dashboard-layout.tsx](../../../src/app/app/_components/dashboard-layout.tsx) — React19 でグローバル `JSX` 名前空間が廃止（`React.JSX` へ移動）。`JSX.Element` → `React.JSX.Element` に修正
+- box-bot-3d-01 の `RefObject<Group>` 型修正（上記参照）
+
+**他ライブラリの React19 対応:**
+
+- `lucide-react`: `^0.378.0` → `^1.33.0`（旧バージョンの peer dep が react^18までで React19 非対応だった）
+- `@testing-library/react`: `^15.0.7` → `^16.3.2`（同上）
+- radix-ui, react-hook-form, motion(framer-motion), @react-spring/web, @tanstack/react-query 等は `yarn install` 時点で peer dependency warning が出なかった → 対応範囲内と判断
+- `@testing-library/dom` の unmet peer warning が出るが、間接依存として `10.4.1`（要件 `^10.0.0`）が既にインストール済みで実害なし
+
+**検証結果:** `yarn lint` / `yarn check-types` / `NEXT_PUBLIC_API_URL=http://localhost:3000 yarn test run`（30ファイル133テスト）全て通過。
 
 ### Storybook 8.6.18 → 10 系（完了）
 
@@ -67,6 +79,16 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 
 **検証結果:** `yarn lint` / `yarn check-types` / `NEXT_PUBLIC_API_URL=http://localhost:3000 yarn test run`（30ファイル133テスト）全て通過。
 
+**起動時警告の調査（`.storybook/preview.tsx` docgen skip）:**
+
+Storybook 起動時に以下の Vite warning が出る。
+
+```text
+Skipping docgen for ".storybook/preview.tsx" because it is not included in the active TypeScript project.
+```
+
+[.storybook/preview.tsx](../../../.storybook/preview.tsx) は Storybook の設定ファイル自体（Reactコンポーネントではない）で、props docgen の対象にする必要がないファイル。Playwright で `components-ui-button--default` story の Controls panel を実際に確認し、children/asChild/icon/isLoading 等 6 件の props が正常表示されることを検証済み。docgen 自体は正常動作しており、この警告は無害（対象外ファイルが正しく除外されているだけ）。対応不要と判断。
+
 ### React 18 → 19 以降（未着手）
 
 - `@react-three/fiber@10.5.9` の peerDependencies は `next: ^14.1.0 || ^15.0.0 || ^16.0.0`、`react: ^19.0.0` を含み Next16/React19 対応済み（Storybook側の話、fiber ではなく nextjs-vite framework の話。念のため区別して記載）
@@ -74,7 +96,7 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 
 ## 懸念・リスク
 
-- 他ライブラリ（radix-ui, react-hook-form, motion, react-spring 等）の React19 対応は個別未検証。
-- `@react-three/drei` v9 系との API 互換性（Line, ContactShadows, OrbitControls）は changelog 未確認。npm install 後の型チェック＋実機描画で検出する想定。
 - `npx storybook@latest upgrade` のような公式自動アップグレードツールでも、生成物をそのまま信用せず lint/型チェック/テストの実行結果で検証する必要がある（今回 eslint.config.cjs の構文エラー、存在しないパッケージへの import、moduleResolution起因の型解決不能など複数の不備があった）。
 - `moduleResolution: "bundler"` への変更はプロジェクト全体の TypeScript 設定変更のため、他の import 解決にも影響しうる。今回の変更後 `yarn check-types` は通過済みだが、広範囲な副作用が完全に無いとは言い切れない。
+- `@react-three/drei` v10 系の Line/ContactShadows/OrbitControls は box-bot-3d-01 の `Default` story で実描画確認済みだが、`Sizes`/`Static`/`Straight` 等の他 story やインタラクション（クリックでのホップ・腕の上げ下げ）までは未検証。
+- Next 15 → 16 本体のアップグレードは本ブランチ（`react-19-upgrade`）未着手。別 PR で対応予定。
