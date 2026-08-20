@@ -86,12 +86,34 @@ export const Grid: Story = {
   },
 }
 
-/** 升目表示との組み合わせ(3D) */
+/** 基準 fov(deg)。BoxBot3D デフォルトと同じ値 */
+const BASE_FOV = 34
+
+/**
+ * Canvas 拡大率ぶん fov を広げ、本体の見かけの大きさを一定に保つ
+ *
+ * fov 固定のまま Canvas を拡大すると、同じ world サイズの本体がより多くの
+ * ピクセルで描画され、本体自体が大きく見えてしまう。拡大率に応じて画角を
+ * 広げることで、表示範囲(はみ出しの許容量)だけを広げる。
+ */
+const fovForScale = (baseSize: number, canvasSize: number) =>
+  (2 *
+    Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) * (canvasSize / baseSize)) *
+    180) /
+  Math.PI
+
+/**
+ * 升目表示との組み合わせ(3D)
+ *
+ * ジャンプ演出(頭部が上昇)で頭が Canvas 上端を超えないよう、Canvas 自体は
+ * セルよりも一回り大きく確保し、fov で本体の見かけの大きさを維持する。
+ */
 export const Grid3D: Story = {
   render: () => {
     const cols = 5
     const rows = 3
     const cellSize = 96
+    const canvasSize = cellSize * 2.8
 
     return (
       <div
@@ -105,12 +127,17 @@ export const Grid3D: Story = {
           <StyledDiv key={i} style={{ position: 'relative' }}>
             {i === Math.floor((cols * rows) / 2) && (
               <StoryComponent
+                fov={fovForScale(cellSize, canvasSize)}
                 mode="3d"
                 orbit={false}
                 style={{
-                  height: cellSize,
+                  height: canvasSize,
+                  left: '50%',
                   position: 'absolute',
-                  width: cellSize,
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: canvasSize,
+                  zIndex: 1,
                 }}
               />
             )}
@@ -121,26 +148,36 @@ export const Grid3D: Story = {
   },
 }
 
+// cellSize = 120 のとき、腕含む本体シルエットの実測サイズ(px)
+const BODY_WIDTH_AT_120 = 83
+const BODY_HEIGHT_AT_120 = 108
+/** 隣接ペアの重なり量(本体サイズに対する比率) */
+const OVERLAP_RATIO = 0.25
+
+/** 中心間距離が size*(1-OVERLAP_RATIO) になるよう、セル index 1 つぶんの寄せ量を返す */
+const overlapOffsetPerIndex = (bodySize: number, cellSize: number) =>
+  bodySize * (1 - OVERLAP_RATIO) - cellSize
+
 /**
  * three(WebGL) 実装同士が重なり合った場合の見え方を確認
  *
- * 各セルから微妙にオフセットして配置し、隣接する Canvas が重なるようにする。
- * zIndex で重なり順を明示。
+ * 本体の 1/4 ほどが隣とだけ重なるよう、セル間隔を本体サイズ基準まで詰める
+ * (セル index に比例したオフセットの累積で表現)。縦横で本体の幅・高さが
+ * 異なるため、それぞれ別に計算する。zIndex で重なり順を明示。
+ *
+ * Canvas 同士が重なると、上の Canvas が透明部分もヒットテストを奪うため、
+ * 下側の本体はクリックできない(WebGL 描画は DOM 上ただの矩形として扱われ、
+ * 透明ピクセルを判定してクリックを下へ透過させる標準機構がない)。
+ * ここでは表示確認が目的のため interactive を無効にしている。
  */
 export const OverlapGrid3D: Story = {
   render: () => {
     const cols = 3
     const rows = 2
     const cellSize = 120
-    // セル中心からのオフセット(px)。重なりを発生させる
-    const offsets: [number, number][] = [
-      [0, 0],
-      [22, -16],
-      [-18, 14],
-      [16, 18],
-      [-22, -12],
-      [20, 8],
-    ]
+
+    const offsetPerCol = overlapOffsetPerIndex(BODY_WIDTH_AT_120, cellSize)
+    const offsetPerRow = overlapOffsetPerIndex(BODY_HEIGHT_AT_120, cellSize)
 
     return (
       <div
@@ -151,11 +188,15 @@ export const OverlapGrid3D: Story = {
         }}
       >
         {Array.from({ length: cols * rows }).map((_, i) => {
-          const [dx, dy] = offsets[i] ?? [0, 0]
+          const col = i % cols
+          const row = Math.floor(i / cols)
+          const dx = col * offsetPerCol
+          const dy = row * offsetPerRow
 
           return (
             <StyledDiv key={i} style={{ position: 'relative' }}>
               <StoryComponent
+                interactive={false}
                 mode="3d"
                 orbit={false}
                 style={{
@@ -174,24 +215,6 @@ export const OverlapGrid3D: Story = {
     )
   },
 }
-
-/** 基準 fov(deg)。円と Canvas のサイズが等しい(拡大なし)ときの値 */
-const CIRCLE_BASE_FOV = 34
-
-/**
- * Canvas サイズの拡大率ぶん fov を広げ、本体の見かけの大きさを一定に保つ
- *
- * fov 固定のまま Canvas を拡大すると、同じ world サイズの本体がより多くの
- * ピクセルで描画され、本体自体が大きく見えてしまう。拡大率に応じて画角を
- * 広げることで、表示範囲(はみ出しの許容量)だけを広げる。
- */
-const fovForScale = (baseSize: number, canvasSize: number) =>
-  (2 *
-    Math.atan(
-      Math.tan((CIRCLE_BASE_FOV * Math.PI) / 360) * (canvasSize / baseSize),
-    ) *
-    180) /
-  Math.PI
 
 /**
  * 円形の背景の上に本体を重ねて表示
