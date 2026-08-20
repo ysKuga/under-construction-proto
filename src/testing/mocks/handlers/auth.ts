@@ -12,6 +12,11 @@ import {
   requireAuth,
 } from '../utils'
 
+type LoginBody = {
+  email: string
+  password: string
+}
+
 type RegisterBody = {
   email: string
   firstName: string
@@ -19,11 +24,6 @@ type RegisterBody = {
   password: string
   teamId?: string
   teamName?: string
-}
-
-type LoginBody = {
-  email: string
-  password: string
 }
 
 export const authHandlers = [

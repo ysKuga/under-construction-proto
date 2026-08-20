@@ -31,16 +31,16 @@ export interface BoxBot3DConfig {
   sketchDetail: number
 }
 
-export type Handlers = {
-  onClick?: (e: ThreeEvent<MouseEvent>) => void
-  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
-  onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
-}
-
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   autoRotate?: boolean
   interactive?: boolean
   rotateSpeed?: number
+}
+
+export type Handlers = {
+  onClick?: (e: ThreeEvent<MouseEvent>) => void
+  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
+  onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
 }
 
 export interface UseBoxBotModelReturn {

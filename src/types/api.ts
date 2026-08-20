@@ -2,10 +2,29 @@
 // ideally, we want to keep these api related types in sync
 // with the backend instead of manually writing them out
 
+export type AuthResponse = {
+  jwt: string
+  user: User
+}
+
 export type BaseEntity = {
   createdAt: number
   id: string
 }
+
+export type Comment = Entity<{
+  author: User
+  body: string
+  discussionId: string
+}>
+
+export type Discussion = Entity<{
+  author: User
+  body: string
+  public: boolean
+  teamId: string
+  title: string
+}>
 
 export type Entity<T> = {
   [K in keyof T]: T[K]
@@ -17,6 +36,11 @@ export type Meta = {
   totalPages: number
 }
 
+export type Team = Entity<{
+  description: string
+  name: string
+}>
+
 export type User = Entity<{
   bio: string
   email: string
@@ -24,28 +48,4 @@ export type User = Entity<{
   lastName: string
   role: 'ADMIN' | 'USER'
   teamId: string
-}>
-
-export type AuthResponse = {
-  jwt: string
-  user: User
-}
-
-export type Team = Entity<{
-  description: string
-  name: string
-}>
-
-export type Discussion = Entity<{
-  author: User
-  body: string
-  public: boolean
-  teamId: string
-  title: string
-}>
-
-export type Comment = Entity<{
-  author: User
-  body: string
-  discussionId: string
 }>

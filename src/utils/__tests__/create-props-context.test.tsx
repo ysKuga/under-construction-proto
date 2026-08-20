@@ -30,7 +30,7 @@ test('Provider 配下で children が描画される', () => {
 test('props が変化すると useProps 消費側に新しい値が反映される', () => {
   const { Provider, useProps } = createPropsContext<{ value: number }>('Test')
 
-  const renderSpy = vi.fn()
+  const renderSpy = vi.fn<(value: number) => void>()
 
   const Consumer = () => {
     const { value } = useProps()
@@ -73,7 +73,7 @@ test('Provider の値が変わらなくても、親の無関係な再レンダ�
   // 防ぐのは「Provider 自身が内部状態で独立に再レンダリングされる」場合のみ
   const { Provider, useProps } = createPropsContext<{ value: number }>('Test')
 
-  const renderSpy = vi.fn()
+  const renderSpy = vi.fn<() => void>()
 
   const Consumer = () => {
     useProps()

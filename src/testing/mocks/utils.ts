@@ -77,6 +77,12 @@ export function authenticate({
 
 export const AUTH_COOKIE = `bulletproof_react_app_token`
 
+export function requireAdmin(user: any) {
+  if (user.role !== 'ADMIN') {
+    throw Error('Unauthorized')
+  }
+}
+
 export function requireAuth(cookies: Record<string, string>) {
   try {
     const encodedToken = cookies[AUTH_COOKIE] || Cookies.get(AUTH_COOKIE)
@@ -98,13 +104,7 @@ export function requireAuth(cookies: Record<string, string>) {
     }
 
     return { user: sanitizeUser(user) }
-  } catch (err: any) {
+  } catch {
     return { error: 'Unauthorized', user: null }
-  }
-}
-
-export function requireAdmin(user: any) {
-  if (user.role !== 'ADMIN') {
-    throw Error('Unauthorized')
   }
 }

@@ -47,9 +47,7 @@
       "Bash(mkdir -p *)",
       "Bash(echo \"exit: $?\")"
     ],
-    "additionalDirectories": [
-      "./src"
-    ]
+    "additionalDirectories": ["./src"]
   },
   "hooks": {
     "PostToolUse": [

@@ -19,14 +19,14 @@ export type GridSize = {
   rows: number
 }
 
-/** 移動企図イベントの発生源 */
-export type MoveIntentSource = 'actor-click' | 'cell-click' | 'keyboard'
-
 /** 移動対象を指定する企図イベント (action-phase.md でいう Intent 相当) */
 export type MoveIntentEvent = {
   source: MoveIntentSource
   target: GridPosition
 }
+
+/** 移動企図イベントの発生源 */
+export type MoveIntentSource = 'actor-click' | 'cell-click' | 'keyboard'
 
 /**
  * gridSize / dispatchMoveIntent は position の変化と無関係なため、

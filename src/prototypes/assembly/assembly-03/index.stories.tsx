@@ -19,20 +19,16 @@ type Story = StoryObj<typeof StoryComponent>
 
 /** Arm 用共通 style */
 const armStyle = {
+  height: '30%',
   top: '22%',
-  ...{
-    height: '30%',
-    width: '7%',
-  },
+  width: '7%',
 } satisfies CSSProperties
 
 /** Foot 用共通 style */
 const footStyle = {
   bottom: '10%',
-  ...{
-    height: '20%',
-    width: '8%',
-  },
+  height: '20%',
+  width: '8%',
 } satisfies CSSProperties
 
 export const Primary: Story = {
@@ -42,20 +38,16 @@ export const Primary: Story = {
       <>
         <Head
           style={{
+            height: '15%',
             top: '5%',
-            ...{
-              height: '15%',
-              width: '25%',
-            },
+            width: '25%',
           }}
         />
         <Body
           style={{
+            height: '45%',
             top: '22%',
-            ...{
-              height: '45%',
-              width: '30%',
-            },
+            width: '30%',
           }}
         />
         <Arm
