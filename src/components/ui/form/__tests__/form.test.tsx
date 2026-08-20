@@ -16,7 +16,7 @@ const schema = z.object({
 })
 
 test('should render and submit a basic Form component', async () => {
-  const handleSubmit = vi.fn() as SubmitHandler<z.infer<typeof schema>>
+  const handleSubmit = vi.fn<SubmitHandler<z.infer<typeof schema>>>()
 
   rtlRender(
     <Form id="my-form" onSubmit={handleSubmit} schema={schema}>
@@ -46,7 +46,7 @@ test('should render and submit a basic Form component', async () => {
 })
 
 test('should fail submission if validation fails', async () => {
-  const handleSubmit = vi.fn() as SubmitHandler<z.infer<typeof schema>>
+  const handleSubmit = vi.fn<SubmitHandler<z.infer<typeof schema>>>()
 
   rtlRender(
     <Form id="my-form" onSubmit={handleSubmit} schema={schema}>

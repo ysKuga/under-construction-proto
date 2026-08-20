@@ -7,7 +7,7 @@ import { TimeControl03Providers } from '../index.providers'
 vi.unmock('zustand')
 
 test('zustand store の更新は useTimeControl03Props 消費側を再レンダリングさせない', () => {
-  const propsRenderSpy = vi.fn()
+  const propsRenderSpy = vi.fn<() => void>()
 
   const PropsProbe = () => {
     const { actorIds } = useTimeControl03Props()

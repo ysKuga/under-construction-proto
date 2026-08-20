@@ -17,11 +17,11 @@ vi.mock('next/navigation', async () => {
   const actual = await vi.importActual('next/navigation')
   return {
     ...actual,
-    useParams: vi.fn(),
+    useParams: vi.fn<() => { discussionId: string }>(),
     useRouter: () => {
       return {
-        push: vi.fn(),
-        replace: vi.fn(),
+        push: vi.fn<(href: string) => void>(),
+        replace: vi.fn<(href: string) => void>(),
       }
     },
   }

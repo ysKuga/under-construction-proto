@@ -6,7 +6,7 @@ import { RegisterForm } from '../register-form'
 test('should register new user and call onSuccess cb which should navigate the user to the app', async () => {
   const newUser = createUser({})
 
-  const onSuccess = vi.fn()
+  const onSuccess = vi.fn<() => void>()
 
   await renderApp(
     <RegisterForm
