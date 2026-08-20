@@ -9,7 +9,7 @@
     "dev:path": "pathpida --ignorePath .gitignore --watch",
     "build": "pathpida --ignorePath .gitignore && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "vitest",
     "test-e2e": "pm2 start \"yarn run-mock-server\" --name server && yarn playwright test",
     "prepare": "sh scripts/prepare.sh",
