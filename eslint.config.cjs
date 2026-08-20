@@ -3,6 +3,8 @@ const { FlatCompat } = require('@eslint/eslintrc')
 const js = require('@eslint/js')
 const tsParser = require('@typescript-eslint/parser')
 const checkFile = require('eslint-plugin-check-file')
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+const storybook = require('eslint-plugin-storybook')
 const { defineConfig, globalIgnores } = require('eslint/config')
 const globals = require('globals')
 
@@ -247,6 +249,7 @@ module.exports = defineConfig([
       parser: tsParser,
     },
   },
+  ...storybook.configs['flat/recommended'],
   globalIgnores([
     '!**/.eslintrc*',
     '!**/.prettierrc*',
