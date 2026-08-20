@@ -3,8 +3,8 @@ import { Link } from '@/components/ui/link'
 import { paths } from '@/config/paths'
 import { checkLoggedIn } from '@/utils/auth'
 
-const HomePage = () => {
-  const isLoggedIn = checkLoggedIn()
+const HomePage = async () => {
+  const isLoggedIn = await checkLoggedIn()
 
   return (
     <div className="flex h-screen items-center bg-white">
