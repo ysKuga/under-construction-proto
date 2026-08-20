@@ -79,6 +79,16 @@ Next.js 15.5.23 / React 18.3.1 を Next.js 16.3.1 / React 19.2 系へ安全に�
 
 **検証結果:** `yarn lint` / `yarn check-types` / `NEXT_PUBLIC_API_URL=http://localhost:3000 yarn test run`（30ファイル133テスト）全て通過。
 
+**起動時警告の調査（`.storybook/preview.tsx` docgen skip）:**
+
+Storybook 起動時に以下の Vite warning が出る。
+
+```text
+Skipping docgen for ".storybook/preview.tsx" because it is not included in the active TypeScript project.
+```
+
+[.storybook/preview.tsx](../../../.storybook/preview.tsx) は Storybook の設定ファイル自体（Reactコンポーネントではない）で、props docgen の対象にする必要がないファイル。Playwright で `components-ui-button--default` story の Controls panel を実際に確認し、children/asChild/icon/isLoading 等 6 件の props が正常表示されることを検証済み。docgen 自体は正常動作しており、この警告は無害（対象外ファイルが正しく除外されているだけ）。対応不要と判断。
+
 ### React 18 → 19 以降（未着手）
 
 - `@react-three/fiber@10.5.9` の peerDependencies は `next: ^14.1.0 || ^15.0.0 || ^16.0.0`、`react: ^19.0.0` を含み Next16/React19 対応済み（Storybook側の話、fiber ではなく nextjs-vite framework の話。念のため区別して記載）
