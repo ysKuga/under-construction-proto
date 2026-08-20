@@ -130,27 +130,31 @@ export const Grid3D: Story = {
  */
 export const Circle: Story = {
   render: () => (
-    <div style={{ height: 240, position: 'relative', width: 240 }}>
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: '50%',
-          inset: 0,
-          position: 'absolute',
-        }}
-      />
-      <StoryComponent
-        mode="3d"
-        shadowScale={2.5}
-        style={{
-          height: 320,
-          left: '50%',
-          position: 'absolute',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 320,
-        }}
-      />
+    // Canvas (320) が円 (240) より一回り大きくはみ出すため、
+    // はみ出し量 (40px) 分の余白をコンテナ側に確保しておく
+    <div style={{ padding: 40 }}>
+      <div style={{ height: 240, position: 'relative', width: 240 }}>
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '50%',
+            inset: 0,
+            position: 'absolute',
+          }}
+        />
+        <StoryComponent
+          mode="3d"
+          shadowScale={2.5}
+          style={{
+            height: 320,
+            left: '50%',
+            position: 'absolute',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 320,
+          }}
+        />
+      </div>
     </div>
   ),
 }
