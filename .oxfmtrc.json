@@ -10,6 +10,7 @@
   "ignorePatterns": [
     "*.hbs",
     "*.md",
-    "src/prototypes/time-control/time-control-02/types.ts"
+    "src/prototypes/time-control/time-control-02/types.ts",
+    "src/utils/$path.ts"
   ]
 }
