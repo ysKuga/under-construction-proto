@@ -3,6 +3,7 @@ import type { RefObject } from 'react'
 import type { Group } from 'three'
 
 export interface BoxBot3DConfig {
+  /** 腕の設定 */
   arm: {
     /** 奥行き */
     d: number
@@ -17,6 +18,7 @@ export interface BoxBot3DConfig {
     /** 幅 */
     w: number
   }
+  /** 胴体の設定 */
   body: {
     /** 奥行き */
     d: number
@@ -25,6 +27,7 @@ export interface BoxBot3DConfig {
     /** 幅 */
     w: number
   }
+  /** 目の設定 */
   eye: {
     /** 奥行き */
     d: number
@@ -35,6 +38,7 @@ export interface BoxBot3DConfig {
     /** 幅 */
     w: number
   }
+  /** 頭の設定 */
   head: {
     /** 奥行き */
     d: number
@@ -45,6 +49,7 @@ export interface BoxBot3DConfig {
   }
   /** 線(輪郭・目・口)の色 */
   ink: string
+  /** 脚の設定 */
   leg: {
     /** 奥行き */
     d: number
