@@ -9,6 +9,7 @@ Next.js 14→15 アップグレード実施(本ブランチ完了分)。加え o
 - Next.js 最新16系だがReact19必須、影響範囲大。ユーザー方針: 15先行、16は別PR
 - 今回更新範囲: Next関連 + 同メジャー帯内安全更新のみ(ユーザー選択)。zod4/zustand5/tailwindcss4/express5/typescript-eslint8等 次メジャーは対象外
 - リポジトリはyarn管理。npm installで一度yarn.lock/package-lock.json汚染発生、復旧済み(以後npm outdated調査用途のみ許容、install/lockfile更新はyarn使用)
+- Node.jsは22(Jod)が2025-10 Maintenance LTS入り済み、24(Krypton)が2025-10 Active LTS入り済み(EOL 2028-04)。次期LTSとして24採用
 
 ## 実装計画
 
@@ -17,6 +18,7 @@ Next.js 14→15 アップグレード実施(本ブランチ完了分)。加え o
 - [x] eslint-plugin-react-hooks 4.6.2→5.2.0(eslint-config-next15内部要求版との衝突解消)
 - [x] @types/express 追加(mock-server.ts既存型エラー解消、docs/package/testing/配下にdocs追加)
 - [x] build/lint/test/check-types 全緑確認
+- [x] Node.js 24系(Krypton, Active LTS)へアップグレード(別ブランチ node-24-upgrade、next-15-upgrade派生)。.nvmrc 22→24、@types/node 20→24、nvm install 24でローカル環境にも追加
 - [ ] oxlint 導入検討
 - [ ] Next.js 16 移行検討(React19必須)
 
