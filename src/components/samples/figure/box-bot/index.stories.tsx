@@ -121,17 +121,36 @@ export const Grid3D: Story = {
   },
 }
 
-/** 表示領域を円形にクリップ(style.borderRadius + overflow)。影の見切れを避けるため shadowScale を縮小 */
+/**
+ * 円形の背景の上に本体を重ねて表示
+ *
+ * Canvas は 1 枚のラスタのため、border-radius + overflow:hidden で
+ * クリップすると本体も影も一律に切り取られる。ここでは円形の背景 div と、\
+ * クリップしない一回り大きい Canvas を重ね、本体が円の外へはみ出せるようにする。
+ */
 export const Circle: Story = {
-  args: {
-    background: '#ffffff',
-    mode: '3d',
-    shadowScale: 2.5,
-    style: {
-      borderRadius: '50%',
-      height: 240,
-      overflow: 'hidden',
-      width: 240,
-    },
-  },
+  render: () => (
+    <div style={{ height: 240, position: 'relative', width: 240 }}>
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '50%',
+          inset: 0,
+          position: 'absolute',
+        }}
+      />
+      <StoryComponent
+        mode="3d"
+        shadowScale={2.5}
+        style={{
+          height: 320,
+          left: '50%',
+          position: 'absolute',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 320,
+        }}
+      />
+    </div>
+  ),
 }
