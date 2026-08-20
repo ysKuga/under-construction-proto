@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
+const path = require('path')
+const fs = require('fs')
 
-const featuresDir = path.join(process.cwd(), 'src/features');
-const features = fs.readdirSync(featuresDir);
+const featuresDir = path.join(process.cwd(), 'src/features')
+const features = fs.readdirSync(featuresDir)
 
 /**
  *
@@ -34,7 +34,7 @@ module.exports = {
     const componentGeneratePath =
       !answers.feature || answers.feature === 'components'
         ? 'src/components/{{folder}}'
-        : 'src/features/{{feature}}/components';
+        : 'src/features/{{feature}}/components'
     return [
       {
         type: 'add',
@@ -43,14 +43,17 @@ module.exports = {
       },
       {
         type: 'add',
-        path: componentGeneratePath + '/{{kebabCase name}}/{{kebabCase name}}.tsx',
+        path:
+          componentGeneratePath + '/{{kebabCase name}}/{{kebabCase name}}.tsx',
         templateFile: 'generators/component/component.tsx.hbs',
       },
       {
         type: 'add',
-        path: componentGeneratePath + '/{{kebabCase name}}/{{kebabCase name}}.stories.tsx',
+        path:
+          componentGeneratePath +
+          '/{{kebabCase name}}/{{kebabCase name}}.stories.tsx',
         templateFile: 'generators/component/component.stories.tsx.hbs',
       },
-    ];
+    ]
   },
-};
+}

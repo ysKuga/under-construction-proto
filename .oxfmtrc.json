@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "useTabs": false,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "*.hbs",
+    "*.md",
+    "src/prototypes/time-control/time-control-02/types.ts"
+  ]
+}

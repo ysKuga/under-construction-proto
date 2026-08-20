@@ -1,5 +1,4 @@
-
-const defaultTheme = require('tailwindcss/defaultTheme');
+const defaultTheme = require('tailwindcss/defaultTheme')
 
 /** @type {import('tailwindcss').Config} */
 const config = {
@@ -73,6 +72,6 @@ const config = {
       },
     },
   },
-};
+}
 
 module.exports = config
