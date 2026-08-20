@@ -29,6 +29,7 @@ export default function BoxBot3D({
   autoRotate = true,
   background = 'transparent',
   className,
+  fov = 34,
   interactive = true,
   orbit = true,
   rotateSpeed,
@@ -39,7 +40,7 @@ export default function BoxBot3D({
   return (
     <div className={className} style={{ height: 480, width: '100%', ...style }}>
       <Canvas
-        camera={{ fov: 34, position: [3.6, 2.2, 5.4] }}
+        camera={{ fov, position: [3.6, 2.2, 5.4] }}
         dpr={[1, 2]}
         gl={{ antialias: true }}
         shadows
