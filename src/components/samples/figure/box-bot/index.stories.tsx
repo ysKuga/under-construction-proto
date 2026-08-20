@@ -104,14 +104,14 @@ const fovForScale = (baseSize: number, canvasSize: number) =>
     180) /
   Math.PI
 
+/** Grid3D の Canvas 拡大率。ジャンプ演出込みで頭が見切れない値 */
+const GRID3D_CANVAS_SCALE = 2.8
+
 /**
  * 升目表示との組み合わせ(3D)
  *
  * - ジャンプ演出(頭部が上昇)で頭が Canvas 上端を超えないよう、Canvas 自体はセルよりも一回り大きく確保し、fov で本体の見かけの大きさを維持する
  */
-/** Grid3D の Canvas 拡大率。ジャンプ演出込みで頭が見切れない値 */
-const GRID3D_CANVAS_SCALE = 2.8
-
 export const Grid3D: Story = {
   render: () => {
     const cols = 5
@@ -152,8 +152,17 @@ export const Grid3D: Story = {
   },
 }
 
-// cellSize = 120 のとき、腕含む本体シルエットの実測サイズ(px)
+/**
+ * 腕含む本体シルエットの実測幅(px)
+ *
+ * - cellSize = 120 のときの値
+ */
 const BODY_WIDTH_AT_120 = 83
+/**
+ * 腕含む本体シルエットの実測高さ(px)
+ *
+ * - cellSize = 120 のときの値
+ */
 const BODY_HEIGHT_AT_120 = 108
 /** 隣接ペアの重なり量(本体サイズに対する比率) */
 const OVERLAP_RATIO = 0.25

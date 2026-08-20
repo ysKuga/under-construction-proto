@@ -37,7 +37,9 @@ const DEFAULTS: BoxBot3DConfig = {
   sketchDetail: 7,
 }
 
+/** ホップ(ジャンプ)の継続時間(秒) */
 const HOP_DUR = 0.55
+/** ホップの最大上昇量(world) */
 const HOP_H = 0.55
 /** ホップ中の縦方向のスクイッシュ量 */
 const HOP_SQUASH_Y = 0.08

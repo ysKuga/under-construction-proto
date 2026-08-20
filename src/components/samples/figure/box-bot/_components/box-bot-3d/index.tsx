@@ -15,26 +15,41 @@ const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
 /** Canvas の devicePixelRatio 範囲 */
 const CANVAS_DPR: [number, number] = [1, 2]
 
+/** 環境光の強度 */
 const AMBIENT_LIGHT_INTENSITY = 0.85
 
+/** 平行光源の強度 */
 const DIRECTIONAL_LIGHT_INTENSITY = 0.7
+/** 平行光源の位置(world) */
 const DIRECTIONAL_LIGHT_POSITION: Vec3 = [4, 6, 4]
+/** 平行光源のシャドウマップ解像度 */
 const DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE: [number, number] = [1024, 1024]
 
-/** hemisphereLight の args。[空の色, 地面の色, 強度] */
+/**
+ * hemisphereLight の args
+ *
+ * - [空の色, 地面の色, 強度]
+ */
 const HEMISPHERE_LIGHT_ARGS: [string, string, number] = [
   '#ffffff',
   '#d8d8dc',
   0.35,
 ]
 
+/** 接地影(ContactShadows)のぼかし量 */
 const CONTACT_SHADOWS_BLUR = 2.4
+/** 接地影の減衰距離(world) */
 const CONTACT_SHADOWS_FAR = 4
+/** 接地影の不透明度 */
 const CONTACT_SHADOWS_OPACITY = 0.35
+/** 接地影の位置(world) */
 const CONTACT_SHADOWS_POSITION: Vec3 = [0, -1.42, 0]
 
+/** OrbitControls の最大ズームアウト距離 */
 const ORBIT_MAX_DISTANCE = 12
+/** OrbitControls の最大ズームイン距離 */
 const ORBIT_MIN_DISTANCE = 3.5
+/** OrbitControls の注視点(world) */
 const ORBIT_TARGET: Vec3 = [0, 0.4, 0]
 
 /**
