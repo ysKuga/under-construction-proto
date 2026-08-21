@@ -112,10 +112,19 @@ export function useBoxBotModel({
     setRightUp((v) => !v)
   }
 
-  // leftUp/rightUp 状態に応じた腕の目標角度。JSX の初期 rotation とも共有し、
-  // 表示直後に目標角度へアニメーションしてしまう(初期値とのズレ)のを防ぐ
+  // leftUp/rightUp 状態に応じた腕の目標角度
   const leftArmAngle = leftUp ? ARM_UP_ANGLE : cfg.arm.leftAngle
   const rightArmAngle = rightUp ? cfg.arm.rightAngle : ARM_DOWN_ANGLE
+
+  // マウント時のみ初期角度を反映する。rotation を JSX prop として渡すと
+  // toggle のたびに再レンダリングで直接上書きされ、useFrame の approach による
+  // 補間より先に目標角度へジャンプしてしまう(瞬間切り替わりの原因)ため、
+  // 初期表示だけここで済ませ、以降は useFrame のみで更新する
+  React.useLayoutEffect(() => {
+    if (leftArm.current) leftArm.current.rotation.z = leftArmAngle
+    if (rightArm.current) rightArm.current.rotation.z = rightArmAngle
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // 自動回転・腕の角度・ホップ(ジャンプ)アニメーションを毎フレーム更新
   useFrame((_, dt) => {
@@ -171,11 +180,9 @@ export function useBoxBotModel({
     hover,
     interactive,
     leftArm,
-    leftArmAngle,
     legX,
     legY,
     rightArm,
-    rightArmAngle,
     root,
     shoulderX,
     shoulderY,
