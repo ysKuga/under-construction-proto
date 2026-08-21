@@ -125,7 +125,7 @@ export interface UseBoxBotModelReturn {
    *
    * - -1: 非ジャンプ中、0以上: 経過秒数
    */
-  hop: RefObject<number>
+  hopRef: RefObject<number>
   /** ホバー時のカーソル制御ハンドラ */
   hover: Handlers
   /** インタラクション有効か */

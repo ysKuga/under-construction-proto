@@ -11,7 +11,7 @@ import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
  * ジャンプ action の発火・購読
  *
  * - クリック(`startHop`)は `BoxBot-jump` イベントを dispatch するだけに徹し、\
- *   実際の実行(`hop` の起動)は `useEventListener` 側で行う。外部からの\
+ *   実際の実行(`hopRef` の起動)は `useEventListener` 側で行う。外部からの\
  *   `useEventListener` 経由の発火も同じ経路を通るため、実行判定が一本化される
  * - `interactive` による制御も実行側(`jumpAction`)で行う。`onClick` 自体は\
  *   常に登録し、`stopPropagation`(クリック伝播の抑止)は interactive に関わらず必要なため
@@ -20,7 +20,7 @@ import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
  */
 export const useJumpAction = (
   props: Omit<BoxBotModelProps, 'eventTarget'>,
-): Pick<UseBoxBotModelReturn, 'hop' | 'startHop'> => {
+): Pick<UseBoxBotModelReturn, 'hopRef' | 'startHop'> => {
   const { interactive } = props
 
   const hopRef = React.useRef(-1)
@@ -39,5 +39,5 @@ export const useJumpAction = (
     void dispatch(new Event(JUMP_EVENT_TYPE))
   }
 
-  return { hop: hopRef, startHop }
+  return { hopRef, startHop }
 }

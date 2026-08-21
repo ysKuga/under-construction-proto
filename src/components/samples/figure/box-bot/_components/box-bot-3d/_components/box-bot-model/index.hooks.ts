@@ -70,7 +70,7 @@ export function useBoxBotModel(
       }
     : {}
 
-  const { hop: hopRef, startHop } = useJumpAction(props)
+  const { hopRef, startHop } = useJumpAction(props)
 
   const toggleLeft = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
@@ -146,7 +146,7 @@ export function useBoxBotModel(
     cfg,
     headFront,
     headY,
-    hop: hopRef,
+    hopRef,
     hover,
     interactive,
     leftArm,
