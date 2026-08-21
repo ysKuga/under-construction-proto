@@ -134,32 +134,32 @@ export interface UseBoxBotModelReturn {
   headFront: number
   /** 頭の中心 y 座標 */
   headY: number
-  /**
-   * ホップ(ジャンプ)進行度の ref
-   *
-   * - -1: 非ジャンプ中、0以上: 経過秒数
-   */
-  hopRef: RefObject<number>
   /** ホバー時のカーソル制御ハンドラ */
   hover: Handlers
   /** インタラクション有効か */
   interactive: boolean
+  /**
+   * ジャンプ進行度の ref
+   *
+   * - -1: 非ジャンプ中、0以上: 経過秒数
+   */
+  jumpRef: RefObject<number>
   /** 左腕の回転支点グループ ref */
-  leftArm: RefObject<Group | null>
+  leftArmRef: RefObject<Group | null>
   /** 脚の x オフセット */
   legX: number
   /** 脚の y 座標 */
   legY: number
   /** 右腕の回転支点グループ ref */
-  rightArm: RefObject<Group | null>
-  /** 全体のホップ・スケール制御グループ ref */
-  root: RefObject<Group | null>
+  rightArmRef: RefObject<Group | null>
+  /** 全体のジャンプ・スケール制御グループ ref */
+  rootRef: RefObject<Group | null>
   /** 肩の x オフセット */
   shoulderX: number
   /** 肩の y 座標 */
   shoulderY: number
   /** 自動回転グループ ref */
-  spin: RefObject<Group | null>
-  /** 腕/頭/胴クリックでホップ開始 */
-  startHop: (e: ThreeEvent<MouseEvent>) => void
+  spinRef: RefObject<Group | null>
+  /** 腕/頭/胴クリックでジャンプ開始 */
+  startJump: (e: ThreeEvent<MouseEvent>) => void
 }

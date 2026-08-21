@@ -21,30 +21,30 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     headFront,
     headY,
     hover,
-    leftArm,
+    leftArmRef,
     legX,
     legY,
-    rightArm,
-    root,
+    rightArmRef,
+    rootRef,
     shoulderX,
     shoulderY,
-    spin,
-    startHop,
+    spinRef,
+    startJump,
   } = useBoxBotModel(props)
 
   return (
-    <group ref={root}>
-      <group ref={spin}>
+    <group ref={rootRef}>
+      <group ref={spinRef}>
         <SketchBox
           cfg={cfg}
-          handlers={{ onClick: startHop, ...hover }}
+          handlers={{ onClick: startJump, ...hover }}
           position={[0, 0, 0]}
           seed={cfg.seed + 1}
           size={[cfg.body.w, cfg.body.h, cfg.body.d]}
         />
         <SketchBox
           cfg={cfg}
-          handlers={{ onClick: startHop, ...hover }}
+          handlers={{ onClick: startJump, ...hover }}
           position={[0, headY, 0]}
           seed={cfg.seed + 2}
           size={[cfg.head.w, cfg.head.h, cfg.head.d]}
@@ -54,7 +54,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
         <group
           onClick={arm.left.toggle}
           position={[-shoulderX, shoulderY, 0]}
-          ref={leftArm}
+          ref={leftArmRef}
           {...hover}
         >
           <SketchBox
@@ -67,7 +67,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
         <group
           onClick={arm.right.toggle}
           position={[shoulderX, shoulderY, 0]}
-          ref={rightArm}
+          ref={rightArmRef}
           {...hover}
         >
           <SketchBox
