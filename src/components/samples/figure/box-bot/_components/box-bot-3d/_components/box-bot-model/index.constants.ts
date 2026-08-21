@@ -31,14 +31,14 @@ export const ACTION_ARM_LEFT_TOGGLE = 'BoxBot-action-arm-left-toggle'
 /** 右腕上げ下げ action の発火イベント名 */
 export const ACTION_ARM_RIGHT_TOGGLE = 'BoxBot-action-arm-right-toggle'
 
-/** ホップ(ジャンプ)の継続時間(秒) */
-export const HOP_DUR = 0.55
-/** ホップの最大上昇量(world) */
-export const HOP_H = 0.55
-/** ホップ中の縦方向のスクイッシュ量 */
-export const HOP_SQUASH_Y = 0.08
-/** ホップ中の横方向のスクイッシュ量 */
-export const HOP_SQUASH_X = 0.05
+/** ジャンプの継続時間(秒) */
+export const JUMP_DUR = 0.55
+/** ジャンプの最大上昇量(world) */
+export const JUMP_H = 0.55
+/** ジャンプ中の縦方向のスクイッシュ量 */
+export const JUMP_SQUASH_Y = 0.08
+/** ジャンプ中の横方向のスクイッシュ量 */
+export const JUMP_SQUASH_X = 0.05
 
 /** leftUp = true(上げ)時の左腕角度(z 軸回転) */
 export const ARM_UP_ANGLE = -2.25

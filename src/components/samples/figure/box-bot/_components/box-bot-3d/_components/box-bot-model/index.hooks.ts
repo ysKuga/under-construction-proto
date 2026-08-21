@@ -15,10 +15,6 @@ import {
   DEFAULTS,
   HEAD_FRONT_MARGIN,
   HEAD_GAP,
-  HOP_DUR,
-  HOP_H,
-  HOP_SQUASH_X,
-  HOP_SQUASH_Y,
   SHOULDER_Y_OFFSET,
 } from './index.constants'
 import type {
@@ -49,10 +45,9 @@ export function useBoxBotModel(
     leg: { ...DEFAULTS.leg, ...opts.leg },
   }
 
-  const root = React.useRef<Group>(null)
-  const spin = React.useRef<Group>(null)
-  const leftArm = React.useRef<Group>(null)
-  const rightArm = React.useRef<Group>(null)
+  const spinRef = React.useRef<Group>(null)
+  const leftArmRef = React.useRef<Group>(null)
+  const rightArmRef = React.useRef<Group>(null)
 
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
@@ -67,7 +62,7 @@ export function useBoxBotModel(
       }
     : {}
 
-  const { hopRef, startHop } = useJumpAction(props)
+  const { jumpRef, rootRef, startJump } = useJumpAction(props)
   const { arm } = useArmAction(props)
 
   // arm.left/right.up 状態に応じた腕の目標角度
@@ -79,48 +74,30 @@ export function useBoxBotModel(
   // 補間より先に目標角度へジャンプしてしまう(瞬間切り替わりの原因)ため、
   // 初期表示だけここで済ませ、以降は useFrame のみで更新する
   React.useLayoutEffect(() => {
-    if (leftArm.current) leftArm.current.rotation.z = leftArmAngle
-    if (rightArm.current) rightArm.current.rotation.z = rightArmAngle
+    if (leftArmRef.current) leftArmRef.current.rotation.z = leftArmAngle
+    if (rightArmRef.current) rightArmRef.current.rotation.z = rightArmAngle
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 自動回転・腕の角度・ホップ(ジャンプ)アニメーションを毎フレーム更新
+  // 自動回転・腕の角度を毎フレーム更新
   useFrame((_, dt) => {
-    if (autoRotate && spin.current) spin.current.rotation.y += rotateSpeed * dt
+    if (autoRotate && spinRef.current)
+      spinRef.current.rotation.y += rotateSpeed * dt
 
-    if (leftArm.current)
-      leftArm.current.rotation.z = approach(
-        leftArm.current.rotation.z,
+    if (leftArmRef.current)
+      leftArmRef.current.rotation.z = approach(
+        leftArmRef.current.rotation.z,
         leftArmAngle,
         ARM_APPROACH_RATE,
         dt,
       )
-    if (rightArm.current)
-      rightArm.current.rotation.z = approach(
-        rightArm.current.rotation.z,
+    if (rightArmRef.current)
+      rightArmRef.current.rotation.z = approach(
+        rightArmRef.current.rotation.z,
         rightArmAngle,
         ARM_APPROACH_RATE,
         dt,
       )
-
-    if (root.current) {
-      let sx = 1,
-        sy = 1,
-        y = 0
-      if (hopRef.current >= 0) {
-        hopRef.current += dt
-        if (hopRef.current >= HOP_DUR) {
-          hopRef.current = -1
-        } else {
-          const p = hopRef.current / HOP_DUR
-          y = Math.sin(p * Math.PI) * HOP_H
-          sy = 1 + HOP_SQUASH_Y * Math.sin(p * Math.PI * 2)
-          sx = 1 - HOP_SQUASH_X * Math.sin(p * Math.PI * 2)
-        }
-      }
-      root.current.position.y = y
-      root.current.scale.set(sx, sy, sx)
-    }
   })
 
   const bodyTop = cfg.body.h / 2
@@ -136,17 +113,17 @@ export function useBoxBotModel(
     cfg,
     headFront,
     headY,
-    hopRef,
     hover,
     interactive,
-    leftArm,
+    jumpRef,
+    leftArmRef,
     legX,
     legY,
-    rightArm,
-    root,
+    rightArmRef,
+    rootRef,
     shoulderX,
     shoulderY,
-    spin,
-    startHop,
+    spinRef,
+    startJump,
   }
 }
