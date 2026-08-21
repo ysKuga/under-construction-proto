@@ -33,7 +33,7 @@ export function useBoxBotModel({
   interactive = true,
   rotateSpeed = 0,
   ...opts
-}: BoxBotModelProps): UseBoxBotModelReturn {
+}: Omit<BoxBotModelProps, 'eventTarget'>): UseBoxBotModelReturn {
   const cfg: BoxBot3DConfig = {
     ...DEFAULTS,
     ...opts,

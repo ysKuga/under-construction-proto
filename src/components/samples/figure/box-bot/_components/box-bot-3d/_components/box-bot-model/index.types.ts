@@ -95,6 +95,12 @@ export interface BoxBot3DConfig {
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /** 自動回転の有無 */
   autoRotate?: boolean
+  /**
+   * action イベント発行/購読に使う EventTarget
+   *
+   * - 省略時は instance 固有のものを内部生成
+   */
+  eventTarget?: EventTarget
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
   /** 自動回転の速度 */
