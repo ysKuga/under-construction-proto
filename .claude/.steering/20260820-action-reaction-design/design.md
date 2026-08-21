@@ -20,6 +20,7 @@ action / reaction を定義し、event listener によりアクションを実�
 - [ ] action 定義: ジャンプ
   - [ ] 既存クリックジャンプ (box-bot 3D `startHop`) はそのまま維持、event listener 経由の発火経路を追加
 - [ ] reaction 定義: こける (転倒の効果を受けて抵抗に失敗)
+- [ ] reaction 定義: 被ダメージモーション (仮称、要 naming)
 - [ ] action/reaction を event listener 経由で実行する仕組みの設計 (`useEventListener`/`useEventDispatcher` の活用方法)
 
 ## 決定事項

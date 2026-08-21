@@ -95,6 +95,12 @@ export interface BoxBot3DConfig {
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /** 自動回転の有無 */
   autoRotate?: boolean
+  /**
+   * action イベント発行/購読に使う EventTarget
+   *
+   * - 省略時は instance 固有のものを内部生成
+   */
+  eventTarget?: EventTarget
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
   /** 自動回転の速度 */
@@ -114,6 +120,12 @@ export interface UseBoxBotModelReturn {
   headFront: number
   /** 頭の中心 y 座標 */
   headY: number
+  /**
+   * ホップ(ジャンプ)進行度の ref
+   *
+   * - -1: 非ジャンプ中、0以上: 経過秒数
+   */
+  hopRef: RefObject<number>
   /** ホバー時のカーソル制御ハンドラ */
   hover: Handlers
   /** インタラクション有効か */

@@ -2,10 +2,19 @@
 
 import { Ink } from './_components/ink'
 import { SketchBox } from './_components/sketch-box'
+import { BoxBotEventProvider } from './index.contexts'
 import { useBoxBotModel } from './index.hooks'
 import type { BoxBotModelProps } from './index.types'
 
-export function BoxBotModel(props: BoxBotModelProps) {
+export function BoxBotModel({ eventTarget, ...props }: BoxBotModelProps) {
+  return (
+    <BoxBotEventProvider eventTarget={eventTarget}>
+      <BoxBotModelInner {...props} />
+    </BoxBotEventProvider>
+  )
+}
+
+function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
   const {
     cfg,
     headFront,
@@ -30,14 +39,14 @@ export function BoxBotModel(props: BoxBotModelProps) {
       <group ref={spin}>
         <SketchBox
           cfg={cfg}
-          handlers={interactive ? { onClick: startHop, ...hover } : undefined}
+          handlers={{ onClick: startHop, ...hover }}
           position={[0, 0, 0]}
           seed={cfg.seed + 1}
           size={[cfg.body.w, cfg.body.h, cfg.body.d]}
         />
         <SketchBox
           cfg={cfg}
-          handlers={interactive ? { onClick: startHop, ...hover } : undefined}
+          handlers={{ onClick: startHop, ...hover }}
           position={[0, headY, 0]}
           seed={cfg.seed + 2}
           size={[cfg.head.w, cfg.head.h, cfg.head.d]}
