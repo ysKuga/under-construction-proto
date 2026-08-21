@@ -1,5 +1,11 @@
 # Next.js App Application
 
+## Samples
+
+手描き風ボックスロボット(2D/3D)。詳細は [src/components/samples/figure/box-bot/](src/components/samples/figure/box-bot/README.md) 参照。
+
+![box-bot](.github/assets/box-bot.png)
+
 ## Get Started
 
 Prerequisites:
