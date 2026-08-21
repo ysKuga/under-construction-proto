@@ -3,14 +3,14 @@ import * as React from 'react'
 
 import { useEventDispatcher, useEventListener } from '@/hooks/event'
 
-import { JUMP_EVENT_TYPE } from '../index.constants'
+import { ACTION_JUMP } from '../index.constants'
 import { useBoxBotEventTarget } from '../index.contexts'
 import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
 
 /**
  * ジャンプ action の発火・購読
  *
- * - クリック(`startHop`)は `BoxBot-jump` イベントを dispatch するだけに徹し、\
+ * - クリック(`startHop`)は `BoxBot-action-jump` イベントを dispatch するだけに徹し、\
  *   実際の実行(`hopRef` の起動)は `useEventListener` 側で行う。外部からの\
  *   `useEventListener` 経由の発火も同じ経路を通るため、実行判定が一本化される
  * - `interactive` による制御も実行側(`jumpAction`)で行う。`onClick` 自体は\
@@ -32,11 +32,11 @@ export const useJumpAction = (
   }
 
   const dispatch = useEventDispatcher(eventTarget)
-  useEventListener(JUMP_EVENT_TYPE, jumpAction, { target: eventTarget })
+  useEventListener(ACTION_JUMP, jumpAction, { target: eventTarget })
 
   const startHop = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
-    void dispatch(new Event(JUMP_EVENT_TYPE))
+    void dispatch(new Event(ACTION_JUMP))
   }
 
   return { hopRef, startHop }

@@ -1,12 +1,12 @@
 'use client'
 
 import { useFrame } from '@react-three/fiber'
-import type { ThreeEvent } from '@react-three/fiber'
 import * as React from 'react'
 import type { Group } from 'three'
 
 import { approach } from '../../_lib/approach'
 
+import { useArmAction } from './_action-hooks/arm-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
 import {
   ARM_APPROACH_RATE,
@@ -54,9 +54,6 @@ export function useBoxBotModel(
   const leftArm = React.useRef<Group>(null)
   const rightArm = React.useRef<Group>(null)
 
-  const [leftUp, setLeftUp] = React.useState(false)
-  const [rightUp, setRightUp] = React.useState(false)
-
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
   }
@@ -71,19 +68,11 @@ export function useBoxBotModel(
     : {}
 
   const { hopRef, startHop } = useJumpAction(props)
+  const { arm } = useArmAction(props)
 
-  const toggleLeft = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation()
-    setLeftUp((v) => !v)
-  }
-  const toggleRight = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation()
-    setRightUp((v) => !v)
-  }
-
-  // leftUp/rightUp 状態に応じた腕の目標角度
-  const leftArmAngle = leftUp ? ARM_UP_ANGLE : cfg.arm.leftAngle
-  const rightArmAngle = rightUp ? cfg.arm.rightAngle : ARM_DOWN_ANGLE
+  // arm.left/right.up 状態に応じた腕の目標角度
+  const leftArmAngle = arm.left.up ? ARM_UP_ANGLE : cfg.arm.leftAngle
+  const rightArmAngle = arm.right.up ? cfg.arm.rightAngle : ARM_DOWN_ANGLE
 
   // マウント時のみ初期角度を反映する。rotation を JSX prop として渡すと
   // toggle のたびに再レンダリングで直接上書きされ、useFrame の approach による
@@ -143,6 +132,7 @@ export function useBoxBotModel(
   const legX = (cfg.body.w / 2) * cfg.leg.gap
 
   return {
+    arm,
     cfg,
     headFront,
     headY,
@@ -158,7 +148,5 @@ export function useBoxBotModel(
     shoulderY,
     spin,
     startHop,
-    toggleLeft,
-    toggleRight,
   }
 }
