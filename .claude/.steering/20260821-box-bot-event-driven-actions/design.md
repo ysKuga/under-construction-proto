@@ -24,7 +24,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - [ ] body などへの onClick と jump 処理とを分離
   - [ ] body への onClick は click-body イベント
   - [ ] click-body イベントに jump-action が紐づいている場合アクションなど
-- [ ] `useFrame` の分割: 現状 `index.hooks.ts` の単一 `useFrame` 内に autoRotate(spin 回転)・腕角度補間(leftArm/rightArm)・ホップ(root 位置・スケール)の3関心が同居している。各 action hook(`useJumpAction`/`useArmToggleAction`)側へそれぞれの `useFrame` を持たせ、「`useEventListener` でイベント受信→ action 実行(state/ref 更新)→ 同じ hook 内の `useFrame` で可視化」まで1 hook に閉じ込める案を検討中
+- [ ] `useFrame` の分割: 現状 `index.hooks.ts` の単一 `useFrame` 内に autoRotate(spin 回転)・腕角度補間(leftArm/rightArm)・ホップ(root 位置・スケール)の3関心が同居している。各 action hook(`useJumpAction`/`useArmAction`)側へそれぞれの `useFrame` を持たせ、「`useEventListener` でイベント受信→ action 実行(state/ref 更新)→ 同じ hook 内の `useFrame` で可視化」まで1 hook に閉じ込める案を検討中
   - r3f の `useFrame` は複数箇所で呼び出し可能(グローバルループへ個別登録される仕組み)なので機構的には分割可能
   - jump 側は root ref のみ渡せば完結しやすい(hopRef は hook 内で完結済み)
   - arm-toggle 側は `leftArmAngle`/`rightArmAngle` が `cfg.arm.leftAngle`/`rightAngle`(index.hooks.ts でマージ済みの cfg 由来)にも依存するため、ref だけでなく cfg 値も渡す必要があり結合がやや増える
@@ -37,8 +37,11 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - action 用の EventTarget は `index.contexts.tsx`(`BoxBotEventProvider`)が instance 固有に生成・配布する。`BoxBotModel` を outer(Provider 設置)/inner(既存ロジック呼出)の2コンポーネントに分割し、`useBoxBotModel` 内から `useContext` で取得できるようにした
   - 当初 ref に格納する設計を検討したが、React Compiler の `react-hooks/refs` ルール(ref の `.current` をレンダー中に読んで他の hook/JSX へ渡す操作を一律禁止)に抵触したため、`useState` の lazy initializer(setter 未使用、実質 const)に変更した
 - action 実装の置き場所として `_action-hooks/`(`_hooks/` と区別し action であることを明記)を新設。box-bot は複数 action(歩く・ジャンプ・将来的な reaction 等)を前提とするため、jump 1個の段階から専用の置き場を用意した。1 action = 1 ファイル(`use-jump-action.ts`)の粒度は `time-control-03` の `_event-listeners/use-xxx-event-listener/` パターンを参考にしたが、box-bot は現状 action が少ないため、time-control-03 のような集約コンポーネント(`ScopeEventListeners` 相当)はまだ導入していない
-- `toggleLeft`/`toggleRight` は jump とは異なり `_action-hooks/use-arm-toggle-action.ts` 1ファイルに統合した(jump 型の「1 action = 1 ファイル」から外れる判断)。左右で完全対称なロジック(`interactive` gate・event dispatch・state toggle)のため、ファイル内のローカル hook `useArmToggle` へ共通化、`useArmToggleAction` から `left`/`right` それぞれのイベント名で2回呼び出す形にした。歩く action 等、将来 arm に関わる action が具体化するまでは、これ以上の抽象化(汎用 side 概念の外部公開等)は行わない
-- 型定義は `.claude/rules/react/hooks.md` の「部品 hook の戻り値型は個別定義せず `index.types.ts` の `Use<ComponentName>Return` から `Pick` で抽出する」に従い、`UseBoxBotModelReturn` へ `leftUp`/`rightUp` を追加した上で `Pick` する形にした(専用の `UseToggleLeftActionReturn` 等は作らない)
+- `toggleLeft`/`toggleRight` は jump とは異なり `_action-hooks/arm-action/` ディレクトリへ統合した(jump 型の「1 action = 1 ファイル」から外れる判断)。左右で完全対称なロジックは `_hooks/use-arm-toggle.ts`(`useArmToggle`)へ共通化し、`index.ts`(`useArmAction`、ベース hook)から `left`/`right` それぞれのイベント名で2回呼び出す形にした
+  - 「上げ下げ(toggle)」以外の腕の動作(将来的な「振る」等)を見越し、公開 hook 名は `useArmToggleAction` でなく `useArmAction`(toggle を含まない)にした。中身が toggle 実装のみである点は変わらないが、名前からは arm 全般の action を扱う hook として読める
+  - ディレクトリ化した理由: 上記の名前変更で「`useArmAction` = arm の action 全般」という抽象度になったため、内部実装(toggle)は同名ファイルに同居させず部品 hook として分離。`.claude/rules/react/hooks.md` の「構成分割」パターン(`_hooks/` 配下に関心事ごとの部品 hook、1 hook = 1 ファイルでファイル名と hook 名を一致させる)に倣い `_hooks/use-arm-toggle.ts` とした。歩く action 等、将来 arm に関わる action が具体化した際にファイルを追加しやすくする狙い
+  - 戻り値もフラットな `leftUp`/`toggleLeft`/`rightUp`/`toggleRight` から `arm: { left: ArmSideState, right: ArmSideState }`(`ArmSideState = { up, toggle }`)へオブジェクト化した。左右で同じ形の状態を持つことが型・呼び出し側どちらからも見えやすくなる
+- 型定義は `.claude/rules/react/hooks.md` の「部品 hook の戻り値型は個別定義せず `index.types.ts` の `Use<ComponentName>Return` から `Pick` で抽出する」に従い、`UseBoxBotModelReturn` へ `arm: { left: ArmSideState, right: ArmSideState }` を追加した上で `Pick` する形にした
 
 ## 懸念・リスク
 

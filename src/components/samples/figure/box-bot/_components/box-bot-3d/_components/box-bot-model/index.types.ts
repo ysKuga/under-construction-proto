@@ -2,6 +2,13 @@ import type { ThreeEvent } from '@react-three/fiber'
 import type { RefObject } from 'react'
 import type { Group } from 'three'
 
+export interface ArmSideState {
+  /** クリックで切替(現状は上げ下げ toggle のみ) */
+  toggle: (e: ThreeEvent<MouseEvent>) => void
+  /** 上がっているか */
+  up: boolean
+}
+
 export interface BoxBot3DConfig {
   /** 腕の設定 */
   arm: {
@@ -114,6 +121,13 @@ export type Handlers = {
 }
 
 export interface UseBoxBotModelReturn {
+  /** 左右の腕の状態・操作 */
+  arm: {
+    /** 左腕 */
+    left: ArmSideState
+    /** 右腕 */
+    right: ArmSideState
+  }
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
   /** 頭の前面 z 座標 */
@@ -148,8 +162,4 @@ export interface UseBoxBotModelReturn {
   spin: RefObject<Group | null>
   /** 腕/頭/胴クリックでホップ開始 */
   startHop: (e: ThreeEvent<MouseEvent>) => void
-  /** 左腕クリックで上げ下げ切替 */
-  toggleLeft: (e: ThreeEvent<MouseEvent>) => void
-  /** 右腕クリックで上げ下げ切替 */
-  toggleRight: (e: ThreeEvent<MouseEvent>) => void
 }

@@ -16,11 +16,11 @@ export function BoxBotModel({ eventTarget, ...props }: BoxBotModelProps) {
 
 function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
   const {
+    arm,
     cfg,
     headFront,
     headY,
     hover,
-    interactive,
     leftArm,
     legX,
     legY,
@@ -30,8 +30,6 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     shoulderY,
     spin,
     startHop,
-    toggleLeft,
-    toggleRight,
   } = useBoxBotModel(props)
 
   return (
@@ -54,9 +52,10 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
 
         {/* 腕(肩を支点に回転。クリックで上げ下げ) */}
         <group
+          onClick={arm.left.toggle}
           position={[-shoulderX, shoulderY, 0]}
           ref={leftArm}
-          {...(interactive ? { onClick: toggleLeft, ...hover } : {})}
+          {...hover}
         >
           <SketchBox
             cfg={cfg}
@@ -66,9 +65,10 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
           />
         </group>
         <group
+          onClick={arm.right.toggle}
           position={[shoulderX, shoulderY, 0]}
           ref={rightArm}
-          {...(interactive ? { onClick: toggleRight, ...hover } : {})}
+          {...hover}
         >
           <SketchBox
             cfg={cfg}
