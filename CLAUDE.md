@@ -130,6 +130,10 @@ Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存�
 
 @.claude/rules/package.md
 
+## issue 紐づけ
+
+@.claude/rules/issue-linking.md
+
 ## コミット
 
 @.claude/rules/commit.md
