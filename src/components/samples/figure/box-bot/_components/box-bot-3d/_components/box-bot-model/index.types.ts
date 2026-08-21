@@ -3,37 +3,101 @@ import type { RefObject } from 'react'
 import type { Group } from 'three'
 
 export interface BoxBot3DConfig {
+  /** 腕の設定 */
   arm: {
+    /** 奥行き */
     d: number
+    /**
+     * 左腕の角度(z 軸回転)
+     *
+     * - leftUp = false(下げ)時の値
+     */
     leftAngle: number
+    /** 左腕の長さ */
     leftLen: number
+    /**
+     * 右腕の角度(z 軸回転)
+     *
+     * - rightUp = true(上げ)時の値
+     */
     rightAngle: number
+    /** 右腕の長さ */
     rightLen: number
+    /** 幅 */
     w: number
   }
-  body: { d: number; h: number; w: number }
-  eye: { d: number; h: number; offset: number; w: number }
-  head: { d: number; h: number; w: number }
+  /** 胴体の設定 */
+  body: {
+    /** 奥行き */
+    d: number
+    /** 高さ */
+    h: number
+    /** 幅 */
+    w: number
+  }
+  /** 目の設定 */
+  eye: {
+    /** 奥行き */
+    d: number
+    /** 高さ */
+    h: number
+    /** 中心からの左右オフセット */
+    offset: number
+    /** 幅 */
+    w: number
+  }
+  /** 頭の設定 */
+  head: {
+    /** 奥行き */
+    d: number
+    /** 高さ */
+    h: number
+    /** 幅 */
+    w: number
+  }
+  /** 線(輪郭・目・口)の色 */
   ink: string
-  leg: { d: number; gap: number; h: number; w: number }
+  /** 脚の設定 */
+  leg: {
+    /** 奥行き */
+    d: number
+    /** 左右の脚の間隔比率(胴幅に対する倍率) */
+    gap: number
+    /** 高さ */
+    h: number
+    /** 幅 */
+    w: number
+  }
   /** 辺の太さ(px) */
   lineWidth: number
   /** 反転ハルのシルエット縁取り */
   outline: boolean
   /** 縁取りの太さ(world) */
   outlineWidth: number
+  /** 箱本体(紙面)の色 */
   paper: string
   /** ジッターの固定シード */
   seed: number
-  /** 手描きジッター振幅(world)。0 = 直線 */
+  /**
+   * 手描きジッター振幅(world)
+   *
+   * - 0 = 直線
+   */
   sketch: number
-  /** 分割密度(1あたりの分割数)。大きいほど細かく震える */
+  /**
+   * 分割密度(1あたりの分割数)
+   *
+   * - 大きいほど細かく震える
+   */
   sketchDetail: number
 }
 
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
+  /** 自動回転の有無 */
   autoRotate?: boolean
+  /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
+  /** 自動回転の速度 */
   rotateSpeed?: number
 }
 
