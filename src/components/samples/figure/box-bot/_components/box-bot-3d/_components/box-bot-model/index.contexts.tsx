@@ -5,16 +5,16 @@ import type { PropsWithChildren } from 'react'
 
 import { createRequiredContext } from '@/utils/create-required-context'
 
-const { RequiredContext, useRequiredContext } = createRequiredContext<
-  React.RefObject<EventTarget>
->('useBoxBotEventTarget should be used within <BoxBotEventProvider>')
+const { RequiredContext, useRequiredContext } =
+  createRequiredContext<EventTarget>(
+    'useBoxBotEventTarget should be used within <BoxBotEventProvider>',
+  )
 
 /** box-bot-model の action イベント用 EventTarget を配布する Context */
 export const BoxBotEventContext = RequiredContext
 
-/** box-bot-model の action イベント発行/購読に使う EventTarget の ref を取得する */
-export const useBoxBotEventTarget = (): React.RefObject<EventTarget> =>
-  useRequiredContext()
+/** box-bot-model の action イベント発行/購読に使う EventTarget を取得する */
+export const useBoxBotEventTarget = (): EventTarget => useRequiredContext()
 
 type BoxBotEventProviderProps = PropsWithChildren<{
   /** 外部から共有する EventTarget。省略時は instance 固有のものを内部生成 */
@@ -22,23 +22,22 @@ type BoxBotEventProviderProps = PropsWithChildren<{
 }>
 
 /**
- * instance 固有(または外部共有)の EventTarget を ref として配布する
+ * instance 固有(または外部共有)の EventTarget を配布する
  *
- * - ref に格納することで、レンダリングに関与しない値として扱う(useState は使わない)
+ * - lazy initializer で 1 度だけ生成する。ref の `.current` をレンダー中に読んで\
+ *   Context 値へ渡す形は React Compiler の `react-hooks/refs` ルールに抵触するため、\
+ *   `useState` の setter を使わない形(実質 const)で代替する
  */
 export const BoxBotEventProvider = ({
   children,
   eventTarget: eventTargetProp,
 }: BoxBotEventProviderProps) => {
-  const eventTargetRef = React.useRef<EventTarget | null>(null)
-  if (eventTargetRef.current === null) {
-    eventTargetRef.current = eventTargetProp ?? new EventTarget()
-  }
+  const [eventTarget] = React.useState<EventTarget>(
+    () => eventTargetProp ?? new EventTarget(),
+  )
 
   return (
-    <BoxBotEventContext.Provider
-      value={eventTargetRef as React.RefObject<EventTarget>}
-    >
+    <BoxBotEventContext.Provider value={eventTarget}>
       {children}
     </BoxBotEventContext.Provider>
   )

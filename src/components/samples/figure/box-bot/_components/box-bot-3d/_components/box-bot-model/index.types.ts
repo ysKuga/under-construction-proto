@@ -120,6 +120,12 @@ export interface UseBoxBotModelReturn {
   headFront: number
   /** 頭の中心 y 座標 */
   headY: number
+  /**
+   * ホップ(ジャンプ)進行度の ref
+   *
+   * - -1: 非ジャンプ中、0以上: 経過秒数
+   */
+  hop: RefObject<number>
   /** ホバー時のカーソル制御ハンドラ */
   hover: Handlers
   /** インタラクション有効か */

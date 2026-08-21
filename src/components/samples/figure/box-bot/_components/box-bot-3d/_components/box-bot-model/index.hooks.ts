@@ -7,6 +7,7 @@ import type { Group } from 'three'
 
 import { approach } from '../../_lib/approach'
 
+import { useJumpAction } from './_action-hooks/use-jump-action'
 import {
   ARM_APPROACH_RATE,
   ARM_DOWN_ANGLE,
@@ -28,12 +29,16 @@ import type {
 } from './index.types'
 
 /** BoxBotModel のロジック(設定マージ・ref・アニメーション制御) */
-export function useBoxBotModel({
-  autoRotate = false,
-  interactive = true,
-  rotateSpeed = 0,
-  ...opts
-}: Omit<BoxBotModelProps, 'eventTarget'>): UseBoxBotModelReturn {
+export function useBoxBotModel(
+  props: Omit<BoxBotModelProps, 'eventTarget'>,
+): UseBoxBotModelReturn {
+  const {
+    autoRotate = false,
+    interactive = true,
+    rotateSpeed = 0,
+    ...opts
+  } = props
+
   const cfg: BoxBot3DConfig = {
     ...DEFAULTS,
     ...opts,
@@ -48,7 +53,6 @@ export function useBoxBotModel({
   const spin = React.useRef<Group>(null)
   const leftArm = React.useRef<Group>(null)
   const rightArm = React.useRef<Group>(null)
-  const hop = React.useRef(-1)
 
   const [leftUp, setLeftUp] = React.useState(false)
   const [rightUp, setRightUp] = React.useState(false)
@@ -66,10 +70,8 @@ export function useBoxBotModel({
       }
     : {}
 
-  const startHop = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation()
-    if (hop.current < 0) hop.current = 0
-  }
+  const { hop: hopRef, startHop } = useJumpAction(props)
+
   const toggleLeft = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
     setLeftUp((v) => !v)
@@ -116,12 +118,12 @@ export function useBoxBotModel({
       let sx = 1,
         sy = 1,
         y = 0
-      if (hop.current >= 0) {
-        hop.current += dt
-        if (hop.current >= HOP_DUR) {
-          hop.current = -1
+      if (hopRef.current >= 0) {
+        hopRef.current += dt
+        if (hopRef.current >= HOP_DUR) {
+          hopRef.current = -1
         } else {
-          const p = hop.current / HOP_DUR
+          const p = hopRef.current / HOP_DUR
           y = Math.sin(p * Math.PI) * HOP_H
           sy = 1 + HOP_SQUASH_Y * Math.sin(p * Math.PI * 2)
           sx = 1 - HOP_SQUASH_X * Math.sin(p * Math.PI * 2)
@@ -144,6 +146,7 @@ export function useBoxBotModel({
     cfg,
     headFront,
     headY,
+    hop: hopRef,
     hover,
     interactive,
     leftArm,

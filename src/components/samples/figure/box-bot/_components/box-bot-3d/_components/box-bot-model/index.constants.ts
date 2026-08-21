@@ -23,6 +23,9 @@ export const DEFAULTS: BoxBot3DConfig = {
   sketchDetail: 7,
 }
 
+/** ジャンプ action の発火イベント名。クリックと useEventListener 両経路から同じ action を実行するための scope prefix 付きイベント名 */
+export const JUMP_EVENT_TYPE = 'BoxBot-jump'
+
 /** ホップ(ジャンプ)の継続時間(秒) */
 export const HOP_DUR = 0.55
 /** ホップの最大上昇量(world) */

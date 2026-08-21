@@ -39,14 +39,14 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
       <group ref={spin}>
         <SketchBox
           cfg={cfg}
-          handlers={interactive ? { onClick: startHop, ...hover } : undefined}
+          handlers={{ onClick: startHop, ...hover }}
           position={[0, 0, 0]}
           seed={cfg.seed + 1}
           size={[cfg.body.w, cfg.body.h, cfg.body.d]}
         />
         <SketchBox
           cfg={cfg}
-          handlers={interactive ? { onClick: startHop, ...hover } : undefined}
+          handlers={{ onClick: startHop, ...hover }}
           position={[0, headY, 0]}
           seed={cfg.seed + 2}
           size={[cfg.head.w, cfg.head.h, cfg.head.d]}
