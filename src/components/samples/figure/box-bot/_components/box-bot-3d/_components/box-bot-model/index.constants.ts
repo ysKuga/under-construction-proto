@@ -24,12 +24,12 @@ export const DEFAULTS: BoxBot3DConfig = {
 }
 
 /** ジャンプ action の発火イベント名。クリックと useEventListener 両経路から同じ action を実行するための scope prefix 付きイベント名 */
-export const JUMP_EVENT_TYPE = 'BoxBot-jump'
+export const ACTION_JUMP = 'BoxBot-action-jump'
 
 /** 左腕上げ下げ action の発火イベント名 */
-export const TOGGLE_LEFT_EVENT_TYPE = 'BoxBot-toggle-left'
+export const ACTION_ARM_LEFT_TOGGLE = 'BoxBot-action-arm-left-toggle'
 /** 右腕上げ下げ action の発火イベント名 */
-export const TOGGLE_RIGHT_EVENT_TYPE = 'BoxBot-toggle-right'
+export const ACTION_ARM_RIGHT_TOGGLE = 'BoxBot-action-arm-right-toggle'
 
 /** ホップ(ジャンプ)の継続時間(秒) */
 export const HOP_DUR = 0.55
