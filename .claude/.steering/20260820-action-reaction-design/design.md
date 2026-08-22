@@ -27,6 +27,9 @@ action / reaction を定義し、event listener によりアクションを実�
 
 <!-- 検討・決定した内容のログ -->
 
+- action定義: 歩く → `walking: boolean`(歩いている/いないの状態)として定義。見た目の動き(脚の上下・前後スイング・body の bobbing 等)はこの状態と分離し、別 action(reaction 含む)の組合せとして実装する方針。「姿勢」概念との厳密な対応整理は本決定では行わず、`walking` state を先行実装した上で挙動検討フェーズへ進む
+  - 実装(state のみ、挙動なし)は `20260821-box-bot-event-driven-actions` 側で着手。jump/arm と同じ event listener 経由 toggle パターン(`useWalkingAction`)を踏襲
+
 ## 懸念・リスク
 
 - action-phase.md の5段階モデル (Intent/PreAction/Execution/Outcome/Resolution) との対応が未整理。reaction (こける) をどの段階の処理として位置づけるか要検討。

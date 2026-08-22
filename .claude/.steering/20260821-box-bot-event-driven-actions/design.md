@@ -32,7 +32,9 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
     ```
 
   - eventTarget の生成・共有責務は既存の `eventTarget` prop 設計のまま呼び出し側が持つ
-- [ ] 歩く/こける/被ダメージモーション(仮称、要 naming)も jump と同じパターンで event listener 化。定義(`action-reaction-design` 側)完了後に着手
+- [x] 歩く: `walking: boolean`(状態)を jump/arm と同じ event listener toggle パターンで実装。`useWalkingAction`(`ACTION_WALKING_TOGGLE`)。この段階では見た目の挙動(脚の上下・前後スイング・bobbing 等)は実装しない。定義自体は `action-reaction-design` 側の決定事項を参照
+- [ ] 歩く挙動: `walking` state を受けて実際に動かす実装。上下(脚 y position 逆位相)/前後スイング(脚 x軸回転、arm と同型)/bobbing(body 全体上下) を個別 action として分離し、`walking` 側がそれらを組合せる形を検討
+- [ ] こける/被ダメージモーション(仮称、要 naming)も jump と同じパターンで event listener 化。定義(`action-reaction-design` 側)完了後に着手
 
 ## 検討
 
