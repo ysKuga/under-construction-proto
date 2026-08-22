@@ -4,7 +4,6 @@ import * as React from 'react'
 import { StyledDiv } from '@/components/samples/_parts/_base/part-base'
 
 import { LEG_CYCLE_SEC } from './_components/box-bot-3d/_components/box-bot-model/index.constants'
-import type { LegMotion } from './_components/box-bot-3d/_components/box-bot-model/index.types'
 import { useBoxBotActionDispatcher } from './_components/box-bot-3d/_components/box-bot-model/use-box-bot-action-dispatcher'
 
 import { BoxBot as StoryComponent } from '.'
@@ -301,48 +300,44 @@ export const Circle: StoryObj<{
 type WalkingArgs = {
   /** body 全体の bobbing を有効にするか */
   bodyBobbing?: boolean
-  /** 脚アニメーション(bob/swing)の周期(秒) */
+  /** 脚アニメーション(walking/marching 共通)の周期(秒) */
   legCycle?: number
-  /** 脚の動き方 */
-  legMotion?: LegMotion
 }
 
 /**
- * walking action の挙動確認
+ * walking(脚 swing)・marching(脚 bob)action の挙動確認
  *
- * - 脚の動き方(none/bob/swing)・周期と body bobbing の有効/無効を組合せて確認できる。\
- *   body bobbing は脚の実際の動きから高さを計算するため、常に連動する
+ * - walking/marching それぞれ独立した toggle。周期と body bobbing の有効/無効を\
+ *   組合せて確認できる。body bobbing は脚の実際の動きから高さを計算するため、常に連動する
  * - `eventTarget` を story 側で生成・共有し、`useBoxBotActionDispatcher` 経由でボタンから\
- *   walking state を toggle する
+ *   walking/marching state を toggle する
  */
 export const Walking: StoryObj<WalkingArgs> = {
   args: {
     bodyBobbing: true,
     legCycle: LEG_CYCLE_SEC,
-    legMotion: 'bob',
   },
   argTypes: {
     bodyBobbing: { control: 'boolean' },
     legCycle: { control: { max: 2, min: 0.1, step: 0.05, type: 'range' } },
-    legMotion: {
-      control: { type: 'radio' },
-      options: ['none', 'bob', 'swing'],
-    },
   },
   render: (args) => {
     const [eventTarget] = React.useState(() => new EventTarget())
-    const { walkingToggle } = useBoxBotActionDispatcher(eventTarget)
+    const { marchingToggle, walkingToggle } =
+      useBoxBotActionDispatcher(eventTarget)
 
     return (
       <div>
         <button onClick={() => walkingToggle()} type="button">
           Walking Toggle
         </button>
+        <button onClick={() => marchingToggle()} type="button">
+          Marching Toggle
+        </button>
         <StoryComponent
           bodyBobbing={args.bodyBobbing}
           eventTarget={eventTarget}
           legCycle={args.legCycle}
-          legMotion={args.legMotion}
           mode="3d"
         />
       </div>
