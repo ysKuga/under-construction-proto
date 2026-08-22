@@ -30,6 +30,8 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - jump 側は root ref のみ渡せば完結しやすい(hopRef は hook 内で完結済み)
   - arm-toggle 側は `leftArmAngle`/`rightArmAngle` が `cfg.arm.leftAngle`/`rightAngle`(index.hooks.ts でマージ済みの cfg 由来)にも依存するため、ref だけでなく cfg 値も渡す必要があり結合がやや増える
   - マウント時初期角度反映(`useLayoutEffect`)をどちらに置くかも要判断
+- 装備などをマウント可能にする仕組み(直近の実装計画は想定せず、将来アイディアとして記録)
+  - 装備に限らず腕・脚などのパーツ自体をマウント可能な実装へ変更し、破壊時の分離などに対応できるようにする案
 
 ## 決定事項
 
@@ -54,3 +56,8 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - r3f のクリック処理(Object3D 単位の raycast)と DOM `EventTarget` ベースの `useEventListener` は仕組みが異なる。両者をどう繋ぐか(ブリッジの置き場所・イベント名の scope prefix 等)の設計が必要。
 - 命名: 当初 `hopRef`/`startHop`/`HOP_DUR` 等「hop」と「jump」(action 名・イベント名)が混在していたため、`jumpRef`/`startJump`/`JUMP_DUR` へ jump に統一した
 - `action-reaction-design` steering との役割分担: 概念検討(歩く/こける含む)はそちらに残し、本 steering は「ジャンプの event listener 化」という実装に限定する。将来 歩く/こける を実装する際は、本 steering で得た知見(ブリッジ設計)を再利用できるか要確認。
+- 装備・パーツのマウント化(検討section参照)について
+  - 現状 `box-bot-model` は `SketchBox` を JSX 内に直接配置する構造。パーツを「マウント可能」にするには、パーツをコンポーネント境界(独立した Object3D の子)として切り出す再設計が必要になる
+  - 今回導入した `BoxBotRefsProvider` は `rootRef`/`spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の固定5つを前提にした設計。マウントパーツが動的に増減する構造になると、固定 ref でなく ref のマップ/配列的な管理への切替が必要になり、現状の設計と衝突する可能性がある
+  - 「破壊時の分離」は Object3D の親子関係の動的な解除(three.js 側で group から detach する等)を伴う。現状の action(jump/arm-toggle)は position/rotation/scale の書き換えのみで完結しており、階層構造自体を変更する処理はまだない
+  - 装備の着脱は見た目(ジオメトリ)の差し替えも伴うため、`SketchBox` のシード・サイズを `cfg` 由来で決め打ちしている現状構成から、装備ごとに独立した設定を持たせる形への拡張が必要になる
