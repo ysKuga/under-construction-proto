@@ -103,6 +103,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /** 自動回転の有無 */
   autoRotate?: boolean
   /**
+   * 歩行中の body 全体の上下(bobbing)を有効にするか
+   *
+   * - 脚の実際の動き(bob の位置・swing の角度)から高さを計算する。`legMotion` が\
+   *   'none' の場合は連動する脚の動きがないため無効
+   */
+  bodyBobbing?: boolean
+  /**
    * action イベント発行/購読に使う EventTarget
    *
    * - 省略時は instance 固有のものを内部生成
@@ -110,6 +117,10 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   eventTarget?: EventTarget
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
+  /** 脚アニメーション(bob/swing)の周期(秒) */
+  legCycle?: number
+  /** 歩行中の脚の動き方(既定: 'none' = 動かさない) */
+  legMotion?: LegMotion
   /** 自動回転の速度 */
   rotateSpeed?: number
 }
@@ -124,12 +135,18 @@ export interface BoxBotRefs {
   jumpRef: RefObject<number>
   /** 左腕の回転支点グループ ref */
   leftArmRef: RefObject<Group | null>
+  /** 左脚のグループ ref */
+  leftLegRef: RefObject<Group | null>
   /** 右腕の回転支点グループ ref */
   rightArmRef: RefObject<Group | null>
+  /** 右脚のグループ ref */
+  rightLegRef: RefObject<Group | null>
   /** 全体のジャンプ・スケール制御グループ ref */
   rootRef: RefObject<Group | null>
   /** 自動回転グループ ref */
   spinRef: RefObject<Group | null>
+  /** 歩行中の body 全体上下(bobbing)制御グループ ref */
+  walkingBobRef: RefObject<Group | null>
   /** 歩いている状態か(見た目の挙動は含まない)の ref */
   walkingRef: RefObject<boolean>
 }
@@ -139,6 +156,15 @@ export type Handlers = {
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
 }
+
+/**
+ * 歩行中の脚の動き方
+ *
+ * - 'none': 動かさない
+ * - 'bob': 左右逆位相で上下
+ * - 'swing': 付け根を支点に前後スイング(左右逆位相)
+ */
+export type LegMotion = 'bob' | 'none' | 'swing'
 
 /** `useBoxBotActionDispatcher` の戻り値 */
 export interface UseBoxBotActionDispatcherReturn {
@@ -156,9 +182,12 @@ export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
   | 'jumpRef'
   | 'leftArmRef'
+  | 'leftLegRef'
   | 'rightArmRef'
+  | 'rightLegRef'
   | 'rootRef'
   | 'spinRef'
+  | 'walkingBobRef'
   | 'walkingRef'
 > {
   /** 左右の腕の状態・操作 */
@@ -180,7 +209,7 @@ export interface UseBoxBotModelReturn extends Pick<
   interactive: boolean
   /** 脚の x オフセット */
   legX: number
-  /** 脚の y 座標 */
+  /** 脚グループの付け根 y 座標 */
   legY: number
   /** 肩の x オフセット */
   shoulderX: number

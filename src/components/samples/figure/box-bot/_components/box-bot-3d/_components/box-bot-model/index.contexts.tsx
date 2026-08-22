@@ -32,7 +32,7 @@ export const BoxBotRefsContext = RequiredRefsContext
 export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
 
 /**
- * jump/spin/arm/walking の各 ref を生成し、action hook 群へ配布する
+ * jump/spin/arm/leg/walking の各 ref を生成し、action hook 群へ配布する
  *
  * - 生成した ref オブジェクト自体は各 hook 内で `.current` を書き換えるのみで\
  *   差し替えないため、`useMemo` で Context 値を安定させ、Provider の再レンダーが\
@@ -44,18 +44,34 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const spinRef: BoxBotRefs['spinRef'] = React.useRef(null)
   const leftArmRef: BoxBotRefs['leftArmRef'] = React.useRef(null)
   const rightArmRef: BoxBotRefs['rightArmRef'] = React.useRef(null)
+  const leftLegRef: BoxBotRefs['leftLegRef'] = React.useRef(null)
+  const rightLegRef: BoxBotRefs['rightLegRef'] = React.useRef(null)
+  const walkingBobRef: BoxBotRefs['walkingBobRef'] = React.useRef(null)
   const walkingRef: BoxBotRefs['walkingRef'] = React.useRef(false)
 
   const refs = React.useMemo<BoxBotRefs>(
     () => ({
       jumpRef,
       leftArmRef,
+      leftLegRef,
       rightArmRef,
+      rightLegRef,
       rootRef,
       spinRef,
+      walkingBobRef,
       walkingRef,
     }),
-    [jumpRef, leftArmRef, rightArmRef, rootRef, spinRef, walkingRef],
+    [
+      jumpRef,
+      leftArmRef,
+      leftLegRef,
+      rightArmRef,
+      rightLegRef,
+      rootRef,
+      spinRef,
+      walkingBobRef,
+      walkingRef,
+    ],
   )
 
   return (
