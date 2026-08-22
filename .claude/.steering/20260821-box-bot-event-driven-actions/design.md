@@ -17,7 +17,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - [x] `useEventListener` 側で action 実行ロジック(ジャンプ発火)を受け取る設計・実装
 - [x] `toggleLeft`/`toggleRight`(腕上げ下げ)も jump と同じパターン(`onClick` は dispatch のみ、実行判定は `useEventListener` 側)へ分離。`_action-hooks/` へそれぞれ専用 hook として切り出す
 - [ ] 歩く/こける/被ダメージモーション(仮称、要 naming)も jump と同じパターンで event listener 化。定義(`action-reaction-design` 側)完了後に着手
-- [ ] `rootRef` の context 化: `BoxBotEventProvider` と同様の Refs context を新設し、`rootRef` を配布する。歩く action 等 `rootRef` の2つ目の消費者が具体化した時点で着手(現状は jump のみが消費者のため見送り)
+- [x] ref の context 化: `BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef`/`spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つを配布する形にした
 
 ## 検討
 
@@ -34,7 +34,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 ## 決定事項
 
 - ref 変数命名: `useRef()` 戻り値変数(hook 戻り値プロパティ含む)は `Ref` サフィックス付与に統一。ルールを `.claude/rules/react/ref-naming.md` へ新設。box-bot-model 内 `root`/`spin`/`leftArm`/`rightArm` を `rootRef`/`spinRef`/`leftArmRef`/`rightArmRef` へリネーム
-- `rootRef` の context 化(複数 action からの共有): 見送り。現状 `rootRef` の消費者は jump のみで2つ目の消費者(歩く action)が未実装のため、具体化してから `BoxBotEventProvider` と同様の Refs context を導入する方針とした
+- `rootRef` の context 化(複数 action からの共有): 当初は歩く action 等2つ目の消費者が具体化するまで見送る方針だったが、先行して着手する判断に変更。`BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef` に加え `spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つ全てを配布する形にした。Provider 内で `useRef` 生成 → `useMemo` で Context 値を安定化。各 action hook(`useJumpAction` 等)は `useBoxBotEventTarget` と同様に `useBoxBotRefs` を自前で呼び出して必要な ref を取得する(props 経由の受け渡しは行わない)
 - `useFrame` 分割: jump 側から着手。`root` ref の所有権を `index.hooks.ts` から `use-jump-action.ts` へ移し、ホップ中の位置・スケール制御 `useFrame` も同 hook 内へ統合した。「イベント受信→hopRef 起動→同 hook 内 useFrame で可視化」まで1 hook に閉じた。`index.hooks.ts` 側の `useFrame` は autoRotate・腕角度補間の2関心のみに縮小。arm 側(cfg 値依存あり)は未着手のまま
 - ジャンプ action 本体(`jumpAction`)を `_action-hooks/use-jump-action.ts` に分離。クリック(`startHop`)は `BoxBot-action-jump` イベントを dispatch するだけに徹し、実行判定(`interactive` チェック・`hop` 起動)は `useEventListener` 側の `jumpAction` へ一本化した。クリック由来でも外部の `useEventListener` 経由でも同じ判定を通る
 - `onClick` は三項演算子で条件分岐せず常に `startHop` を登録する。`stopPropagation`(クリック伝播の抑止)は `interactive` に関わらず必要なため
