@@ -67,5 +67,11 @@ export const LEG_BOB_HEIGHT = 0.12
 export const LEG_SWING_ANGLE = 0.5
 /** body bobbing(上下)の振幅(world) */
 export const BODY_BOB_HEIGHT = 0.025
+/**
+ * 脚アニメーションの角速度が目標値へ近づく速さ(approach の減衰係数)
+ *
+ * - 小さいほど加速・減速がゆっくりになる
+ */
+export const LEG_SPEED_APPROACH_RATE = 3
 /** 歩行系の値が目標値(停止時は 0)へ近づく速さ(approach の減衰係数) */
 export const WALK_APPROACH_RATE = 10
