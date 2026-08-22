@@ -2,8 +2,11 @@
 
 import * as React from 'react'
 import type { PropsWithChildren } from 'react'
+import type { Group } from 'three'
 
 import { createRequiredContext } from '@/utils/create-required-context'
+
+import type { BoxBotRefs } from './index.types'
 
 const { RequiredContext, useRequiredContext } =
   createRequiredContext<EventTarget>(
@@ -15,6 +18,45 @@ export const BoxBotEventContext = RequiredContext
 
 /** box-bot-model の action イベント発行/購読に使う EventTarget を取得する */
 export const useBoxBotEventTarget = (): EventTarget => useRequiredContext()
+
+const {
+  RequiredContext: RequiredRefsContext,
+  useRequiredContext: useRequiredRefsContext,
+} = createRequiredContext<BoxBotRefs>(
+  'useBoxBotRefs should be used within <BoxBotRefsProvider>',
+)
+
+/** box-bot-model の各 action hook が共有する ref 群を配布する Context */
+export const BoxBotRefsContext = RequiredRefsContext
+
+/** box-bot-model の各 action hook が共有する ref 群を取得する */
+export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
+
+/**
+ * jump/spin/arm の各 ref を生成し、action hook 群へ配布する
+ *
+ * - 生成した ref オブジェクト自体は各 hook 内で `.current` を書き換えるのみで\
+ *   差し替えないため、`useMemo` で Context 値を安定させ、Provider の再レンダーが\
+ *   下位 Consumer の不要な再レンダーを誘発しないようにする
+ */
+export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
+  const jumpRef = React.useRef(-1)
+  const rootRef = React.useRef<Group>(null)
+  const spinRef = React.useRef<Group>(null)
+  const leftArmRef = React.useRef<Group>(null)
+  const rightArmRef = React.useRef<Group>(null)
+
+  const refs = React.useMemo<BoxBotRefs>(
+    () => ({ jumpRef, leftArmRef, rightArmRef, rootRef, spinRef }),
+    [jumpRef, leftArmRef, rightArmRef, rootRef, spinRef],
+  )
+
+  return (
+    <BoxBotRefsContext.Provider value={refs}>
+      {children}
+    </BoxBotRefsContext.Provider>
+  )
+}
 
 type BoxBotEventProviderProps = PropsWithChildren<{
   /** 外部から共有する EventTarget。省略時は instance 固有のものを内部生成 */

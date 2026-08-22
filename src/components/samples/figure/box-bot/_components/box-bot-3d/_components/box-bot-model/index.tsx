@@ -2,14 +2,16 @@
 
 import { Ink } from './_components/ink'
 import { SketchBox } from './_components/sketch-box'
-import { BoxBotEventProvider } from './index.contexts'
+import { BoxBotEventProvider, BoxBotRefsProvider } from './index.contexts'
 import { useBoxBotModel } from './index.hooks'
 import type { BoxBotModelProps } from './index.types'
 
 export function BoxBotModel({ eventTarget, ...props }: BoxBotModelProps) {
   return (
     <BoxBotEventProvider eventTarget={eventTarget}>
-      <BoxBotModelInner {...props} />
+      <BoxBotRefsProvider>
+        <BoxBotModelInner {...props} />
+      </BoxBotRefsProvider>
     </BoxBotEventProvider>
   )
 }

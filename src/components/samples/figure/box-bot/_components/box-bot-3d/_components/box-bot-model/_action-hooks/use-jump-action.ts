@@ -1,7 +1,5 @@
 import { useFrame } from '@react-three/fiber'
 import type { ThreeEvent } from '@react-three/fiber'
-import * as React from 'react'
-import type { Group } from 'three'
 
 import { useEventDispatcher, useEventListener } from '@/hooks/event'
 
@@ -12,7 +10,7 @@ import {
   JUMP_SQUASH_X,
   JUMP_SQUASH_Y,
 } from '../index.constants'
-import { useBoxBotEventTarget } from '../index.contexts'
+import { useBoxBotEventTarget, useBoxBotRefs } from '../index.contexts'
 import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
 
 /**
@@ -23,17 +21,17 @@ import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
  *   `useEventListener` 経由の発火も同じ経路を通るため、実行判定が一本化される
  * - `interactive` による制御も実行側(`jumpAction`)で行う。`onClick` 自体は\
  *   常に登録し、`stopPropagation`(クリック伝播の抑止)は interactive に関わらず必要なため
- * - ジャンプ中の `rootRef`(全体グループ)の位置・スケール制御も本 hook 内の `useFrame` で完結させる
+ * - ジャンプ中の `rootRef`(全体グループ)の位置・スケール制御も本 hook 内の `useFrame` で完結させる。\
+ *   `jumpRef`/`rootRef` 自体は `BoxBotRefsProvider` が生成し `useBoxBotRefs` 経由で取得する
  *
  * @param props BoxBotModel に渡される props
  */
 export const useJumpAction = (
   props: Omit<BoxBotModelProps, 'eventTarget'>,
-): Pick<UseBoxBotModelReturn, 'jumpRef' | 'rootRef' | 'startJump'> => {
+): Pick<UseBoxBotModelReturn, 'startJump'> => {
   const { interactive } = props
 
-  const jumpRef = React.useRef(-1)
-  const rootRef = React.useRef<Group>(null)
+  const { jumpRef, rootRef } = useBoxBotRefs()
   const eventTarget = useBoxBotEventTarget()
 
   const jumpAction = () => {
@@ -71,5 +69,5 @@ export const useJumpAction = (
     rootRef.current.scale.set(sx, sy, sx)
   })
 
-  return { jumpRef, rootRef, startJump }
+  return { startJump }
 }

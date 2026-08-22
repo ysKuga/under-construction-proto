@@ -2,7 +2,6 @@
 
 import { useFrame } from '@react-three/fiber'
 import * as React from 'react'
-import type { Group } from 'three'
 
 import { approach } from '../../_lib/approach'
 
@@ -17,6 +16,7 @@ import {
   HEAD_GAP,
   SHOULDER_Y_OFFSET,
 } from './index.constants'
+import { useBoxBotRefs } from './index.contexts'
 import type {
   BoxBot3DConfig,
   BoxBotModelProps,
@@ -45,9 +45,7 @@ export function useBoxBotModel(
     leg: { ...DEFAULTS.leg, ...opts.leg },
   }
 
-  const spinRef = React.useRef<Group>(null)
-  const leftArmRef = React.useRef<Group>(null)
-  const rightArmRef = React.useRef<Group>(null)
+  const { jumpRef, leftArmRef, rightArmRef, rootRef, spinRef } = useBoxBotRefs()
 
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
@@ -62,7 +60,7 @@ export function useBoxBotModel(
       }
     : {}
 
-  const { jumpRef, rootRef, startJump } = useJumpAction(props)
+  const { startJump } = useJumpAction(props)
   const { arm } = useArmAction(props)
 
   // arm.left/right.up 状態に応じた腕の目標角度

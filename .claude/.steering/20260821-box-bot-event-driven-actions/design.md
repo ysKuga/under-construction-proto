@@ -17,7 +17,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - [x] `useEventListener` 側で action 実行ロジック(ジャンプ発火)を受け取る設計・実装
 - [x] `toggleLeft`/`toggleRight`(腕上げ下げ)も jump と同じパターン(`onClick` は dispatch のみ、実行判定は `useEventListener` 側)へ分離。`_action-hooks/` へそれぞれ専用 hook として切り出す
 - [ ] 歩く/こける/被ダメージモーション(仮称、要 naming)も jump と同じパターンで event listener 化。定義(`action-reaction-design` 側)完了後に着手
-- [ ] `rootRef` の context 化: `BoxBotEventProvider` と同様の Refs context を新設し、`rootRef` を配布する。歩く action 等 `rootRef` の2つ目の消費者が具体化した時点で着手(現状は jump のみが消費者のため見送り)
+- [x] ref の context 化: `BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef`/`spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つを配布する形にした
 
 ## 検討
 
@@ -30,11 +30,13 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - jump 側は root ref のみ渡せば完結しやすい(hopRef は hook 内で完結済み)
   - arm-toggle 側は `leftArmAngle`/`rightArmAngle` が `cfg.arm.leftAngle`/`rightAngle`(index.hooks.ts でマージ済みの cfg 由来)にも依存するため、ref だけでなく cfg 値も渡す必要があり結合がやや増える
   - マウント時初期角度反映(`useLayoutEffect`)をどちらに置くかも要判断
+- 装備などをマウント可能にする仕組み(直近の実装計画は想定せず、将来アイディアとして記録)
+  - 装備に限らず腕・脚などのパーツ自体をマウント可能な実装へ変更し、破壊時の分離などに対応できるようにする案
 
 ## 決定事項
 
 - ref 変数命名: `useRef()` 戻り値変数(hook 戻り値プロパティ含む)は `Ref` サフィックス付与に統一。ルールを `.claude/rules/react/ref-naming.md` へ新設。box-bot-model 内 `root`/`spin`/`leftArm`/`rightArm` を `rootRef`/`spinRef`/`leftArmRef`/`rightArmRef` へリネーム
-- `rootRef` の context 化(複数 action からの共有): 見送り。現状 `rootRef` の消費者は jump のみで2つ目の消費者(歩く action)が未実装のため、具体化してから `BoxBotEventProvider` と同様の Refs context を導入する方針とした
+- `rootRef` の context 化(複数 action からの共有): 当初は歩く action 等2つ目の消費者が具体化するまで見送る方針だったが、先行して着手する判断に変更。`BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef` に加え `spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つ全てを配布する形にした。Provider 内で `useRef` 生成 → `useMemo` で Context 値を安定化。各 action hook(`useJumpAction` 等)は `useBoxBotEventTarget` と同様に `useBoxBotRefs` を自前で呼び出して必要な ref を取得する(props 経由の受け渡しは行わない)
 - `useFrame` 分割: jump 側から着手。`root` ref の所有権を `index.hooks.ts` から `use-jump-action.ts` へ移し、ホップ中の位置・スケール制御 `useFrame` も同 hook 内へ統合した。「イベント受信→hopRef 起動→同 hook 内 useFrame で可視化」まで1 hook に閉じた。`index.hooks.ts` 側の `useFrame` は autoRotate・腕角度補間の2関心のみに縮小。arm 側(cfg 値依存あり)は未着手のまま
 - ジャンプ action 本体(`jumpAction`)を `_action-hooks/use-jump-action.ts` に分離。クリック(`startHop`)は `BoxBot-action-jump` イベントを dispatch するだけに徹し、実行判定(`interactive` チェック・`hop` 起動)は `useEventListener` 側の `jumpAction` へ一本化した。クリック由来でも外部の `useEventListener` 経由でも同じ判定を通る
 - `onClick` は三項演算子で条件分岐せず常に `startHop` を登録する。`stopPropagation`(クリック伝播の抑止)は `interactive` に関わらず必要なため
@@ -54,3 +56,8 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - r3f のクリック処理(Object3D 単位の raycast)と DOM `EventTarget` ベースの `useEventListener` は仕組みが異なる。両者をどう繋ぐか(ブリッジの置き場所・イベント名の scope prefix 等)の設計が必要。
 - 命名: 当初 `hopRef`/`startHop`/`HOP_DUR` 等「hop」と「jump」(action 名・イベント名)が混在していたため、`jumpRef`/`startJump`/`JUMP_DUR` へ jump に統一した
 - `action-reaction-design` steering との役割分担: 概念検討(歩く/こける含む)はそちらに残し、本 steering は「ジャンプの event listener 化」という実装に限定する。将来 歩く/こける を実装する際は、本 steering で得た知見(ブリッジ設計)を再利用できるか要確認。
+- 装備・パーツのマウント化(検討section参照)について
+  - 現状 `box-bot-model` は `SketchBox` を JSX 内に直接配置する構造。パーツを「マウント可能」にするには、パーツをコンポーネント境界(独立した Object3D の子)として切り出す再設計が必要になる
+  - 今回導入した `BoxBotRefsProvider` は `rootRef`/`spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の固定5つを前提にした設計。マウントパーツが動的に増減する構造になると、固定 ref でなく ref のマップ/配列的な管理への切替が必要になり、現状の設計と衝突する可能性がある
+  - 「破壊時の分離」は Object3D の親子関係の動的な解除(three.js 側で group から detach する等)を伴う。現状の action(jump/arm-toggle)は position/rotation/scale の書き換えのみで完結しており、階層構造自体を変更する処理はまだない
+  - 装備の着脱は見た目(ジオメトリ)の差し替えも伴うため、`SketchBox` のシード・サイズを `cfg` 由来で決め打ちしている現状構成から、装備ごとに独立した設定を持たせる形への拡張が必要になる
