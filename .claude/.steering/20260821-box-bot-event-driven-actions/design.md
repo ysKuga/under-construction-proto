@@ -22,6 +22,22 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 ## 検討
 
 - [ ] action を外部から実行する仕組み (コントローラーからジャンプ指示のようなイメージ)
+  - 現状の `eventTarget` prop(`BoxBotModelProps`、省略時 instance 固有生成)と export 済みの `ACTION_JUMP`/`ACTION_ARM_LEFT_TOGGLE`/`ACTION_ARM_RIGHT_TOGGLE` により、外部が EventTarget を共有し `dispatchEvent(new Event(ACTION_JUMP))` する経路自体はすでに成立している。これを低レベル API のまま公開するか、box-bot 側で呼びやすい API を用意するかが論点
+  - 方針: 公開 dispatcher hook `useBoxBotActionDispatcher(eventTarget)` を新設する案を採用。呼び出し側が `ACTION_*` 定数や `new Event(...)` の組み立てを意識せず `jump()`/`armLeftToggle()`/`armRightToggle()` を呼べる形にする
+    - 配置: box-bot-model 直下(`_action-hooks/` は内部実装専用のため区別。外部公開用は同ディレクトリ直下)
+    - 実装: 内部で `useEventDispatcher(eventTarget)` をラップするのみの薄い関数群
+    - 戻り値型: `UseBoxBotActionDispatcherReturn` を `index.types.ts` へ追加、プロパティ単位で JSDoc 付与
+    - 呼び出し側イメージ:
+
+      ```tsx
+      const [eventTarget] = React.useState(() => new EventTarget())
+      const { jump } = useBoxBotActionDispatcher(eventTarget)
+      <BoxBotModel eventTarget={eventTarget} ... />
+      <button onClick={jump}>Jump</button>
+      ```
+
+    - eventTarget の生成・共有責務は既存の `eventTarget` prop 設計のまま呼び出し側が持つ
+  - 未着手。実装は別タスクで着手
 - [ ] body などへの onClick と jump 処理とを分離
   - [ ] body への onClick は click-body イベント
   - [ ] click-body イベントに jump-action が紐づいている場合アクションなど
