@@ -114,13 +114,34 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   rotateSpeed?: number
 }
 
+/** BoxBotRefsProvider が配布する ref 群 */
+export interface BoxBotRefs {
+  /**
+   * ジャンプ進行度の ref
+   *
+   * - -1: 非ジャンプ中、0以上: 経過秒数
+   */
+  jumpRef: RefObject<number>
+  /** 左腕の回転支点グループ ref */
+  leftArmRef: RefObject<Group | null>
+  /** 右腕の回転支点グループ ref */
+  rightArmRef: RefObject<Group | null>
+  /** 全体のジャンプ・スケール制御グループ ref */
+  rootRef: RefObject<Group | null>
+  /** 自動回転グループ ref */
+  spinRef: RefObject<Group | null>
+}
+
 export type Handlers = {
   onClick?: (e: ThreeEvent<MouseEvent>) => void
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
 }
 
-export interface UseBoxBotModelReturn {
+export interface UseBoxBotModelReturn extends Pick<
+  BoxBotRefs,
+  'jumpRef' | 'leftArmRef' | 'rightArmRef' | 'rootRef' | 'spinRef'
+> {
   /** 左右の腕の状態・操作 */
   arm: {
     /** 左腕 */
@@ -138,28 +159,14 @@ export interface UseBoxBotModelReturn {
   hover: Handlers
   /** インタラクション有効か */
   interactive: boolean
-  /**
-   * ジャンプ進行度の ref
-   *
-   * - -1: 非ジャンプ中、0以上: 経過秒数
-   */
-  jumpRef: RefObject<number>
-  /** 左腕の回転支点グループ ref */
-  leftArmRef: RefObject<Group | null>
   /** 脚の x オフセット */
   legX: number
   /** 脚の y 座標 */
   legY: number
-  /** 右腕の回転支点グループ ref */
-  rightArmRef: RefObject<Group | null>
-  /** 全体のジャンプ・スケール制御グループ ref */
-  rootRef: RefObject<Group | null>
   /** 肩の x オフセット */
   shoulderX: number
   /** 肩の y 座標 */
   shoulderY: number
-  /** 自動回転グループ ref */
-  spinRef: RefObject<Group | null>
   /** 腕/頭/胴クリックでジャンプ開始 */
   startJump: (e: ThreeEvent<MouseEvent>) => void
 }
