@@ -103,6 +103,15 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /** 自動回転の有無 */
   autoRotate?: boolean
   /**
+   * マウント時に自動で歩き始める歩き方(省略時: 歩かない)
+   *
+   * - Canvas 内部(マウント完了後)で直接 ref をセットする。`useBoxBotActionDispatcher`\
+   *   経由の toggle は Canvas 外部からの発行になり、初回マウント直後は\
+   *   listener 登録前にイベントが発行されるタイミング競合の余地があるため、\
+   *   確実な初期状態指定にはこちらを使う
+   */
+  autoWalk?: LegStyle
+  /**
    * body 全体の上下(bobbing)を有効にするか
    *
    * - walking(脚 swing)・marching(脚 bob)いずれかの実際の動きから高さを計算する。\
@@ -156,6 +165,9 @@ export type Handlers = {
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
 }
+
+/** 歩き方。'swing': walking action、'bob': marching action */
+export type LegStyle = 'bob' | 'swing'
 
 /** `useBoxBotActionDispatcher` の戻り値 */
 export interface UseBoxBotActionDispatcherReturn {

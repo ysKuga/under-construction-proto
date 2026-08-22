@@ -35,6 +35,7 @@ export function useBoxBotModel(
 ): UseBoxBotModelReturn {
   const {
     autoRotate = false,
+    autoWalk,
     interactive = true,
     rotateSpeed = 0,
     ...opts
@@ -84,6 +85,15 @@ export function useBoxBotModel(
   useLegBobAction(props, legY)
   useLegSwingAction(props)
   useBodyBobbingAction(props, legY)
+
+  // マウント時に autoWalk の歩き方で歩き始める。useBoxBotActionDispatcher 経由の
+  // toggle は Canvas 外部からの発行になり、初回マウント直後は listener 登録前に
+  // イベントが発行されるタイミング競合の余地があるため、ref を直接セットする
+  React.useLayoutEffect(() => {
+    if (autoWalk === 'swing') walkingRef.current = true
+    else if (autoWalk === 'bob') marchingRef.current = true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // arm.left/right.up 状態に応じた腕の目標角度
   const leftArmAngle = arm.left.up ? ARM_UP_ANGLE : cfg.arm.leftAngle
