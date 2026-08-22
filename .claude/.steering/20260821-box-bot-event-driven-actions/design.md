@@ -17,7 +17,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - [x] `useEventListener` 側で action 実行ロジック(ジャンプ発火)を受け取る設計・実装
 - [x] `toggleLeft`/`toggleRight`(腕上げ下げ)も jump と同じパターン(`onClick` は dispatch のみ、実行判定は `useEventListener` 側)へ分離。`_action-hooks/` へそれぞれ専用 hook として切り出す
 - [x] ref の context 化: `BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef`/`spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つを配布する形にした
-- [ ] action を外部から実行する仕組み(コントローラーからジャンプ指示のようなイメージ)。公開 dispatcher hook `useBoxBotActionDispatcher(eventTarget)` を新設し、呼び出し側が `ACTION_*` 定数や `new Event(...)` の組み立てを意識せず `jump()`/`armLeftToggle()`/`armRightToggle()` を呼べる形にする
+- [x] action を外部から実行する仕組み(コントローラーからジャンプ指示のようなイメージ)。公開 dispatcher hook `useBoxBotActionDispatcher(eventTarget)` を新設し、呼び出し側が `ACTION_*` 定数や `new Event(...)` の組み立てを意識せず `jump()`/`armLeftToggle()`/`armRightToggle()` を呼べる形にする
   - 現状の `eventTarget` prop(`BoxBotModelProps`、省略時 instance 固有生成)と export 済みの `ACTION_JUMP`/`ACTION_ARM_LEFT_TOGGLE`/`ACTION_ARM_RIGHT_TOGGLE` により、外部が EventTarget を共有し `dispatchEvent(new Event(ACTION_JUMP))` する経路自体はすでに成立している。これを低レベル API のまま公開するか、box-bot 側で呼びやすい API を用意するかが論点だったが、後者を採用
   - 配置: box-bot-model 直下(`_action-hooks/` は内部実装専用のため区別。外部公開用は同ディレクトリ直下)
   - 実装: 内部で `useEventDispatcher(eventTarget)` をラップするのみの薄い関数群
