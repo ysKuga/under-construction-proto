@@ -29,6 +29,10 @@ action / reaction を定義し、event listener によりアクションを実�
 
 - action定義: 歩く → `walking: boolean`(歩いている/いないの状態)として定義。見た目の動き(脚の上下・前後スイング・body の bobbing 等)はこの状態と分離し、別 action(reaction 含む)の組合せとして実装する方針。「姿勢」概念との厳密な対応整理は本決定では行わず、`walking` state を先行実装した上で挙動検討フェーズへ進む
   - 実装(state のみ、挙動なし)は `20260821-box-bot-event-driven-actions` 側で着手。jump/arm と同じ event listener 経由 toggle パターン(`useWalkingAction`)を踏襲
+- 挙動検討の結果、「脚 swing(前後スイング)」と「脚 bob(上下)」を同一 `walking` state 配下の選択肢(`legMotion`)にせず、別々の action として確定した
+  - `walking`(脚 swing): 前進の歩行として採用
+  - `marching`(脚 bob、新規 action): 「足踏み」として定義。前進しないその場の動作
+  - 両者とも jump/arm と同じ独立 toggle パターン(`ACTION_WALKING_TOGGLE`/`ACTION_MARCHING_TOGGLE`、`walkingRef`/`marchingRef`)。`legMotion` props は廃止し、各挙動 hook が自分の ref を直接見る形にした
 
 ## 懸念・リスク
 
