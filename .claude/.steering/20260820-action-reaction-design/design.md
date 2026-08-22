@@ -15,8 +15,8 @@ action / reaction を定義し、event listener によりアクションを実�
 
 ## 実装計画
 
-- [ ] action 定義: 歩く
-  - [ ] 「姿勢」概念との関連整理 (実現可能性の勘案)
+- [x] action 定義: 歩く → `walking`(脚 swing)/`marching`(脚 bob)の2 action として確定
+  - [ ] 「姿勢」概念との関連整理 (実現可能性の勘案)。厳密な整理は見送り、決定事項参照
 - [ ] action 定義: ジャンプ
   - [ ] 既存クリックジャンプ (box-bot 3D `startHop`) はそのまま維持、event listener 経由の発火経路を追加
 - [ ] reaction 定義: こける (転倒の効果を受けて抵抗に失敗)
