@@ -138,6 +138,16 @@ export type Handlers = {
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
 }
 
+/** `useBoxBotActionDispatcher` の戻り値 */
+export interface UseBoxBotActionDispatcherReturn {
+  /** 左腕上げ下げ action を発火する */
+  armLeftToggle: () => Promise<void>
+  /** 右腕上げ下げ action を発火する */
+  armRightToggle: () => Promise<void>
+  /** ジャンプ action を発火する */
+  jump: () => Promise<void>
+}
+
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
   'jumpRef' | 'leftArmRef' | 'rightArmRef' | 'rootRef' | 'spinRef'
