@@ -31,6 +31,11 @@ export const ACTION_ARM_LEFT_TOGGLE = 'BoxBot-action-arm-left-toggle'
 /** 右腕上げ下げ action の発火イベント名 */
 export const ACTION_ARM_RIGHT_TOGGLE = 'BoxBot-action-arm-right-toggle'
 
+/** 歩いている状態の toggle action の発火イベント名 */
+export const ACTION_WALKING_TOGGLE = 'BoxBot-action-walking-toggle'
+/** 足踏みしている状態の toggle action の発火イベント名 */
+export const ACTION_MARCHING_TOGGLE = 'BoxBot-action-marching-toggle'
+
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
 /** ジャンプの最大上昇量(world) */
@@ -53,3 +58,20 @@ export const HEAD_GAP = 0.1
 export const SHOULDER_Y_OFFSET = 0.2
 /** 頭前面から目・口を浮かせる量(world、z-fighting 回避) */
 export const HEAD_FRONT_MARGIN = 0.01
+
+/** 脚アニメーション(bob/swing)の既定周期(秒) */
+export const LEG_CYCLE_SEC = 1
+/** 脚 bob(上下)の振幅(world) */
+export const LEG_BOB_HEIGHT = 0.12
+/** 脚 swing(前後スイング)の振幅(rad) */
+export const LEG_SWING_ANGLE = 0.5
+/** body bobbing(上下)の振幅(world) */
+export const BODY_BOB_HEIGHT = 0.025
+/**
+ * 脚アニメーションの角速度が目標値へ近づく速さ(approach の減衰係数)
+ *
+ * - 小さいほど加速・減速がゆっくりになる
+ */
+export const LEG_SPEED_APPROACH_RATE = 3
+/** 歩行系の値が目標値(停止時は 0)へ近づく速さ(approach の減衰係数) */
+export const WALK_APPROACH_RATE = 10

@@ -103,6 +103,22 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /** 自動回転の有無 */
   autoRotate?: boolean
   /**
+   * マウント時に自動で歩き始める歩き方(省略時: 歩かない)
+   *
+   * - Canvas 内部(マウント完了後)で直接 ref をセットする。`useBoxBotActionDispatcher`\
+   *   経由の toggle は Canvas 外部からの発行になり、初回マウント直後は\
+   *   listener 登録前にイベントが発行されるタイミング競合の余地があるため、\
+   *   確実な初期状態指定にはこちらを使う
+   */
+  autoWalk?: LegStyle
+  /**
+   * body 全体の上下(bobbing)を有効にするか
+   *
+   * - walking(脚 swing)・marching(脚 bob)いずれかの実際の動きから高さを計算する。\
+   *   どちらも歩いていない間は連動する脚の動きがないため無効
+   */
+  bodyBobbing?: boolean
+  /**
    * action イベント発行/購読に使う EventTarget
    *
    * - 省略時は instance 固有のものを内部生成
@@ -110,6 +126,8 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   eventTarget?: EventTarget
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
+  /** 脚アニメーション(walking/marching 共通)の周期(秒) */
+  legCycle?: number
   /** 自動回転の速度 */
   rotateSpeed?: number
 }
@@ -124,12 +142,22 @@ export interface BoxBotRefs {
   jumpRef: RefObject<number>
   /** 左腕の回転支点グループ ref */
   leftArmRef: RefObject<Group | null>
+  /** 左脚のグループ ref */
+  leftLegRef: RefObject<Group | null>
+  /** 足踏みしている状態か(見た目の挙動は含まない)の ref */
+  marchingRef: RefObject<boolean>
   /** 右腕の回転支点グループ ref */
   rightArmRef: RefObject<Group | null>
+  /** 右脚のグループ ref */
+  rightLegRef: RefObject<Group | null>
   /** 全体のジャンプ・スケール制御グループ ref */
   rootRef: RefObject<Group | null>
   /** 自動回転グループ ref */
   spinRef: RefObject<Group | null>
+  /** 歩行中の body 全体上下(bobbing)制御グループ ref */
+  walkingBobRef: RefObject<Group | null>
+  /** 歩いている状態か(見た目の挙動は含まない)の ref */
+  walkingRef: RefObject<boolean>
 }
 
 export type Handlers = {
@@ -137,6 +165,9 @@ export type Handlers = {
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
 }
+
+/** 歩き方。'swing': walking action、'bob': marching action */
+export type LegStyle = 'bob' | 'swing'
 
 /** `useBoxBotActionDispatcher` の戻り値 */
 export interface UseBoxBotActionDispatcherReturn {
@@ -146,11 +177,24 @@ export interface UseBoxBotActionDispatcherReturn {
   armRightToggle: () => Promise<void>
   /** ジャンプ action を発火する */
   jump: () => Promise<void>
+  /** 足踏みしている状態(marching)の toggle action を発火する */
+  marchingToggle: () => Promise<void>
+  /** 歩いている状態(walking)の toggle action を発火する */
+  walkingToggle: () => Promise<void>
 }
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
-  'jumpRef' | 'leftArmRef' | 'rightArmRef' | 'rootRef' | 'spinRef'
+  | 'jumpRef'
+  | 'leftArmRef'
+  | 'leftLegRef'
+  | 'marchingRef'
+  | 'rightArmRef'
+  | 'rightLegRef'
+  | 'rootRef'
+  | 'spinRef'
+  | 'walkingBobRef'
+  | 'walkingRef'
 > {
   /** 左右の腕の状態・操作 */
   arm: {
@@ -171,7 +215,7 @@ export interface UseBoxBotModelReturn extends Pick<
   interactive: boolean
   /** 脚の x オフセット */
   legX: number
-  /** 脚の y 座標 */
+  /** 脚グループの付け根 y 座標 */
   legY: number
   /** 肩の x オフセット */
   shoulderX: number
