@@ -92,6 +92,10 @@ export const reducePointerState = (
 @.claude/rules/react/props-with-children.md
 @.claude/rules/react/stories.md
 
+### event
+
+@.claude/rules/event-driven-actions.md
+
 ### ディレクトリ構成
 
 @.claude/rules/aggregation-index.md
