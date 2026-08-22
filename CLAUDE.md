@@ -87,6 +87,7 @@ export const reducePointerState = (
 
 @.claude/rules/react/hooks.md
 @.claude/rules/react/ref-naming.md
+@.claude/rules/react/r3f-state.md
 @.claude/rules/react/component-nesting.md
 @.claude/rules/react/props-with-children.md
 @.claude/rules/react/stories.md
