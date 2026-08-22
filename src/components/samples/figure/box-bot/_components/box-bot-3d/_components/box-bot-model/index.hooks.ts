@@ -7,6 +7,7 @@ import { approach } from '../../_lib/approach'
 
 import { useArmAction } from './_action-hooks/arm-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
+import { useWalkingAction } from './_action-hooks/use-walking-action'
 import {
   ARM_APPROACH_RATE,
   ARM_DOWN_ANGLE,
@@ -62,6 +63,7 @@ export function useBoxBotModel(
 
   const { startJump } = useJumpAction(props)
   const { arm } = useArmAction(props)
+  const { walkingRef } = useWalkingAction(props)
 
   // arm.left/right.up 状態に応じた腕の目標角度
   const leftArmAngle = arm.left.up ? ARM_UP_ANGLE : cfg.arm.leftAngle
@@ -123,5 +125,6 @@ export function useBoxBotModel(
     shoulderY,
     spinRef,
     startJump,
+    walkingRef,
   }
 }

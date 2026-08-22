@@ -31,6 +31,9 @@ export const ACTION_ARM_LEFT_TOGGLE = 'BoxBot-action-arm-left-toggle'
 /** 右腕上げ下げ action の発火イベント名 */
 export const ACTION_ARM_RIGHT_TOGGLE = 'BoxBot-action-arm-right-toggle'
 
+/** 歩いている状態の toggle action の発火イベント名 */
+export const ACTION_WALKING_TOGGLE = 'BoxBot-action-walking-toggle'
+
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
 /** ジャンプの最大上昇量(world) */

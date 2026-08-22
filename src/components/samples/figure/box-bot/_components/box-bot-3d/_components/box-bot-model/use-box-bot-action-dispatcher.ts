@@ -4,6 +4,7 @@ import {
   ACTION_ARM_LEFT_TOGGLE,
   ACTION_ARM_RIGHT_TOGGLE,
   ACTION_JUMP,
+  ACTION_WALKING_TOGGLE,
 } from './index.constants'
 import type { UseBoxBotActionDispatcherReturn } from './index.types'
 
@@ -25,5 +26,6 @@ export const useBoxBotActionDispatcher = (
     armLeftToggle: () => dispatch(new Event(ACTION_ARM_LEFT_TOGGLE)),
     armRightToggle: () => dispatch(new Event(ACTION_ARM_RIGHT_TOGGLE)),
     jump: () => dispatch(new Event(ACTION_JUMP)),
+    walkingToggle: () => dispatch(new Event(ACTION_WALKING_TOGGLE)),
   }
 }

@@ -130,6 +130,8 @@ export interface BoxBotRefs {
   rootRef: RefObject<Group | null>
   /** 自動回転グループ ref */
   spinRef: RefObject<Group | null>
+  /** 歩いている状態か(見た目の挙動は含まない)の ref */
+  walkingRef: RefObject<boolean>
 }
 
 export type Handlers = {
@@ -146,11 +148,18 @@ export interface UseBoxBotActionDispatcherReturn {
   armRightToggle: () => Promise<void>
   /** ジャンプ action を発火する */
   jump: () => Promise<void>
+  /** 歩いている状態(walking)の toggle action を発火する */
+  walkingToggle: () => Promise<void>
 }
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
-  'jumpRef' | 'leftArmRef' | 'rightArmRef' | 'rootRef' | 'spinRef'
+  | 'jumpRef'
+  | 'leftArmRef'
+  | 'rightArmRef'
+  | 'rootRef'
+  | 'spinRef'
+  | 'walkingRef'
 > {
   /** 左右の腕の状態・操作 */
   arm: {
