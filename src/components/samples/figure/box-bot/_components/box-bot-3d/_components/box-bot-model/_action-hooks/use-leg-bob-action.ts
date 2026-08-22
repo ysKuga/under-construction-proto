@@ -11,28 +11,27 @@ import { useBoxBotRefs } from '../index.contexts'
 import type { BoxBotModelProps } from '../index.types'
 
 /**
- * 歩行中の脚 bob(左右逆位相の上下)
+ * 足踏み(marching)中の脚 bob(左右逆位相の上下)
  *
- * - `legMotion === 'bob'` かつ `walkingRef.current` の間のみ動作する。それ以外は\
- *   base 位置(`legY`)へ `approach` で滑らかに戻す
+ * - `marchingRef.current` の間のみ動作する。それ以外は base 位置(`legY`)へ\
+ *   `approach` で滑らかに戻す
  *
  * @param props BoxBotModel に渡される props
  * @param legY 脚グループの base y 座標(付け根)
  */
 export const useLegBobAction = (
-  props: Pick<BoxBotModelProps, 'legCycle' | 'legMotion'>,
+  props: Pick<BoxBotModelProps, 'legCycle'>,
   legY: number,
 ): void => {
-  const { legCycle = LEG_CYCLE_SEC, legMotion } = props
+  const { legCycle = LEG_CYCLE_SEC } = props
 
-  const { leftLegRef, rightLegRef, walkingRef } = useBoxBotRefs()
+  const { leftLegRef, marchingRef, rightLegRef } = useBoxBotRefs()
   const phaseRef = React.useRef(0)
 
   useFrame((_, dt) => {
     if (!leftLegRef.current || !rightLegRef.current) return
 
-    const active = legMotion === 'bob' && walkingRef.current
-    if (active) {
+    if (marchingRef.current) {
       phaseRef.current += dt * ((2 * Math.PI) / legCycle)
       leftLegRef.current.position.y =
         legY + Math.sin(phaseRef.current) * LEG_BOB_HEIGHT

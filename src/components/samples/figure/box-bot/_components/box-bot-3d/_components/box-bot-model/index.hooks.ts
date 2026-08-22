@@ -10,6 +10,7 @@ import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
 import { useLegBobAction } from './_action-hooks/use-leg-bob-action'
 import { useLegSwingAction } from './_action-hooks/use-leg-swing-action'
+import { useMarchingAction } from './_action-hooks/use-marching-action'
 import { useWalkingAction } from './_action-hooks/use-walking-action'
 import {
   ARM_APPROACH_RATE,
@@ -79,6 +80,7 @@ export function useBoxBotModel(
   const { startJump } = useJumpAction(props)
   const { arm } = useArmAction(props)
   const { walkingRef } = useWalkingAction(props)
+  const { marchingRef } = useMarchingAction(props)
   useLegBobAction(props, legY)
   useLegSwingAction(props)
   useBodyBobbingAction(props, legY)
@@ -136,6 +138,7 @@ export function useBoxBotModel(
     leftLegRef,
     legX,
     legY,
+    marchingRef,
     rightArmRef,
     rightLegRef,
     rootRef,

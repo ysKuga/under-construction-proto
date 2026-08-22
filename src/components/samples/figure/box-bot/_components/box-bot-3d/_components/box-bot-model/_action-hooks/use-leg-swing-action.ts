@@ -11,17 +11,16 @@ import { useBoxBotRefs } from '../index.contexts'
 import type { BoxBotModelProps } from '../index.types'
 
 /**
- * 歩行中の脚 swing(付け根を支点にした左右逆位相の前後スイング)
+ * 歩行(walking)中の脚 swing(付け根を支点にした左右逆位相の前後スイング)
  *
- * - `legMotion === 'swing'` かつ `walkingRef.current` の間のみ動作する。それ以外は\
- *   角度 0 へ `approach` で滑らかに戻す
+ * - `walkingRef.current` の間のみ動作する。それ以外は角度 0 へ `approach` で滑らかに戻す
  *
  * @param props BoxBotModel に渡される props
  */
 export const useLegSwingAction = (
-  props: Pick<BoxBotModelProps, 'legCycle' | 'legMotion'>,
+  props: Pick<BoxBotModelProps, 'legCycle'>,
 ): void => {
-  const { legCycle = LEG_CYCLE_SEC, legMotion } = props
+  const { legCycle = LEG_CYCLE_SEC } = props
 
   const { leftLegRef, rightLegRef, walkingRef } = useBoxBotRefs()
   const phaseRef = React.useRef(0)
@@ -29,8 +28,7 @@ export const useLegSwingAction = (
   useFrame((_, dt) => {
     if (!leftLegRef.current || !rightLegRef.current) return
 
-    const active = legMotion === 'swing' && walkingRef.current
-    if (active) {
+    if (walkingRef.current) {
       phaseRef.current += dt * ((2 * Math.PI) / legCycle)
       leftLegRef.current.rotation.x =
         Math.sin(phaseRef.current) * LEG_SWING_ANGLE

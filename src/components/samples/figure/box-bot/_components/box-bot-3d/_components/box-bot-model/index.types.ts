@@ -103,10 +103,10 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /** 自動回転の有無 */
   autoRotate?: boolean
   /**
-   * 歩行中の body 全体の上下(bobbing)を有効にするか
+   * body 全体の上下(bobbing)を有効にするか
    *
-   * - 脚の実際の動き(bob の位置・swing の角度)から高さを計算する。`legMotion` が\
-   *   'none' の場合は連動する脚の動きがないため無効
+   * - walking(脚 swing)・marching(脚 bob)いずれかの実際の動きから高さを計算する。\
+   *   どちらも歩いていない間は連動する脚の動きがないため無効
    */
   bodyBobbing?: boolean
   /**
@@ -117,10 +117,8 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   eventTarget?: EventTarget
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
-  /** 脚アニメーション(bob/swing)の周期(秒) */
+  /** 脚アニメーション(walking/marching 共通)の周期(秒) */
   legCycle?: number
-  /** 歩行中の脚の動き方(既定: 'none' = 動かさない) */
-  legMotion?: LegMotion
   /** 自動回転の速度 */
   rotateSpeed?: number
 }
@@ -137,6 +135,8 @@ export interface BoxBotRefs {
   leftArmRef: RefObject<Group | null>
   /** 左脚のグループ ref */
   leftLegRef: RefObject<Group | null>
+  /** 足踏みしている状態か(見た目の挙動は含まない)の ref */
+  marchingRef: RefObject<boolean>
   /** 右腕の回転支点グループ ref */
   rightArmRef: RefObject<Group | null>
   /** 右脚のグループ ref */
@@ -157,15 +157,6 @@ export type Handlers = {
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
 }
 
-/**
- * 歩行中の脚の動き方
- *
- * - 'none': 動かさない
- * - 'bob': 左右逆位相で上下
- * - 'swing': 付け根を支点に前後スイング(左右逆位相)
- */
-export type LegMotion = 'bob' | 'none' | 'swing'
-
 /** `useBoxBotActionDispatcher` の戻り値 */
 export interface UseBoxBotActionDispatcherReturn {
   /** 左腕上げ下げ action を発火する */
@@ -174,6 +165,8 @@ export interface UseBoxBotActionDispatcherReturn {
   armRightToggle: () => Promise<void>
   /** ジャンプ action を発火する */
   jump: () => Promise<void>
+  /** 足踏みしている状態(marching)の toggle action を発火する */
+  marchingToggle: () => Promise<void>
   /** 歩いている状態(walking)の toggle action を発火する */
   walkingToggle: () => Promise<void>
 }
@@ -183,6 +176,7 @@ export interface UseBoxBotModelReturn extends Pick<
   | 'jumpRef'
   | 'leftArmRef'
   | 'leftLegRef'
+  | 'marchingRef'
   | 'rightArmRef'
   | 'rightLegRef'
   | 'rootRef'
