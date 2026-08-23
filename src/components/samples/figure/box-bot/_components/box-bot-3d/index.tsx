@@ -50,7 +50,11 @@ const ORBIT_MAX_DISTANCE = 12
 /** OrbitControls の最大ズームイン距離 */
 const ORBIT_MIN_DISTANCE = 3.5
 /** OrbitControls の注視点(world) */
-const ORBIT_TARGET: Vec3 = [0, -0.3, 0]
+const ORBIT_TARGET: Vec3 = [
+  0,
+  // 転倒 (fall) 時に下部に見切れないように、少し上に注視点をずらす
+  -0.6, 0,
+]
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
