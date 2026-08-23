@@ -40,4 +40,13 @@
 
 ### 姿勢
 
+キャラクターの体勢を 0(直立) 〜 1(完全に倒れている) の連続値として持つ考え方。
+
+- 離散的な state(standing/fallen 等の enum)でなく数値にすることで、よろけなど中間状態も同じ軸で表現できる
+- 転倒(こける)・起き上がりは別 action とし、この数値を変化させる。一連の自動モーションにはしない
+  - 転倒は直立時のみ発火可能、完了後は倒れた状態(1)で静止する
+  - 起き上がりは倒れた状態のときのみ発火可能、完了後は直立(0)に戻る
+- 他 action(歩く等)は直立(0)でない間 実行不可にする。姿勢の数値を参照するだけでこの制御を表現できる
+- box-bot(`src/components/samples/figure/box-bot`)での実装例: `jump`/`arm` の toggle/trigger action パターンを踏襲し `postureRef`/`fall`/`getUp` として実装(`.claude/.steering/20260821-box-bot-event-driven-actions/design.md` 参照)
+
 ### 認識

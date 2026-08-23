@@ -39,3 +39,4 @@ event 駆動化は移植容易性と引き換えに、「通知発行で何が�
 - 検討の発端: `.claude/.steering/20260812-time-control-02-backlog/design.md` 実装計画3 (Custom Event 経由の疎結合化)
 - 実装計画・決定事項: `.claude/.steering/20260813-event-driven-decoupling/design.md`
 - 実装例: `src/prototypes/time-control/time-control-03/README.md`
+- 実装例 (r3f のクリック/Pointer イベントとのブリッジ): `src/components/samples/figure/box-bot`。raycaster ベースの `onClick` を dispatch のみに徹させ、実行判定を `useEventListener` 側の action hook へ一本化するパターン。詳細は `.claude/.steering/20260821-box-bot-event-driven-actions/design.md` 決定事項参照
