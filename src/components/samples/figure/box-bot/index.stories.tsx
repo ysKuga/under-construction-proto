@@ -395,3 +395,30 @@ export const Walking: StoryObj<WalkingArgs> = {
     )
   },
 }
+
+/**
+ * fall(転倒)・getUp(起き上がり)action の挙動確認
+ *
+ * - 直立時のみ fall が、倒れている時のみ getUp が実際に発火する(内部ガード)。\
+ *   誤ったタイミングでクリックしても無視されるだけなので、ボタンは常時 2 つとも表示する
+ */
+export const Fall: Story = {
+  render: () => {
+    const [eventTarget] = React.useState(() => new EventTarget())
+    const { fall, getUp } = useBoxBotActionDispatcher(eventTarget)
+
+    return (
+      <div>
+        <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+          <Button onClick={() => void fall()} type="button" variant="outline">
+            Fall
+          </Button>
+          <Button onClick={() => void getUp()} type="button" variant="outline">
+            Get Up
+          </Button>
+        </div>
+        <StoryComponent eventTarget={eventTarget} mode="3d" />
+      </div>
+    )
+  },
+}
