@@ -35,16 +35,18 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - [x] 歩く: `walking: boolean`(状態)を jump/arm と同じ event listener toggle パターンで実装。`useWalkingAction`(`ACTION_WALKING_TOGGLE`)。この段階では見た目の挙動(脚の上下・前後スイング・bobbing 等)は実装しない。定義自体は `action-reaction-design` 側の決定事項を参照
 - [x] 歩く挙動: 脚 swing(前後スイング、x軸回転)/脚 bob(上下、y position)/body bobbing を個別 action(`useLegSwingAction`/`useLegBobAction`/`useBodyBobbingAction`)として実装。body bobbing は脚の実際の ref 値(swing の角度・bob の位置)から毎フレーム高さを直接算出する方式にし、周期・位相パラメータで近似する形は採らなかった(ズレる余地をなくすため)
   - 確定: swing 方式 → `walking` として採用(前進の歩行)。bob 方式 → 新規 `marching`(足踏み)として採用。当初検討していた `legMotion` props(1つの値で bob/swing/none を排他選択)は廃止し、`walking`/`marching` を jump/arm と同じ独立 toggle action(`ACTION_WALKING_TOGGLE`/`ACTION_MARCHING_TOGGLE`、`walkingRef`/`marchingRef`)にした。body bobbing はどちらの ref が true かで計算式を切替える
-- [ ] 姿勢(`posture`): `action-reaction-design` 側で 0(直立)〜1(倒れている)の数値と定義済み(`docs/concept/README.md` 参照)。こける/起き上がりの前提として先に導入する
-  - [ ] `postureRef`(number、0〜1)を `BoxBotRefs`/`BoxBotRefsProvider` へ追加
-  - [ ] `walking`/`marching` の実行条件へ `postureRef.current === 0`(直立時のみ)ガードを追加。`useWalkingAction`/`useMarchingAction` 側の toggle 実行判定(`interactive` チェックと同じ位置)に組込む
-- [ ] こける(`fall`)・起き上がり(`getUp`): `action-reaction-design` 側で「別 action に分離、`posture` を変化させる oneshot trigger」と定義済み。jump(`use-jump-action.ts`)のパターンを踏襲して実装する
-  - [ ] `ACTION_FALL`/`ACTION_GET_UP` 定数を `index.constants.ts` へ追加(命名パターン `<scope prefix>-action-<対象>-<動作>` に従い `BoxBot-action-fall`/`BoxBot-action-get-up`)
-  - [ ] `fallRef`/`getUpRef`(各 -1: 非実行中、0以上: 経過秒数)を `BoxBotRefs`/`BoxBotRefsProvider` へ追加
-  - [ ] `_action-hooks/use-fall-action.ts` を新設。dispatch(`startFall`)は trigger のみ、実行判定(`postureRef.current === 0` の時のみ)・`fallRef` 起動は `useEventListener` 側の `fallAction` へ一本化(jump と同じ分離)。`useFrame` 内で `fallRef` の経過秒数から進行度を算出し `rootRef.rotation.x` を前傾させ、完了時に `postureRef.current = 1` を確定させて `fallRef` を止める
-  - [ ] `_action-hooks/use-get-up-action.ts` を新設。fall と対称の実装(実行判定は `postureRef.current === 1` の時のみ、完了時 `postureRef.current = 0` を確定)
-  - [ ] `index.hooks.ts` へ組込み、`startFall`/`startGetUp` を `UseBoxBotModelReturn` へ追加
-  - [ ] `useBoxBotActionDispatcher` へ `fall()`/`getUp()` を追加、`UseBoxBotActionDispatcherReturn` を更新
+- [x] 姿勢(`posture`): `action-reaction-design` 側で 0(直立)〜1(倒れている)の数値と定義済み(`docs/concept/README.md` 参照)。こける/起き上がりの前提として先に導入する
+  - [x] `postureRef`(number、0〜1)を `BoxBotRefs`/`BoxBotRefsProvider` へ追加
+  - [x] `walking`/`marching` の実行条件へ `postureRef.current === 0`(直立時のみ)ガードを追加。`useWalkingAction`/`useMarchingAction` 側の toggle 実行判定(`interactive` チェックと同じ位置)に組込む
+- [x] こける(`fall`)・起き上がり(`getUp`): `action-reaction-design` 側で「別 action に分離、`posture` を変化させる oneshot trigger」と定義済み。jump(`use-jump-action.ts`)のパターンを踏襲して実装した
+  - [x] `ACTION_FALL`/`ACTION_GET_UP` 定数を `index.constants.ts` へ追加(`BoxBot-action-fall`/`BoxBot-action-get-up`)
+  - [x] `fallRef`/`getUpRef`(各 -1: 非実行中、0以上: 経過秒数)を `BoxBotRefs`/`BoxBotRefsProvider` へ追加
+  - [x] `_action-hooks/use-fall-action.ts` を新設。dispatch(`startFall`)は trigger のみ、実行判定(`postureRef.current === 0` の時のみ)・`fallRef` 起動は `useEventListener` 側の `fallAction` へ一本化(jump と同じ分離)。発火時に `walkingRef`/`marchingRef` を強制 false にし、歩行中の転倒でも歩きが止まるようにした
+  - [x] `_action-hooks/use-get-up-action.ts` を新設。fall と対称の実装(実行判定は `postureRef.current === 1` の時のみ、完了時 `postureRef.current = 0` を確定)
+  - [x] `useFrame` カーブ: fall/getUp 分離により「倒れる→静止→起き上がる」の3フェーズ想定は不要になった。各 action は単一フェーズのイージング(fall: `p*(2-p)` で減速しながら停止、getUp: `1-p*p` で加速しながら起立)を `rootRef.rotation.x` へ適用する形にした
+  - [x] `index.hooks.ts` へ組込み、`startFall`/`startGetUp` を `UseBoxBotModelReturn` へ追加
+  - [x] `useBoxBotActionDispatcher` へ `fall()`/`getUp()` を追加、`UseBoxBotActionDispatcherReturn` を更新
+  - [x] 動作確認: Storybook `Fall` story(`Fall`/`Get Up` ボタン)を追加、Playwright ヘッドレスで転倒→静止→倒れている間の fall 無視(ガード)→起き上がり→直立復帰を確認済み
   - [ ] 被ダメージモーション(仮称)は `action-reaction-design` 側で定義未確定のため別途。こけると共通化できる部分(`postureRef` の再利用等)がないか実装時に確認
 
 ## 検討
@@ -77,6 +79,10 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - 定数名は `ACTION_JUMP`/`ACTION_ARM_LEFT_TOGGLE`/`ACTION_ARM_RIGHT_TOGGLE` とした。`ACTION_` prefix がすでに「action の発火イベント名である」ことを示すため、`_EVENT_TYPE` サフィックスは冗長と判断し付けない。文字列値(`action-` 部分)はそのまま維持
   - 戻り値もフラットな `leftUp`/`toggleLeft`/`rightUp`/`toggleRight` から `arm: { left: ArmSideState, right: ArmSideState }`(`ArmSideState = { up, toggle }`)へオブジェクト化した。左右で同じ形の状態を持つことが型・呼び出し側どちらからも見えやすくなる
 - 型定義は `.claude/rules/react/hooks.md` の「部品 hook の戻り値型は個別定義せず `index.types.ts` の `Use<ComponentName>Return` から `Pick` で抽出する」に従い、`UseBoxBotModelReturn` へ `arm: { left: ArmSideState, right: ArmSideState }` を追加した上で `Pick` する形にした
+- `fall`/`getUp` は `rootRef.rotation.x` を前傾角度(`FALL_ANGLE = Math.PI / 2`)まで/から補間する形で実装した。jump が `rootRef.position.y`/`scale`、autoRotate が `spinRef.rotation.y` を触るのに対し、`rootRef.rotation.x` は他 action と未使用のプロパティだったため衝突なく追加できた。jump との同時発火(転倒中にジャンプする等)は今回考慮せず、将来課題として残す
+  - 進行度カーブは jump の `Math.sin` 系(対称)ではなく、fall は `p * (2 - p)`(減速しながら停止)、getUp は `1 - p * p`(加速しながら起立)という非対称のイージングにした。「勢いよく倒れて静止」「ゆっくり起き上がる」という見た目の非対称性を、fall/getUp を分離した後も単一フェーズの式だけで表現している
+  - `fall` の実行判定(`postureRef.current === 0` の時のみ)内で `walkingRef`/`marchingRef` を強制的に false へ戻す。歩行/足踏み中に転倒しても、歩行系の action 側に個別の中断処理を持たせずに済む
+- 動作確認は Storybook `Fall` story(`Fall`/`Get Up` ボタンを常時表示、内部ガードにより誤クリックは無視される設計)を追加し、Playwright ヘッドレスで一連の状態遷移(直立→転倒中→倒れた状態→倒れている間の fall 再クリック無視→起き上がり中→直立復帰)をスクリーンショットで確認した
 
 ## 懸念・リスク
 
