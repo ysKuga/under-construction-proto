@@ -427,7 +427,7 @@ export const Fall: Story = {
         <StoryComponent
           eventTarget={eventTarget}
           mode="3d"
-          style={{ height: 320 }}
+          style={{ height: 300 }}
         />
       </div>
     )
