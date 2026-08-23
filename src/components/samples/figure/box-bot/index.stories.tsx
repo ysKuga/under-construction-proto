@@ -164,15 +164,17 @@ export const Grid3D: Story = {
 /**
  * 腕含む本体シルエットの実測幅(px)
  *
- * - cellSize = 120 のときの値
+ * - cellSize = 120 のときの値。box-bot-3d のカメラ設定(fov/ORBIT_TARGET)に\
+ *   依存するため、それらを変更した場合は再計測が必要
  */
-const BODY_WIDTH_AT_120 = 83
+const BODY_WIDTH_AT_120 = 51
 /**
  * 腕含む本体シルエットの実測高さ(px)
  *
- * - cellSize = 120 のときの値
+ * - cellSize = 120 のときの値。box-bot-3d のカメラ設定(fov/ORBIT_TARGET)に\
+ *   依存するため、それらを変更した場合は再計測が必要
  */
-const BODY_HEIGHT_AT_120 = 108
+const BODY_HEIGHT_AT_120 = 48
 /** 隣接ペアの重なり量(本体サイズに対する比率) */
 const OVERLAP_RATIO = 0.25
 
