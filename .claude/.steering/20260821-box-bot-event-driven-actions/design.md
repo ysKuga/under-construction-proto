@@ -83,6 +83,10 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - 進行度カーブは jump の `Math.sin` 系(対称)ではなく、fall は `p * (2 - p)`(減速しながら停止)、getUp は `1 - p * p`(加速しながら起立)という非対称のイージングにした。「勢いよく倒れて静止」「ゆっくり起き上がる」という見た目の非対称性を、fall/getUp を分離した後も単一フェーズの式だけで表現している
   - `fall` の実行判定(`postureRef.current === 0` の時のみ)内で `walkingRef`/`marchingRef` を強制的に false へ戻す。歩行/足踏み中に転倒しても、歩行系の action 側に個別の中断処理を持たせずに済む
 - 動作確認は Storybook `Fall` story(`Fall`/`Get Up` ボタンを常時表示、内部ガードにより誤クリックは無視される設計)を追加し、Playwright ヘッドレスで一連の状態遷移(直立→転倒中→倒れた状態→倒れている間の fall 再クリック無視→起き上がり中→直立復帰)をスクリーンショットで確認した
+- fall/getUp 実装後、フィードバックを受けて2点調整した
+  - 回転中心を体の中心でなく接地点(脚の下端)にするため、`fallPivotRef` を新設。`rootRef` の直下に「接地点へ position で移動 → `fallPivotRef` で回転 → 元のローカル座標へ position で戻す」という pivot 構造を追加し、回転(`rotation.x`)は `rootRef` でなく `fallPivotRef` へ適用する形に変更した。pivot 位置の y 座標(`groundY`)は `useBoxBotModel` の戻り値に追加し、JSX の position props として渡す(action hook 側は回転のみ扱う)
+  - fall 発火時に腕を前へ出す(`FALL_ARM_ANGLE`、`leftArmRef`/`rightArmRef` の `rotation.x` を即座に切替える toggle 実装)。getUp 発火時に 0 へ戻す。経過時間による補間はせず、fall/getUp の実行判定内で直接代入するだけの最小実装。将来この動き自体を独立 action(軌道)として分離する可能性がある(ユーザー要望として明示済み)
+  - 動作確認時、通常のカメラ距離(fov 42)では転倒後の姿勢が Canvas 下端で見切れて確認しづらかったため、`Fall` story のみ `fov={45}`/`style={{ height: 600, width: 700 }}` を指定し、転倒後も全身が収まるようにした
 
 ## 懸念・リスク
 
