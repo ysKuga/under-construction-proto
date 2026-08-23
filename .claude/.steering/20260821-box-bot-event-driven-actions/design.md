@@ -102,6 +102,10 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - カメラの自動フレーミング(`useCameraFramingAction`、`CAMERA_FALLEN_FOV_OFFSET`/`CAMERA_FOV_APPROACH_RATE`)は、いったん取りやめて撤去した。`_action-hooks/use-camera-framing-action.ts` を削除し、`index.hooks.ts` からの呼び出しも外した。転倒時の見切れ対策自体は継続検討課題として残る(git 履歴から復元可能)
 - 「Canvas の表示領域(DOM 要素のサイズ)を拡大すれば見切れを解消できないか」という代替案を検証した。box-bot-3d の Canvas 高さを 900px に拡大して Playwright で確認したが、転倒後も画角の外に見切れたまま変化しなかった。three.js の `camera.fov` は垂直方向の視野角(度)であり、Canvas(DOM 要素・renderer)のピクセルサイズとは独立しているため、DOM サイズを拡大しても同じワールド座標範囲がより大きく描画されるだけで、見える範囲(視錐台)自体は変わらない。この検証結果を踏まえ、`useCameraFramingAction` を撤去前の実装のまま再導入した
 - 再導入した `useCameraFramingAction` も「倒れた瞬間に見切れている」というフィードバックにより再度撤去した。`approach` による fov 補間(`CAMERA_FOV_APPROACH_RATE`)は、fall 発火直後(体が倒れ切る前)は目標値に収束しておらず、体が倒れ切った直後の一瞬はまだ元の fov に近いため、見切れが実際には解消しきれていなかった。カメラ側での動的な対応(fov 追従)は今回のスコープでは見送りとし、転倒時の見切れ対策は再度 継続検討課題として残す
+- box-bot-3d のデフォルト `fov` を静的に広げる(42 → 64)方式で見切れ対策を再検討した。動的補間(`useCameraFramingAction`)は「切り替わりの遅延で倒れた瞬間だけ見切れる」問題を抱えていたが、常時固定の fov なら遅延自体が発生しない
+  - 前例あり: jump 演出(頭部が上昇)による上方の見切れも、当初 fov 拡大(34 → 42、コミット `0e0cec1`)で常時固定的に解決していた。今回は同じ手法を下方(転倒)にも適用した形
+  - Playwright で fov=58/64/70 を比較検証。58 は転倒直後にわずかに脚先が接する程度、70 は直立時に本体がやや小さく見えすぎる、64 が「直立時の見た目は元の fov=42 とほぼ変わらず、転倒直後(fall 発火 420ms 後)から起き上がり完了まで一貫して見切れない」バランス点として採用した
+  - `index.stories.tsx` の `BASE_FOV` 定数(`fovForScale` の基準値、Grid3D/Circle story で Canvas 拡大率ぶん fov を補正するのに使う「BoxBot3D デフォルトと同じ値」というコメント付き定数)も 42 → 64 へ同期させた。ここを更新し忘れると Grid3D/Circle 表示で本体の見かけの大きさがずれるため
 
 ## 懸念・リスク
 
