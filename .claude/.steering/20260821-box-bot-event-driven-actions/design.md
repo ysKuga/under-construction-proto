@@ -86,7 +86,14 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - fall/getUp 実装後、フィードバックを受けて2点調整した
   - 回転中心を体の中心でなく接地点(脚の下端)にするため、`fallPivotRef` を新設。`rootRef` の直下に「接地点へ position で移動 → `fallPivotRef` で回転 → 元のローカル座標へ position で戻す」という pivot 構造を追加し、回転(`rotation.x`)は `rootRef` でなく `fallPivotRef` へ適用する形に変更した。pivot 位置の y 座標(`groundY`)は `useBoxBotModel` の戻り値に追加し、JSX の position props として渡す(action hook 側は回転のみ扱う)
   - fall 発火時に腕を前へ出す(`FALL_ARM_ANGLE`、`leftArmRef`/`rightArmRef` の `rotation.x` を即座に切替える toggle 実装)。getUp 発火時に 0 へ戻す。経過時間による補間はせず、fall/getUp の実行判定内で直接代入するだけの最小実装。将来この動き自体を独立 action(軌道)として分離する可能性がある(ユーザー要望として明示済み)
-  - 動作確認時、通常のカメラ距離(fov 42)では転倒後の姿勢が Canvas 下端で見切れて確認しづらかったため、`Fall` story のみ `fov={45}`/`style={{ height: 600, width: 700 }}` を指定し、転倒後も全身が収まるようにした
+  - 動作確認時、通常のカメラ距離(fov 42)では転倒後の姿勢が Canvas 下端で見切れて確認しづらかったため、`Fall` story のみ `fov={45}`/`style={{ height: 600, width: 700 }}` を指定し、転倒後も全身が収まるようにした(この対応は後続のフィードバックで box-bot-3d 側の自動調整に置き換え、story 側の個別指定は撤去した)
+- 上記実装後、さらにフィードバックを受けて3点調整した
+  - 腕の位置を「頭寄り」に変更(`FALL_ARM_ANGLE = -3π/4`)。転倒に対して防御的に頭をかばう動きを意図
+  - getUp を「fall の位置(頭寄り)から一度 床を押す位置(`GET_UP_ARM_PUSH_ANGLE = -0.35`)を経由して通常位置(0)へ戻る」2 フェーズの線形補間にした(進行度前半で頭寄り→床を押す位置、後半で床を押す位置→0)。腕を使って立ち上がるような動きを意図
+  - 転倒時の見切れ対策を、story 側の個別 fov/Canvas サイズ指定(前段の対応)から、box-bot-3d 自体が自動調整する方式に置き換えた。新設 `useCameraFramingAction`(`_action-hooks/`)が `postureRef` を監視し、直立でない間 `camera.fov` を `CAMERA_FALLEN_FOV_OFFSET` 分だけ広げる(`approach` で滑らかに)。呼び出し側は box-bot-3d の camera props や Canvas サイズを一切意識しなくてよくなった
+    - 実装時の学び: `useThree()` の戻り値 `camera` を直接 mutate すると React Compiler の `react-hooks/immutability` ルールに抵触するため、`useFrame` のコールバック引数(`state.camera`)から取得する必要があった
+    - 実装時の学び: `camera.fov` を書き換えて `updateProjectionMatrix()` を呼べば反映されるが、オフセット量が小さいと視覚的な変化にほぼ気づけない(tan 比によるスケール変化のため、値を大きく振らないと体感できない)。検証時は一旦極端な値(120 度等)で反映有無を切り分けてから、実用的な値(基準 + 55 度)に絞り込んだ
+    - 複数の `BoxBotModel` が同一 Canvas を共有する場合(`OverlapGrid3D` story 等)、各インスタンスがカメラを奪い合う懸念が残る。現状は 1 Canvas = 1 インスタンスの利用を前提とし、将来課題として残す
 
 ## 懸念・リスク
 
