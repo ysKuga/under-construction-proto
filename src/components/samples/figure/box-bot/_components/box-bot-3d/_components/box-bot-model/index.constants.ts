@@ -95,3 +95,13 @@ export const FALL_ANGLE = Math.PI / 2
  * - 将来 この動き自体を独立 action(軌道)にする際に見直す想定
  */
 export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
+
+/**
+ * 直立(posture = 0)でない間、camera.fov へ加算する量(度)
+ *
+ * - 転倒時 box-bot 本体が Canvas の表示領域から見切れやすいため、fov を広げて自動的に\
+ *   収める。呼び出し側(box-bot-3d の camera props 等)で個別に調整せずに済むようにする狙い
+ */
+export const CAMERA_FALLEN_FOV_OFFSET = 55
+/** camera.fov が目標値へ近づく速さ(approach の減衰係数) */
+export const CAMERA_FOV_APPROACH_RATE = 6
