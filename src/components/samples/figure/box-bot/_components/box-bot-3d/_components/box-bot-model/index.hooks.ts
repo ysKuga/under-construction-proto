@@ -7,7 +7,6 @@ import { approach } from '../../_lib/approach'
 
 import { useArmAction } from './_action-hooks/arm-action'
 import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
-import { useCameraFramingAction } from './_action-hooks/use-camera-framing-action'
 import { useFallAction } from './_action-hooks/use-fall-action'
 import { useGetUpAction } from './_action-hooks/use-get-up-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
@@ -93,7 +92,6 @@ export function useBoxBotModel(
   useLegBobAction(props, legY)
   useLegSwingAction(props)
   useBodyBobbingAction(props, legY)
-  useCameraFramingAction()
 
   // マウント時に autoWalk の歩き方で歩き始める。useBoxBotActionDispatcher 経由の
   // toggle は Canvas 外部からの発行になり、初回マウント直後は listener 登録前に
