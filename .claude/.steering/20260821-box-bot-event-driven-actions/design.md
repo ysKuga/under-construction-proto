@@ -114,6 +114,13 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - 「表示領域を拡大するたびに表示位置が下にいっている気がする」というフィードバックを受け、対症療法(story 側の Canvas 高さ調整)を繰り返すだけでなく、根本の見た目バランスを見直した
   - `BoxBot3D` の `OrbitControls` 注視点 `ORBIT_TARGET`(`[0, 0.4, 0]`)を `[0, -0.3, 0]` へ変更した。カメラの注視点を下げるほど本体全体が画面の上寄りに表示されるようになり、転倒時に画面下部へはみ出しにくくなる。box-bot-3d 全体(Mode3D/Grid3D/Circle/Walking 等の全 story・本番利用箇所)に影響する変更のため、Playwright で他 story の見た目に破綻がないことを確認してから採用した
   - `Fall` story の Canvas 高さは、この間ユーザー側で 320→450 に変更されていたが、900×500 のビューポートではまだ見切れることを確認し、300 へ調整し直した。ORBIT_TARGET 変更(汎用対応)と Canvas 高さ調整(story 固有の対症療法)は独立した対策であり、両方を組み合わせて狭いウィンドウでの見切れを解消している
+- ORBIT_TARGET はユーザー側でさらに `[0, -0.6, 0]` まで調整されていたが、これにより「Grid3D で表示が小さくなった」という新たな問題が発生した
+  - 原因調査の結果、Grid3D/OverlapGrid3D は `orbit={false}` のため ORBIT_TARGET とは無関係と判明(見当違いの仮説を最初に立てていた)。真因は別の変更、`index.stories.tsx` の `BASE_FOV` 定数を「BoxBot3D デフォルトと同じ値」として box-bot-3d の fov 変更(42→64)に追従させていたことだった
+  - `fovForScale`(Canvas 拡大率に応じて fov を広げ見た目のスケールを一定に保つ関数)は `tan` 比のスケーリング計算で、BASE_FOV が大きくなるほど同じ拡大率でも実効 fov が非線形に(90 度に近づくほど急激に)広がる。BASE_FOV を 42→64 にしたことで、Grid3D の実効 fov が 94 度→120 度超まで広がり、広角レンズの周辺歪みで本体が縮小して見えていた
+  - 対応方針を検討し、「fovForScale 周りの数値を修正する」(assembly パターンで box-bot-3d 自体をラップし直す案とは別軸)を選んだ。`BASE_FOV` を box-bot-3d のデフォルト追従(64)から切り離し、Grid3D/Circle が意図した見た目を保っていた元の値(42)に戻すことで解決した。box-bot-3d 自体の fov 調整(見切れ対策)と、Grid3D/Circle 用の見た目スケール基準(BASE_FOV)を独立させる設計に修正した形
+  - Grid3D/Circle/OverlapGrid3D/Mode3D/Fall のいずれも Playwright で見た目に問題ないことを確認済み
+  - BASE_FOV 修正の検証過程で ORBIT_TARGET を一時的に `[0, -0.15, 0]` に下げて Grid3D への影響を切り分けたが、最終的に `[0, -0.6, 0]` はユーザー側の判断・コミット(`ec647b1`)で確定した。ORBIT_TARGET(box-bot-3d 全体のカメラ注視点)と BASE_FOV(Grid3D/Circle 固有の見た目スケール基準)が完全に独立したため、ORBIT_TARGET をどこまで下げても Grid3D の見た目には影響しないことを確認済み
+- assembly パターン(`docs/terminology/assembly/`、container/body + `position: absolute` による部品組合せ、`scale` による拡縮)で box-bot-3d をラップする案は、今回は見送り継続検討とした。box-bot-3d の Canvas 配置構造自体を変える、より大きい設計変更のため
 
 ## 懸念・リスク
 
