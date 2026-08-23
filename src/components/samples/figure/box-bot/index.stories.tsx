@@ -417,12 +417,7 @@ export const Fall: Story = {
             Get Up
           </Button>
         </div>
-        <StoryComponent
-          eventTarget={eventTarget}
-          fov={45}
-          mode="3d"
-          style={{ height: 600, width: 700 }}
-        />
+        <StoryComponent eventTarget={eventTarget} mode="3d" />
       </div>
     )
   },

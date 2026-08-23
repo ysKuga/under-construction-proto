@@ -88,9 +88,27 @@ export const GET_UP_DUR = 0.6
 /** 倒れきった状態の fallPivotRef 前傾角度(rad、x 軸回転) */
 export const FALL_ANGLE = Math.PI / 2
 /**
- * 転倒中に腕を前へ出す角度(rad、x 軸回転)
+ * 転倒中に腕を頭の近くへ引き寄せる角度(rad、x 軸回転)
  *
- * - fall/getUp 発火時に即座に切替える toggle 実装(経過時間による補間はしない)。\
- *   将来 手を前に出す動き自体を独立 action(軌道)にする際に見直す想定
+ * - fall 発火時に即座に切替える toggle 実装(経過時間による補間はしない)。\
+ *   転倒に対して防御的に頭をかばう動きを意図している
+ * - 将来 この動き自体を独立 action(軌道)にする際に見直す想定
  */
-export const FALL_ARM_ANGLE = -1.2
+export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
+/**
+ * 起き上がり時、腕で床を押す位置の角度(rad、x 軸回転)
+ *
+ * - getUp の進行度前半で `FALL_ARM_ANGLE` からこの角度へ、後半で通常位置(0)へ\
+ *   イージングする。倒れた位置(頭寄り)から一度 床を押す位置を経由して起立する動き
+ */
+export const GET_UP_ARM_PUSH_ANGLE = -0.35
+
+/**
+ * 直立(posture = 0)でない間、camera.fov へ加算する量(度)
+ *
+ * - 転倒時 box-bot 本体が Canvas の表示領域から見切れやすいため、fov を広げて自動的に\
+ *   収める。呼び出し側(box-bot-3d の camera props 等)で個別に調整せずに済むようにする狙い
+ */
+export const CAMERA_FALLEN_FOV_OFFSET = 55
+/** camera.fov が目標値へ近づく速さ(approach の減衰係数) */
+export const CAMERA_FOV_APPROACH_RATE = 6
