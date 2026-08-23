@@ -108,6 +108,9 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - `index.stories.tsx` の `BASE_FOV` 定数(`fovForScale` の基準値、Grid3D/Circle story で Canvas 拡大率ぶん fov を補正するのに使う「BoxBot3D デフォルトと同じ値」というコメント付き定数)も 42 → 64 へ同期させた。ここを更新し忘れると Grid3D/Circle 表示で本体の見かけの大きさがずれるため
 - fov=64 を適用しても「story 上で見切れている」というフィードバックがあり調査したところ、原因は fov でなく Storybook の Controls パネルだった。Storybook の通常表示(canvas 直下に Controls パネルが表示される既定レイアウト)では、Canvas 外側 div の既定高さ(480px)がパネル分だけ表示領域を超え、転倒姿勢の下部がパネルの裏に隠れていた。BoxBot3D 自体(fov)は正しく機能しており、本番(BoxBotModel の実利用箇所には Controls パネルが存在しない)では発生しない Storybook 固有の表示問題
   - 対応は `Fall` story 側の Canvas 高さを `style={{ height: 320 }}` で既定(480px)より低くする形にした。BoxBot3D 本体や他 story には手を入れていない
+- height 縮小(320px)後も「fall 完了時に見切れる」という報告が続いた。手元(1400×800 のビューポート)では再現しなかったため Playwright で段階的にビューポートを狭めて確認したところ、900×500 程度の狭いウィンドウで Actions/Interactions/Accessibility パネル(Controls を無効化しても他の addon タブは残る)が Canvas 領域を圧迫して再現した
+  - `parameters: { controls: { disable: true } }` だけでは他の addon タブ(Actions 等)が残り不十分だった。`parameters: { options: { showPanel: false } }` に切り替え、addon パネル自体を非表示にした
+  - それでも Canvas の絶対的な高さ(480px)がビューポートの残り高さを超えれば見切れるため、`showPanel: false` と `style={{ height: 320 }}` の両方を併用する形で最終決定した。片方だけでは狭いウィンドウを再現できなかった
 
 ## 懸念・リスク
 
