@@ -401,11 +401,15 @@ export const Walking: StoryObj<WalkingArgs> = {
  *
  * - 直立時のみ fall が、倒れている時のみ getUp が実際に発火する(内部ガード)。\
  *   誤ったタイミングでクリックしても無視されるだけなので、ボタンは常時 2 つとも表示する
- * - Canvas 高さを既定(480px)より低くしている。Storybook の Controls パネルが\
- *   下に表示された状態でも本体が見切れず確認できるようにするための調整で、\
- *   BoxBot3D 自体の見切れ対策(fov)とは無関係
+ * - addon パネル(Controls/Actions 等)を無効化しつつ、Canvas 高さも既定(480px)より\
+ *   低くしている。狭いウィンドウでも、パネルの有無に関わらず Canvas 自体の絶対的な\
+ *   高さがビューポートを超えれば見切れるため、両方の対策が必要だった。args を持たない\
+ *   story のため showPanel 無効化に実害なし
  */
 export const Fall: Story = {
+  parameters: {
+    options: { showPanel: false },
+  },
   render: () => {
     const [eventTarget] = React.useState(() => new EventTarget())
     const { fall, getUp } = useBoxBotActionDispatcher(eventTarget)
