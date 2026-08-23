@@ -101,6 +101,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - 上記の2段階構成(体を起こしてから腕を戻す)は「get up 中に腕を垂直まで移動したい」という要望で再度見直した。体の回転と腕の戻りを同じ進行度(`getUpRef`)で並行制御する形に戻し、`armReturnRef`/`ARM_RETURN_DUR` は削除した。`fallPivotRef.rotation.x` と腕の `rotation.x` を両方とも同じイージング式 `FALL_ANGLE/FALL_ARM_ANGLE * (1 - p * p)` で計算する。前々段の並行制御(床を押す位置を経由)との違いは、経由点を挟まず fall の位置から通常位置(0)まで単一区間で補間する点
 - カメラの自動フレーミング(`useCameraFramingAction`、`CAMERA_FALLEN_FOV_OFFSET`/`CAMERA_FOV_APPROACH_RATE`)は、いったん取りやめて撤去した。`_action-hooks/use-camera-framing-action.ts` を削除し、`index.hooks.ts` からの呼び出しも外した。転倒時の見切れ対策自体は継続検討課題として残る(git 履歴から復元可能)
 - 「Canvas の表示領域(DOM 要素のサイズ)を拡大すれば見切れを解消できないか」という代替案を検証した。box-bot-3d の Canvas 高さを 900px に拡大して Playwright で確認したが、転倒後も画角の外に見切れたまま変化しなかった。three.js の `camera.fov` は垂直方向の視野角(度)であり、Canvas(DOM 要素・renderer)のピクセルサイズとは独立しているため、DOM サイズを拡大しても同じワールド座標範囲がより大きく描画されるだけで、見える範囲(視錐台)自体は変わらない。この検証結果を踏まえ、`useCameraFramingAction` を撤去前の実装のまま再導入した
+- 再導入した `useCameraFramingAction` も「倒れた瞬間に見切れている」というフィードバックにより再度撤去した。`approach` による fov 補間(`CAMERA_FOV_APPROACH_RATE`)は、fall 発火直後(体が倒れ切る前)は目標値に収束しておらず、体が倒れ切った直後の一瞬はまだ元の fov に近いため、見切れが実際には解消しきれていなかった。カメラ側での動的な対応(fov 追従)は今回のスコープでは見送りとし、転倒時の見切れ対策は再度 継続検討課題として残す
 
 ## 懸念・リスク
 
