@@ -75,7 +75,7 @@ export default function BoxBot3D({
   autoRotate = true,
   background = 'transparent',
   className,
-  fov = 42,
+  fov = 64,
   interactive = true,
   orbit = true,
   rotateSpeed,

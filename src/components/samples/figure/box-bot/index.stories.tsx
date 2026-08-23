@@ -97,7 +97,7 @@ export const Grid: Story = {
  *
  * - BoxBot3D デフォルトと同じ値
  */
-const BASE_FOV = 42
+const BASE_FOV = 64
 
 /**
  * Canvas 拡大率ぶん fov を広げ、本体の見かけの大きさを一定に保つ
