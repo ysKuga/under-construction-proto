@@ -47,7 +47,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - [x] `index.hooks.ts` へ組込み、`startFall`/`startGetUp` を `UseBoxBotModelReturn` へ追加
   - [x] `useBoxBotActionDispatcher` へ `fall()`/`getUp()` を追加、`UseBoxBotActionDispatcherReturn` を更新
   - [x] 動作確認: Storybook `Fall` story(`Fall`/`Get Up` ボタン)を追加、Playwright ヘッドレスで転倒→静止→倒れている間の fall 無視(ガード)→起き上がり→直立復帰を確認済み
-  - [ ] 被ダメージモーション(仮称)は `action-reaction-design` 側で定義未確定のため別途。こけると共通化できる部分(`postureRef` の再利用等)がないか実装時に確認
+  - [x] 被ダメージモーション(仮称)は `action-reaction-design` 側でいったん延期と決定。`src/components/samples/figure/box-bot/README.md`「検討事項」に記録
 
 ## 検討
 
