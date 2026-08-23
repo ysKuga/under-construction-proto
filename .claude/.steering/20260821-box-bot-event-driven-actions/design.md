@@ -98,6 +98,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - `GET_UP_ARM_PUSH_ANGLE` 定数は削除。新設 `ARM_RETURN_DUR`(腕を戻す所要時間)に置き換えた
   - 体の回転(`getUpRef`)と腕の戻り(新設 `armReturnRef`、`BoxBotRefs` へ追加)を別 ref で管理する 2 段階構成にした。体の回転が完了(`postureRef.current = 0` に確定)した瞬間に `armReturnRef.current = 0` をセットして腕の戻りフェーズを開始する。体の回転中は腕の角度に一切触れない(fall で設定された `FALL_ARM_ANGLE` がそのまま維持される)ため、「頭寄りのまま体だけ起こす」動きが自然に実現できた
   - 動作確認時、通常の `GET_UP_DUR`/`ARM_RETURN_DUR`(0.6秒/0.35秒)では headless Chromium 環境の低フレームレート(dt が 1 フレームあたり 0.08〜0.11 秒程度になることがあった)により中間状態のスクリーンショットが撮れなかったため、検証時のみ両定数を数秒単位に延ばして中間状態を確認し、確認後に元の値へ戻した
+- 上記の2段階構成(体を起こしてから腕を戻す)は「get up 中に腕を垂直まで移動したい」という要望で再度見直した。体の回転と腕の戻りを同じ進行度(`getUpRef`)で並行制御する形に戻し、`armReturnRef`/`ARM_RETURN_DUR` は削除した。`fallPivotRef.rotation.x` と腕の `rotation.x` を両方とも同じイージング式 `FALL_ANGLE/FALL_ARM_ANGLE * (1 - p * p)` で計算する。前々段の並行制御(床を押す位置を経由)との違いは、経由点を挟まず fall の位置から通常位置(0)まで単一区間で補間する点
 
 ## 懸念・リスク
 
