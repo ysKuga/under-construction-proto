@@ -135,6 +135,12 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 /** BoxBotRefsProvider が配布する ref 群 */
 export interface BoxBotRefs {
   /**
+   * 起き上がり完了後、腕を定位置へ戻す進行度の ref
+   *
+   * - -1: 非実行中、0以上: 経過秒数
+   */
+  armReturnRef: RefObject<number>
+  /**
    * 転倒/起き上がりの回転制御グループ ref
    *
    * - `rootRef` 直下、脚の接地点(下方)へ position で移動した内側に配置し、\

@@ -96,12 +96,12 @@ export const FALL_ANGLE = Math.PI / 2
  */
 export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
 /**
- * 起き上がり時、腕で床を押す位置の角度(rad、x 軸回転)
+ * 起き上がり完了後、腕を定位置(0)へ戻す所要時間(秒)
  *
- * - getUp の進行度前半で `FALL_ARM_ANGLE` からこの角度へ、後半で通常位置(0)へ\
- *   イージングする。倒れた位置(頭寄り)から一度 床を押す位置を経由して起立する動き
+ * - getUp 中(体が垂直へ戻るまで)は腕を `FALL_ARM_ANGLE`(頭寄り)のまま維持し、\
+ *   体が直立してから この時間をかけて腕を戻す
  */
-export const GET_UP_ARM_PUSH_ANGLE = -0.35
+export const ARM_RETURN_DUR = 0.35
 
 /**
  * 直立(posture = 0)でない間、camera.fov へ加算する量(度)
