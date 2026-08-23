@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import type { PropsWithChildren } from 'react'
-import type { Group } from 'three'
 
 import { createRequiredContext } from '@/utils/create-required-context'
 
@@ -33,22 +32,49 @@ export const BoxBotRefsContext = RequiredRefsContext
 export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
 
 /**
- * jump/spin/arm の各 ref を生成し、action hook 群へ配布する
+ * jump/spin/arm/leg/walking/marching の各 ref を生成し、action hook 群へ配布する
  *
  * - 生成した ref オブジェクト自体は各 hook 内で `.current` を書き換えるのみで\
  *   差し替えないため、`useMemo` で Context 値を安定させ、Provider の再レンダーが\
  *   下位 Consumer の不要な再レンダーを誘発しないようにする
  */
 export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
-  const jumpRef = React.useRef(-1)
-  const rootRef = React.useRef<Group>(null)
-  const spinRef = React.useRef<Group>(null)
-  const leftArmRef = React.useRef<Group>(null)
-  const rightArmRef = React.useRef<Group>(null)
+  const jumpRef: BoxBotRefs['jumpRef'] = React.useRef(-1)
+  const rootRef: BoxBotRefs['rootRef'] = React.useRef(null)
+  const spinRef: BoxBotRefs['spinRef'] = React.useRef(null)
+  const leftArmRef: BoxBotRefs['leftArmRef'] = React.useRef(null)
+  const rightArmRef: BoxBotRefs['rightArmRef'] = React.useRef(null)
+  const leftLegRef: BoxBotRefs['leftLegRef'] = React.useRef(null)
+  const rightLegRef: BoxBotRefs['rightLegRef'] = React.useRef(null)
+  const walkingBobRef: BoxBotRefs['walkingBobRef'] = React.useRef(null)
+  const walkingRef: BoxBotRefs['walkingRef'] = React.useRef(false)
+  const marchingRef: BoxBotRefs['marchingRef'] = React.useRef(false)
 
   const refs = React.useMemo<BoxBotRefs>(
-    () => ({ jumpRef, leftArmRef, rightArmRef, rootRef, spinRef }),
-    [jumpRef, leftArmRef, rightArmRef, rootRef, spinRef],
+    () => ({
+      jumpRef,
+      leftArmRef,
+      leftLegRef,
+      marchingRef,
+      rightArmRef,
+      rightLegRef,
+      rootRef,
+      spinRef,
+      walkingBobRef,
+      walkingRef,
+    }),
+    [
+      jumpRef,
+      leftArmRef,
+      leftLegRef,
+      marchingRef,
+      rightArmRef,
+      rightLegRef,
+      rootRef,
+      spinRef,
+      walkingBobRef,
+      walkingRef,
+    ],
   )
 
   return (

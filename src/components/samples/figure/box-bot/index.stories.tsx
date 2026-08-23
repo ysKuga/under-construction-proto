@@ -1,6 +1,12 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
+import * as React from 'react'
 
 import { StyledDiv } from '@/components/samples/_parts/_base/part-base'
+import { Button } from '@/components/ui/button'
+
+import { LEG_CYCLE_SEC } from './_components/box-bot-3d/_components/box-bot-model/index.constants'
+import type { LegStyle } from './_components/box-bot-3d/_components/box-bot-model/index.types'
+import { useBoxBotActionDispatcher } from './_components/box-bot-3d/_components/box-bot-model/use-box-bot-action-dispatcher'
 
 import { BoxBot as StoryComponent } from '.'
 
@@ -288,6 +294,103 @@ export const Circle: StoryObj<{
             }}
           />
         </div>
+      </div>
+    )
+  },
+}
+
+type WalkingArgs = {
+  /** body 全体の bobbing を有効にするか */
+  bodyBobbing?: boolean
+}
+
+/**
+ * walking(脚 swing)・marching(脚 bob)action の挙動確認
+ *
+ * - 歩く/止まるボタン + 歩き方(swing/bob)の切替 + 速度スライダーを画面内に直接配置し、\
+ *   body bobbing の有効/無効(Controls パネル)と組合せて確認できる。body bobbing は\
+ *   脚の実際の動きから高さを計算するため、常に連動する
+ * - マウント時に自動で歩き始める。`BoxBotModel` の `autoWalk` props で Canvas 内部\
+ *   (マウント完了後)から直接 ref をセットする。r3f の Canvas は別 reconciler root で\
+ *   非同期に初期化されるため、外部の `useEffect` から `useBoxBotActionDispatcher` 経由で\
+ *   toggle を発行すると listener 登録前にイベントが発行されるタイミング競合の余地があり、\
+ *   その回避のため
+ * - 歩行中に legStyle を切り替えると、その場で歩き方が変わる(旧方式を止めて新方式を開始する)。\
+ *   こちらは Canvas マウント後の操作のためタイミング競合がなく、\
+ *   `useBoxBotActionDispatcher` 経由の toggle のままでよい
+ */
+export const Walking: StoryObj<WalkingArgs> = {
+  args: {
+    bodyBobbing: true,
+  },
+  argTypes: {
+    bodyBobbing: { control: 'boolean' },
+  },
+  render: (args) => {
+    const [eventTarget] = React.useState(() => new EventTarget())
+    const { marchingToggle, walkingToggle } =
+      useBoxBotActionDispatcher(eventTarget)
+    const [walking, setWalking] = React.useState(true)
+    const [legStyle, setLegStyle] = React.useState<LegStyle>('swing')
+    const [legCycle, setLegCycle] = React.useState(LEG_CYCLE_SEC)
+    const legStyleRef = React.useRef(legStyle)
+
+    const toggleByStyle = (style: LegStyle) => {
+      if (style === 'bob') void marchingToggle()
+      else void walkingToggle()
+    }
+
+    // legStyle 切替。歩行中のみ、旧方式を止めて新方式を開始する(初回マウントは
+    // autoWalk props に任せるため、legStyleRef の初期値と一致し何もしない)
+    React.useEffect(() => {
+      if (legStyleRef.current === legStyle) return
+      if (walking) {
+        toggleByStyle(legStyleRef.current)
+        toggleByStyle(legStyle)
+      }
+      legStyleRef.current = legStyle
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [legStyle])
+
+    return (
+      <div>
+        <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+          <Button
+            onClick={() => {
+              toggleByStyle(legStyle)
+              setWalking((v) => !v)
+            }}
+            type="button"
+            variant="outline"
+          >
+            {walking ? 'Stop' : 'Walk'}
+          </Button>
+          <select
+            onChange={(e) => setLegStyle(e.target.value as LegStyle)}
+            value={legStyle}
+          >
+            <option value="swing">swing</option>
+            <option value="bob">bob</option>
+          </select>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            speed
+            <input
+              max={2}
+              min={0.1}
+              onChange={(e) => setLegCycle(Number(e.target.value))}
+              step={0.05}
+              type="range"
+              value={legCycle}
+            />
+          </label>
+        </div>
+        <StoryComponent
+          autoWalk={legStyle}
+          bodyBobbing={args.bodyBobbing}
+          eventTarget={eventTarget}
+          legCycle={legCycle}
+          mode="3d"
+        />
       </div>
     )
   },

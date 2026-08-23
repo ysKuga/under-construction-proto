@@ -6,7 +6,12 @@ import * as React from 'react'
 import { approach } from '../../_lib/approach'
 
 import { useArmAction } from './_action-hooks/arm-action'
+import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
+import { useLegBobAction } from './_action-hooks/use-leg-bob-action'
+import { useLegSwingAction } from './_action-hooks/use-leg-swing-action'
+import { useMarchingAction } from './_action-hooks/use-marching-action'
+import { useWalkingAction } from './_action-hooks/use-walking-action'
 import {
   ARM_APPROACH_RATE,
   ARM_DOWN_ANGLE,
@@ -30,6 +35,7 @@ export function useBoxBotModel(
 ): UseBoxBotModelReturn {
   const {
     autoRotate = false,
+    autoWalk,
     interactive = true,
     rotateSpeed = 0,
     ...opts
@@ -45,7 +51,19 @@ export function useBoxBotModel(
     leg: { ...DEFAULTS.leg, ...opts.leg },
   }
 
-  const { jumpRef, leftArmRef, rightArmRef, rootRef, spinRef } = useBoxBotRefs()
+  const {
+    jumpRef,
+    leftArmRef,
+    leftLegRef,
+    rightArmRef,
+    rightLegRef,
+    rootRef,
+    spinRef,
+    walkingBobRef,
+  } = useBoxBotRefs()
+
+  const bodyTop = cfg.body.h / 2
+  const legY = -bodyTop
 
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
@@ -62,6 +80,20 @@ export function useBoxBotModel(
 
   const { startJump } = useJumpAction(props)
   const { arm } = useArmAction(props)
+  const { walkingRef } = useWalkingAction(props)
+  const { marchingRef } = useMarchingAction(props)
+  useLegBobAction(props, legY)
+  useLegSwingAction(props)
+  useBodyBobbingAction(props, legY)
+
+  // マウント時に autoWalk の歩き方で歩き始める。useBoxBotActionDispatcher 経由の
+  // toggle は Canvas 外部からの発行になり、初回マウント直後は listener 登録前に
+  // イベントが発行されるタイミング競合の余地があるため、ref を直接セットする
+  React.useLayoutEffect(() => {
+    if (autoWalk === 'swing') walkingRef.current = true
+    else if (autoWalk === 'bob') marchingRef.current = true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // arm.left/right.up 状態に応じた腕の目標角度
   const leftArmAngle = arm.left.up ? ARM_UP_ANGLE : cfg.arm.leftAngle
@@ -98,12 +130,10 @@ export function useBoxBotModel(
       )
   })
 
-  const bodyTop = cfg.body.h / 2
   const headY = bodyTop + HEAD_GAP + cfg.head.h / 2
   const headFront = cfg.head.d / 2 + HEAD_FRONT_MARGIN
   const shoulderY = bodyTop - SHOULDER_Y_OFFSET
   const shoulderX = cfg.body.w / 2
-  const legY = -bodyTop - cfg.leg.h / 2
   const legX = (cfg.body.w / 2) * cfg.leg.gap
 
   return {
@@ -115,13 +145,18 @@ export function useBoxBotModel(
     interactive,
     jumpRef,
     leftArmRef,
+    leftLegRef,
     legX,
     legY,
+    marchingRef,
     rightArmRef,
+    rightLegRef,
     rootRef,
     shoulderX,
     shoulderY,
     spinRef,
     startJump,
+    walkingBobRef,
+    walkingRef,
   }
 }
