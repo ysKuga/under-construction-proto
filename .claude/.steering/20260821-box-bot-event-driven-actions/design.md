@@ -111,6 +111,9 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - height 縮小(320px)後も「fall 完了時に見切れる」という報告が続いた。手元(1400×800 のビューポート)では再現しなかったため Playwright で段階的にビューポートを狭めて確認したところ、900×500 程度の狭いウィンドウで Actions/Interactions/Accessibility パネル(Controls を無効化しても他の addon タブは残る)が Canvas 領域を圧迫して再現した
   - `parameters: { controls: { disable: true } }` だけでは他の addon タブ(Actions 等)が残り不十分だった。`parameters: { options: { showPanel: false } }` に切り替え、addon パネル自体を非表示にした
   - それでも Canvas の絶対的な高さ(480px)がビューポートの残り高さを超えれば見切れるため、`showPanel: false` と `style={{ height: 320 }}` の両方を併用する形で最終決定した。片方だけでは狭いウィンドウを再現できなかった
+- 「表示領域を拡大するたびに表示位置が下にいっている気がする」というフィードバックを受け、対症療法(story 側の Canvas 高さ調整)を繰り返すだけでなく、根本の見た目バランスを見直した
+  - `BoxBot3D` の `OrbitControls` 注視点 `ORBIT_TARGET`(`[0, 0.4, 0]`)を `[0, -0.3, 0]` へ変更した。カメラの注視点を下げるほど本体全体が画面の上寄りに表示されるようになり、転倒時に画面下部へはみ出しにくくなる。box-bot-3d 全体(Mode3D/Grid3D/Circle/Walking 等の全 story・本番利用箇所)に影響する変更のため、Playwright で他 story の見た目に破綻がないことを確認してから採用した
+  - `Fall` story の Canvas 高さは、この間ユーザー側で 320→450 に変更されていたが、900×500 のビューポートではまだ見切れることを確認し、300 へ調整し直した。ORBIT_TARGET 変更(汎用対応)と Canvas 高さ調整(story 固有の対症療法)は独立した対策であり、両方を組み合わせて狭いウィンドウでの見切れを解消している
 
 ## 懸念・リスク
 
