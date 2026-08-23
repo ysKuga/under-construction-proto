@@ -106,6 +106,8 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - 前例あり: jump 演出(頭部が上昇)による上方の見切れも、当初 fov 拡大(34 → 42、コミット `0e0cec1`)で常時固定的に解決していた。今回は同じ手法を下方(転倒)にも適用した形
   - Playwright で fov=58/64/70 を比較検証。58 は転倒直後にわずかに脚先が接する程度、70 は直立時に本体がやや小さく見えすぎる、64 が「直立時の見た目は元の fov=42 とほぼ変わらず、転倒直後(fall 発火 420ms 後)から起き上がり完了まで一貫して見切れない」バランス点として採用した
   - `index.stories.tsx` の `BASE_FOV` 定数(`fovForScale` の基準値、Grid3D/Circle story で Canvas 拡大率ぶん fov を補正するのに使う「BoxBot3D デフォルトと同じ値」というコメント付き定数)も 42 → 64 へ同期させた。ここを更新し忘れると Grid3D/Circle 表示で本体の見かけの大きさがずれるため
+- fov=64 を適用しても「story 上で見切れている」というフィードバックがあり調査したところ、原因は fov でなく Storybook の Controls パネルだった。Storybook の通常表示(canvas 直下に Controls パネルが表示される既定レイアウト)では、Canvas 外側 div の既定高さ(480px)がパネル分だけ表示領域を超え、転倒姿勢の下部がパネルの裏に隠れていた。BoxBot3D 自体(fov)は正しく機能しており、本番(BoxBotModel の実利用箇所には Controls パネルが存在しない)では発生しない Storybook 固有の表示問題
+  - 対応は `Fall` story 側の Canvas 高さを `style={{ height: 320 }}` で既定(480px)より低くする形にした。BoxBot3D 本体や他 story には手を入れていない
 
 ## 懸念・リスク
 
