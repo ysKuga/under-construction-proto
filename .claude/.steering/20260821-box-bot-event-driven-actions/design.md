@@ -121,6 +121,10 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - Grid3D/Circle/OverlapGrid3D/Mode3D/Fall のいずれも Playwright で見た目に問題ないことを確認済み
   - BASE_FOV 修正の検証過程で ORBIT_TARGET を一時的に `[0, -0.15, 0]` に下げて Grid3D への影響を切り分けたが、最終的に `[0, -0.6, 0]` はユーザー側の判断・コミット(`ec647b1`)で確定した。ORBIT_TARGET(box-bot-3d 全体のカメラ注視点)と BASE_FOV(Grid3D/Circle 固有の見た目スケール基準)が完全に独立したため、ORBIT_TARGET をどこまで下げても Grid3D の見た目には影響しないことを確認済み
 - assembly パターン(`docs/terminology/assembly/`、container/body + `position: absolute` による部品組合せ、`scale` による拡縮)で box-bot-3d をラップする案は、今回は見送り継続検討とした。box-bot-3d の Canvas 配置構造自体を変える、より大きい設計変更のため
+- 上記対応後、`OverlapGrid3D`(本体同士を重ねて表示する story)で「重ならなくなった」という報告があった。前段の BASE_FOV 修正確認時は「見た目の破綻がないか」しか見ておらず、`OverlapGrid3D` 固有の実測値(`BODY_WIDTH_AT_120`/`BODY_HEIGHT_AT_120`、cellSize=120 時点の本体シルエットの実測 px)まではチェックしていなかった
+  - これらは box-bot-3d のカメラ設定(fov=64 化、ORBIT_TARGET 変更)に応じて本体の見た目サイズが変わった影響を受けていた。旧実測値(幅83/高さ108)のままでは、`overlapOffsetPerIndex` が計算する重なりオフセットが実際の本体サイズに対して過大になり、意図した 25%(`OVERLAP_RATIO`)の重なりが得られなくなっていた
+  - 再計測は Canvas のスクリーンショットをピクセル解析する方法を試みたが、`ContactShadows` の淡い影(画面全体に薄く広がる)が背景色・ink 色いずれとの単純な差分判定にも紛れ込み、自動検出は信頼できる値を出せなかった(影を含めて実際より大きく検出してしまう)。最終的に 10px グリッド線を重ねた拡大画像を目視で読み取る方法に切り替え、新しい実測値(幅51/高さ48)を得た
+  - `BODY_WIDTH_AT_120`/`BODY_HEIGHT_AT_120` を新しい実測値に更新し、意図した重なりが再現されることを確認した。JSDoc に「box-bot-3d のカメラ設定に依存するため、変更時は再計測が必要」という注記を追加した
 
 ## 懸念・リスク
 
