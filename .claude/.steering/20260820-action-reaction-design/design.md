@@ -16,10 +16,10 @@ action / reaction を定義し、event listener によりアクションを実�
 ## 実装計画
 
 - [x] action 定義: 歩く → `walking`(脚 swing)/`marching`(脚 bob)の2 action として確定
-  - [ ] 「姿勢」概念との関連整理 (実現可能性の勘案)。厳密な整理は見送り、決定事項参照
+  - [x] 「姿勢」概念との関連整理 (実現可能性の勘案)。`posture` 数値(0=直立〜1=倒れている)として `docs/concept/README.md` へ定義、決定事項参照
 - [ ] action 定義: ジャンプ
   - [ ] 既存クリックジャンプ (box-bot 3D `startHop`) はそのまま維持、event listener 経由の発火経路を追加
-- [ ] reaction 定義: こける (転倒の効果を受けて抵抗に失敗)
+- [x] reaction 定義: こける (転倒の効果を受けて抵抗に失敗) → 英語命名 `fall` として確定
 - [ ] reaction 定義: 被ダメージモーション (仮称、要 naming)
 - [ ] action/reaction を event listener 経由で実行する仕組みの設計 (`useEventListener`/`useEventDispatcher` の活用方法)
 
@@ -33,8 +33,16 @@ action / reaction を定義し、event listener によりアクションを実�
   - `walking`(脚 swing): 前進の歩行として採用
   - `marching`(脚 bob、新規 action): 「足踏み」として定義。前進しないその場の動作
   - 両者とも jump/arm と同じ独立 toggle パターン(`ACTION_WALKING_TOGGLE`/`ACTION_MARCHING_TOGGLE`、`walkingRef`/`marchingRef`)。`legMotion` props は廃止し、各挙動 hook が自分の ref を直接見る形にした
+- 姿勢概念: `docs/concept/README.md` に `posture`(0=直立 〜 1=完全に倒れている の連続値)として定義した。離散 state でなく数値にすることで、よろけ等の中間状態も同じ軸で表現できる見込み
+  - box-bot 実装では `postureRef`(数値 ref)として持ち、こける/起き上がり action がこの値を変化させる。他 action(歩く等)の実行可否をこの値でガードする(決定事項の次項参照)
+- reaction定義: こける → 英語命名 `fall` として確定。見た目は「前方につまずき転倒」まで
+  - **転倒(`fall`)と起き上がり(`getUp`)は別 action に分離する。** 一連の自動モーションにはしない。倒れた後 `posture = 1` で静止し、起き上がりは別トリガーで明示的に発火する
+  - トリガー方式: いずれも jump と同じ独立 oneshot trigger action(`ACTION_FALL`/`ACTION_GET_UP`、`fallRef`/`getUpRef`)として実装する。被ダメージシステム(ダメージ量・方向等の入力を伴う設計)との連携は将来検討とし、まず単体で `useBoxBotActionDispatcher` から呼べる trigger として着手する
+  - 実行条件: `fall` は `posture === 0`(直立時)のみ発火可能、完了後 `posture = 1` で確定。`getUp` は `posture === 1`(倒れきっている時)のみ発火可能、完了後 `posture = 0` に戻す。二重発火・中途半端な状態からの遷移を防ぐ
+  - 姿勢によるガード: `walking`/`marching` など他 action は `posture !== 0`(直立でない)間は開始不可にする。「体勢により歩行等への移行が不可」という制御を `posture` 数値の参照だけで表現する
+  - action-phase.md の5段階モデルとの対応: 「こける」自体は Outcome(Failure)の結果を受けた Resolution 段階の可視化(見た目)に相当する想定。ただし本 steering・`20260821-box-bot-event-driven-actions` では ActionPhase 自体を導入せず、jump 同様「発火 → 見た目の動作 → 姿勢確定」という trigger action として実装する。ActionPhase との厳密な統合は将来課題として残す
 
 ## 懸念・リスク
 
 - action-phase.md の5段階モデル (Intent/PreAction/Execution/Outcome/Resolution) との対応が未整理。reaction (こける) をどの段階の処理として位置づけるか要検討。
-- 「姿勢」概念 (docs/concept/README.md) 自体が未検討のため、歩く action との関連付けは仮置きになる可能性がある。
+- `posture` 数値は box-bot 実装 (`fall`/`getUp`) を通じて初めて具体化するもので、他 action への一般化 (歩く以外のガード、複数キャラクター間での扱い等) は未検証。

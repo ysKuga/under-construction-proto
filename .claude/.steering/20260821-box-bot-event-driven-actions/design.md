@@ -35,7 +35,17 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 - [x] 歩く: `walking: boolean`(状態)を jump/arm と同じ event listener toggle パターンで実装。`useWalkingAction`(`ACTION_WALKING_TOGGLE`)。この段階では見た目の挙動(脚の上下・前後スイング・bobbing 等)は実装しない。定義自体は `action-reaction-design` 側の決定事項を参照
 - [x] 歩く挙動: 脚 swing(前後スイング、x軸回転)/脚 bob(上下、y position)/body bobbing を個別 action(`useLegSwingAction`/`useLegBobAction`/`useBodyBobbingAction`)として実装。body bobbing は脚の実際の ref 値(swing の角度・bob の位置)から毎フレーム高さを直接算出する方式にし、周期・位相パラメータで近似する形は採らなかった(ズレる余地をなくすため)
   - 確定: swing 方式 → `walking` として採用(前進の歩行)。bob 方式 → 新規 `marching`(足踏み)として採用。当初検討していた `legMotion` props(1つの値で bob/swing/none を排他選択)は廃止し、`walking`/`marching` を jump/arm と同じ独立 toggle action(`ACTION_WALKING_TOGGLE`/`ACTION_MARCHING_TOGGLE`、`walkingRef`/`marchingRef`)にした。body bobbing はどちらの ref が true かで計算式を切替える
-- [ ] こける/被ダメージモーション(仮称、要 naming)も jump と同じパターンで event listener 化。定義(`action-reaction-design` 側)完了後に着手
+- [ ] 姿勢(`posture`): `action-reaction-design` 側で 0(直立)〜1(倒れている)の数値と定義済み(`docs/concept/README.md` 参照)。こける/起き上がりの前提として先に導入する
+  - [ ] `postureRef`(number、0〜1)を `BoxBotRefs`/`BoxBotRefsProvider` へ追加
+  - [ ] `walking`/`marching` の実行条件へ `postureRef.current === 0`(直立時のみ)ガードを追加。`useWalkingAction`/`useMarchingAction` 側の toggle 実行判定(`interactive` チェックと同じ位置)に組込む
+- [ ] こける(`fall`)・起き上がり(`getUp`): `action-reaction-design` 側で「別 action に分離、`posture` を変化させる oneshot trigger」と定義済み。jump(`use-jump-action.ts`)のパターンを踏襲して実装する
+  - [ ] `ACTION_FALL`/`ACTION_GET_UP` 定数を `index.constants.ts` へ追加(命名パターン `<scope prefix>-action-<対象>-<動作>` に従い `BoxBot-action-fall`/`BoxBot-action-get-up`)
+  - [ ] `fallRef`/`getUpRef`(各 -1: 非実行中、0以上: 経過秒数)を `BoxBotRefs`/`BoxBotRefsProvider` へ追加
+  - [ ] `_action-hooks/use-fall-action.ts` を新設。dispatch(`startFall`)は trigger のみ、実行判定(`postureRef.current === 0` の時のみ)・`fallRef` 起動は `useEventListener` 側の `fallAction` へ一本化(jump と同じ分離)。`useFrame` 内で `fallRef` の経過秒数から進行度を算出し `rootRef.rotation.x` を前傾させ、完了時に `postureRef.current = 1` を確定させて `fallRef` を止める
+  - [ ] `_action-hooks/use-get-up-action.ts` を新設。fall と対称の実装(実行判定は `postureRef.current === 1` の時のみ、完了時 `postureRef.current = 0` を確定)
+  - [ ] `index.hooks.ts` へ組込み、`startFall`/`startGetUp` を `UseBoxBotModelReturn` へ追加
+  - [ ] `useBoxBotActionDispatcher` へ `fall()`/`getUp()` を追加、`UseBoxBotActionDispatcherReturn` を更新
+  - [ ] 被ダメージモーション(仮称)は `action-reaction-design` 側で定義未確定のため別途。こけると共通化できる部分(`postureRef` の再利用等)がないか実装時に確認
 
 ## 検討
 
