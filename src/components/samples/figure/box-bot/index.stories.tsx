@@ -401,6 +401,9 @@ export const Walking: StoryObj<WalkingArgs> = {
  *
  * - 直立時のみ fall が、倒れている時のみ getUp が実際に発火する(内部ガード)。\
  *   誤ったタイミングでクリックしても無視されるだけなので、ボタンは常時 2 つとも表示する
+ * - Canvas 高さを既定(480px)より低くしている。Storybook の Controls パネルが\
+ *   下に表示された状態でも本体が見切れず確認できるようにするための調整で、\
+ *   BoxBot3D 自体の見切れ対策(fov)とは無関係
  */
 export const Fall: Story = {
   render: () => {
@@ -417,7 +420,11 @@ export const Fall: Story = {
             Get Up
           </Button>
         </div>
-        <StoryComponent eventTarget={eventTarget} mode="3d" />
+        <StoryComponent
+          eventTarget={eventTarget}
+          mode="3d"
+          style={{ height: 320 }}
+        />
       </div>
     )
   },
