@@ -4,7 +4,6 @@ import { useEventDispatcher, useEventListener } from '@/hooks/event'
 
 import {
   ACTION_GET_UP,
-  ARM_RETURN_DUR,
   FALL_ANGLE,
   FALL_ARM_ANGLE,
   GET_UP_DUR,
@@ -18,9 +17,8 @@ import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
  * - 転倒(`useFallAction`)とは別 action。倒れている(`postureRef.current === 1`)時のみ発火可能
  * - `startGetUp` は dispatch のみに徹し、実行判定は `useEventListener` 側の `getUpAction` へ一本化する
  * - 回転は fall と同じく `fallPivotRef`(接地点へ pivot 済みのグループ)へ適用する
- * - 腕は体が垂直に戻るまで fall の位置(頭寄り、`FALL_ARM_ANGLE`)のまま維持し、体が直立してから\
- *   `armReturnRef` で定位置(0)へ戻す。2 段階の順序立てた動きにするため、体の回転(`getUpRef`)と\
- *   腕の戻り(`armReturnRef`)を別 ref で管理する
+ * - 腕は体の回転(`getUpRef`)と同じ進行度で fall の位置(頭寄り、`FALL_ARM_ANGLE`)から\
+ *   定位置(0、垂直)へ動かす。体を起こす動きに合わせて腕も一緒に垂直位置まで戻る
  *
  * @param props BoxBotModel に渡される props
  */
@@ -29,14 +27,8 @@ export const useGetUpAction = (
 ): Pick<UseBoxBotModelReturn, 'startGetUp'> => {
   const { interactive } = props
 
-  const {
-    armReturnRef,
-    fallPivotRef,
-    getUpRef,
-    leftArmRef,
-    postureRef,
-    rightArmRef,
-  } = useBoxBotRefs()
+  const { fallPivotRef, getUpRef, leftArmRef, postureRef, rightArmRef } =
+    useBoxBotRefs()
   const eventTarget = useBoxBotEventTarget()
 
   const getUpAction = () => {
@@ -52,35 +44,27 @@ export const useGetUpAction = (
     void dispatch(new Event(ACTION_GET_UP))
   }
 
+  // 起き上がり進行度に応じた fallPivotRef の前傾回転(fall の逆方向)・腕の角度
   useFrame((_, dt) => {
-    // 体の回転フェーズ。完了までは腕を fall の位置(頭寄り)のまま維持する
-    if (fallPivotRef.current && getUpRef.current >= 0) {
-      getUpRef.current += dt
-      if (getUpRef.current >= GET_UP_DUR) {
-        getUpRef.current = -1
-        postureRef.current = 0
-        fallPivotRef.current.rotation.x = 0
-        armReturnRef.current = 0
-      } else {
-        const p = getUpRef.current / GET_UP_DUR
-        fallPivotRef.current.rotation.x = FALL_ANGLE * (1 - p * p)
-      }
+    if (!fallPivotRef.current) return
+    if (getUpRef.current < 0) return
+
+    getUpRef.current += dt
+    if (getUpRef.current >= GET_UP_DUR) {
+      getUpRef.current = -1
+      postureRef.current = 0
+      fallPivotRef.current.rotation.x = 0
+      if (leftArmRef.current) leftArmRef.current.rotation.x = 0
+      if (rightArmRef.current) rightArmRef.current.rotation.x = 0
+      return
     }
 
-    // 体が直立した後、腕を定位置(0)へ戻すフェーズ
-    if (armReturnRef.current >= 0) {
-      armReturnRef.current += dt
-      if (armReturnRef.current >= ARM_RETURN_DUR) {
-        armReturnRef.current = -1
-        if (leftArmRef.current) leftArmRef.current.rotation.x = 0
-        if (rightArmRef.current) rightArmRef.current.rotation.x = 0
-      } else {
-        const p = armReturnRef.current / ARM_RETURN_DUR
-        const armAngle = FALL_ARM_ANGLE * (1 - p * p)
-        if (leftArmRef.current) leftArmRef.current.rotation.x = armAngle
-        if (rightArmRef.current) rightArmRef.current.rotation.x = armAngle
-      }
-    }
+    const p = getUpRef.current / GET_UP_DUR
+    fallPivotRef.current.rotation.x = FALL_ANGLE * (1 - p * p)
+
+    const armAngle = FALL_ARM_ANGLE * (1 - p * p)
+    if (leftArmRef.current) leftArmRef.current.rotation.x = armAngle
+    if (rightArmRef.current) rightArmRef.current.rotation.x = armAngle
   })
 
   return { startGetUp }

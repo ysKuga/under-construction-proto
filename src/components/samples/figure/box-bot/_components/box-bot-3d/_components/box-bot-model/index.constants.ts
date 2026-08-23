@@ -95,13 +95,6 @@ export const FALL_ANGLE = Math.PI / 2
  * - 将来 この動き自体を独立 action(軌道)にする際に見直す想定
  */
 export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
-/**
- * 起き上がり完了後、腕を定位置(0)へ戻す所要時間(秒)
- *
- * - getUp 中(体が垂直へ戻るまで)は腕を `FALL_ARM_ANGLE`(頭寄り)のまま維持し、\
- *   体が直立してから この時間をかけて腕を戻す
- */
-export const ARM_RETURN_DUR = 0.35
 
 /**
  * 直立(posture = 0)でない間、camera.fov へ加算する量(度)

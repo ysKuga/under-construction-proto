@@ -43,7 +43,6 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const fallRef: BoxBotRefs['fallRef'] = React.useRef(-1)
   const fallPivotRef: BoxBotRefs['fallPivotRef'] = React.useRef(null)
   const getUpRef: BoxBotRefs['getUpRef'] = React.useRef(-1)
-  const armReturnRef: BoxBotRefs['armReturnRef'] = React.useRef(-1)
   const postureRef: BoxBotRefs['postureRef'] = React.useRef(0)
   const rootRef: BoxBotRefs['rootRef'] = React.useRef(null)
   const spinRef: BoxBotRefs['spinRef'] = React.useRef(null)
@@ -57,7 +56,6 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
 
   const refs = React.useMemo<BoxBotRefs>(
     () => ({
-      armReturnRef,
       fallPivotRef,
       fallRef,
       getUpRef,
@@ -74,7 +72,6 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       walkingRef,
     }),
     [
-      armReturnRef,
       fallPivotRef,
       fallRef,
       getUpRef,
