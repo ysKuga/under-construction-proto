@@ -95,9 +95,12 @@ export const Grid: Story = {
 /**
  * 基準 fov(deg)
  *
- * - BoxBot3D デフォルトと同じ値
+ * - Grid3D/Circle が意図した見た目のスケールを保つための基準値。BoxBot3D の\
+ *   デフォルト fov とは独立させている。tan 比のスケーリング計算(`fovForScale`)は\
+ *   非線形のため、BoxBot3D デフォルトに追従させると(fov を広げる方向の変更で)\
+ *   Canvas 拡大率が同じでも実効 fov が急激に広がり、本体が縮小して見えてしまう
  */
-const BASE_FOV = 64
+const BASE_FOV = 42
 
 /**
  * Canvas 拡大率ぶん fov を広げ、本体の見かけの大きさを一定に保つ
