@@ -2,7 +2,12 @@ import { useFrame } from '@react-three/fiber'
 
 import { useEventDispatcher, useEventListener } from '@/hooks/event'
 
-import { ACTION_FALL, FALL_ANGLE, FALL_DUR } from '../index.constants'
+import {
+  ACTION_FALL,
+  FALL_ANGLE,
+  FALL_ARM_ANGLE,
+  FALL_DUR,
+} from '../index.constants'
 import { useBoxBotEventTarget, useBoxBotRefs } from '../index.contexts'
 import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
 
@@ -15,6 +20,10 @@ import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
  *   転倒も想定するため、発火時に `walkingRef`/`marchingRef` を止める
  * - jump と同じく `startFall` は dispatch のみに徹し、実行判定(`interactive`・姿勢チェック)は\
  *   `useEventListener` 側の `fallAction` へ一本化する
+ * - 回転は `rootRef` でなく `fallPivotRef`(接地点へ pivot 済みのグループ)へ適用する。\
+ *   体の中心を軸に回すと接地点が浮いてしまうため
+ * - 発火時に腕を前へ出す(`rotation.x` を即座に切替える toggle 実装)。将来 この動きを\
+ *   独立 action(軌道)として分離する可能性がある
  *
  * @param props BoxBotModel に渡される props
  */
@@ -23,8 +32,15 @@ export const useFallAction = (
 ): Pick<UseBoxBotModelReturn, 'startFall'> => {
   const { interactive } = props
 
-  const { fallRef, marchingRef, postureRef, rootRef, walkingRef } =
-    useBoxBotRefs()
+  const {
+    fallPivotRef,
+    fallRef,
+    leftArmRef,
+    marchingRef,
+    postureRef,
+    rightArmRef,
+    walkingRef,
+  } = useBoxBotRefs()
   const eventTarget = useBoxBotEventTarget()
 
   const fallAction = () => {
@@ -32,6 +48,8 @@ export const useFallAction = (
     if (postureRef.current !== 0) return
     walkingRef.current = false
     marchingRef.current = false
+    if (leftArmRef.current) leftArmRef.current.rotation.x = FALL_ARM_ANGLE
+    if (rightArmRef.current) rightArmRef.current.rotation.x = FALL_ARM_ANGLE
     fallRef.current = 0
   }
 
@@ -42,21 +60,21 @@ export const useFallAction = (
     void dispatch(new Event(ACTION_FALL))
   }
 
-  // 転倒進行度に応じた rootRef の前傾回転
+  // 転倒進行度に応じた fallPivotRef の前傾回転
   useFrame((_, dt) => {
-    if (!rootRef.current) return
+    if (!fallPivotRef.current) return
     if (fallRef.current < 0) return
 
     fallRef.current += dt
     if (fallRef.current >= FALL_DUR) {
       fallRef.current = -1
       postureRef.current = 1
-      rootRef.current.rotation.x = FALL_ANGLE
+      fallPivotRef.current.rotation.x = FALL_ANGLE
       return
     }
 
     const p = fallRef.current / FALL_DUR
-    rootRef.current.rotation.x = FALL_ANGLE * (p * (2 - p))
+    fallPivotRef.current.rotation.x = FALL_ANGLE * (p * (2 - p))
   })
 
   return { startFall }

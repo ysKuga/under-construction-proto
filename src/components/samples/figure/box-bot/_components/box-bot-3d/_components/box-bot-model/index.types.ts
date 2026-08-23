@@ -135,6 +135,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 /** BoxBotRefsProvider が配布する ref 群 */
 export interface BoxBotRefs {
   /**
+   * 転倒/起き上がりの回転制御グループ ref
+   *
+   * - `rootRef` 直下、脚の接地点(下方)へ position で移動した内側に配置し、\
+   *   ここへ回転をかけることで回転中心を体の中心でなく接地点にする
+   */
+  fallPivotRef: RefObject<Group | null>
+  /**
    * 転倒進行度の ref
    *
    * - -1: 非実行中、0以上: 経過秒数
@@ -207,6 +214,7 @@ export interface UseBoxBotActionDispatcherReturn {
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
+  | 'fallPivotRef'
   | 'jumpRef'
   | 'leftArmRef'
   | 'leftLegRef'
@@ -228,6 +236,8 @@ export interface UseBoxBotModelReturn extends Pick<
   }
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
+  /** 接地面(脚の下端)の y 座標。fall/getUp の回転中心に使う */
+  groundY: number
   /** 頭の前面 z 座標 */
   headFront: number
   /** 頭の中心 y 座標 */

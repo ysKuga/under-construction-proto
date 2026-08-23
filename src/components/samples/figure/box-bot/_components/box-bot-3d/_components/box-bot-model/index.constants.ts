@@ -85,5 +85,12 @@ export const WALK_APPROACH_RATE = 10
 export const FALL_DUR = 0.4
 /** 起き上がりの継続時間(秒) */
 export const GET_UP_DUR = 0.6
-/** 倒れきった状態の rootRef 前傾角度(rad、x 軸回転) */
+/** 倒れきった状態の fallPivotRef 前傾角度(rad、x 軸回転) */
 export const FALL_ANGLE = Math.PI / 2
+/**
+ * 転倒中に腕を前へ出す角度(rad、x 軸回転)
+ *
+ * - fall/getUp 発火時に即座に切替える toggle 実装(経過時間による補間はしない)。\
+ *   将来 手を前に出す動き自体を独立 action(軌道)にする際に見直す想定
+ */
+export const FALL_ARM_ANGLE = -1.2

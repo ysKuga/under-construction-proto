@@ -11,6 +11,8 @@ import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
  *
  * - 転倒(`useFallAction`)とは別 action。倒れている(`postureRef.current === 1`)時のみ発火可能
  * - `startGetUp` は dispatch のみに徹し、実行判定は `useEventListener` 側の `getUpAction` へ一本化する
+ * - 回転は fall と同じく `fallPivotRef`(接地点へ pivot 済みのグループ)へ適用する
+ * - 発火時に前へ出していた腕を戻す(fall の toggle と対称)
  *
  * @param props BoxBotModel に渡される props
  */
@@ -19,12 +21,15 @@ export const useGetUpAction = (
 ): Pick<UseBoxBotModelReturn, 'startGetUp'> => {
   const { interactive } = props
 
-  const { getUpRef, postureRef, rootRef } = useBoxBotRefs()
+  const { fallPivotRef, getUpRef, leftArmRef, postureRef, rightArmRef } =
+    useBoxBotRefs()
   const eventTarget = useBoxBotEventTarget()
 
   const getUpAction = () => {
     if (!interactive) return
     if (postureRef.current !== 1) return
+    if (leftArmRef.current) leftArmRef.current.rotation.x = 0
+    if (rightArmRef.current) rightArmRef.current.rotation.x = 0
     getUpRef.current = 0
   }
 
@@ -35,21 +40,21 @@ export const useGetUpAction = (
     void dispatch(new Event(ACTION_GET_UP))
   }
 
-  // 起き上がり進行度に応じた rootRef の前傾回転(fall の逆方向)
+  // 起き上がり進行度に応じた fallPivotRef の前傾回転(fall の逆方向)
   useFrame((_, dt) => {
-    if (!rootRef.current) return
+    if (!fallPivotRef.current) return
     if (getUpRef.current < 0) return
 
     getUpRef.current += dt
     if (getUpRef.current >= GET_UP_DUR) {
       getUpRef.current = -1
       postureRef.current = 0
-      rootRef.current.rotation.x = 0
+      fallPivotRef.current.rotation.x = 0
       return
     }
 
     const p = getUpRef.current / GET_UP_DUR
-    rootRef.current.rotation.x = FALL_ANGLE * (1 - p * p)
+    fallPivotRef.current.rotation.x = FALL_ANGLE * (1 - p * p)
   })
 
   return { startGetUp }

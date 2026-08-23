@@ -54,6 +54,7 @@ export function useBoxBotModel(
   }
 
   const {
+    fallPivotRef,
     jumpRef,
     leftArmRef,
     leftLegRef,
@@ -67,6 +68,7 @@ export function useBoxBotModel(
 
   const bodyTop = cfg.body.h / 2
   const legY = -bodyTop
+  const groundY = legY - cfg.leg.h
 
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
@@ -144,6 +146,8 @@ export function useBoxBotModel(
   return {
     arm,
     cfg,
+    fallPivotRef,
+    groundY,
     headFront,
     headY,
     hover,
