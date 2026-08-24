@@ -140,6 +140,10 @@ Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存�
 
 @.claude/rules/issue-linking.md
 
+## steering ディレクトリ命名
+
+@.claude/rules/steering.md
+
 ## コミット
 
 @.claude/rules/commit.md
