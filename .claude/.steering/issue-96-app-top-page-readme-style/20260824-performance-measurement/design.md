@@ -22,7 +22,7 @@
   1. [x] r3f/three.js の遅延読込(dynamic import)導入検証 → **不採用**(下記「検証結果」参照)
   2. [x] `<main>` ランドマーク要否再確認 → **採用**(下記「検証結果」参照)
   3. [x] r3f canvas 実フレームレート計測(`r3f-perf`)導入 → 恒久設置(下記「検証結果」参照)
-  4. [ ] legacy-javascript / render-blocking-resources 対応(微小、優先度低)
+  4. [x] legacy-javascript / render-blocking-resources 対応 → **見送り**(下記「検証結果」参照)
 - [ ] ルール化の要否・粒度を検討(保留中、下記「検討事項」参照)
 - [ ] 検討結果を `.claude/rules/` へ反映(採用する場合)
 
@@ -94,6 +94,14 @@ Performance score・Speed Index とも両者のブレ幅が重なり有意差な
 既存 `provider.tsx:27` の `{process.env.DEV && <ReactQueryDevtools />}` は `process.env.DEV` が未定義変数(常に `undefined`)のため実質死んでいるコードだった。今回追加分は同じ轍を踏まず `process.env.NODE_ENV === 'development'` で実装(provider.tsx 側の既存バグ修正は本タスクのスコープ外、別途対応要)。
 
 Storybook(`components-samples-figure-box-bot--mode-3-d`)+ Playwright headless chromium で表示・動作確認: FPS 12 / CPU 3.7ms / GPU 0.000ms / calls 191 / Triangles 5170。**GPU 計測が 0.000ms 固定 → headless環境の GPU タイミングクエリ未対応の疑いが強く、FPS 12 という数値はこの計測環境の信頼性に疑問あり**。実ブラウザでの体感カクつき確認は別途ユーザー環境で実施要。今回のスコープは Perf UI の恒久設置・動作確認までとし、実測値の評価は持ち越し。
+
+### 検証結果: legacy-javascript / render-blocking-resources 対応 — 見送り (2026-08-24)
+
+**legacy-javascript(13KiB)**: 該当 chunk(`36l_2xs6cbv7i.js`)の内容確認 → `trimStart`/`Array.prototype.flat`/`flatMap`/`Promise.prototype.finally`/`Object.fromEntries`/`Array.prototype.at`/`Object.hasOwn`/`URL.canParse` の feature-detection polyfill。これは **Next.js 組み込みの `@next/polyfill-module`**(公式パッケージの中身と一致)で、`browserslist` 設定に関係なく Next.js が常時・固定で注入する fail-safe 用コード。
+
+`package.json` に `browserslist: ["> 0.5%", "last 2 versions", "not dead", "not IE 11"]` を追加して本番ビルド・計測したが、legacy-javascript 13KiB → 13KiB で変化なし(想定通り、原因が browserslist 制御外のため)。render-blocking-resources は 150ms→140ms(誤差の範囲)。**効果なしのため browserslist 設定は削除、package.json は元通り**。
+
+**結論**: 見送り。この 13KiB は Next.js の設計判断であり、プロジェクト側の設定で削減する現実的な手段が見当たらない。render-blocking-resources(CSS 217ms)も Next.js App Router 標準動作の範囲内で、対応には critical CSS 抽出ツール等の追加導入が必要 → 効果(140ms)に対してコストが見合わないため見送り。
 
 ### 計測環境の不具合: Chrome user-data-dir パス解決不良
 
