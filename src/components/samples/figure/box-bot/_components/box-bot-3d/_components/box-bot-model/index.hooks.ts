@@ -6,6 +6,7 @@ import * as React from 'react'
 import { approach } from '../../_lib/approach'
 
 import { useArmAction } from './_action-hooks/arm-action'
+import { useAutoRotateAction } from './_action-hooks/use-auto-rotate-action'
 import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
 import { useFallAction } from './_action-hooks/use-fall-action'
 import { useGetUpAction } from './_action-hooks/use-get-up-action'
@@ -36,13 +37,7 @@ import type {
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'eventTarget'>,
 ): UseBoxBotModelReturn {
-  const {
-    autoRotate = false,
-    autoWalk,
-    interactive = true,
-    rotateSpeed = 0,
-    ...opts
-  } = props
+  const { autoWalk, interactive = true, ...opts } = props
 
   const cfg: BoxBot3DConfig = {
     ...DEFAULTS,
@@ -90,6 +85,7 @@ export function useBoxBotModel(
   const { startFall } = useFallAction(props)
   const { startGetUp } = useGetUpAction(props)
   const { arm } = useArmAction(props)
+  useAutoRotateAction(props)
   const { walkingRef } = useWalkingAction(props)
   const { marchingRef } = useMarchingAction(props)
   useLegBobAction(props, legY)
@@ -119,11 +115,8 @@ export function useBoxBotModel(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 自動回転・腕の角度を毎フレーム更新
+  // 腕の角度を毎フレーム更新
   useFrame((_, dt) => {
-    if (autoRotate && spinRef.current)
-      spinRef.current.rotation.y += rotateSpeed * dt
-
     if (leftArmRef.current)
       leftArmRef.current.rotation.z = approach(
         leftArmRef.current.rotation.z,
