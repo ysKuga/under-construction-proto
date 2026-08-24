@@ -3,15 +3,12 @@
 import * as React from 'react'
 
 import { useArmAction } from './_action-hooks/arm-action'
+import { useMarchingAction, useWalkingAction } from './_action-hooks/leg-action'
 import { useAutoRotateAction } from './_action-hooks/use-auto-rotate-action'
 import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
 import { useFallAction } from './_action-hooks/use-fall-action'
 import { useGetUpAction } from './_action-hooks/use-get-up-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
-import { useLegBobAction } from './_action-hooks/use-leg-bob-action'
-import { useLegSwingAction } from './_action-hooks/use-leg-swing-action'
-import { useMarchingAction } from './_action-hooks/use-marching-action'
-import { useWalkingAction } from './_action-hooks/use-walking-action'
 import { useClickActions } from './_hooks/use-click-actions'
 import {
   DEFAULTS,
@@ -81,9 +78,7 @@ export function useBoxBotModel(
   const { arm } = useArmAction(props, cfg)
   useAutoRotateAction(props)
   const { walkingRef } = useWalkingAction(props)
-  const { marchingRef } = useMarchingAction(props)
-  useLegBobAction(props, legY)
-  useLegSwingAction(props)
+  const { marchingRef } = useMarchingAction(props, legY)
   useBodyBobbingAction(props, legY)
 
   // マウント時に autoWalk の歩き方で歩き始める。useBoxBotActionDispatcher 経由の
