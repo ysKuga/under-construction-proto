@@ -129,6 +129,14 @@ Storybook `Mode3D` story で確認: `autoRotate` は想定通り停止。CPU 負
 
 **結論**: 不採用、revert 済み。`autoRotate` の停止は許容範囲だったが、box-bot の主要な魅力であるインタラクション(クリックで jump/腕上げ下げ、fall/getUp)が丸ごと死ぬ副作用が判明。採用するには action 発火の全箇所(`use-box-bot-action-dispatcher.ts` およびクリックハンドラ)に `invalidate()` 呼び出しを仕込む実装が必要 — 今回は効果測定のみのスコープのため見送り。着手する場合は別途タスクとして切り出すべき規模。
 
+### 検証結果: unused-javascript(168KiB)の真因調査 — 見送り (2026-08-24)
+
+Lighthouse の unused-javascript audit は byte-range のみで関数単位の内訳を持たないため、`@next/bundle-analyzer` を一時 devDependency として導入し(`--webpack` フラグで一時的に webpack ビルド、`ANALYZE=true`)、chunk 内訳を可視化。検証後、`next.config.mjs`/`package.json`/`yarn.lock` を revert・`yarn install` で依存関係を元に戻し、恒久導入はしていない。
+
+最大の chunk group は `three/build/three.core.js`(376KB)と `three/build/three.module.js`(359KB、three.core.js を import する薄いラッパー)の2つで、合計 735KB。重複バンドルではなく **three.js 本体の正常な依存構造**(コア機能ファイルとモジュールファイルの分割)。`@react-three/drei` の `OrbitControls`/`Line`/`ContactShadows` は `three-stdlib` から個別サブパス import されており、この点は既に最適化済みと確認。
+
+**結論**: 見送り。unused-javascript の正体は「three.js という汎用3Dエンジンのサイズ自体が、box-bot のようなシンプルな箱型モデルの用途に対して過剰」という構造的な問題であり、import 経路の調整では削減できない。対処するには three.js のカスタムビルドや代替実装が必要でスコープを大きく超える。
+
 ### 計測環境の不具合: Chrome user-data-dir パス解決不良
 
 `CHROME_PATH` に Playwright 同梱 chromium を指定して Lighthouse 実行時、Chrome の user-data-dir パス解決が壊れ、リポジトリ直下に `\\wsl.localhost\Ubuntu\...\undefined:\Users\undefined\AppData\Local\lighthouse.xxx` 形式の不正ディレクトリが毎回生成された(WSL環境で Windows 側パス解決ロジックが混入したとみられる)。git 管理下に混入 → 都度検知・削除が必要だった。
