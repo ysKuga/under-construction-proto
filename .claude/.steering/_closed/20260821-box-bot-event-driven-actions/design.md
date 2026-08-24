@@ -51,11 +51,7 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 
 ## 検討
 
-- [ ] `useFrame` の分割: 現状 `index.hooks.ts` の単一 `useFrame` 内に autoRotate(spin 回転)・腕角度補間(leftArm/rightArm)・ホップ(root 位置・スケール)の3関心が同居している。各 action hook(`useJumpAction`/`useArmAction`)側へそれぞれの `useFrame` を持たせ、「`useEventListener` でイベント受信→ action 実行(state/ref 更新)→ 同じ hook 内の `useFrame` で可視化」まで1 hook に閉じ込める案を検討中
-  - r3f の `useFrame` は複数箇所で呼び出し可能(グローバルループへ個別登録される仕組み)なので機構的には分割可能
-  - jump 側は root ref のみ渡せば完結しやすい(hopRef は hook 内で完結済み)
-  - arm-toggle 側は `leftArmAngle`/`rightArmAngle` が `cfg.arm.leftAngle`/`rightAngle`(index.hooks.ts でマージ済みの cfg 由来)にも依存するため、ref だけでなく cfg 値も渡す必要があり結合がやや増える
-  - マウント時初期角度反映(`useLayoutEffect`)をどちらに置くかも要判断
+- [x] `useFrame` の分割: `index.hooks.ts` の単一 `useFrame` に同居していた autoRotate(spin 回転)・腕角度補間(leftArm/rightArm)を、それぞれ専用 action hook(`useAutoRotateAction`/`useArmAction`)へ分離した。詳細は決定事項参照
 - 装備などをマウント可能にする仕組み(直近の実装計画は想定せず、将来アイディアとして記録)
   - 装備に限らず腕・脚などのパーツ自体をマウント可能な実装へ変更し、破壊時の分離などに対応できるようにする案
 
@@ -74,7 +70,13 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 
 - ref 変数命名: `useRef()` 戻り値変数(hook 戻り値プロパティ含む)は `Ref` サフィックス付与に統一。ルールを `.claude/rules/react/ref-naming.md` へ新設。box-bot-model 内 `root`/`spin`/`leftArm`/`rightArm` を `rootRef`/`spinRef`/`leftArmRef`/`rightArmRef` へリネーム
 - `rootRef` の context 化(複数 action からの共有): 当初は歩く action 等2つ目の消費者が具体化するまで見送る方針だったが、先行して着手する判断に変更。`BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef` に加え `spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つ全てを配布する形にした。Provider 内で `useRef` 生成 → `useMemo` で Context 値を安定化。各 action hook(`useJumpAction` 等)は `useBoxBotEventTarget` と同様に `useBoxBotRefs` を自前で呼び出して必要な ref を取得する(props 経由の受け渡しは行わない)
-- `useFrame` 分割: jump 側から着手。`root` ref の所有権を `index.hooks.ts` から `use-jump-action.ts` へ移し、ホップ中の位置・スケール制御 `useFrame` も同 hook 内へ統合した。「イベント受信→hopRef 起動→同 hook 内 useFrame で可視化」まで1 hook に閉じた。`index.hooks.ts` 側の `useFrame` は autoRotate・腕角度補間の2関心のみに縮小。arm 側(cfg 値依存あり)は未着手のまま
+- `useFrame` 分割: jump 側から着手。`root` ref の所有権を `index.hooks.ts` から `use-jump-action.ts` へ移し、ホップ中の位置・スケール制御 `useFrame` も同 hook 内へ統合した。「イベント受信→hopRef 起動→同 hook 内 useFrame で可視化」まで1 hook に閉じた。`index.hooks.ts` 側の `useFrame` は autoRotate・腕角度補間の2関心のみに縮小
+- `useFrame` 分割の続き: 残る autoRotate・腕角度補間も分離した
+  - autoRotate(spinRef 回転)は他 action と無関係の独立関心のため、新設 `_action-hooks/use-auto-rotate-action.ts`(他 action hook 群と同じ単一ファイルパターン)へ切り出した
+  - 腕角度補間は cfg 値(`cfg.arm.leftAngle`/`rightAngle`)への依存があったため、`useArmAction` の引数へ `cfg` を追加(`Omit<BoxBotModelProps, 'eventTarget'>` に加え第2引数)し、toggle state と角度算出・`approach` 補間・マウント時初期角度反映(`useLayoutEffect`)を1 hook に統合した
+  - `index.hooks.ts` の `useFrame` は残 0 関心となり削除、`useBoxBotModel` は各 action hook を呼び出すだけに縮小
+  - 同じ方針(state と見た目の統合)を脚(walking/marching)にも適用。`useWalkingAction`(toggle+脚 swing)/`useMarchingAction`(toggle+脚 bob、`legY` を第2引数で受け取る)を新設し、`_action-hooks/leg-action/`(`arm-action/` と同じ部位単位ディレクトリ)へ集約。旧 `use-leg-bob-action.ts`/`use-leg-swing-action.ts`/`use-marching-action.ts`/`use-walking-action.ts` は削除
+  - body 系(fall/get-up/jump/body-bobbing)は元々 state と見た目が同一ファイル内で完結済み(または jump のように state 不要)のため対象外とした。部位単位ディレクトリへまとめる案も検討したが、shared な内部 hook がなく分離の実益がないため見送り(既存の「ディレクトリ化は shared `_hooks/` が要る時のみ」という一貫性判断を優先)
 - ジャンプ action 本体(`jumpAction`)を `_action-hooks/use-jump-action.ts` に分離。クリック(`startHop`)は `BoxBot-action-jump` イベントを dispatch するだけに徹し、実行判定(`interactive` チェック・`hop` 起動)は `useEventListener` 側の `jumpAction` へ一本化した。クリック由来でも外部の `useEventListener` 経由でも同じ判定を通る
 - `onClick` は三項演算子で条件分岐せず常に `startHop` を登録する。`stopPropagation`(クリック伝播の抑止)は `interactive` に関わらず必要なため
 - action 用の EventTarget は `index.contexts.tsx`(`BoxBotEventProvider`)が instance 固有に生成・配布する。`BoxBotModel` を outer(Provider 設置)/inner(既存ロジック呼出)の2コンポーネントに分割し、`useBoxBotModel` 内から `useContext` で取得できるようにした
