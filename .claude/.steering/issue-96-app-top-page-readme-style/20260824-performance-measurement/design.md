@@ -121,6 +121,14 @@ r3f-perf(`Mode3D` story)で計測: 512版 CPU 3.050ms(1024版は 3.7ms)、FPS 12
 
 **結論**: 採用。見た目に差がなく副作用もない一般的な GPU 負荷削減策のため、数値的な効果を確定できないリスクを承知の上で採用。
 
+### 検証結果: `frameloop="demand"` — 不採用 (2026-08-24)
+
+`Canvas` に `frameloop="demand"` のみ追加(`invalidate()` 呼び出しの実装なし、常時アニメーションが止まる前提での効果測定)。
+
+Storybook `Mode3D` story で確認: `autoRotate` は想定通り停止。CPU 負荷は下がった(3.05ms → 0.9〜1.4ms程度、安定時)。**しかしクリックで jump アクションを起こしても見た目が一切変化しない** — jump/fall/walking 等、`useFrame` 内で経過秒数を積算するタイプのアクション系アニメーションが軒並み機能停止することが判明(box-bot-model 側の `_action-hooks/` 全体が該当)。
+
+**結論**: 不採用、revert 済み。`autoRotate` の停止は許容範囲だったが、box-bot の主要な魅力であるインタラクション(クリックで jump/腕上げ下げ、fall/getUp)が丸ごと死ぬ副作用が判明。採用するには action 発火の全箇所(`use-box-bot-action-dispatcher.ts` およびクリックハンドラ)に `invalidate()` 呼び出しを仕込む実装が必要 — 今回は効果測定のみのスコープのため見送り。着手する場合は別途タスクとして切り出すべき規模。
+
 ### 計測環境の不具合: Chrome user-data-dir パス解決不良
 
 `CHROME_PATH` に Playwright 同梱 chromium を指定して Lighthouse 実行時、Chrome の user-data-dir パス解決が壊れ、リポジトリ直下に `\\wsl.localhost\Ubuntu\...\undefined:\Users\undefined\AppData\Local\lighthouse.xxx` 形式の不正ディレクトリが毎回生成された(WSL環境で Windows 側パス解決ロジックが混入したとみられる)。git 管理下に混入 → 都度検知・削除が必要だった。
