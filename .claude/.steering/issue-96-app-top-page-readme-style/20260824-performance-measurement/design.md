@@ -103,6 +103,24 @@ Storybook(`components-samples-figure-box-bot--mode-3-d`)+ Playwright headless ch
 
 **結論**: 見送り。この 13KiB は Next.js の設計判断であり、プロジェクト側の設定で削減する現実的な手段が見当たらない。render-blocking-resources(CSS 217ms)も Next.js App Router 標準動作の範囲内で、対応には critical CSS 抽出ツール等の追加導入が必要 → 効果(140ms)に対してコストが見合わないため見送り。
 
+### 検証結果: ContactShadows `frames={1}` — 不採用 (2026-08-24)
+
+box-bot 有無で Performance score が 14 ポイント差(79 vs 93、上記「追加の切り分け実験」参照)出ていた件を受け、描画コスト側の削減を検討。drei `ContactShadows` はデフォルト毎フレーム影を再計算する仕様のため、`frames={1}`(初回のみ計算して以降固定)を試した。
+
+Storybook + Playwright headless chromium で `Fall`/`Walking` story の見た目を確認: **`Fall` story で明確に破綻**(倒れて横向きになった後も、影は直立時の位置・形状のまま固定され、体の下に影が全く追従しない)。`Walking` は脚の振れのみで水平移動を伴わないため目立たなかったが、`Fall`/`getUp` アクションが存在する以上採用できない。
+
+**結論**: 不採用、revert 済み。静的シーン前提の最適化なので、fall で姿勢が大きく変わる box-bot には適用不可。
+
+### 検証結果: shadow map 解像度削減(1024→512) — 採用 (2026-08-24)
+
+`DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE` を `[1024, 1024]` → `[512, 512]` に変更。
+
+Storybook `Static` story(静止、比較しやすい)のスクリーンショットで見た目を確認 → 差はほぼ見分けつかない。box-bot はシンプルな箱型形状で自己影がほぼ発生しない構造のため、解像度を下げても品質劣化が目立たない。
+
+r3f-perf(`Mode3D` story)で計測: 512版 CPU 3.050ms(1024版は 3.7ms)、FPS 12(変化なし)、Triangles/calls は同一(当然、ジオメトリ数と無関係)。GPU は headless 環境の制約で両方とも 0.000ms 固定のため比較不能。CPU の差は単発計測でノイズの可能性もあり、確度は高くない。
+
+**結論**: 採用。見た目に差がなく副作用もない一般的な GPU 負荷削減策のため、数値的な効果を確定できないリスクを承知の上で採用。
+
 ### 計測環境の不具合: Chrome user-data-dir パス解決不良
 
 `CHROME_PATH` に Playwright 同梱 chromium を指定して Lighthouse 実行時、Chrome の user-data-dir パス解決が壊れ、リポジトリ直下に `\\wsl.localhost\Ubuntu\...\undefined:\Users\undefined\AppData\Local\lighthouse.xxx` 形式の不正ディレクトリが毎回生成された(WSL環境で Windows 側パス解決ロジックが混入したとみられる)。git 管理下に混入 → 都度検知・削除が必要だった。
