@@ -1,5 +1,7 @@
 # app-top-page-readme-style
 
+issue: #96
+
 ## 目的
 
 `src/app/page.tsx`(アプリのトップページ、`src/app/` 配下)を1ページ構成にし、README.md と同じような構成(タイトル+画像のみ)にする。
@@ -12,15 +14,15 @@
 
 ## 実装計画
 
-- [ ] `src/app/page.tsx` を README と同様の1ページ構成(タイトル+画像)に変更
-- [ ] 既存のログイン導線(`Get started` ボタン)・GitHub リンクボタンの扱いを検討(削除するか、別の形で残すか)
-- [ ] 表示する画像を検討(box-bot 画像を再利用するか、専用の画像を用意するか)
+- [x] `src/app/page.tsx` を README と同様の1ページ構成(タイトル+画像)に変更
+- [x] 既存のログイン導線(`Get started` ボタン)・GitHub リンクボタンの扱いを検討(削除するか、別の形で残すか) → 削除(決定事項参照)
+- [x] 表示する画像を検討(box-bot 画像を再利用するか、専用の画像を用意するか) → `samples/figure/box-bot` の `BoxBot`(3D)を再利用(決定事項参照)
+
+今後の追加検討(表示調整・関連 samples 整理等)は個別のサブ steering ディレクトリへ分割する。
 
 ## 決定事項
 
-<!-- 検討・決定した内容のログ -->
+### 表示コンポーネント・ログイン導線 (2026-08-24)
 
-## 懸念・リスク
-
-- ログイン導線を削除する場合、認証フローへの入り口が無くなる。ヘッダー等、他のナビゲーション経路があるか要確認。
-- README 用画像(`.github/assets/` 配下)は `public/` の外にあるため、Next.js の `<img>`/`next/image` から参照するには `public/` への複製、または別画像の用意が必要。
+- 表示物は `<h1>` タイトル(README と同じ "Under Construction Proto")+ `@/components/samples/figure/box-bot` の `BoxBot`(`mode="3d"`)。専用画像は用意せず、既存 samples を再利用する。
+- 旧実装(bulletproof-react 由来のログイン導線ボタン・GitHub リンクボタン・ロゴ)は削除。トップページ以外にログインへのナビゲーション経路が無い状態になるが、URL 直打ち(`/auth/login`)は引続き機能するため許容する判断。
