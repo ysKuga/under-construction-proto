@@ -107,10 +107,8 @@ export const reducePointerState = (
 
 ## テスト実行
 
-一時検証テスト(`__verify__.test.tsx` 等)実行時、`NEXT_PUBLIC_API_URL=http://localhost:3000` 付与のみで標準 `vitest.config.ts` 使用可。setupFiles 外した一時 config 作成不要。
+一時検証テスト(`__verify__.test.tsx` 等)実行時、標準 `vitest.config.ts` 使用可。setupFiles 外した一時 config 作成不要。
 
-- 理由: `src/testing/setup-tests.ts` が MSW server 起動、ハンドラが `src/config/env.ts` の `createEnv()` 呼出。\
-  zod スキーマ `NEXT_PUBLIC_API_URL` 必須(`API_URL` ではない点 注意)。
 - `__mocks__/zustand.ts` は `create`/`createStore` のみモック対象、`useStore` 未対応。\
   zustand vanilla store + `useStore` パターンのテストは `vi.unmock('zustand')` 要。
 
