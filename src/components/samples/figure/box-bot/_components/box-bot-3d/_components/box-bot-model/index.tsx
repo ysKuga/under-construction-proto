@@ -18,8 +18,9 @@ export function BoxBotModel({ eventTarget, ...props }: BoxBotModelProps) {
 
 function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
   const {
-    arm,
     cfg,
+    clickArmLeft,
+    clickArmRight,
     clickBody,
     clickHead,
     fallPivotRef,
@@ -66,7 +67,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
 
                 {/* 腕(肩を支点に回転。クリックで上げ下げ) */}
                 <group
-                  onClick={arm.left.toggle}
+                  onClick={clickArmLeft}
                   position={[-shoulderX, shoulderY, 0]}
                   ref={leftArmRef}
                   {...hover}
@@ -79,7 +80,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
                   />
                 </group>
                 <group
-                  onClick={arm.right.toggle}
+                  onClick={clickArmRight}
                   position={[shoulderX, shoulderY, 0]}
                   ref={rightArmRef}
                   {...hover}

@@ -3,8 +3,6 @@ import type { RefObject } from 'react'
 import type { Group } from 'three'
 
 export interface ArmSideState {
-  /** クリックで切替(現状は上げ下げ toggle のみ) */
-  toggle: (e: ThreeEvent<MouseEvent>) => void
   /** 上がっているか */
   up: boolean
 }
@@ -118,7 +116,7 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    *   どちらも歩いていない間は連動する脚の動きがないため無効
    */
   bodyBobbing?: boolean
-  /** body/head クリックで発火する action の対応。省略したキーは既定(jump)のまま */
+  /** body/head/arm クリックで発火する action の対応。省略したキーは既定のまま */
   clickActionMap?: ClickActionMap
   /**
    * action イベント発行/購読に使う EventTarget
@@ -187,11 +185,15 @@ export interface BoxBotRefs {
   walkingRef: RefObject<boolean>
 }
 
-/** 要素クリック → action イベントの対応。各キー省略時は既定(jump)を使う */
+/** 要素クリック → action イベントの対応。各キー省略時は既定の action を使う */
 export interface ClickActionMap {
-  /** body クリックで発火する action イベント名 */
+  /** 左腕クリックで発火する action イベント名(既定: ACTION_ARM_LEFT_TOGGLE) */
+  armLeft?: string
+  /** 右腕クリックで発火する action イベント名(既定: ACTION_ARM_RIGHT_TOGGLE) */
+  armRight?: string
+  /** body クリックで発火する action イベント名(既定: ACTION_JUMP) */
   body?: string
-  /** head クリックで発火する action イベント名 */
+  /** head クリックで発火する action イベント名(既定: ACTION_JUMP) */
   head?: string
 }
 
@@ -246,9 +248,13 @@ export interface UseBoxBotModelReturn extends Pick<
   }
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
-  /** body クリックで CLICK_BODY を発火(実行される action は CLICK_ACTION_MAP 側の対応で決まる) */
+  /** 左腕クリックで CLICK_ARM_LEFT を発火(実行される action は clickActionMap prop 側の対応で決まる) */
+  clickArmLeft: (e: ThreeEvent<MouseEvent>) => void
+  /** 右腕クリックで CLICK_ARM_RIGHT を発火(実行される action は clickActionMap prop 側の対応で決まる) */
+  clickArmRight: (e: ThreeEvent<MouseEvent>) => void
+  /** body クリックで CLICK_BODY を発火(実行される action は clickActionMap prop 側の対応で決まる) */
   clickBody: (e: ThreeEvent<MouseEvent>) => void
-  /** head クリックで CLICK_HEAD を発火(実行される action は CLICK_ACTION_MAP 側の対応で決まる) */
+  /** head クリックで CLICK_HEAD を発火(実行される action は clickActionMap prop 側の対応で決まる) */
   clickHead: (e: ThreeEvent<MouseEvent>) => void
   /** 接地面(脚の下端)の y 座標。fall/getUp の回転中心に使う */
   groundY: number
