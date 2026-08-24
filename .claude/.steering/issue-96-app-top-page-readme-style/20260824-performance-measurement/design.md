@@ -69,9 +69,9 @@ Performance score・Speed Index とも両者のブレ幅が重なり有意差な
 
 **結論**: revert 済み(`git checkout` で静的 import に戻した)。効果ゼロの施策に `'use client'` + `dynamic()` の複雑性を追加する理由なし(YAGNI)。r3f/three.js の bundle size 改善は tree-shaking / import 対象の絞り込み等 別アプローチを要する。
 
-**傍証**: ユーザー手作業による dev server(`localhost:3000`)計測でも同じ結論。静的import(revert後)で Performance 79 / 79(`0-lighthouse.json`, `1-lighthouse.json`)、dynamic import版で 83 — ブレ幅の範囲内で有意差なし。dev server計測につき runWarnings に IndexedDB干渉の注意あり、参考値扱い。
+**傍証**: ユーザー手作業による dev server(`localhost:3000`)計測でも同じ結論。静的import(revert後)で Performance 79 / 79、dynamic import版で 83 — ブレ幅の範囲内で有意差なし。dev server計測につき runWarnings に IndexedDB干渉の注意あり、参考値扱い。(計測生JSONはサイズが大きい(400KB超/件)ため削除済み、数値のみ記録)
 
-**追加の切り分け実験**: box-bot 自体を設置しない状態(dev server)で計測すると Performance 93(`00-lighthouse-no-bot.json`)。box-bot あり(79)との差14ポイントは import timing でなく box-bot(r3f canvas 常時アニメーション)自体の存在が支配的要因であることを示す。改善アクション3「r3f canvas 実フレームレート計測」で掘る。
+**追加の切り分け実験**: box-bot 自体を設置しない状態(dev server)で計測すると Performance 93。box-bot あり(79)との差14ポイントは import timing でなく box-bot(r3f canvas 常時アニメーション)自体の存在が支配的要因であることを示す。改善アクション3「r3f canvas 実フレームレート計測」で掘る。
 
 ### 検証結果: `<main>` ランドマーク追加 — 採用 (2026-08-24)
 
