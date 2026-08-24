@@ -18,15 +18,10 @@ export default defineConfig({
   fullyParallel: true,
   /* Configure projects for major browsers */
   projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
-      dependencies: ['setup'],
       name: 'chromium',
       testMatch: /.*\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'e2e/.auth/user.json',
-      },
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
