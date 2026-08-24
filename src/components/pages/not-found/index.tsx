@@ -15,7 +15,6 @@ const NotFound = () => {
       <Link href={paths.home.getHref()}>
         <BoxBot
           autoRotate={false}
-          interactive={false}
           lightPosition={[0, 1.5, 6]}
           mode="3d"
           orbit={false}
