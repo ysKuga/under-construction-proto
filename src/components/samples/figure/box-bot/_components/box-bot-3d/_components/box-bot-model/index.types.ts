@@ -130,6 +130,12 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   legCycle?: number
   /** 自動回転の速度 */
   rotateSpeed?: number
+  /**
+   * 初期 y 軸回転(ラジアン、既定: 0)
+   *
+   * - `autoRotate` 有効時はこの値を起点に加算回転する
+   */
+  rotationY?: number
 }
 
 /** BoxBotRefsProvider が配布する ref 群 */
@@ -270,6 +276,8 @@ export interface UseBoxBotModelReturn extends Pick<
   legX: number
   /** 脚グループの付け根 y 座標 */
   legY: number
+  /** 初期 y 軸回転(ラジアン) */
+  rotationY: number
   /** 肩の x オフセット */
   shoulderX: number
   /** 肩の y 座標 */

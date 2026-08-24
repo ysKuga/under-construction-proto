@@ -28,7 +28,7 @@ import type {
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'eventTarget'>,
 ): UseBoxBotModelReturn {
-  const { autoWalk, interactive = true, ...opts } = props
+  const { autoWalk, interactive = true, rotationY = 0, ...opts } = props
 
   const cfg: BoxBot3DConfig = {
     ...DEFAULTS,
@@ -119,6 +119,7 @@ export function useBoxBotModel(
     rightArmRef,
     rightLegRef,
     rootRef,
+    rotationY,
     shoulderX,
     shoulderY,
     spinRef,
