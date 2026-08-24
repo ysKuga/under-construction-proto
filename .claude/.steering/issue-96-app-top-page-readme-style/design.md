@@ -20,6 +20,8 @@ issue: #96
 
 今後の追加検討(表示調整・関連 samples 整理等)は個別のサブ steering ディレクトリへ分割する。
 
+- [x] トップページ簡素化で到達不能になった bulletproof-react 由来 auth/dashboard 一式の削除 → `.claude/.steering/20260824-remove-unused-app-auth/` へ分割、対応完了
+
 ## 決定事項
 
 ### 表示コンポーネント・ログイン導線 (2026-08-24)
