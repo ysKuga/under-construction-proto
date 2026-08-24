@@ -18,8 +18,11 @@ export function BoxBotModel({ eventTarget, ...props }: BoxBotModelProps) {
 
 function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
   const {
-    arm,
     cfg,
+    clickArmLeft,
+    clickArmRight,
+    clickBody,
+    clickHead,
     fallPivotRef,
     groundY,
     headFront,
@@ -35,7 +38,6 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     shoulderX,
     shoulderY,
     spinRef,
-    startJump,
     walkingBobRef,
   } = useBoxBotModel(props)
 
@@ -50,14 +52,14 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
               <group ref={walkingBobRef}>
                 <SketchBox
                   cfg={cfg}
-                  handlers={{ onClick: startJump, ...hover }}
+                  handlers={{ onClick: clickBody, ...hover }}
                   position={[0, 0, 0]}
                   seed={cfg.seed + 1}
                   size={[cfg.body.w, cfg.body.h, cfg.body.d]}
                 />
                 <SketchBox
                   cfg={cfg}
-                  handlers={{ onClick: startJump, ...hover }}
+                  handlers={{ onClick: clickHead, ...hover }}
                   position={[0, headY, 0]}
                   seed={cfg.seed + 2}
                   size={[cfg.head.w, cfg.head.h, cfg.head.d]}
@@ -65,7 +67,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
 
                 {/* 腕(肩を支点に回転。クリックで上げ下げ) */}
                 <group
-                  onClick={arm.left.toggle}
+                  onClick={clickArmLeft}
                   position={[-shoulderX, shoulderY, 0]}
                   ref={leftArmRef}
                   {...hover}
@@ -78,7 +80,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
                   />
                 </group>
                 <group
-                  onClick={arm.right.toggle}
+                  onClick={clickArmRight}
                   position={[shoulderX, shoulderY, 0]}
                   ref={rightArmRef}
                   {...hover}

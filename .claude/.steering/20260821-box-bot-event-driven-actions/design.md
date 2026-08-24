@@ -51,9 +51,6 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
 
 ## 検討
 
-- [ ] body などへの onClick と jump 処理とを分離
-  - [ ] body への onClick は click-body イベント
-  - [ ] click-body イベントに jump-action が紐づいている場合アクションなど
 - [ ] `useFrame` の分割: 現状 `index.hooks.ts` の単一 `useFrame` 内に autoRotate(spin 回転)・腕角度補間(leftArm/rightArm)・ホップ(root 位置・スケール)の3関心が同居している。各 action hook(`useJumpAction`/`useArmAction`)側へそれぞれの `useFrame` を持たせ、「`useEventListener` でイベント受信→ action 実行(state/ref 更新)→ 同じ hook 内の `useFrame` で可視化」まで1 hook に閉じ込める案を検討中
   - r3f の `useFrame` は複数箇所で呼び出し可能(グローバルループへ個別登録される仕組み)なので機構的には分割可能
   - jump 側は root ref のみ渡せば完結しやすい(hopRef は hook 内で完結済み)
@@ -63,6 +60,17 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - 装備に限らず腕・脚などのパーツ自体をマウント可能な実装へ変更し、破壊時の分離などに対応できるようにする案
 
 ## 決定事項
+
+- 要素クリックと action を分離した。body/head の SketchBox の `onClick` は `CLICK_BODY`/`CLICK_HEAD`(要素固有イベント)を dispatch するだけに徹し、どの action(jump)を実行するかは新設 `useClickActions`(`_hooks/use-click-actions.ts`)内の `CLICK_ACTION_MAP` が対応を持つ形にした
+  - head も body と個別イベント(`CLICK_HEAD`)に分離(body へ統合する案もあったが、将来 head だけ別 action を割り当てたくなった際に備え個別に決定)。現状はどちらも `CLICK_ACTION_MAP` で `ACTION_JUMP` に対応させているため、見た目の挙動は変更前と同じ
+  - `useJumpAction` からは `startJump`(dispatch 側)を削除し、`ACTION_JUMP` の購読・可視化のみに責務を縮小した。dispatch の起点は「クリック起点(`useClickActions` 経由の `CLICK_BODY`/`CLICK_HEAD` → `ACTION_JUMP` 変換)」「外部起点(`useBoxBotActionDispatcher` からの直接 `ACTION_JUMP` dispatch)」の2つに分かれるが、いずれも同じ `ACTION_JUMP` を経由するため実行判定は一本化されたまま
+  - 配置は `_action-hooks/`(action の発火・購読・可視化)と区別し `_hooks/`(action でない部品 hook の置き場、既存決定事項の位置づけを踏襲)へ新設
+  - arm(`arm.left.toggle`/`arm.right.toggle`)は現状 1 要素 = 1 action の対応のままで、このパターンは未適用。要素とaction の対応を切り替えたい要求が arm 側にも出た時点で同様の分離を検討する
+
+- `clickActionMap` prop を新設し、要素クリック(body/head)と action の対応を外部から差替え可能にした。`useClickActions` 内にハードコードしていた `CLICK_ACTION_MAP` を、`BoxBotModelProps['clickActionMap']`(省略可、キー省略時は既定値)から都度算出する形に変更
+  - `useEventDispatcher` がイベント名文字列を直接受け取れるよう拡張(文字列時は内部で `new Event()` へ変換)。これに合わせ box-bot-model 側の `dispatch(new Event(x))` 呼び出しを `dispatch(x)` へ簡略化した(`useBoxBotActionDispatcher` 等、今回のスコープ外のファイルはまだ `new Event()` のまま)
+  - この対応を受け arm(左右腕クリック)にも同パターンを適用。`CLICK_ARM_LEFT`/`CLICK_ARM_RIGHT` を新設し、`useArmToggle` からクリック起点の dispatch(`toggle`)を削除、実行判定(`useEventListener` での購読のみ)に責務を縮小した。クリックは `useClickActions` が提供する `clickArmLeft`/`clickArmRight` 経由に統一され、`ArmSideState` からは `toggle` を削除(`up` のみ)
+  - `clickActionMap` は `body`/`head`/`armLeft`/`armRight` の4キー。既定値はそれぞれ `ACTION_JUMP`/`ACTION_JUMP`/`ACTION_ARM_LEFT_TOGGLE`/`ACTION_ARM_RIGHT_TOGGLE`
 
 - ref 変数命名: `useRef()` 戻り値変数(hook 戻り値プロパティ含む)は `Ref` サフィックス付与に統一。ルールを `.claude/rules/react/ref-naming.md` へ新設。box-bot-model 内 `root`/`spin`/`leftArm`/`rightArm` を `rootRef`/`spinRef`/`leftArmRef`/`rightArmRef` へリネーム
 - `rootRef` の context 化(複数 action からの共有): 当初は歩く action 等2つ目の消費者が具体化するまで見送る方針だったが、先行して着手する判断に変更。`BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef` に加え `spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つ全てを配布する形にした。Provider 内で `useRef` 生成 → `useMemo` で Context 値を安定化。各 action hook(`useJumpAction` 等)は `useBoxBotEventTarget` と同様に `useBoxBotRefs` を自前で呼び出して必要な ref を取得する(props 経由の受け渡しは行わない)
