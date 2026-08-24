@@ -4,7 +4,7 @@
 
 ## 概要
 
-[@react-three/fiber](../@react-three/fiber/README.md) の Canvas 内に FPS/CPU/GPU/Triangles 等を表示するパフォーマンスモニター。`box-bot-3d` の Canvas 内に `process.env.NODE_ENV === 'development'` 限定で `<Perf />` を配置し、開発時の体感カクつき確認に使う。
+[@react-three/fiber](../@react-three/fiber/README.md) の Canvas 内に FPS/CPU/GPU/Triangles 等を表示するパフォーマンスモニター。`box-bot-3d` は children slot 経由で `<Perf />` を受け取るのみで本体は依存しない。実際の注入は `box-bot/index.stories.tsx` の `Mode3D` story(`process.env.NODE_ENV === 'development'` 限定)で行う。複数 `BoxBot3D` を同時表示する story(`Sizes` 等)には設置しない。
 
 ## バージョン注意
 

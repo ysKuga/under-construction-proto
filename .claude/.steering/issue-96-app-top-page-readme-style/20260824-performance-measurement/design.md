@@ -85,7 +85,11 @@ Performance score・Speed Index とも両者のブレ幅が重なり有意差な
 
 ### 検証結果: r3f canvas 実フレームレート計測(r3f-perf) — 恒久設置 (2026-08-24)
 
-`r3f-perf` を導入(`yarn add r3f-perf`、[docs/package/3d/r3f-perf/](../../../../docs/package/3d/r3f-perf/README.md) 参照)、`box-bot-3d/index.tsx` の Canvas 内に `process.env.NODE_ENV === 'development'` 限定で `<Perf position="top-left" />` を配置。
+`r3f-perf` を導入(`yarn add r3f-perf`、[docs/package/3d/r3f-perf/](../../../../docs/package/3d/r3f-perf/README.md) 参照)。
+
+**設置方式の変更**: 当初 `box-bot-3d/index.tsx` の Canvas 内に直接 `<Perf />` を配置したが、本体コンポーネントが r3f-perf(検証用ツール)に依存するのは責務混在のため差し戻し。代わりに `BoxBot3DProps`/`BoxBot`(親)に `PropsWithChildren` で `children` slot を追加、Canvas 内末尾で `{children}` を render するのみに変更(本体は r3f-perf を一切 import しない)。Storybook の `Mode3D` story(`index.stories.tsx`)側で `render: (args) => <StoryComponent {...args}>{process.env.NODE_ENV === 'development' && <Perf position="top-left" />}</StoryComponent>` として注入。
+
+**複数設置の考慮**: `Sizes`/`Grid3D`/`OverlapGrid3D`/`Circle` 等、複数 `BoxBot3D`(= 複数 Canvas)を同時 render する story が既に多数存在する。r3f-perf の `Perf` は内部でグローバルな計測をしている可能性があり、複数 Canvas に同時設置すると干渉・UI重複の懸念があるため、Perf 注入は単体表示の `Mode3D` story のみに限定。他 story は children を渡さず、デフォルトで何も表示されない(children slot 方式のため安全)。Playwright headless chromium で `Mode3D`(Perf 表示)・`Sizes`(3体同時表示、Perf 非表示)両方のスクリーンショットを確認、意図通りの挙動を確認済み。
 
 既存 `provider.tsx:27` の `{process.env.DEV && <ReactQueryDevtools />}` は `process.env.DEV` が未定義変数(常に `undefined`)のため実質死んでいるコードだった。今回追加分は同じ轍を踏まず `process.env.NODE_ENV === 'development'` で実装(provider.tsx 側の既存バグ修正は本タスクのスコープ外、別途対応要)。
 
