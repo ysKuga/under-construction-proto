@@ -18,13 +18,13 @@
 
 - [x] dev server 上で Lighthouse 計測実施、結果を lighthouse.json へ保存
 - [x] 本番ビルド(`next build && next start`)で再計測、実数値確認 → lighthouse-prod.json
-- [ ] 改善アクション(下記、順に着手)
+- [x] 改善アクション(下記、順に着手)→ 一段落(下記「検証結果」参照、追加候補も出尽くした)
   1. [x] r3f/three.js の遅延読込(dynamic import)導入検証 → **不採用**(下記「検証結果」参照)
   2. [x] `<main>` ランドマーク要否再確認 → **採用**(下記「検証結果」参照)
   3. [x] r3f canvas 実フレームレート計測(`r3f-perf`)導入 → 恒久設置(下記「検証結果」参照)
   4. [x] legacy-javascript / render-blocking-resources 対応 → **見送り**(下記「検証結果」参照)
-- [ ] ルール化の要否・粒度を検討(保留中、下記「検討事項」参照)
-- [ ] 検討結果を `.claude/rules/` へ反映(採用する場合)
+  5. [x] ContactShadows `frames={1}` → **不採用**、shadow map 解像度削減(1024→512) → **採用**、`frameloop="demand"` → **不採用**、unused-javascript 真因調査 → **見送り**、box-bot 初回描画完了まで非表示 → **見送り**(いずれも下記「検証結果」参照)
+- [x] ルール化の要否・粒度を検討 → **現段階では見送り**(2026-08-25、ユーザー判断。下記「検討事項」は参考情報として残す)
 
 ## 決定事項
 
