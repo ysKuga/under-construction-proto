@@ -35,20 +35,20 @@ export const useClickActions = (
   const eventTarget = useBoxBotEventTarget()
   const dispatch = useEventDispatcher(eventTarget)
 
-  useEventListener(CLICK_BODY, () => void dispatch(new Event(bodyAction)), {
+  useEventListener(CLICK_BODY, () => void dispatch(bodyAction), {
     target: eventTarget,
   })
-  useEventListener(CLICK_HEAD, () => void dispatch(new Event(headAction)), {
+  useEventListener(CLICK_HEAD, () => void dispatch(headAction), {
     target: eventTarget,
   })
 
   const clickBody = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
-    void dispatch(new Event(CLICK_BODY))
+    void dispatch(CLICK_BODY)
   }
   const clickHead = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
-    void dispatch(new Event(CLICK_HEAD))
+    void dispatch(CLICK_HEAD)
   }
 
   return { clickBody, clickHead }
