@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { Perf } from 'r3f-perf'
 import * as React from 'react'
 
 import { StyledDiv } from '@/components/samples/_parts/_base/part-base'
@@ -27,6 +28,11 @@ export const Mode3D: Story = {
   args: {
     mode: '3d',
   },
+  render: (args) => (
+    <StoryComponent {...args}>
+      {process.env.NODE_ENV === 'development' && <Perf position="top-left" />}
+    </StoryComponent>
+  ),
 }
 
 /** 3D、回転停止 */

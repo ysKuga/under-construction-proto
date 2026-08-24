@@ -2,7 +2,6 @@
 
 import { ContactShadows, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { Perf } from 'r3f-perf'
 
 import { BoxBotModel } from './_components/box-bot-model'
 import type { BoxBot3DProps, Vec3 } from './index.types'
@@ -79,6 +78,7 @@ const ORBIT_TARGET: Vec3 = [
 export default function BoxBot3D({
   autoRotate = true,
   background = 'transparent',
+  children,
   className,
   fov = 64,
   interactive = true,
@@ -100,7 +100,7 @@ export default function BoxBot3D({
         shadows
         style={{ background }}
       >
-        {process.env.NODE_ENV === 'development' && <Perf position="top-left" />}
+        {children}
         <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
         <directionalLight
           castShadow
