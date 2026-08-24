@@ -12,7 +12,9 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
     <html lang="en">
       <body>
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          <main>{children}</main>
+        </AppProvider>
       </body>
     </html>
   )
