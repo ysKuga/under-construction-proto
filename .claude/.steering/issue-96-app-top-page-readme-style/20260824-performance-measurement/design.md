@@ -137,6 +137,12 @@ Lighthouse の unused-javascript audit は byte-range のみで関数単位の�
 
 **結論**: 見送り。unused-javascript の正体は「three.js という汎用3Dエンジンのサイズ自体が、box-bot のようなシンプルな箱型モデルの用途に対して過剰」という構造的な問題であり、import 経路の調整では削減できない。対処するには three.js のカスタムビルドや代替実装が必要でスコープを大きく超える。
 
+### 検証結果: box-bot 初回描画完了まで非表示 — 見送り (2026-08-25)
+
+`{false && <BoxBot mode="3d" />}` で box-bot 自体を非表示にすると Lighthouse スコアが向上する現象を受け、「読み込み完了までは非表示にする」アプローチ(Canvas 初回描画完了を待って表示切り替え)の要否を検討。
+
+**見送り理由**: JS バンドルのダウンロード・実行コスト自体は変わらず見た目が隠れるだけ。Lighthouse の LCP は viewport 内の最大コンテンツ要素を測るため、box-bot を非表示にしておくと LCP 候補から外れてスコアだけ良く見える可能性が高く、実際のユーザー体験(ページが使える状態になるまでの時間)は改善しないか、真っ白な時間が増えて悪化しうる。dynamic import 検証(不採用)と同種の「タイミングをずらすだけ」の罠。着手前にユーザーと合意の上で見送り。
+
 ### 計測環境の不具合: Chrome user-data-dir パス解決不良
 
 `CHROME_PATH` に Playwright 同梱 chromium を指定して Lighthouse 実行時、Chrome の user-data-dir パス解決が壊れ、リポジトリ直下に `\\wsl.localhost\Ubuntu\...\undefined:\Users\undefined\AppData\Local\lighthouse.xxx` 形式の不正ディレクトリが毎回生成された(WSL環境で Windows 側パス解決ロジックが混入したとみられる)。git 管理下に混入 → 都度検知・削除が必要だった。
