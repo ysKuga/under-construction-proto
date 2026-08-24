@@ -2,6 +2,7 @@
 
 import { ContactShadows, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import { Perf } from 'r3f-perf'
 
 import { BoxBotModel } from './_components/box-bot-model'
 import type { BoxBot3DProps, Vec3 } from './index.types'
@@ -99,6 +100,7 @@ export default function BoxBot3D({
         shadows
         style={{ background }}
       >
+        {process.env.NODE_ENV === 'development' && <Perf position="top-left" />}
         <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
         <directionalLight
           castShadow
