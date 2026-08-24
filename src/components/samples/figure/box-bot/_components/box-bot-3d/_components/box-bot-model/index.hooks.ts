@@ -1,9 +1,6 @@
 'use client'
 
-import { useFrame } from '@react-three/fiber'
 import * as React from 'react'
-
-import { approach } from '../../_lib/approach'
 
 import { useArmAction } from './_action-hooks/arm-action'
 import { useAutoRotateAction } from './_action-hooks/use-auto-rotate-action'
@@ -17,9 +14,6 @@ import { useMarchingAction } from './_action-hooks/use-marching-action'
 import { useWalkingAction } from './_action-hooks/use-walking-action'
 import { useClickActions } from './_hooks/use-click-actions'
 import {
-  ARM_APPROACH_RATE,
-  ARM_DOWN_ANGLE,
-  ARM_UP_ANGLE,
   DEFAULTS,
   HEAD_FRONT_MARGIN,
   HEAD_GAP,
@@ -84,7 +78,7 @@ export function useBoxBotModel(
     useClickActions(props)
   const { startFall } = useFallAction(props)
   const { startGetUp } = useGetUpAction(props)
-  const { arm } = useArmAction(props)
+  const { arm } = useArmAction(props, cfg)
   useAutoRotateAction(props)
   const { walkingRef } = useWalkingAction(props)
   const { marchingRef } = useMarchingAction(props)
@@ -100,38 +94,6 @@ export function useBoxBotModel(
     else if (autoWalk === 'bob') marchingRef.current = true
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  // arm.left/right.up 状態に応じた腕の目標角度
-  const leftArmAngle = arm.left.up ? ARM_UP_ANGLE : cfg.arm.leftAngle
-  const rightArmAngle = arm.right.up ? cfg.arm.rightAngle : ARM_DOWN_ANGLE
-
-  // マウント時のみ初期角度を反映する。rotation を JSX prop として渡すと
-  // toggle のたびに再レンダリングで直接上書きされ、useFrame の approach による
-  // 補間より先に目標角度へジャンプしてしまう(瞬間切り替わりの原因)ため、
-  // 初期表示だけここで済ませ、以降は useFrame のみで更新する
-  React.useLayoutEffect(() => {
-    if (leftArmRef.current) leftArmRef.current.rotation.z = leftArmAngle
-    if (rightArmRef.current) rightArmRef.current.rotation.z = rightArmAngle
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // 腕の角度を毎フレーム更新
-  useFrame((_, dt) => {
-    if (leftArmRef.current)
-      leftArmRef.current.rotation.z = approach(
-        leftArmRef.current.rotation.z,
-        leftArmAngle,
-        ARM_APPROACH_RATE,
-        dt,
-      )
-    if (rightArmRef.current)
-      rightArmRef.current.rotation.z = approach(
-        rightArmRef.current.rotation.z,
-        rightArmAngle,
-        ARM_APPROACH_RATE,
-        dt,
-      )
-  })
 
   const headY = bodyTop + HEAD_GAP + cfg.head.h / 2
   const headFront = cfg.head.d / 2 + HEAD_FRONT_MARGIN
