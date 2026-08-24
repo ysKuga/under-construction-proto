@@ -23,7 +23,7 @@ const DIRECTIONAL_LIGHT_INTENSITY = 0.7
 /** 平行光源の位置(world) */
 const DIRECTIONAL_LIGHT_POSITION: Vec3 = [4, 6, 4]
 /** 平行光源のシャドウマップ解像度 */
-const DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE: [number, number] = [1024, 1024]
+const DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE: [number, number] = [512, 512]
 
 /**
  * hemisphereLight の args
