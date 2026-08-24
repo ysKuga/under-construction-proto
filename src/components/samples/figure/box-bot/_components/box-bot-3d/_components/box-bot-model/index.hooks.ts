@@ -85,7 +85,7 @@ export function useBoxBotModel(
     : {}
 
   useJumpAction(props)
-  const { clickBody, clickHead } = useClickActions()
+  const { clickBody, clickHead } = useClickActions(props)
   const { startFall } = useFallAction(props)
   const { startGetUp } = useGetUpAction(props)
   const { arm } = useArmAction(props)

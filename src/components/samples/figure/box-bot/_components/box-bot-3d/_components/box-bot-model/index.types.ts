@@ -118,6 +118,8 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    *   どちらも歩いていない間は連動する脚の動きがないため無効
    */
   bodyBobbing?: boolean
+  /** body/head クリックで発火する action の対応。省略したキーは既定(jump)のまま */
+  clickActionMap?: ClickActionMap
   /**
    * action イベント発行/購読に使う EventTarget
    *
@@ -183,6 +185,14 @@ export interface BoxBotRefs {
   walkingBobRef: RefObject<Group | null>
   /** 歩いている状態か(見た目の挙動は含まない)の ref */
   walkingRef: RefObject<boolean>
+}
+
+/** 要素クリック → action イベントの対応。各キー省略時は既定(jump)を使う */
+export interface ClickActionMap {
+  /** body クリックで発火する action イベント名 */
+  body?: string
+  /** head クリックで発火する action イベント名 */
+  head?: string
 }
 
 export type Handlers = {
