@@ -25,7 +25,10 @@ import { BoxBot } from '@/components/samples/figure/box-bot'
 - `rotationY`: 初期 y 軸回転(ラジアン)。`autoRotate` はこの値を起点に加算回転する(例: `Math.PI` で背面向き)
 - `orbit`: マウスドラッグでの回転操作(OrbitControls)の有効/無効
 - `fov`: カメラ視野角。Canvas をセルより大きく確保しつつ本体の見かけの大きさを保ちたい場合に、拡大率に応じて広げる(`Grid3D`/`Circle` story 参照)
-- `shadowScale`: 接地影(ContactShadows)の広がり。円形クリップ等で影が見切れる場合に縮小する
+- `shadowVariant`: 接地影の方式。`contact`(既定、`_components/contact-shadow`): 俯瞰ブラー式の疑似影(drei ContactShadows)、光源とは無関係。`cast`(`_components/cast-shadow`): 平行光源によるシャドウマッピング、`lightPosition` で向き・長さを制御できる。対称に広がる `contact` は影を伸ばす演出には不向き(遠い側が本体に隠れる)、遠くまで伸ばしたい場合は `cast` を使う
+- `lightPosition`: 平行光源の位置。`shadowVariant="cast"` 時、影の向き・長さを決める。低い角度にする程、影が長く伸びる
+- `shadowOpacity`: 接地影の不透明度
+- `groundPosition`: 接地面(影の受け皿)自体の位置。高さ・水平オフセットを調整する
 
 ### その他の表示バリエーション
 
