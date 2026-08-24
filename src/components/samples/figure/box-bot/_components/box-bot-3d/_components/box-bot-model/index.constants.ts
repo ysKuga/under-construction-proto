@@ -36,6 +36,11 @@ export const ACTION_ARM_LEFT_TOGGLE = 'BoxBot-action-arm-left-toggle'
 /** 右腕上げ下げ action の発火イベント名 */
 export const ACTION_ARM_RIGHT_TOGGLE = 'BoxBot-action-arm-right-toggle'
 
+/** 左腕クリックの発火イベント名。どの action を実行するかは CLICK_ACTION_MAP 側の対応で決める */
+export const CLICK_ARM_LEFT = 'BoxBot-click-arm-left'
+/** 右腕クリックの発火イベント名。どの action を実行するかは CLICK_ACTION_MAP 側の対応で決める */
+export const CLICK_ARM_RIGHT = 'BoxBot-click-arm-right'
+
 /** 歩いている状態の toggle action の発火イベント名 */
 export const ACTION_WALKING_TOGGLE = 'BoxBot-action-walking-toggle'
 /** 足踏みしている状態の toggle action の発火イベント名 */
