@@ -20,7 +20,7 @@ issue: #96
 
 今後の追加検討(表示調整・関連 samples 整理等)は個別のサブ steering ディレクトリへ分割する。
 
-- [x] トップページ簡素化で到達不能になった bulletproof-react 由来 auth/dashboard 一式の削除 → `.claude/.steering/20260824-remove-unused-app-auth/` へ分割、対応完了
+- [x] トップページ簡素化で到達不能になった bulletproof-react 由来 auth/dashboard 一式の削除 → `.claude/.steering/issue-96-app-top-page-readme-style/_closed/pr-97-remove-unused-app-auth/` へ分割、対応完了・close 済(PR #97)
 
 ## 決定事項
 

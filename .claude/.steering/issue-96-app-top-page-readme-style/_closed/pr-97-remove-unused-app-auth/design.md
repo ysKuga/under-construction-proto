@@ -1,6 +1,6 @@
 # remove-unused-app-auth
 
-`.claude/.steering/issue-96-app-top-page-readme-style/` から分割。
+`.claude/.steering/issue-96-app-top-page-readme-style/design.md` から分割。
 
 ## 目的
 
