@@ -35,6 +35,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     rightArmRef,
     rightLegRef,
     rootRef,
+    rotationY,
     shoulderX,
     shoulderY,
     spinRef,
@@ -48,7 +49,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
       <group position={[0, groundY, 0]}>
         <group ref={fallPivotRef}>
           <group position={[0, -groundY, 0]}>
-            <group ref={spinRef}>
+            <group ref={spinRef} rotation={[0, rotationY, 0]}>
               <group ref={walkingBobRef}>
                 <SketchBox
                   cfg={cfg}

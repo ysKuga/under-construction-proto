@@ -22,6 +22,7 @@ import { BoxBot } from '@/components/samples/figure/box-bot'
 ### 3D 固有 props
 
 - `autoRotate`/`rotateSpeed`: 自動回転の有無・速度
+- `rotationY`: 初期 y 軸回転(ラジアン)。`autoRotate` はこの値を起点に加算回転する(例: `Math.PI` で背面向き)
 - `orbit`: マウスドラッグでの回転操作(OrbitControls)の有効/無効
 - `fov`: カメラ視野角。Canvas をセルより大きく確保しつつ本体の見かけの大きさを保ちたい場合に、拡大率に応じて広げる(`Grid3D`/`Circle` story 参照)
 - `shadowScale`: 接地影(ContactShadows)の広がり。円形クリップ等で影が見切れる場合に縮小する
