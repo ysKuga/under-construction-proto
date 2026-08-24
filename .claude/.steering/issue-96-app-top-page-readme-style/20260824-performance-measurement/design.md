@@ -21,7 +21,7 @@
 - [ ] 改善アクション(下記、順に着手)
   1. [x] r3f/three.js の遅延読込(dynamic import)導入検証 → **不採用**(下記「検証結果」参照)
   2. [x] `<main>` ランドマーク要否再確認 → **採用**(下記「検証結果」参照)
-  3. [ ] r3f canvas 実フレームレート計測(`r3f-perf` 等)、体感カクつき有無確認
+  3. [x] r3f canvas 実フレームレート計測(`r3f-perf`)導入 → 恒久設置(下記「検証結果」参照)
   4. [ ] legacy-javascript / render-blocking-resources 対応(微小、優先度低)
 - [ ] ルール化の要否・粒度を検討(保留中、下記「検討事項」参照)
 - [ ] 検討結果を `.claude/rules/` へ反映(採用する場合)
@@ -82,6 +82,14 @@ Performance score・Speed Index とも両者のブレ幅が重なり有意差な
 本番ビルドで再計測: Performance 70 / Accessibility 100(変更前後とも同値、想定通り Performance には影響しない)。
 
 **結論**: 採用。`<html>` に反映確認・DOM出力(`curl` で `<main>` 存在確認)・型チェック・本番ビルド 全て通過。
+
+### 検証結果: r3f canvas 実フレームレート計測(r3f-perf) — 恒久設置 (2026-08-24)
+
+`r3f-perf` を導入(`yarn add r3f-perf`、[docs/package/3d/r3f-perf/](../../../../docs/package/3d/r3f-perf/README.md) 参照)、`box-bot-3d/index.tsx` の Canvas 内に `process.env.NODE_ENV === 'development'` 限定で `<Perf position="top-left" />` を配置。
+
+既存 `provider.tsx:27` の `{process.env.DEV && <ReactQueryDevtools />}` は `process.env.DEV` が未定義変数(常に `undefined`)のため実質死んでいるコードだった。今回追加分は同じ轍を踏まず `process.env.NODE_ENV === 'development'` で実装(provider.tsx 側の既存バグ修正は本タスクのスコープ外、別途対応要)。
+
+Storybook(`components-samples-figure-box-bot--mode-3-d`)+ Playwright headless chromium で表示・動作確認: FPS 12 / CPU 3.7ms / GPU 0.000ms / calls 191 / Triangles 5170。**GPU 計測が 0.000ms 固定 → headless環境の GPU タイミングクエリ未対応の疑いが強く、FPS 12 という数値はこの計測環境の信頼性に疑問あり**。実ブラウザでの体感カクつき確認は別途ユーザー環境で実施要。今回のスコープは Perf UI の恒久設置・動作確認までとし、実測値の評価は持ち越し。
 
 ### 計測環境の不具合: Chrome user-data-dir パス解決不良
 
