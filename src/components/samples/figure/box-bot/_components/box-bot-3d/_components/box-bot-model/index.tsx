@@ -20,6 +20,8 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
   const {
     arm,
     cfg,
+    clickBody,
+    clickHead,
     fallPivotRef,
     groundY,
     headFront,
@@ -35,7 +37,6 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     shoulderX,
     shoulderY,
     spinRef,
-    startJump,
     walkingBobRef,
   } = useBoxBotModel(props)
 
@@ -50,14 +51,14 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
               <group ref={walkingBobRef}>
                 <SketchBox
                   cfg={cfg}
-                  handlers={{ onClick: startJump, ...hover }}
+                  handlers={{ onClick: clickBody, ...hover }}
                   position={[0, 0, 0]}
                   seed={cfg.seed + 1}
                   size={[cfg.body.w, cfg.body.h, cfg.body.d]}
                 />
                 <SketchBox
                   cfg={cfg}
-                  handlers={{ onClick: startJump, ...hover }}
+                  handlers={{ onClick: clickHead, ...hover }}
                   position={[0, headY, 0]}
                   seed={cfg.seed + 2}
                   size={[cfg.head.w, cfg.head.h, cfg.head.d]}

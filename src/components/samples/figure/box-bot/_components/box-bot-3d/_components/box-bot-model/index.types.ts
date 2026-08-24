@@ -236,6 +236,10 @@ export interface UseBoxBotModelReturn extends Pick<
   }
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
+  /** body クリックで CLICK_BODY を発火(実行される action は CLICK_ACTION_MAP 側の対応で決まる) */
+  clickBody: (e: ThreeEvent<MouseEvent>) => void
+  /** head クリックで CLICK_HEAD を発火(実行される action は CLICK_ACTION_MAP 側の対応で決まる) */
+  clickHead: (e: ThreeEvent<MouseEvent>) => void
   /** 接地面(脚の下端)の y 座標。fall/getUp の回転中心に使う */
   groundY: number
   /** 頭の前面 z 座標 */
@@ -258,6 +262,4 @@ export interface UseBoxBotModelReturn extends Pick<
   startFall: () => void
   /** 起き上がり開始(倒れている時のみ実行される) */
   startGetUp: () => void
-  /** 腕/頭/胴クリックでジャンプ開始 */
-  startJump: (e: ThreeEvent<MouseEvent>) => void
 }

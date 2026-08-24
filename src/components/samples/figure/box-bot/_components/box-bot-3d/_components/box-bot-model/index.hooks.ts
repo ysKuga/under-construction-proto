@@ -14,6 +14,7 @@ import { useLegBobAction } from './_action-hooks/use-leg-bob-action'
 import { useLegSwingAction } from './_action-hooks/use-leg-swing-action'
 import { useMarchingAction } from './_action-hooks/use-marching-action'
 import { useWalkingAction } from './_action-hooks/use-walking-action'
+import { useClickActions } from './_hooks/use-click-actions'
 import {
   ARM_APPROACH_RATE,
   ARM_DOWN_ANGLE,
@@ -83,7 +84,8 @@ export function useBoxBotModel(
       }
     : {}
 
-  const { startJump } = useJumpAction(props)
+  useJumpAction(props)
+  const { clickBody, clickHead } = useClickActions()
   const { startFall } = useFallAction(props)
   const { startGetUp } = useGetUpAction(props)
   const { arm } = useArmAction(props)
@@ -146,6 +148,8 @@ export function useBoxBotModel(
   return {
     arm,
     cfg,
+    clickBody,
+    clickHead,
     fallPivotRef,
     groundY,
     headFront,
@@ -167,7 +171,6 @@ export function useBoxBotModel(
     spinRef,
     startFall,
     startGetUp,
-    startJump,
     walkingBobRef,
     walkingRef,
   }
