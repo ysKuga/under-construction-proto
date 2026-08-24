@@ -10,13 +10,18 @@ import { getPendingPromises } from '../_registries'
  *   全 listener の完了を待つ形で解決する
  * - イベント名には scope prefix (例: `ComponentName-`) の付与を検討する(grep 検索性のため)
  *
- * @param target 発行対象。省略時 window
+ * @param target 発行対象 (省略時 window)
  */
 export const useEventDispatcher = (target: EventTarget = window) =>
   useCallback(
-    async (event: Event) => {
-      target.dispatchEvent(event)
-      await Promise.all(getPendingPromises(target, event.type))
+    /**
+     * @param event 発行するイベント。Event オブジェクトまたはイベント名文字列
+     */
+    async (event: Event | string) => {
+      const _event = typeof event === 'string' ? new Event(event) : event
+
+      target.dispatchEvent(_event)
+      await Promise.all(getPendingPromises(target, _event.type))
     },
     [target],
   )
