@@ -67,6 +67,11 @@ box-bot の既存 onClick 実装(`startHop` 等)を `useEventListener` 経由で
   - 配置は `_action-hooks/`(action の発火・購読・可視化)と区別し `_hooks/`(action でない部品 hook の置き場、既存決定事項の位置づけを踏襲)へ新設
   - arm(`arm.left.toggle`/`arm.right.toggle`)は現状 1 要素 = 1 action の対応のままで、このパターンは未適用。要素とaction の対応を切り替えたい要求が arm 側にも出た時点で同様の分離を検討する
 
+- `clickActionMap` prop を新設し、要素クリック(body/head)と action の対応を外部から差替え可能にした。`useClickActions` 内にハードコードしていた `CLICK_ACTION_MAP` を、`BoxBotModelProps['clickActionMap']`(省略可、キー省略時は既定値)から都度算出する形に変更
+  - `useEventDispatcher` がイベント名文字列を直接受け取れるよう拡張(文字列時は内部で `new Event()` へ変換)。これに合わせ box-bot-model 側の `dispatch(new Event(x))` 呼び出しを `dispatch(x)` へ簡略化した(`useBoxBotActionDispatcher` 等、今回のスコープ外のファイルはまだ `new Event()` のまま)
+  - この対応を受け arm(左右腕クリック)にも同パターンを適用。`CLICK_ARM_LEFT`/`CLICK_ARM_RIGHT` を新設し、`useArmToggle` からクリック起点の dispatch(`toggle`)を削除、実行判定(`useEventListener` での購読のみ)に責務を縮小した。クリックは `useClickActions` が提供する `clickArmLeft`/`clickArmRight` 経由に統一され、`ArmSideState` からは `toggle` を削除(`up` のみ)
+  - `clickActionMap` は `body`/`head`/`armLeft`/`armRight` の4キー。既定値はそれぞれ `ACTION_JUMP`/`ACTION_JUMP`/`ACTION_ARM_LEFT_TOGGLE`/`ACTION_ARM_RIGHT_TOGGLE`
+
 - ref 変数命名: `useRef()` 戻り値変数(hook 戻り値プロパティ含む)は `Ref` サフィックス付与に統一。ルールを `.claude/rules/react/ref-naming.md` へ新設。box-bot-model 内 `root`/`spin`/`leftArm`/`rightArm` を `rootRef`/`spinRef`/`leftArmRef`/`rightArmRef` へリネーム
 - `rootRef` の context 化(複数 action からの共有): 当初は歩く action 等2つ目の消費者が具体化するまで見送る方針だったが、先行して着手する判断に変更。`BoxBotEventProvider` と同様の `BoxBotRefsProvider`/`useBoxBotRefs` を新設し、`rootRef` に加え `spinRef`/`leftArmRef`/`rightArmRef`/`jumpRef` の5つ全てを配布する形にした。Provider 内で `useRef` 生成 → `useMemo` で Context 値を安定化。各 action hook(`useJumpAction` 等)は `useBoxBotEventTarget` と同様に `useBoxBotRefs` を自前で呼び出して必要な ref を取得する(props 経由の受け渡しは行わない)
 - `useFrame` 分割: jump 側から着手。`root` ref の所有権を `index.hooks.ts` から `use-jump-action.ts` へ移し、ホップ中の位置・スケール制御 `useFrame` も同 hook 内へ統合した。「イベント受信→hopRef 起動→同 hook 内 useFrame で可視化」まで1 hook に閉じた。`index.hooks.ts` 側の `useFrame` は autoRotate・腕角度補間の2関心のみに縮小。arm 側(cfg 値依存あり)は未着手のまま
