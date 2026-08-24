@@ -3,6 +3,8 @@ import { useEventDispatcher } from '@/hooks/event'
 import {
   ACTION_ARM_LEFT_TOGGLE,
   ACTION_ARM_RIGHT_TOGGLE,
+  ACTION_FALL,
+  ACTION_GET_UP,
   ACTION_JUMP,
   ACTION_MARCHING_TOGGLE,
   ACTION_WALKING_TOGGLE,
@@ -26,6 +28,8 @@ export const useBoxBotActionDispatcher = (
   return {
     armLeftToggle: () => dispatch(new Event(ACTION_ARM_LEFT_TOGGLE)),
     armRightToggle: () => dispatch(new Event(ACTION_ARM_RIGHT_TOGGLE)),
+    fall: () => dispatch(new Event(ACTION_FALL)),
+    getUp: () => dispatch(new Event(ACTION_GET_UP)),
     jump: () => dispatch(new Event(ACTION_JUMP)),
     marchingToggle: () => dispatch(new Event(ACTION_MARCHING_TOGGLE)),
     walkingToggle: () => dispatch(new Event(ACTION_WALKING_TOGGLE)),

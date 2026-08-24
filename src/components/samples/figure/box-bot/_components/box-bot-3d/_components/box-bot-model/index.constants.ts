@@ -36,6 +36,11 @@ export const ACTION_WALKING_TOGGLE = 'BoxBot-action-walking-toggle'
 /** 足踏みしている状態の toggle action の発火イベント名 */
 export const ACTION_MARCHING_TOGGLE = 'BoxBot-action-marching-toggle'
 
+/** 転倒 action の発火イベント名 */
+export const ACTION_FALL = 'BoxBot-action-fall'
+/** 起き上がり action の発火イベント名 */
+export const ACTION_GET_UP = 'BoxBot-action-get-up'
+
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
 /** ジャンプの最大上昇量(world) */
@@ -75,3 +80,18 @@ export const BODY_BOB_HEIGHT = 0.025
 export const LEG_SPEED_APPROACH_RATE = 3
 /** 歩行系の値が目標値(停止時は 0)へ近づく速さ(approach の減衰係数) */
 export const WALK_APPROACH_RATE = 10
+
+/** 転倒の継続時間(秒) */
+export const FALL_DUR = 0.4
+/** 起き上がりの継続時間(秒) */
+export const GET_UP_DUR = 0.6
+/** 倒れきった状態の fallPivotRef 前傾角度(rad、x 軸回転) */
+export const FALL_ANGLE = Math.PI / 2
+/**
+ * 転倒中に腕を頭の近くへ引き寄せる角度(rad、x 軸回転)
+ *
+ * - fall 発火時に即座に切替える toggle 実装(経過時間による補間はしない)。\
+ *   転倒に対して防御的に頭をかばう動きを意図している
+ * - 将来 この動き自体を独立 action(軌道)にする際に見直す想定
+ */
+export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4

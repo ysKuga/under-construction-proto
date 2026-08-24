@@ -7,6 +7,8 @@ import { approach } from '../../_lib/approach'
 
 import { useArmAction } from './_action-hooks/arm-action'
 import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
+import { useFallAction } from './_action-hooks/use-fall-action'
+import { useGetUpAction } from './_action-hooks/use-get-up-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
 import { useLegBobAction } from './_action-hooks/use-leg-bob-action'
 import { useLegSwingAction } from './_action-hooks/use-leg-swing-action'
@@ -52,9 +54,11 @@ export function useBoxBotModel(
   }
 
   const {
+    fallPivotRef,
     jumpRef,
     leftArmRef,
     leftLegRef,
+    postureRef,
     rightArmRef,
     rightLegRef,
     rootRef,
@@ -64,6 +68,7 @@ export function useBoxBotModel(
 
   const bodyTop = cfg.body.h / 2
   const legY = -bodyTop
+  const groundY = legY - cfg.leg.h
 
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
@@ -79,6 +84,8 @@ export function useBoxBotModel(
     : {}
 
   const { startJump } = useJumpAction(props)
+  const { startFall } = useFallAction(props)
+  const { startGetUp } = useGetUpAction(props)
   const { arm } = useArmAction(props)
   const { walkingRef } = useWalkingAction(props)
   const { marchingRef } = useMarchingAction(props)
@@ -139,6 +146,8 @@ export function useBoxBotModel(
   return {
     arm,
     cfg,
+    fallPivotRef,
+    groundY,
     headFront,
     headY,
     hover,
@@ -149,12 +158,15 @@ export function useBoxBotModel(
     legX,
     legY,
     marchingRef,
+    postureRef,
     rightArmRef,
     rightLegRef,
     rootRef,
     shoulderX,
     shoulderY,
     spinRef,
+    startFall,
+    startGetUp,
     startJump,
     walkingBobRef,
     walkingRef,

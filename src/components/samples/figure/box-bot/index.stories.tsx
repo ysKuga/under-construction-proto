@@ -95,7 +95,10 @@ export const Grid: Story = {
 /**
  * 基準 fov(deg)
  *
- * - BoxBot3D デフォルトと同じ値
+ * - Grid3D/Circle が意図した見た目のスケールを保つための基準値。BoxBot3D の\
+ *   デフォルト fov とは独立させている。tan 比のスケーリング計算(`fovForScale`)は\
+ *   非線形のため、BoxBot3D デフォルトに追従させると(fov を広げる方向の変更で)\
+ *   Canvas 拡大率が同じでも実効 fov が急激に広がり、本体が縮小して見えてしまう
  */
 const BASE_FOV = 42
 
@@ -161,15 +164,17 @@ export const Grid3D: Story = {
 /**
  * 腕含む本体シルエットの実測幅(px)
  *
- * - cellSize = 120 のときの値
+ * - cellSize = 120 のときの値。box-bot-3d のカメラ設定(fov/ORBIT_TARGET)に\
+ *   依存するため、それらを変更した場合は再計測が必要
  */
-const BODY_WIDTH_AT_120 = 83
+const BODY_WIDTH_AT_120 = 51
 /**
  * 腕含む本体シルエットの実測高さ(px)
  *
- * - cellSize = 120 のときの値
+ * - cellSize = 120 のときの値。box-bot-3d のカメラ設定(fov/ORBIT_TARGET)に\
+ *   依存するため、それらを変更した場合は再計測が必要
  */
-const BODY_HEIGHT_AT_120 = 108
+const BODY_HEIGHT_AT_120 = 48
 /** 隣接ペアの重なり量(本体サイズに対する比率) */
 const OVERLAP_RATIO = 0.25
 
@@ -390,6 +395,44 @@ export const Walking: StoryObj<WalkingArgs> = {
           eventTarget={eventTarget}
           legCycle={legCycle}
           mode="3d"
+        />
+      </div>
+    )
+  },
+}
+
+/**
+ * fall(転倒)・getUp(起き上がり)action の挙動確認
+ *
+ * - 直立時のみ fall が、倒れている時のみ getUp が実際に発火する(内部ガード)。\
+ *   誤ったタイミングでクリックしても無視されるだけなので、ボタンは常時 2 つとも表示する
+ * - addon パネル(Controls/Actions 等)を無効化しつつ、Canvas 高さも既定(480px)より\
+ *   低くしている。狭いウィンドウでも、パネルの有無に関わらず Canvas 自体の絶対的な\
+ *   高さがビューポートを超えれば見切れるため、両方の対策が必要だった。args を持たない\
+ *   story のため showPanel 無効化に実害なし
+ */
+export const Fall: Story = {
+  parameters: {
+    options: { showPanel: false },
+  },
+  render: () => {
+    const [eventTarget] = React.useState(() => new EventTarget())
+    const { fall, getUp } = useBoxBotActionDispatcher(eventTarget)
+
+    return (
+      <div>
+        <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+          <Button onClick={() => void fall()} type="button" variant="outline">
+            Fall
+          </Button>
+          <Button onClick={() => void getUp()} type="button" variant="outline">
+            Get Up
+          </Button>
+        </div>
+        <StoryComponent
+          eventTarget={eventTarget}
+          mode="3d"
+          style={{ height: 300 }}
         />
       </div>
     )

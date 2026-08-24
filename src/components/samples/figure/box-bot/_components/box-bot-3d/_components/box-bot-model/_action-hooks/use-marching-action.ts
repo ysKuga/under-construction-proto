@@ -13,6 +13,7 @@ import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
  * - jump/arm/walking と同じく `useEventListener` 側で実行判定(`interactive` チェック・\
  *   state 切替)を行う。現状クリック起点の発火経路はなく、`useBoxBotActionDispatcher` 経由の\
  *   外部発火のみを受け付ける
+ * - 姿勢(`postureRef`)が直立(0)でない間は toggle 自体を無視する(倒れている間は足踏み開始不可)
  *
  * @param props BoxBotModel に渡される props
  */
@@ -21,11 +22,12 @@ export const useMarchingAction = (
 ): Pick<UseBoxBotModelReturn, 'marchingRef'> => {
   const { interactive = true } = props
 
-  const { marchingRef } = useBoxBotRefs()
+  const { marchingRef, postureRef } = useBoxBotRefs()
   const eventTarget = useBoxBotEventTarget()
 
   const toggleAction = () => {
     if (!interactive) return
+    if (postureRef.current !== 0) return
     marchingRef.current = !marchingRef.current
   }
 

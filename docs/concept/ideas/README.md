@@ -4,6 +4,13 @@
 
 ## 動作を `移動` `姿勢` `動作` などの要素に分解
 
+box-bot(`src/components/samples/figure/box-bot`)で実装が進み、以下の形に整理された。
+
+- `動作`: 個別の独立 action として実装。実装済み: `jump`(ジャンプ)、`arm`(左右腕上げ下げ toggle)、`walking`(脚 swing、前進歩行)、`marching`(脚 bob、足踏み)。いずれも「クリック等での発火は dispatch のみ、実行判定・可視化は `useEventListener` 側の action hook へ一本化」という共通パターンを踏襲
+- `姿勢`: `posture`(0=直立 〜 1=倒れている の連続値)として概念定義(詳細は本ファイル上位 [README.md](../README.md) の「姿勢」節)。`fall`/`getUp` の2 action がこの数値を変化させ、他 action(歩く等)の実行可否をこの数値でガードする
+- `移動`: 未着手。box-bot は現状 その場での動作(jump/arm/walking の見た目)のみで、位置移動(グリッド上の歩行等)は実装していない
+- 発火の仕組み自体は `docs/concept/implementation/event-driven-ui/` の CustomEvent + EventListener 方針を踏襲(box-bot 固有の EventTarget を instance ごとに生成・配布)
+
 ## 負傷した際に移動
 
 - スナックバーを連打させる

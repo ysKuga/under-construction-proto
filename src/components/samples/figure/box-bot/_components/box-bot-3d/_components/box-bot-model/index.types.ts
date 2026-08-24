@@ -135,6 +135,25 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 /** BoxBotRefsProvider が配布する ref 群 */
 export interface BoxBotRefs {
   /**
+   * 転倒/起き上がりの回転制御グループ ref
+   *
+   * - `rootRef` 直下、脚の接地点(下方)へ position で移動した内側に配置し、\
+   *   ここへ回転をかけることで回転中心を体の中心でなく接地点にする
+   */
+  fallPivotRef: RefObject<Group | null>
+  /**
+   * 転倒進行度の ref
+   *
+   * - -1: 非実行中、0以上: 経過秒数
+   */
+  fallRef: RefObject<number>
+  /**
+   * 起き上がり進行度の ref
+   *
+   * - -1: 非実行中、0以上: 経過秒数
+   */
+  getUpRef: RefObject<number>
+  /**
    * ジャンプ進行度の ref
    *
    * - -1: 非ジャンプ中、0以上: 経過秒数
@@ -146,11 +165,17 @@ export interface BoxBotRefs {
   leftLegRef: RefObject<Group | null>
   /** 足踏みしている状態か(見た目の挙動は含まない)の ref */
   marchingRef: RefObject<boolean>
+  /**
+   * 姿勢の ref
+   *
+   * - 0: 直立、1: 倒れている(中間値は fall/getUp 進行中のみ一時的に取りうる)
+   */
+  postureRef: RefObject<number>
   /** 右腕の回転支点グループ ref */
   rightArmRef: RefObject<Group | null>
   /** 右脚のグループ ref */
   rightLegRef: RefObject<Group | null>
-  /** 全体のジャンプ・スケール制御グループ ref */
+  /** 全体のジャンプ・スケール・転倒回転制御グループ ref */
   rootRef: RefObject<Group | null>
   /** 自動回転グループ ref */
   spinRef: RefObject<Group | null>
@@ -175,6 +200,10 @@ export interface UseBoxBotActionDispatcherReturn {
   armLeftToggle: () => Promise<void>
   /** 右腕上げ下げ action を発火する */
   armRightToggle: () => Promise<void>
+  /** 転倒 action を発火する(直立時のみ実行される) */
+  fall: () => Promise<void>
+  /** 起き上がり action を発火する(倒れている時のみ実行される) */
+  getUp: () => Promise<void>
   /** ジャンプ action を発火する */
   jump: () => Promise<void>
   /** 足踏みしている状態(marching)の toggle action を発火する */
@@ -185,10 +214,12 @@ export interface UseBoxBotActionDispatcherReturn {
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
+  | 'fallPivotRef'
   | 'jumpRef'
   | 'leftArmRef'
   | 'leftLegRef'
   | 'marchingRef'
+  | 'postureRef'
   | 'rightArmRef'
   | 'rightLegRef'
   | 'rootRef'
@@ -205,6 +236,8 @@ export interface UseBoxBotModelReturn extends Pick<
   }
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
+  /** 接地面(脚の下端)の y 座標。fall/getUp の回転中心に使う */
+  groundY: number
   /** 頭の前面 z 座標 */
   headFront: number
   /** 頭の中心 y 座標 */
@@ -221,6 +254,10 @@ export interface UseBoxBotModelReturn extends Pick<
   shoulderX: number
   /** 肩の y 座標 */
   shoulderY: number
+  /** 転倒開始(直立時のみ実行される) */
+  startFall: () => void
+  /** 起き上がり開始(倒れている時のみ実行される) */
+  startGetUp: () => void
   /** 腕/頭/胴クリックでジャンプ開始 */
   startJump: (e: ThreeEvent<MouseEvent>) => void
 }

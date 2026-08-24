@@ -30,3 +30,7 @@ import { BoxBot } from '@/components/samples/figure/box-bot'
 
 - 円形クリップ表示: `Circle` story。border-radius+overflow:hidden だけでは本体・影ごと切り取られるため、円形背景 div + クリップしない一回り大きい Canvas を重ねる構成にしている
 - 複数体の重なり表示: `OverlapGrid3D` story。Canvas(WebGL)は透明部分でもクリックを奪うため、重なる配置では `interactive={false}` を推奨
+
+## 検討事項
+
+- 被ダメージモーション(仮称、要 naming): `fall`(転倒)とは別の reaction として検討していたが、いったん延期。命名・挙動とも未定。`.claude/.steering/20260820-action-reaction-design/design.md` 参照
