@@ -54,10 +54,15 @@ export const ACTION_GET_UP = 'BoxBot-action-get-up'
 /** 回転(加速→最大速度→減速して停止) action の発火イベント名 */
 export const ACTION_SPIN = 'BoxBot-action-spin'
 
+/** 待機演出(hopping、bot への hover/touch 中・回転中以外は連続ジャンプ)開始の発火イベント名 */
+export const ACTION_HOPPING_START = 'BoxBot-action-hopping-start'
+/** 待機演出(hopping)停止の発火イベント名 */
+export const ACTION_HOPPING_STOP = 'BoxBot-action-hopping-stop'
+
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
-/** 待機演出(連続ジャンプ)、1 回のジャンプが終わってから次を始めるまでの間隔(秒) */
-export const CONTINUOUS_JUMP_INTERVAL = 0.5
+/** hopping、1 回のジャンプが終わってから次を始めるまでの間隔(秒) */
+export const HOPPING_INTERVAL = 0.5
 /** ジャンプの最大上昇量(world) */
 export const JUMP_H = 0.55
 /** ジャンプ中の縦方向のスクイッシュ量 */

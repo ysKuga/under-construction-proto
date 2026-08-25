@@ -6,9 +6,9 @@ import { useArmAction } from './_action-hooks/arm-action'
 import { useMarchingAction, useWalkingAction } from './_action-hooks/leg-action'
 import { useAutoRotateAction } from './_action-hooks/use-auto-rotate-action'
 import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
-import { useContinuousJumpAction } from './_action-hooks/use-continuous-jump-action'
 import { useFallAction } from './_action-hooks/use-fall-action'
 import { useGetUpAction } from './_action-hooks/use-get-up-action'
+import { useHoppingAction } from './_action-hooks/use-hopping-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
 import { useSpinAction } from './_action-hooks/use-spin-action'
 import { useClickActions } from './_hooks/use-click-actions'
@@ -30,7 +30,13 @@ import type {
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'eventTarget'>,
 ): UseBoxBotModelReturn {
-  const { autoWalk, interactive = true, rotationY = 0, ...opts } = props
+  const {
+    autoWalk,
+    hopping,
+    interactive = true,
+    rotationY = 0,
+    ...opts
+  } = props
 
   const cfg: BoxBot3DConfig = {
     ...DEFAULTS,
@@ -45,6 +51,7 @@ export function useBoxBotModel(
   const {
     botHoverRef,
     fallPivotRef,
+    hoppingRef,
     jumpRef,
     leftArmRef,
     leftLegRef,
@@ -86,7 +93,7 @@ export function useBoxBotModel(
 
   useJumpAction(props)
   useSpinAction(props)
-  useContinuousJumpAction(props)
+  useHoppingAction(props)
   const { clickArmLeft, clickArmRight, clickBody, clickHead } =
     useClickActions(props)
   const { startFall } = useFallAction(props)
@@ -97,12 +104,14 @@ export function useBoxBotModel(
   const { marchingRef } = useMarchingAction(props, legY)
   useBodyBobbingAction(props, legY)
 
-  // マウント時に autoWalk の歩き方で歩き始める。useBoxBotActionDispatcher 経由の
-  // toggle は Canvas 外部からの発行になり、初回マウント直後は listener 登録前に
-  // イベントが発行されるタイミング競合の余地があるため、ref を直接セットする
+  // マウント時に autoWalk の歩き方で歩き始める・hopping を開始する。
+  // useBoxBotActionDispatcher 経由の toggle は Canvas 外部からの発行になり、
+  // 初回マウント直後は listener 登録前にイベントが発行されるタイミング競合の
+  // 余地があるため、ref を直接セットする
   React.useLayoutEffect(() => {
     if (autoWalk === 'swing') walkingRef.current = true
     else if (autoWalk === 'bob') marchingRef.current = true
+    if (hopping) hoppingRef.current = true
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

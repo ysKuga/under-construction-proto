@@ -124,6 +124,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    * - 省略時は instance 固有のものを内部生成
    */
   eventTarget?: EventTarget
+  /**
+   * マウント時に自動で hopping(待機演出、bot への hover/touch 中・回転中以外は連続ジャンプ)を\
+   * 開始するか(省略時: hopping しない)
+   *
+   * - `autoWalk` と同じ理由(タイミング競合回避)で、Canvas 内部で直接 ref をセットする
+   */
+  hopping?: boolean
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
   /** 脚アニメーション(walking/marching 共通)の周期(秒) */
@@ -143,12 +150,6 @@ export interface BoxBotRefs {
   /** bot 自体(body/head/arm)に hover(PC)・touch(モバイル)しているかどうかの ref */
   botHoverRef: RefObject<boolean>
   /**
-   * 待機演出(連続ジャンプ)、次のジャンプまでの待ち時間の ref
-   *
-   * - -1: 待機中でない(ジャンプ中、または演出自体が非アクティブ)、0以上: 経過秒数
-   */
-  continuousJumpCooldownRef: RefObject<number>
-  /**
    * 転倒/起き上がりの回転制御グループ ref
    *
    * - `rootRef` 直下、脚の接地点(下方)へ position で移動した内側に配置し、\
@@ -167,6 +168,14 @@ export interface BoxBotRefs {
    * - -1: 非実行中、0以上: 経過秒数
    */
   getUpRef: RefObject<number>
+  /**
+   * hopping、次のジャンプまでの待ち時間の ref
+   *
+   * - -1: 待機中でない(ジャンプ中、または hopping 自体が非アクティブ)、0以上: 経過秒数
+   */
+  hoppingCooldownRef: RefObject<number>
+  /** hopping(待機演出)状態かどうかの ref */
+  hoppingRef: RefObject<boolean>
   /**
    * ジャンプ進行度の ref
    *
@@ -238,6 +247,10 @@ export interface UseBoxBotActionDispatcherReturn {
   fall: () => Promise<void>
   /** 起き上がり action を発火する(倒れている時のみ実行される) */
   getUp: () => Promise<void>
+  /** hopping(待機演出)を開始する */
+  hoppingStart: () => Promise<void>
+  /** hopping(待機演出)を停止する */
+  hoppingStop: () => Promise<void>
   /** ジャンプ action を発火する */
   jump: () => Promise<void>
   /** 足踏みしている状態(marching)の toggle action を発火する */
