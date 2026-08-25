@@ -363,7 +363,15 @@ export const Walking: StoryObj<WalkingArgs> = {
 
     return (
       <div>
-        <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+        <div
+          style={{
+            alignItems: 'center',
+            display: 'flex',
+            gap: 12,
+            position: 'relative',
+            zIndex: 10,
+          }}
+        >
           <Button
             onClick={() => {
               toggleByStyle(legStyle)
