@@ -70,6 +70,15 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - 呼出元 API 変更なし(`style.height` の意味は従来通り「Canvas 全体サイズ」のまま。`Assembly` サイズはその比率から自動算出)
 - `Sizes` story は間隔が詰まった結果、600px サイズで Canvas が `Assembly` から上方向にはみ出し story 冒頭でビューポート外に見切れる副作用があったため `paddingTop: 160` を追加して対応(story 固有の表示調整、コンポーネント側の変更ではない)
 
+### Grid3D での bot 枠線はみ出しの原因判明・修正 (2026-08-25)
+
+`Grid3D` story(升目セル敷き詰め表示)で、Assembly 内包化後も bot の頭・腕が升目の `outline` をはみ出す現象が残っていた(`box-bot-3d の Assembly 内包化` 時点では原因不明のため保留していた件)。PR #101 で調査・修正。
+
+- 切り分け: 回転(`autoRotate`)・grid 配置・複数体同時レンダリングいずれも無関係と判明。`Static` story を単独で 96px に強制縮小しただけで同じはみ出しが再現し、`orbit={false}` を指定している story(Static/Grid3D)でのみ発生、`orbit` 未指定(既定 `true`)の story(Sizes/Walking)ではどのサイズでも発生しない、という条件が決め手になった
+- 根本原因: `orbit={false}` 時は `OrbitControls` 自体がマウントされないため、`target={ORBIT_TARGET}`(Y=-0.6 オフセット)への lookAt が一切適用されず、カメラが `BODY_HEIGHT_RATIO`/`VERTICAL_OFFSET_RATIO` のキャリブレーション前提と異なる向きを向いていた
+- 修正: `box-bot-3d` の `Canvas` に `onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}` を追加し、`orbit` の有無に関わらず初期 lookAt を明示。`orbit={true}` 時は `OrbitControls` が毎フレーム上書きするため無害
+- 回帰確認用に `Grid3D` へ升目制約を受けない独立 bot、`Sizes` へ 96px 以下のサイズ、`Walking` へ outline を追加(常設)
+
 ## 検討事項
 
 - [x] トップページの box-bot 表示完了(画面要素全表示完了)までの速度計測が未実施。本リポジトリで優先しているパフォーマンス・軽量方針との整合を確認し、表示速度向上案があれば検討する。 → `.claude/.steering/issue-96-app-top-page-readme-style/_closed/pr-98-performance-measurement/` へ分割、対応完了・close 済(PR #98)
