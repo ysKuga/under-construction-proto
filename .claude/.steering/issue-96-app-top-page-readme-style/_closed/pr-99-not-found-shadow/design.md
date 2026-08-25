@@ -46,4 +46,4 @@ not-found の box-bot、クリックしても腕上げ/ジャンプしない件 
 
 ## 検討事項
 
-- [ ] home への戻るクリック時に box-bot を回転させる演出(未着手、親 design.md へ引き継ぎ)
+- [x] home への戻るクリック時に box-bot を回転させる演出 → 親 design.md へ引き継ぎ、`ACTION_SPIN` 追加で対応完了
