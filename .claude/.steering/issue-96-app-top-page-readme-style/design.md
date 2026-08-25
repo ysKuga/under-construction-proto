@@ -53,6 +53,13 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - `botHoverRef`(bot への hover/touch)・`spinActionRef`(回転 action 実行中)のいずれかが真の間は hopping を停止、収まれば自動再開する仕様は据え置き
 - not-found のみ `hopping` prop を指定して有効化(2026-08-25 追記: home では hopping させない方針に変更、`hopping` 未指定に戻した)。他の box-bot 利用箇所(Storybook 等)は既定 false のまま影響を受けない
 
+### bot 縮小時の線太り対策 (2026-08-25)
+
+- 輪郭辺は drei `<Line>`(fat-line)で screen-space px 固定の `lineWidth` を使うため、表示サイズを縮小するほど相対的に太く見える問題があった
+- `BoxBot3D`(`box-bot-3d/index.tsx`)で表示高さ(`style.height`)が既定 480px を下回る比率ぶん `lineWidth` を線形スケールし細くする対応。拡大時(480px 超)はスケールしない(太らせない)
+- `outlineWidth`(反転ハルのシルエット縁取り)は world 単位のため対象外。Canvas 縮小に伴いスクリーン上の見た目も自然に比例して細くなるため
+- `lineWidth` を明示指定した場合はスケール適用せずそのまま尊重
+
 ## 検討事項
 
 - [x] トップページの box-bot 表示完了(画面要素全表示完了)までの速度計測が未実施。本リポジトリで優先しているパフォーマンス・軽量方針との整合を確認し、表示速度向上案があれば検討する。 → `.claude/.steering/issue-96-app-top-page-readme-style/_closed/pr-98-performance-measurement/` へ分割、対応完了・close 済(PR #98)
@@ -60,8 +67,7 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - [x] not-found ページの追加検討("404" 表示・接地影の調整) → `.claude/.steering/issue-96-app-top-page-readme-style/_pr/pr-99-not-found-shadow/` へ分割、対応完了(PR #99)
 - [x] home への戻るクリック時に box-bot を回転させる演出 → `ACTION_SPIN` 追加で対応(決定事項参照)
 - [x] not-found で確認した bot の挙動(回転・ジャンプしない)→ `interactive={false}` 明示指定が原因、削除し解消(コミット `7275480`、詳細は `_pr/pr-99-not-found-shadow/design.md` 参照)
-- [ ] bot の縮小時の線の太さを調整
-  - 現在は太さがそのままと思われるため縮小に応じて線の太さを補足するなどしたい。
+- [x] bot の縮小時の線の太さを調整 → `lineWidth` を表示サイズに応じて線形スケール(決定事項参照)
 - [ ] stories の名前に実際のパス名を反映を検討
   - not found は除外
   - `home (/)` など

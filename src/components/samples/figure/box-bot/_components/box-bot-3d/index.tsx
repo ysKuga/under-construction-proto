@@ -4,13 +4,18 @@ import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
 import { BoxBotModel } from './_components/box-bot-model'
+import { DEFAULTS } from './_components/box-bot-model/index.constants'
 import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
 export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
 
-/** 外側 div のデフォルト高さ(px)。style で上書き可能 */
+/**
+ * 外側 div のデフォルト高さ(px)。style で上書き可能
+ *
+ * - lineWidth/outlineWidth の縮小スケール算出の基準値も兼ねる
+ */
 const DEFAULT_HEIGHT = 480
 
 /** カメラ位置(world) */
@@ -91,6 +96,18 @@ export default function BoxBot3D({
   style,
   ...cfg
 }: BoxBot3DProps) {
+  /** 表示高さ(px)。style.height が数値でなければ DEFAULT_HEIGHT とみなす */
+  const heightPx =
+    typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
+  /**
+   * lineWidth(screen-space px 固定)の縮小スケール
+   *
+   * - DEFAULT_HEIGHT より縮小した分だけ細くし、拡大時は太らせない
+   * - outlineWidth は world 単位(box 自体の物理縁取り)のため対象外。Canvas 縮小に伴い\
+   *   スクリーン上の見た目も自然に比例して細くなる
+   */
+  const lineScale = Math.min(1, heightPx / DEFAULT_HEIGHT)
+
   return (
     <div
       className={className}
@@ -117,6 +134,7 @@ export default function BoxBot3D({
           interactive={interactive}
           rotateSpeed={rotateSpeed}
           {...cfg}
+          lineWidth={cfg.lineWidth ?? DEFAULTS.lineWidth * lineScale}
         />
         {shadowVariant === 'cast' ? (
           <CastShadow opacity={shadowOpacity} position={groundPosition} />
