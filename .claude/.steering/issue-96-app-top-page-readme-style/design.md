@@ -40,7 +40,7 @@ issue: #96
 
 box-bot-model 共通実装(home・not-found 両方に影響)。モバイルファースト方針のため、hover 概念が無いタッチ環境も考慮した設計にした。
 
-- 新規 action hook `use-continuous-jump-action.ts` 追加。`jumpRef` が非アクティブになってから `CONTINUOUS_JUMP_INTERVAL`(0.25秒)待って次のジャンプを起動、を繰り返す。ジャンプ自体の進行は既存 `useJumpAction` がそのまま処理する
+- 新規 action hook `use-continuous-jump-action.ts` 追加。`jumpRef` が非アクティブになってから `CONTINUOUS_JUMP_INTERVAL`(0.5秒)待って次のジャンプを起動、を繰り返す。ジャンプ自体の進行は既存 `useJumpAction` がそのまま処理する。マウント直後・回転終了直後・bot から離れた直後、いずれも同じ「間隔分待ってから次のジャンプ」ロジックに乗るため、開始時にも間隔分の待機が自然にかかる
 - `botHoverRef` は bot 要素の `onPointerOver`/`onPointerOut`(PC hover)に加え `onPointerDown`/`onPointerUp`(モバイル touch)でも更新し、環境を問わず「bot に触れているか」を判定できるようにした
 
 **初期実装(Canvas hover 依存、不採用)**: PC は Canvas 内(bot 以外の背景含む)へのポインタ有無(`canvasHoverRef`、`BoxBot3D` 外側 div の `onPointerEnter`/`onPointerLeave` で管理)、モバイルは常時アクティブ、という環境分岐にした。しかしページを開いた直後(マウスがまだ Canvas に乗っていない)はジャンプが始まらない不具合があり、「PC/モバイル問わず常時ジャンプ」という単純な仕様の方が意図に合うと判明 → 撤回。
