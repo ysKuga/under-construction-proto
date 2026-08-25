@@ -31,7 +31,8 @@ issue: #96
 
 ### not-found クリック時の回転演出 (2026-08-25)
 
-- box-bot-model に新規 action `ACTION_SPIN`(`_action-hooks/use-spin-action.ts`)追加。`spinActionRef`(進行度、jump/fall 系と同じ -1/経過秒パターン)を使い、加速(`SPIN_ACCEL_RATE`)→最大速度維持(`SPIN_MAX_SPEED`・`SPIN_CRUISE_DUR`)→減速(`SPIN_DECEL_RATE`)して停止、の台形速度プロファイルで `spinRef.rotation.y` を回転させる。合計時間・総回転量は各定数から決まる可変値(固定しない)。`spinRef` への反映は増分加算方式(`useAutoRotateAction` と同じ)にし `autoRotate` と共存可能にした。
+- box-bot-model に新規 action `ACTION_SPIN`(`_action-hooks/use-spin-action.ts`)追加。`spinActionRef`(進行度、jump/fall 系と同じ -1/経過秒パターン)を使い、加速(`SPIN_ACCEL_DUR`)→最大速度維持(`SPIN_MAX_SPEED`・`SPIN_CRUISE_DUR`)→減速(`SPIN_DECEL_DUR`)して停止、の台形速度プロファイルで `spinRef.rotation.y` を回転させる。`spinRef` への反映は増分加算方式(`useAutoRotateAction` と同じ)にし `autoRotate` と共存可能にした。
+  - 各フェーズの継続時間は秒単位で直接指定する設計(加速度からの逆算ではない)。既定値は各フェーズ 1 秒・`SPIN_MAX_SPEED = 6π`(1秒あたり3回転)で、加速 1.5周・巡航 3周・減速 1.5周(計 6周、合計 3 秒)。各フェーズで十分な回転数が見えるようにする狙い。
 - `ACTION_SPIN` は `box-bot-3d/index.tsx` → `box-bot/index.tsx` 経由で public export し、not-found から `clickActionMap={{ body: ACTION_SPIN, head: ACTION_SPIN }}` で既定の `ACTION_JUMP` を上書き。home 側は無指定のまま(挙動変化なし)。
 - 遷移(`Link` → home)は制御せず並行実行(簡易案採用)。回転完了を待ってから遷移する案は実装コストが高いため見送り。
 

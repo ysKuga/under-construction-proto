@@ -98,14 +98,14 @@ export const WALK_APPROACH_RATE = 10
 export const FALL_DUR = 0.4
 /** 起き上がりの継続時間(秒) */
 export const GET_UP_DUR = 0.6
-/** 回転の最大角速度(rad/s) */
-export const SPIN_MAX_SPEED = Math.PI * 3
-/** 回転の加速度(rad/s^2)。角速度が 0 から `SPIN_MAX_SPEED` に達するまでの速さ */
-export const SPIN_ACCEL_RATE = Math.PI * 8
-/** 回転の減速度(rad/s^2)。角速度が `SPIN_MAX_SPEED` から 0 に落ちるまでの速さ */
-export const SPIN_DECEL_RATE = Math.PI * 6
-/** 回転が最大角速度を維持する時間(秒)。加速・減速に要する時間は別途 */
-export const SPIN_CRUISE_DUR = 0.15
+/** 回転の最大角速度(rad/s)。1秒あたり3回転 */
+export const SPIN_MAX_SPEED = Math.PI * 6
+/** 回転の加速フェーズの継続時間(秒)。0 から `SPIN_MAX_SPEED` まで加速するのにかける時間 */
+export const SPIN_ACCEL_DUR = 1
+/** 回転が最大角速度を維持する時間(秒) */
+export const SPIN_CRUISE_DUR = 1
+/** 回転の減速フェーズの継続時間(秒)。`SPIN_MAX_SPEED` から 0 まで減速するのにかける時間 */
+export const SPIN_DECEL_DUR = 1
 /** 倒れきった状態の fallPivotRef 前傾角度(rad、x 軸回転) */
 export const FALL_ANGLE = Math.PI / 2
 /**
