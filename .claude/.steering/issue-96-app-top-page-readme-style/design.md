@@ -51,7 +51,7 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - 新規 action hook `use-hopping-action.ts`(旧 `use-continuous-jump-action.ts` を置換)。`hoppingRef`(既定 false)が true の間のみ、`jumpRef` が非アクティブになってから `HOPPING_INTERVAL`(0.5秒)待って次のジャンプを起動、を繰り返す。ジャンプの見た目自体は既存 `useJumpAction`(`jumpRef` 共有)を再利用し、トリガーのみを分離
 - `hoppingRef` は `ACTION_HOPPING_START`/`ACTION_HOPPING_STOP`(`useBoxBotActionDispatcher` に `hoppingStart`/`hoppingStop` として公開)で動的に切替可能。加えて `autoWalk` と同じ理由(Canvas 外部からの event はタイミング競合リスクがある)で `hopping?: boolean` prop も用意し、マウント時に直接 `hoppingRef` へ反映する
 - `botHoverRef`(bot への hover/touch)・`spinActionRef`(回転 action 実行中)のいずれかが真の間は hopping を停止、収まれば自動再開する仕様は据え置き
-- home・not-found のみ `hopping` prop を指定して有効化。他の box-bot 利用箇所(Storybook 等)は既定 false のまま影響を受けない
+- not-found のみ `hopping` prop を指定して有効化(2026-08-25 追記: home では hopping させない方針に変更、`hopping` 未指定に戻した)。他の box-bot 利用箇所(Storybook 等)は既定 false のまま影響を受けない
 
 ## 検討事項
 
