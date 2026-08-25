@@ -143,6 +143,9 @@ export default function BoxBot3D({
         camera={{ fov, position: CAMERA_POSITION }}
         dpr={CANVAS_DPR}
         gl={{ antialias: true }}
+        // orbit=false 時は OrbitControls が target への lookAt を行わないため、
+        // ここで明示する(orbit=true 時も無害、OrbitControls が毎フレーム上書きする)
+        onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}
         shadows
         style={{
           background,
