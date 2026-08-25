@@ -14,9 +14,9 @@ import type { BoxBot3DProps, Vec3 } from './index.types'
 export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
 
 /**
- * Canvas(fall/jump 等の可動域を含む実サイズ)のデフォルト高さ(px)。style で上書き可能
+ * Canvas(fall/jump 等の可動域を含む実サイズ)のデフォルト高さ(px)
  *
- * - lineWidth/outlineWidth の縮小スケール算出の基準値も兼ねる
+ * - lineWidth の縮小スケール算出の基準値、および Assembly デフォルトサイズ(`DEFAULT_HEIGHT * BODY_HEIGHT_RATIO`)の算出基準を兼ねる
  */
 const DEFAULT_HEIGHT = 480
 
@@ -24,11 +24,9 @@ const DEFAULT_HEIGHT = 480
  * 通常体勢時の bot 見た目高さの Canvas に対する比率(実測値)
  *
  * - fov=64・CAMERA_POSITION 既定値の状態で Canvas 480px 中の bot(影含む)の実測高さ 233px から算出
- * - Assembly(レイアウト上占有する正方形)の一辺を Canvas サイズから逆算する用途。呼出元が\
- *   Assembly サイズを基準に Canvas サイズ(style.height)を逆算したい場合にも使う\
- *   (`cellSize / BODY_HEIGHT_RATIO` 等)
+ * - style.height(Assembly サイズ)から Canvas 実サイズを逆算するのに使う
  */
-export const BODY_HEIGHT_RATIO = 233 / 480
+export const BODY_HEIGHT_RATIO = 233 / DEFAULT_HEIGHT
 
 /**
  * Canvas 中心から下方向へずらすオフセットの Canvas 高さに対する比率
@@ -115,9 +113,16 @@ export default function BoxBot3D({
   style,
   ...cfg
 }: BoxBot3DProps) {
-  /** Canvas(可動域含む実サイズ)の高さ(px)。style.height が数値でなければ DEFAULT_HEIGHT とみなす */
-  const heightPx =
-    typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
+  /**
+   * Assembly(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる。\
+   * style.height が数値でなければ DEFAULT_HEIGHT * BODY_HEIGHT_RATIO とみなす
+   */
+  const assemblySize =
+    typeof style?.height === 'number'
+      ? style.height
+      : DEFAULT_HEIGHT * BODY_HEIGHT_RATIO
+  /** Canvas(fall/jump 等の可動域を含む実サイズ)の高さ(px)。Assembly サイズから逆算 */
+  const heightPx = assemblySize / BODY_HEIGHT_RATIO
   /**
    * lineWidth(screen-space px 固定)の縮小スケール
    *
@@ -126,8 +131,6 @@ export default function BoxBot3D({
    *   スクリーン上の見た目も自然に比例して細くなる
    */
   const lineScale = Math.min(1, heightPx / DEFAULT_HEIGHT)
-  /** Assembly(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる */
-  const assemblySize = heightPx * BODY_HEIGHT_RATIO
   /** Canvas を Assembly 中心から下方向へずらすオフセット(px) */
   const verticalOffsetPx = heightPx * VERTICAL_OFFSET_RATIO
 
