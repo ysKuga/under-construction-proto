@@ -24,9 +24,11 @@ const DEFAULT_HEIGHT = 480
  * 通常体勢時の bot 見た目高さの Canvas に対する比率(実測値)
  *
  * - fov=64・CAMERA_POSITION 既定値の状態で Canvas 480px 中の bot(影含む)の実測高さ 233px から算出
- * - Assembly(レイアウト上占有する正方形)の一辺を Canvas サイズから逆算する用途
+ * - Assembly(レイアウト上占有する正方形)の一辺を Canvas サイズから逆算する用途。呼出元が\
+ *   Assembly サイズを基準に Canvas サイズ(style.height)を逆算したい場合にも使う\
+ *   (`cellSize / BODY_HEIGHT_RATIO` 等)
  */
-const BODY_HEIGHT_RATIO = 233 / 480
+export const BODY_HEIGHT_RATIO = 233 / 480
 
 /**
  * Canvas 中心から下方向へずらすオフセットの Canvas 高さに対する比率
