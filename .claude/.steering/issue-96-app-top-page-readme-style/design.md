@@ -40,12 +40,18 @@ issue: #96
 
 box-bot-model 共通実装(home・not-found 両方に影響)。モバイルファースト方針のため、hover 概念が無いタッチ環境も考慮した設計にした。
 
-- 新規 action hook `use-continuous-jump-action.ts` 追加。`jumpRef` が非アクティブになってから `CONTINUOUS_JUMP_INTERVAL`(0.5秒)待って次のジャンプを起動、を繰り返す。ジャンプ自体の進行は既存 `useJumpAction` がそのまま処理する。マウント直後・回転終了直後・bot から離れた直後、いずれも同じ「間隔分待ってから次のジャンプ」ロジックに乗るため、開始時にも間隔分の待機が自然にかかる
 - `botHoverRef` は bot 要素の `onPointerOver`/`onPointerOut`(PC hover)に加え `onPointerDown`/`onPointerUp`(モバイル touch)でも更新し、環境を問わず「bot に触れているか」を判定できるようにした
 
 **初期実装(Canvas hover 依存、不採用)**: PC は Canvas 内(bot 以外の背景含む)へのポインタ有無(`canvasHoverRef`、`BoxBot3D` 外側 div の `onPointerEnter`/`onPointerLeave` で管理)、モバイルは常時アクティブ、という環境分岐にした。しかしページを開いた直後(マウスがまだ Canvas に乗っていない)はジャンプが始まらない不具合があり、「PC/モバイル問わず常時ジャンプ」という単純な仕様の方が意図に合うと判明 → 撤回。
 
-**最終形**: `canvasHoverRef`・環境分岐を廃止。`botHoverRef`(bot への hover/touch)と `spinActionRef`(回転 action 実行中)のいずれかが真の間だけ停止し、常時アクティブが既定。ページ表示直後から自動でジャンプし、クリックで回転が始まったらジャンプを止め、回転が終われば自動再開する。
+**2 度目の実装(常時アクティブ、不採用)**: `canvasHoverRef`・環境分岐を廃止し、`botHoverRef`・`spinActionRef` のいずれかが真の間だけ停止・それ以外は常時アクティブにした。しかし box-bot-3d は home・not-found 以外にも汎用コンポーネントとして使われうる実装のため、「常時ジャンプ」が box-bot-model 全体の既定挙動になってしまい、意図しない場所(将来の利用箇所や box-bot 単体の Storybook 等)でもジャンプし続ける問題があった → 撤回。
+
+**最終形**: 「hopping」を `ACTION_JUMP` とは独立した action として切り出した。
+
+- 新規 action hook `use-hopping-action.ts`(旧 `use-continuous-jump-action.ts` を置換)。`hoppingRef`(既定 false)が true の間のみ、`jumpRef` が非アクティブになってから `HOPPING_INTERVAL`(0.5秒)待って次のジャンプを起動、を繰り返す。ジャンプの見た目自体は既存 `useJumpAction`(`jumpRef` 共有)を再利用し、トリガーのみを分離
+- `hoppingRef` は `ACTION_HOPPING_START`/`ACTION_HOPPING_STOP`(`useBoxBotActionDispatcher` に `hoppingStart`/`hoppingStop` として公開)で動的に切替可能。加えて `autoWalk` と同じ理由(Canvas 外部からの event はタイミング競合リスクがある)で `hopping?: boolean` prop も用意し、マウント時に直接 `hoppingRef` へ反映する
+- `botHoverRef`(bot への hover/touch)・`spinActionRef`(回転 action 実行中)のいずれかが真の間は hopping を停止、収まれば自動再開する仕様は据え置き
+- home・not-found のみ `hopping` prop を指定して有効化。他の box-bot 利用箇所(Storybook 等)は既定 false のまま影響を受けない
 
 ## 検討事項
 
