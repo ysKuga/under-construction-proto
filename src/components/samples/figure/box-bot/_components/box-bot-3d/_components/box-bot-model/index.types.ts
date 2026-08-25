@@ -124,6 +124,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    * - 省略時は instance 固有のものを内部生成
    */
   eventTarget?: EventTarget
+  /**
+   * マウント時に自動で hopping(待機演出、bot への hover/touch 中・回転中以外は連続ジャンプ)を\
+   * 開始するか(省略時: hopping しない)
+   *
+   * - `autoWalk` と同じ理由(タイミング競合回避)で、Canvas 内部で直接 ref をセットする
+   */
+  hopping?: boolean
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
   /** 脚アニメーション(walking/marching 共通)の周期(秒) */
@@ -140,6 +147,8 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 
 /** BoxBotRefsProvider が配布する ref 群 */
 export interface BoxBotRefs {
+  /** bot 自体(body/head/arm)に hover(PC)・touch(モバイル)しているかどうかの ref */
+  botHoverRef: RefObject<boolean>
   /**
    * 転倒/起き上がりの回転制御グループ ref
    *
@@ -159,6 +168,14 @@ export interface BoxBotRefs {
    * - -1: 非実行中、0以上: 経過秒数
    */
   getUpRef: RefObject<number>
+  /**
+   * hopping、次のジャンプまでの待ち時間の ref
+   *
+   * - -1: 待機中でない(ジャンプ中、または hopping 自体が非アクティブ)、0以上: 経過秒数
+   */
+  hoppingCooldownRef: RefObject<number>
+  /** hopping(待機演出)状態かどうかの ref */
+  hoppingRef: RefObject<boolean>
   /**
    * ジャンプ進行度の ref
    *
@@ -183,6 +200,12 @@ export interface BoxBotRefs {
   rightLegRef: RefObject<Group | null>
   /** 全体のジャンプ・スケール・転倒回転制御グループ ref */
   rootRef: RefObject<Group | null>
+  /**
+   * 回転(加速→最大速度→減速して停止) action 進行度の ref
+   *
+   * - -1: 非実行中、0以上: 経過秒数
+   */
+  spinActionRef: RefObject<number>
   /** 自動回転グループ ref */
   spinRef: RefObject<Group | null>
   /** 歩行中の body 全体上下(bobbing)制御グループ ref */
@@ -205,8 +228,10 @@ export interface ClickActionMap {
 
 export type Handlers = {
   onClick?: (e: ThreeEvent<MouseEvent>) => void
+  onPointerDown?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
+  onPointerUp?: (e: ThreeEvent<PointerEvent>) => void
 }
 
 /** 歩き方。'swing': walking action、'bob': marching action */
@@ -222,6 +247,10 @@ export interface UseBoxBotActionDispatcherReturn {
   fall: () => Promise<void>
   /** 起き上がり action を発火する(倒れている時のみ実行される) */
   getUp: () => Promise<void>
+  /** hopping(待機演出)を開始する */
+  hoppingStart: () => Promise<void>
+  /** hopping(待機演出)を停止する */
+  hoppingStop: () => Promise<void>
   /** ジャンプ action を発火する */
   jump: () => Promise<void>
   /** 足踏みしている状態(marching)の toggle action を発火する */

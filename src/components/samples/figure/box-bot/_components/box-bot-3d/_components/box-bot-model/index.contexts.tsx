@@ -39,12 +39,16 @@ export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
  *   下位 Consumer の不要な再レンダーを誘発しないようにする
  */
 export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
+  const botHoverRef: BoxBotRefs['botHoverRef'] = React.useRef(false)
+  const hoppingCooldownRef: BoxBotRefs['hoppingCooldownRef'] = React.useRef(-1)
+  const hoppingRef: BoxBotRefs['hoppingRef'] = React.useRef(false)
   const jumpRef: BoxBotRefs['jumpRef'] = React.useRef(-1)
   const fallRef: BoxBotRefs['fallRef'] = React.useRef(-1)
   const fallPivotRef: BoxBotRefs['fallPivotRef'] = React.useRef(null)
   const getUpRef: BoxBotRefs['getUpRef'] = React.useRef(-1)
   const postureRef: BoxBotRefs['postureRef'] = React.useRef(0)
   const rootRef: BoxBotRefs['rootRef'] = React.useRef(null)
+  const spinActionRef: BoxBotRefs['spinActionRef'] = React.useRef(-1)
   const spinRef: BoxBotRefs['spinRef'] = React.useRef(null)
   const leftArmRef: BoxBotRefs['leftArmRef'] = React.useRef(null)
   const rightArmRef: BoxBotRefs['rightArmRef'] = React.useRef(null)
@@ -56,9 +60,12 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
 
   const refs = React.useMemo<BoxBotRefs>(
     () => ({
+      botHoverRef,
       fallPivotRef,
       fallRef,
       getUpRef,
+      hoppingCooldownRef,
+      hoppingRef,
       jumpRef,
       leftArmRef,
       leftLegRef,
@@ -67,14 +74,18 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       rightArmRef,
       rightLegRef,
       rootRef,
+      spinActionRef,
       spinRef,
       walkingBobRef,
       walkingRef,
     }),
     [
+      botHoverRef,
       fallPivotRef,
       fallRef,
       getUpRef,
+      hoppingCooldownRef,
+      hoppingRef,
       jumpRef,
       leftArmRef,
       leftLegRef,
@@ -83,6 +94,7 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       rightArmRef,
       rightLegRef,
       rootRef,
+      spinActionRef,
       spinRef,
       walkingBobRef,
       walkingRef,

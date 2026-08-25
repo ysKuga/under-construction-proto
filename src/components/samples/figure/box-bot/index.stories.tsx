@@ -244,8 +244,6 @@ export const OverlapGrid3D: Story = {
 const CIRCLE_SIZE = 240
 /** Circle の canvasSize デフォルト値(px) */
 const CIRCLE_DEFAULT_CANVAS_SIZE = 360
-/** Circle の shadowScale。円内に影が収まる値 */
-const CIRCLE_SHADOW_SCALE = 2.5
 
 /**
  * 円形の背景の上に本体を重ねて表示
@@ -294,7 +292,6 @@ export const Circle: StoryObj<{
           <StoryComponent
             fov={fovForScale(circleSize, canvasSize)}
             mode="3d"
-            shadowScale={CIRCLE_SHADOW_SCALE}
             style={{
               height: canvasSize,
               left: '50%',

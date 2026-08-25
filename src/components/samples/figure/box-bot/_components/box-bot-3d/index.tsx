@@ -1,10 +1,14 @@
 'use client'
 
-import { ContactShadows, OrbitControls } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
 import { BoxBotModel } from './_components/box-bot-model'
+import { CastShadow } from './_components/cast-shadow'
+import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
+
+export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
 
 /** 外側 div のデフォルト高さ(px)。style で上書き可能 */
 const DEFAULT_HEIGHT = 480
@@ -20,7 +24,7 @@ const AMBIENT_LIGHT_INTENSITY = 0.85
 
 /** 平行光源の強度 */
 const DIRECTIONAL_LIGHT_INTENSITY = 0.7
-/** 平行光源の位置(world) */
+/** 平行光源の位置(world)の既定値。低い角度にする程、影が長く伸びる */
 const DIRECTIONAL_LIGHT_POSITION: Vec3 = [4, 6, 4]
 /** 平行光源のシャドウマップ解像度 */
 const DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE: [number, number] = [512, 512]
@@ -36,14 +40,10 @@ const HEMISPHERE_LIGHT_ARGS: [string, string, number] = [
   0.35,
 ]
 
-/** 接地影(ContactShadows)のぼかし量 */
-const CONTACT_SHADOWS_BLUR = 2.4
-/** 接地影の減衰距離(world) */
-const CONTACT_SHADOWS_FAR = 4
-/** 接地影の不透明度 */
-const CONTACT_SHADOWS_OPACITY = 0.35
-/** 接地影の位置(world) */
-const CONTACT_SHADOWS_POSITION: Vec3 = [0, -1.42, 0]
+/** 接地面(影の受け皿)の位置(world) */
+const GROUND_POSITION: Vec3 = [0, -1.42, 0]
+/** 接地影の既定の不透明度 */
+const SHADOW_OPACITY = 0.35
 
 /** OrbitControls の最大ズームアウト距離 */
 const ORBIT_MAX_DISTANCE = 12
@@ -81,10 +81,13 @@ export default function BoxBot3D({
   children,
   className,
   fov = 64,
+  groundPosition = GROUND_POSITION,
   interactive = true,
+  lightPosition = DIRECTIONAL_LIGHT_POSITION,
   orbit = true,
   rotateSpeed,
-  shadowScale = 8,
+  shadowOpacity = SHADOW_OPACITY,
+  shadowVariant = 'contact',
   style,
   ...cfg
 }: BoxBot3DProps) {
@@ -105,7 +108,7 @@ export default function BoxBot3D({
         <directionalLight
           castShadow
           intensity={DIRECTIONAL_LIGHT_INTENSITY}
-          position={DIRECTIONAL_LIGHT_POSITION}
+          position={lightPosition}
           shadow-mapSize={DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE}
         />
         <hemisphereLight args={HEMISPHERE_LIGHT_ARGS} />
@@ -115,13 +118,11 @@ export default function BoxBot3D({
           rotateSpeed={rotateSpeed}
           {...cfg}
         />
-        <ContactShadows
-          blur={CONTACT_SHADOWS_BLUR}
-          far={CONTACT_SHADOWS_FAR}
-          opacity={CONTACT_SHADOWS_OPACITY}
-          position={CONTACT_SHADOWS_POSITION}
-          scale={shadowScale}
-        />
+        {shadowVariant === 'cast' ? (
+          <CastShadow opacity={shadowOpacity} position={groundPosition} />
+        ) : (
+          <ContactShadow opacity={shadowOpacity} position={groundPosition} />
+        )}
         {orbit && (
           <OrbitControls
             enablePan={false}

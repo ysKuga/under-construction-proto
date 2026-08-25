@@ -51,8 +51,18 @@ export const ACTION_FALL = 'BoxBot-action-fall'
 /** 起き上がり action の発火イベント名 */
 export const ACTION_GET_UP = 'BoxBot-action-get-up'
 
+/** 回転(加速→最大速度→減速して停止) action の発火イベント名 */
+export const ACTION_SPIN = 'BoxBot-action-spin'
+
+/** 待機演出(hopping、bot への hover/touch 中・回転中以外は連続ジャンプ)開始の発火イベント名 */
+export const ACTION_HOPPING_START = 'BoxBot-action-hopping-start'
+/** 待機演出(hopping)停止の発火イベント名 */
+export const ACTION_HOPPING_STOP = 'BoxBot-action-hopping-stop'
+
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
+/** hopping、1 回のジャンプが終わってから次を始めるまでの間隔(秒) */
+export const HOPPING_INTERVAL = 2.5
 /** ジャンプの最大上昇量(world) */
 export const JUMP_H = 0.55
 /** ジャンプ中の縦方向のスクイッシュ量 */
@@ -95,6 +105,14 @@ export const WALK_APPROACH_RATE = 10
 export const FALL_DUR = 0.4
 /** 起き上がりの継続時間(秒) */
 export const GET_UP_DUR = 0.6
+/** 回転の最大角速度(rad/s)。1秒あたり3回転 */
+export const SPIN_MAX_SPEED = Math.PI * 6
+/** 回転の加速フェーズの継続時間(秒)。0 から `SPIN_MAX_SPEED` まで加速するのにかける時間 */
+export const SPIN_ACCEL_DUR = 1
+/** 回転が最大角速度を維持する時間(秒) */
+export const SPIN_CRUISE_DUR = 1
+/** 回転の減速フェーズの継続時間(秒)。`SPIN_MAX_SPEED` から 0 まで減速するのにかける時間 */
+export const SPIN_DECEL_DUR = 1
 /** 倒れきった状態の fallPivotRef 前傾角度(rad、x 軸回転) */
 export const FALL_ANGLE = Math.PI / 2
 /**
