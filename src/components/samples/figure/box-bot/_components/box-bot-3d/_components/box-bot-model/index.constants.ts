@@ -62,7 +62,7 @@ export const ACTION_HOPPING_STOP = 'BoxBot-action-hopping-stop'
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
 /** hopping、1 回のジャンプが終わってから次を始めるまでの間隔(秒) */
-export const HOPPING_INTERVAL = 1
+export const HOPPING_INTERVAL = 2.5
 /** ジャンプの最大上昇量(world) */
 export const JUMP_H = 0.55
 /** ジャンプ中の縦方向のスクイッシュ量 */
