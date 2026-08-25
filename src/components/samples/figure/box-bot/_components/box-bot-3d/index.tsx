@@ -3,6 +3,8 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
+import { Assembly } from '@/components/ad/molecules/assembly'
+
 import { BoxBotModel } from './_components/box-bot-model'
 import { DEFAULTS } from './_components/box-bot-model/index.constants'
 import { CastShadow } from './_components/cast-shadow'
@@ -12,11 +14,19 @@ import type { BoxBot3DProps, Vec3 } from './index.types'
 export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
 
 /**
- * 外側 div のデフォルト高さ(px)。style で上書き可能
+ * Canvas(fall/jump 等の可動域を含む実サイズ)のデフォルト高さ(px)。style で上書き可能
  *
  * - lineWidth/outlineWidth の縮小スケール算出の基準値も兼ねる
  */
 const DEFAULT_HEIGHT = 480
+
+/**
+ * 通常体勢時の bot 見た目高さの Canvas に対する比率(実測値)
+ *
+ * - fov=64・CAMERA_POSITION 既定値の状態で Canvas 480px 中の bot(影含む)の実測高さ 233px から算出
+ * - Assembly(レイアウト上占有する正方形)の一辺を Canvas サイズから逆算する用途
+ */
+const BODY_HEIGHT_RATIO = 233 / 480
 
 /** カメラ位置(world) */
 const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
@@ -96,7 +106,7 @@ export default function BoxBot3D({
   style,
   ...cfg
 }: BoxBot3DProps) {
-  /** 表示高さ(px)。style.height が数値でなければ DEFAULT_HEIGHT とみなす */
+  /** Canvas(可動域含む実サイズ)の高さ(px)。style.height が数値でなければ DEFAULT_HEIGHT とみなす */
   const heightPx =
     typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
   /**
@@ -107,18 +117,28 @@ export default function BoxBot3D({
    *   スクリーン上の見た目も自然に比例して細くなる
    */
   const lineScale = Math.min(1, heightPx / DEFAULT_HEIGHT)
+  /** Assembly(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる */
+  const assemblySize = heightPx * BODY_HEIGHT_RATIO
 
   return (
-    <div
+    <Assembly
       className={className}
-      style={{ height: DEFAULT_HEIGHT, width: '100%', ...style }}
+      style={{ ...style, height: assemblySize, width: assemblySize }}
     >
       <Canvas
         camera={{ fov, position: CAMERA_POSITION }}
         dpr={CANVAS_DPR}
         gl={{ antialias: true }}
         shadows
-        style={{ background }}
+        style={{
+          background,
+          height: heightPx,
+          left: '50%',
+          position: 'absolute',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: heightPx,
+        }}
       >
         {children}
         <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
@@ -150,6 +170,6 @@ export default function BoxBot3D({
           />
         )}
       </Canvas>
-    </div>
+    </Assembly>
   )
 }
