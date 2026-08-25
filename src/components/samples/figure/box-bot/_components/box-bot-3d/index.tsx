@@ -142,20 +142,34 @@ export default function BoxBot3D({
       <Canvas
         camera={{ fov, position: CAMERA_POSITION }}
         dpr={CANVAS_DPR}
+        // mousedown 中にポインタを動かすとブラウザがネイティブドラッグ操作(HTML5
+        // Drag and Drop)を開始しようとし、canvas は draggable でないため
+        // ポインタイベントの配送が乱れる(raycast が反応しなくなる)ことがあった。
+        // draggable=false で潜在的なドラッグ対象からも明示的に外す
+        draggable={false}
         gl={{ antialias: true }}
         // orbit=false 時は OrbitControls が target への lookAt を行わないため、
         // ここで明示する(orbit=true 時も無害、OrbitControls が毎フレーム上書きする)
         onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}
+        // dragstart 自体も止め、raycast への実害(ポインタイベント配送の乱れ)を防ぐ。
+        // 禁止カーソル等の視覚効果は draggable=false でも残ることがあるが、\
+        // 見た目のみで実害は無いため許容する
+        onDragStart={(e) => e.preventDefault()}
         shadows
-        style={{
-          background,
-          height: heightPx,
-          left: '50%',
-          position: 'absolute',
-          top: '50%',
-          transform: `translate(-50%, calc(-50% + ${verticalOffsetPx}px))`,
-          width: heightPx,
-        }}
+        style={
+          {
+            background,
+            height: heightPx,
+            left: '50%',
+            position: 'absolute',
+            top: '50%',
+            transform: `translate(-50%, calc(-50% + ${verticalOffsetPx}px))`,
+            userSelect: 'none',
+            // ベンダープレフィックス付きのため CSSProperties 型に無く、下の as で吸収
+            WebkitUserDrag: 'none',
+            width: heightPx,
+          } as React.CSSProperties
+        }
       >
         {children}
         <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
