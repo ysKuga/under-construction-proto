@@ -57,6 +57,7 @@ export const SlowRotate: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 16 }}>
+      <StoryComponent mode="3d" style={{ height: 600, width: 600 }} />
       <StoryComponent mode="3d" style={{ height: 320, width: 320 }} />
       <StoryComponent mode="3d" style={{ height: 200, width: 200 }} />
       <StoryComponent mode="3d" style={{ height: 120, width: 120 }} />
