@@ -1,4 +1,4 @@
-import { BoxBot } from '@/components/samples/figure/box-bot'
+import { ACTION_SPIN, BoxBot } from '@/components/samples/figure/box-bot'
 import { Link } from '@/components/ui/link'
 import { paths } from '@/config/paths'
 
@@ -15,6 +15,7 @@ const NotFound = () => {
       <Link href={paths.home.getHref()}>
         <BoxBot
           autoRotate={false}
+          clickActionMap={{ body: ACTION_SPIN, head: ACTION_SPIN }}
           lightPosition={[0, 1.5, 6]}
           mode="3d"
           orbit={false}
