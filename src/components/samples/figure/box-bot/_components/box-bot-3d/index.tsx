@@ -8,6 +8,8 @@ import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
+export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
+
 /** 外側 div のデフォルト高さ(px)。style で上書き可能 */
 const DEFAULT_HEIGHT = 480
 

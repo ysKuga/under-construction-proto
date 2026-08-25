@@ -9,6 +9,7 @@ import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
 import { useFallAction } from './_action-hooks/use-fall-action'
 import { useGetUpAction } from './_action-hooks/use-get-up-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
+import { useSpinAction } from './_action-hooks/use-spin-action'
 import { useClickActions } from './_hooks/use-click-actions'
 import {
   DEFAULTS,
@@ -71,6 +72,7 @@ export function useBoxBotModel(
     : {}
 
   useJumpAction(props)
+  useSpinAction(props)
   const { clickArmLeft, clickArmRight, clickBody, clickHead } =
     useClickActions(props)
   const { startFall } = useFallAction(props)

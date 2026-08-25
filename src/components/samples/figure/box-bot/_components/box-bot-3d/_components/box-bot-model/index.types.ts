@@ -183,6 +183,12 @@ export interface BoxBotRefs {
   rightLegRef: RefObject<Group | null>
   /** 全体のジャンプ・スケール・転倒回転制御グループ ref */
   rootRef: RefObject<Group | null>
+  /**
+   * 回転(1回転して停止) action 進行度の ref
+   *
+   * - -1: 非実行中、0以上: 経過秒数
+   */
+  spinActionRef: RefObject<number>
   /** 自動回転グループ ref */
   spinRef: RefObject<Group | null>
   /** 歩行中の body 全体上下(bobbing)制御グループ ref */

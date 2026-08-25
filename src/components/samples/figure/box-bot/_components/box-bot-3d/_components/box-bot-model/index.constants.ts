@@ -51,6 +51,9 @@ export const ACTION_FALL = 'BoxBot-action-fall'
 /** 起き上がり action の発火イベント名 */
 export const ACTION_GET_UP = 'BoxBot-action-get-up'
 
+/** 回転(1回転して停止) action の発火イベント名 */
+export const ACTION_SPIN = 'BoxBot-action-spin'
+
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
 /** ジャンプの最大上昇量(world) */
@@ -95,6 +98,8 @@ export const WALK_APPROACH_RATE = 10
 export const FALL_DUR = 0.4
 /** 起き上がりの継続時間(秒) */
 export const GET_UP_DUR = 0.6
+/** 回転(1回転)の継続時間(秒) */
+export const SPIN_DUR = 0.6
 /** 倒れきった状態の fallPivotRef 前傾角度(rad、x 軸回転) */
 export const FALL_ANGLE = Math.PI / 2
 /**
