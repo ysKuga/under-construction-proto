@@ -60,6 +60,8 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - [x] not-found ページの追加検討("404" 表示・接地影の調整) → `.claude/.steering/issue-96-app-top-page-readme-style/_pr/pr-99-not-found-shadow/` へ分割、対応完了(PR #99)
 - [x] home への戻るクリック時に box-bot を回転させる演出 → `ACTION_SPIN` 追加で対応(決定事項参照)
 - [x] not-found で確認した bot の挙動(回転・ジャンプしない)→ `interactive={false}` 明示指定が原因、削除し解消(コミット `7275480`、詳細は `_pr/pr-99-not-found-shadow/design.md` 参照)
+- [ ] bot の縮小時の線の太さを調整
+  - 現在は太さがそのままと思われるため縮小に応じて線の太さを補足するなどしたい。
 - [ ] stories の名前に実際のパス名を反映を検討
   - not found は除外
   - `home (/)` など
