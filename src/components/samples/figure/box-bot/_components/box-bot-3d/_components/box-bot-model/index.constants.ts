@@ -56,6 +56,8 @@ export const ACTION_SPIN = 'BoxBot-action-spin'
 
 /** ジャンプの継続時間(秒) */
 export const JUMP_DUR = 0.55
+/** 待機演出(連続ジャンプ)、1 回のジャンプが終わってから次を始めるまでの間隔(秒) */
+export const CONTINUOUS_JUMP_INTERVAL = 0.25
 /** ジャンプの最大上昇量(world) */
 export const JUMP_H = 0.55
 /** ジャンプ中の縦方向のスクイッシュ量 */

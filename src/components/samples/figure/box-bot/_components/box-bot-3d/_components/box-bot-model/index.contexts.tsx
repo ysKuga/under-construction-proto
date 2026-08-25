@@ -39,6 +39,9 @@ export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
  *   下位 Consumer の不要な再レンダーを誘発しないようにする
  */
 export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
+  const botHoverRef: BoxBotRefs['botHoverRef'] = React.useRef(false)
+  const continuousJumpCooldownRef: BoxBotRefs['continuousJumpCooldownRef'] =
+    React.useRef(-1)
   const jumpRef: BoxBotRefs['jumpRef'] = React.useRef(-1)
   const fallRef: BoxBotRefs['fallRef'] = React.useRef(-1)
   const fallPivotRef: BoxBotRefs['fallPivotRef'] = React.useRef(null)
@@ -57,6 +60,8 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
 
   const refs = React.useMemo<BoxBotRefs>(
     () => ({
+      botHoverRef,
+      continuousJumpCooldownRef,
       fallPivotRef,
       fallRef,
       getUpRef,
@@ -74,6 +79,8 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       walkingRef,
     }),
     [
+      botHoverRef,
+      continuousJumpCooldownRef,
       fallPivotRef,
       fallRef,
       getUpRef,

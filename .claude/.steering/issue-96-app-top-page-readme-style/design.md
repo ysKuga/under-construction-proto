@@ -36,6 +36,16 @@ issue: #96
 - `ACTION_SPIN` は `box-bot-3d/index.tsx` → `box-bot/index.tsx` 経由で public export し、not-found から `clickActionMap={{ body: ACTION_SPIN, head: ACTION_SPIN }}` で既定の `ACTION_JUMP` を上書き。home 側は無指定のまま(挙動変化なし)。
 - 遷移(`Link` → home)は制御せず並行実行(簡易案採用)。回転完了を待ってから遷移する案は実装コストが高いため見送り。
 
+### 待機演出(bot 以外へのホバー中は連続ジャンプ) (2026-08-25)
+
+box-bot-model 共通実装(home・not-found 両方に影響)。モバイルファースト方針のため、hover 概念が無いタッチ環境も考慮した設計にした。
+
+- 新規 action hook `use-continuous-jump-action.ts` 追加。`jumpRef` が非アクティブになってから `CONTINUOUS_JUMP_INTERVAL`(0.25秒)待って次のジャンプを起動、を繰り返す。ジャンプ自体の進行は既存 `useJumpAction` がそのまま処理する
+- PC(`(hover: hover)` が真の環境): Canvas 内(`canvasHoverRef`、bot 以外の背景含む)にポインタがある間アクティブ。bot 自体に hover(`botHoverRef`)している間は停止、離れると再開
+- モバイル(hover 不可): `canvasHoverRef` を見ず常時アクティブ(ページ表示中ずっと)。bot に touch している間だけ停止、離すと再開
+- `botHoverRef` は bot 要素の `onPointerOver`/`onPointerOut`(PC hover)に加え `onPointerDown`/`onPointerUp`(モバイル touch)でも更新し、環境を問わず「bot に触れているか」を判定できるようにした
+- `canvasHoverRef` は `BoxBot3D` の外側 div の `onPointerEnter`/`onPointerLeave` で管理し、`BoxBotModelProps.canvasHoverRef` として内部へ渡す(box-bot-model 単体では Canvas 全体の hover 状態を知りえないため)
+
 ## 検討事項
 
 - [x] トップページの box-bot 表示完了(画面要素全表示完了)までの速度計測が未実施。本リポジトリで優先しているパフォーマンス・軽量方針との整合を確認し、表示速度向上案があれば検討する。 → `.claude/.steering/issue-96-app-top-page-readme-style/_closed/pr-98-performance-measurement/` へ分割、対応完了・close 済(PR #98)

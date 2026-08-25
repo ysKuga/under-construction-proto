@@ -116,6 +116,12 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    *   どちらも歩いていない間は連動する脚の動きがないため無効
    */
   bodyBobbing?: boolean
+  /**
+   * Canvas 内(bot 以外の背景含む)にポインタがあるかどうかの ref
+   *
+   * - 待機演出(連続ジャンプ)の起動判定に使う。`BoxBot3D` の外側 div から渡される
+   */
+  canvasHoverRef?: RefObject<boolean>
   /** body/head/arm クリックで発火する action の対応。省略したキーは既定のまま */
   clickActionMap?: ClickActionMap
   /**
@@ -140,6 +146,14 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 
 /** BoxBotRefsProvider が配布する ref 群 */
 export interface BoxBotRefs {
+  /** bot 自体(body/head/arm)に hover(PC)・touch(モバイル)しているかどうかの ref */
+  botHoverRef: RefObject<boolean>
+  /**
+   * 待機演出(連続ジャンプ)、次のジャンプまでの待ち時間の ref
+   *
+   * - -1: 待機中でない(ジャンプ中、または演出自体が非アクティブ)、0以上: 経過秒数
+   */
+  continuousJumpCooldownRef: RefObject<number>
   /**
    * 転倒/起き上がりの回転制御グループ ref
    *
@@ -211,8 +225,10 @@ export interface ClickActionMap {
 
 export type Handlers = {
   onClick?: (e: ThreeEvent<MouseEvent>) => void
+  onPointerDown?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   onPointerOver?: (e: ThreeEvent<PointerEvent>) => void
+  onPointerUp?: (e: ThreeEvent<PointerEvent>) => void
 }
 
 /** 歩き方。'swing': walking action、'bob': marching action */

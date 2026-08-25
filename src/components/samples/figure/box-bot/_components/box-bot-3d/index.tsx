@@ -2,6 +2,7 @@
 
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import * as React from 'react'
 
 import { BoxBotModel } from './_components/box-bot-model'
 import { CastShadow } from './_components/cast-shadow'
@@ -91,9 +92,17 @@ export default function BoxBot3D({
   style,
   ...cfg
 }: BoxBot3DProps) {
+  const canvasHoverRef = React.useRef(false)
+
   return (
     <div
       className={className}
+      onPointerEnter={() => {
+        canvasHoverRef.current = true
+      }}
+      onPointerLeave={() => {
+        canvasHoverRef.current = false
+      }}
       style={{ height: DEFAULT_HEIGHT, width: '100%', ...style }}
     >
       <Canvas
@@ -114,6 +123,7 @@ export default function BoxBot3D({
         <hemisphereLight args={HEMISPHERE_LIGHT_ARGS} />
         <BoxBotModel
           autoRotate={autoRotate}
+          canvasHoverRef={canvasHoverRef}
           interactive={interactive}
           rotateSpeed={rotateSpeed}
           {...cfg}

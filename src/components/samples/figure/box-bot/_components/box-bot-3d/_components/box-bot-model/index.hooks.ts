@@ -6,6 +6,7 @@ import { useArmAction } from './_action-hooks/arm-action'
 import { useMarchingAction, useWalkingAction } from './_action-hooks/leg-action'
 import { useAutoRotateAction } from './_action-hooks/use-auto-rotate-action'
 import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
+import { useContinuousJumpAction } from './_action-hooks/use-continuous-jump-action'
 import { useFallAction } from './_action-hooks/use-fall-action'
 import { useGetUpAction } from './_action-hooks/use-get-up-action'
 import { useJumpAction } from './_action-hooks/use-jump-action'
@@ -42,6 +43,7 @@ export function useBoxBotModel(
   }
 
   const {
+    botHoverRef,
     fallPivotRef,
     jumpRef,
     leftArmRef,
@@ -63,16 +65,28 @@ export function useBoxBotModel(
   }
   const hover: Handlers = interactive
     ? {
-        onPointerOut: () => setCursor('auto'),
+        onPointerDown: (e) => {
+          e.stopPropagation()
+          botHoverRef.current = true
+        },
+        onPointerOut: () => {
+          setCursor('auto')
+          botHoverRef.current = false
+        },
         onPointerOver: (e) => {
           e.stopPropagation()
           setCursor('pointer')
+          botHoverRef.current = true
+        },
+        onPointerUp: () => {
+          botHoverRef.current = false
         },
       }
     : {}
 
   useJumpAction(props)
   useSpinAction(props)
+  useContinuousJumpAction(props)
   const { clickArmLeft, clickArmRight, clickBody, clickHead } =
     useClickActions(props)
   const { startFall } = useFallAction(props)
