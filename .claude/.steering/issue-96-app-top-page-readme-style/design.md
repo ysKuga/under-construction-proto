@@ -60,14 +60,36 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - `outlineWidth`(反転ハルのシルエット縁取り)は world 単位のため対象外。Canvas 縮小に伴いスクリーン上の見た目も自然に比例して細くなるため
 - `lineWidth` を明示指定した場合はスケール適用せずそのまま尊重
 
+### box-bot-3d の Assembly 内包化(レイアウト占有範囲と可動域の分離) (2026-08-25)
+
+`components/ad/molecules/assembly` を `BoxBot3D`(`box-bot-3d/index.tsx`)内部に組み込み。Canvas(fall/jump 等の可動域を含む実サイズ)と、レイアウト計算上占有する範囲を分離した。
+
+- 経緯: 当初 Home 側(呼出元)で `Assembly` を外側から適用し Canvas 自体も同サイズへ縮小する案を試したが、fall/jump 用に確保している Canvas の可動域まで一緒に縮小してしまい、`overlap-grid-3d` story のような bot 同士を重ねる表現ができなくなる問題があった → 撤回。合わせて `Sizes` story に試した `fov` 縮小によるズーム調整(間隔を詰める代替案)も同じ理由で撤回
+- 最終形: `BoxBot3D` の外側要素を `div` から `Assembly` に置換。`Assembly` の一辺(正方形)は「通常体勢時の bot 実寸」= Canvas 高さ(`heightPx`)× `BODY_HEIGHT_RATIO`(定数、実測値 233/480 ≈ 0.485。fov=64・カメラ位置既定値の状態で Canvas 480px 中の bot(影含む)の実測高さ 233px から算出)。Canvas 自体は `heightPx` 正方形のまま `position: absolute` で `Assembly` 中心に重ね配置(`transform: translate(-50%, -50%)`)
+- 効果: `Assembly`(占有範囲)は bot 実寸ぶんタイトになり、`gap` 等レイアウト計算はこの小さい矩形基準になる一方、Canvas(可動域込み)は元のサイズのままはみ出て描画される。fall/jump/overlap 系の挙動は変化なし、静止体勢のレイアウト間隔だけ詰まる
+- 呼出元 API 変更なし(`style.height` の意味は従来通り「Canvas 全体サイズ」のまま。`Assembly` サイズはその比率から自動算出)
+- `Sizes` story は間隔が詰まった結果、600px サイズで Canvas が `Assembly` から上方向にはみ出し story 冒頭でビューポート外に見切れる副作用があったため `paddingTop: 160` を追加して対応(story 固有の表示調整、コンポーネント側の変更ではない)
+
+### Grid3D での bot 枠線はみ出しの原因判明・修正 (2026-08-25)
+
+`Grid3D` story(升目セル敷き詰め表示)で、Assembly 内包化後も bot の頭・腕が升目の `outline` をはみ出す現象が残っていた(`box-bot-3d の Assembly 内包化` 時点では原因不明のため保留していた件)。PR #101 で調査・修正。
+
+- 切り分け: 回転(`autoRotate`)・grid 配置・複数体同時レンダリングいずれも無関係と判明。`Static` story を単独で 96px に強制縮小しただけで同じはみ出しが再現し、`orbit={false}` を指定している story(Static/Grid3D)でのみ発生、`orbit` 未指定(既定 `true`)の story(Sizes/Walking)ではどのサイズでも発生しない、という条件が決め手になった
+- 根本原因: `orbit={false}` 時は `OrbitControls` 自体がマウントされないため、`target={ORBIT_TARGET}`(Y=-0.6 オフセット)への lookAt が一切適用されず、カメラが `BODY_HEIGHT_RATIO`/`VERTICAL_OFFSET_RATIO` のキャリブレーション前提と異なる向きを向いていた
+- 修正: `box-bot-3d` の `Canvas` に `onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}` を追加し、`orbit` の有無に関わらず初期 lookAt を明示。`orbit={true}` 時は `OrbitControls` が毎フレーム上書きするため無害
+- 回帰確認用に `Grid3D` へ升目制約を受けない独立 bot、`Sizes` へ 96px 以下のサイズ、`Walking` へ outline を追加(常設)
+
 ## 検討事項
 
 - [x] トップページの box-bot 表示完了(画面要素全表示完了)までの速度計測が未実施。本リポジトリで優先しているパフォーマンス・軽量方針との整合を確認し、表示速度向上案があれば検討する。 → `.claude/.steering/issue-96-app-top-page-readme-style/_closed/pr-98-performance-measurement/` へ分割、対応完了・close 済(PR #98)
-- [ ] タイトルと box-bot の位置調整: Canvas 分の領域が確保される都合で余白の見え方に課題あり。`components/ad/molecules/assembly` 適用の効果検証・適用要否を検討する。
+- [x] タイトルと box-bot の位置調整: Canvas 分の領域が確保される都合で余白の見え方に課題あり。`components/ad/molecules/assembly` 適用の効果検証・適用要否を検討する。 → `BoxBot3D` 内部に `Assembly` を組み込み、レイアウト占有範囲(bot 実寸)と Canvas(可動域込み実サイズ)を分離する形で対応(決定事項参照)。Home 側(`home/index.tsx`)は呼出変更不要、既定のまま余白解消。fall/jump/overlap 系挙動への影響なし
 - [x] not-found ページの追加検討("404" 表示・接地影の調整) → `.claude/.steering/issue-96-app-top-page-readme-style/_pr/pr-99-not-found-shadow/` へ分割、対応完了(PR #99)
 - [x] home への戻るクリック時に box-bot を回転させる演出 → `ACTION_SPIN` 追加で対応(決定事項参照)
 - [x] not-found で確認した bot の挙動(回転・ジャンプしない)→ `interactive={false}` 明示指定が原因、削除し解消(コミット `7275480`、詳細は `_pr/pr-99-not-found-shadow/design.md` 参照)
 - [x] bot の縮小時の線の太さを調整 → `lineWidth` を表示サイズに応じて線形スケール(決定事項参照)
-- [ ] stories の名前に実際のパス名を反映を検討
-  - not found は除外
-  - `home (/)` など
+- [x] stories の名前に実際のパス名を反映を検討 → `home/index.stories.tsx` の `Default` に `name: 'home (/)'` 付与(export 識別子は `Default` のまま、Storybook 表示名のみパス反映)。not-found は対象外(据置)
+- [ ] 404 にてクリックであると画面遷移が早すぎてアニメーションが見れなかった。
+  - PC
+    - mousedown により spin を実行
+  - SP
+    - touch (押しっぱなし) で spin を実行

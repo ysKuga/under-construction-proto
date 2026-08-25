@@ -3,6 +3,8 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
+import { Assembly } from '@/components/ad/molecules/assembly'
+
 import { BoxBotModel } from './_components/box-bot-model'
 import { DEFAULTS } from './_components/box-bot-model/index.constants'
 import { CastShadow } from './_components/cast-shadow'
@@ -12,11 +14,26 @@ import type { BoxBot3DProps, Vec3 } from './index.types'
 export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
 
 /**
- * 外側 div のデフォルト高さ(px)。style で上書き可能
+ * Canvas(fall/jump 等の可動域を含む実サイズ)のデフォルト高さ(px)
  *
- * - lineWidth/outlineWidth の縮小スケール算出の基準値も兼ねる
+ * - lineWidth の縮小スケール算出の基準値、および Assembly デフォルトサイズ(`DEFAULT_HEIGHT * BODY_HEIGHT_RATIO`)の算出基準を兼ねる
  */
 const DEFAULT_HEIGHT = 480
+
+/**
+ * 通常体勢時の bot 見た目高さの Canvas に対する比率(実測値)
+ *
+ * - fov=64・CAMERA_POSITION 既定値の状態で Canvas 480px 中の bot(影含む)の実測高さ 233px から算出
+ * - style.height(Assembly サイズ)から Canvas 実サイズを逆算するのに使う
+ */
+export const BODY_HEIGHT_RATIO = 233 / DEFAULT_HEIGHT
+
+/**
+ * Canvas 中心から下方向へずらすオフセットの Canvas 高さに対する比率
+ *
+ * - 400px で 55px 相当 (足が Assembly の下部付近になるぐらい)
+ */
+const VERTICAL_OFFSET_RATIO = 55 / DEFAULT_HEIGHT
 
 /** カメラ位置(world) */
 const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
@@ -96,9 +113,16 @@ export default function BoxBot3D({
   style,
   ...cfg
 }: BoxBot3DProps) {
-  /** 表示高さ(px)。style.height が数値でなければ DEFAULT_HEIGHT とみなす */
-  const heightPx =
-    typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
+  /**
+   * Assembly(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる。\
+   * style.height が数値でなければ DEFAULT_HEIGHT * BODY_HEIGHT_RATIO とみなす
+   */
+  const assemblySize =
+    typeof style?.height === 'number'
+      ? style.height
+      : DEFAULT_HEIGHT * BODY_HEIGHT_RATIO
+  /** Canvas(fall/jump 等の可動域を含む実サイズ)の高さ(px)。Assembly サイズから逆算 */
+  const heightPx = assemblySize / BODY_HEIGHT_RATIO
   /**
    * lineWidth(screen-space px 固定)の縮小スケール
    *
@@ -107,18 +131,31 @@ export default function BoxBot3D({
    *   スクリーン上の見た目も自然に比例して細くなる
    */
   const lineScale = Math.min(1, heightPx / DEFAULT_HEIGHT)
+  /** Canvas を Assembly 中心から下方向へずらすオフセット(px) */
+  const verticalOffsetPx = heightPx * VERTICAL_OFFSET_RATIO
 
   return (
-    <div
+    <Assembly
       className={className}
-      style={{ height: DEFAULT_HEIGHT, width: '100%', ...style }}
+      style={{ ...style, height: assemblySize, width: assemblySize }}
     >
       <Canvas
         camera={{ fov, position: CAMERA_POSITION }}
         dpr={CANVAS_DPR}
         gl={{ antialias: true }}
+        // orbit=false 時は OrbitControls が target への lookAt を行わないため、
+        // ここで明示する(orbit=true 時も無害、OrbitControls が毎フレーム上書きする)
+        onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}
         shadows
-        style={{ background }}
+        style={{
+          background,
+          height: heightPx,
+          left: '50%',
+          position: 'absolute',
+          top: '50%',
+          transform: `translate(-50%, calc(-50% + ${verticalOffsetPx}px))`,
+          width: heightPx,
+        }}
       >
         {children}
         <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
@@ -150,6 +187,6 @@ export default function BoxBot3D({
           />
         )}
       </Canvas>
-    </div>
+    </Assembly>
   )
 }

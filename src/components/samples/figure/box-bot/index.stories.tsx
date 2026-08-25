@@ -29,9 +29,11 @@ export const Mode3D: Story = {
     mode: '3d',
   },
   render: (args) => (
-    <StoryComponent {...args}>
-      {process.env.NODE_ENV === 'development' && <Perf position="top-left" />}
-    </StoryComponent>
+    <div>
+      <StoryComponent {...args}>
+        <Perf position="top-left" />
+      </StoryComponent>
+    </div>
   ),
 }
 
@@ -53,14 +55,17 @@ export const SlowRotate: Story = {
   },
 }
 
-/** style 経由でサイズ変更 */
+/** style 経由でサイズ変更(枠線付き、96px 以下の縮小時の崩れ調査用) */
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 16 }}>
-      <StoryComponent mode="3d" style={{ height: 600, width: 600 }} />
-      <StoryComponent mode="3d" style={{ height: 320, width: 320 }} />
-      <StoryComponent mode="3d" style={{ height: 200, width: 200 }} />
-      <StoryComponent mode="3d" style={{ height: 120, width: 120 }} />
+    <div style={{ alignItems: 'flex-end', display: 'flex', gap: 16 }}>
+      {[600, 320, 200, 120, 96, 64, 48, 32].map((size) => (
+        <StoryComponent
+          key={size}
+          mode="3d"
+          style={{ height: size, outline: '1px solid red', width: size }}
+        />
+      ))}
     </div>
   ),
 }
@@ -120,49 +125,59 @@ const fovForScale = (baseSize: number, canvasSize: number) =>
     180) /
   Math.PI
 
-/** Grid3D の Canvas 拡大率。ジャンプ演出込みで頭が見切れない値 */
-const GRID3D_CANVAS_SCALE = 2.8
-
 /**
  * 升目表示との組み合わせ(3D)
  *
- * - ジャンプ演出(頭部が上昇)で頭が Canvas 上端を超えないよう、Canvas 自体はセルよりも一回り大きく確保し、fov で本体の見かけの大きさを維持する
+ * - style.height/width は box-bot-3d 内部で Assembly(レイアウト占有範囲)のサイズとして\
+ *   扱われるため、cellSize をそのまま渡すだけで Assembly がセルにちょうど収まる。\
+ *   Canvas(fall/jump 等の可動域込み実サイズ)は box-bot-3d 側で自動的に一回り大きく\
+ *   確保・中心配置されるため、本体の見かけの大きさを調整する fov 指定は不要
+ * - 全セルへ bot(StoryComponent)を直接 grid アイテムとして並べる形式にした。\
+ *   `position: absolute` + `transform: translate` で 1 体だけ中央寄せする方式は、\
+ *   Canvas のページ内絶対位置をずらすと内部の描画結果が原因不明にズレる現象があり撤回\
+ *   (詳細は下記「はみ出し原因」参照)
+ * - はみ出し原因: `orbit={false}` 時、`box-bot-3d` の Canvas は `OrbitControls`\
+ *   自体がマウントされず `target`(`ORBIT_TARGET`)への lookAt が一切適用されないため、\
+ *   キャリブレーション前提(`BODY_HEIGHT_RATIO`/`VERTICAL_OFFSET_RATIO`)の見え方から\
+ *   ズレていた。box-bot-3d 側で Canvas `onCreated` に明示 lookAt を追加して解消済み\
+ *   (`orbit={true}` 時は OrbitControls が毎フレーム上書きするため無害)。`outline` と\
+ *   下記の独立 bot(升目制約なし)は回帰確認用に残している
  */
 export const Grid3D: Story = {
   render: () => {
     const cols = 5
     const rows = 3
     const cellSize = 96
-    const canvasSize = cellSize * GRID3D_CANVAS_SCALE
 
     return (
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-          gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
-        }}
-      >
-        {Array.from({ length: cols * rows }).map((_, i) => (
-          <StyledDiv key={i} style={{ position: 'relative' }}>
-            {i === Math.floor((cols * rows) / 2) && (
-              <StoryComponent
-                fov={fovForScale(cellSize, canvasSize)}
-                mode="3d"
-                orbit={false}
-                style={{
-                  height: canvasSize,
-                  left: '50%',
-                  position: 'absolute',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: canvasSize,
-                  zIndex: 1,
-                }}
-              />
-            )}
-          </StyledDiv>
-        ))}
+      <div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
+            gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
+          }}
+        >
+          {Array.from({ length: cols * rows }).map((_, i) => (
+            <StoryComponent
+              key={i}
+              mode="3d"
+              orbit={false}
+              style={{
+                boxSizing: 'border-box',
+                height: cellSize,
+                outline: '1px solid red',
+                width: cellSize,
+              }}
+            />
+          ))}
+        </div>
+        {/* 升目制約を受けない、通常サイズの独立 bot(比較用) */}
+        <StoryComponent
+          mode="3d"
+          orbit={false}
+          style={{ marginTop: 32, outline: '1px solid red' }}
+        />
       </div>
     )
   },
@@ -363,7 +378,15 @@ export const Walking: StoryObj<WalkingArgs> = {
 
     return (
       <div>
-        <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+        <div
+          style={{
+            alignItems: 'center',
+            display: 'flex',
+            gap: 12,
+            position: 'relative',
+            zIndex: 10,
+          }}
+        >
           <Button
             onClick={() => {
               toggleByStyle(legStyle)
@@ -399,6 +422,7 @@ export const Walking: StoryObj<WalkingArgs> = {
           eventTarget={eventTarget}
           legCycle={legCycle}
           mode="3d"
+          style={{ outline: '1px solid red' }}
         />
       </div>
     )
@@ -425,7 +449,16 @@ export const Fall: Story = {
 
     return (
       <div>
-        <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+        <div
+          style={{
+            alignItems: 'center',
+            display: 'flex',
+            gap: 12,
+            position: 'absolute',
+            top: 0,
+            zIndex: 10,
+          }}
+        >
           <Button onClick={() => void fall()} type="button" variant="outline">
             Fall
           </Button>
@@ -436,7 +469,7 @@ export const Fall: Story = {
         <StoryComponent
           eventTarget={eventTarget}
           mode="3d"
-          style={{ height: 300 }}
+          style={{ height: 300, marginLeft: 100, marginTop: 50 }}
         />
       </div>
     )

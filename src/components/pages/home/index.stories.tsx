@@ -11,4 +11,5 @@ type Story = StoryObj<typeof Home>
 
 export const Default: Story = {
   args: {},
+  name: 'home (/)',
 }
