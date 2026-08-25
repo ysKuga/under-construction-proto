@@ -28,6 +28,13 @@ const DEFAULT_HEIGHT = 480
  */
 const BODY_HEIGHT_RATIO = 233 / 480
 
+/**
+ * Canvas 中心から下方向へずらすオフセットの Canvas 高さに対する比率
+ *
+ * - 400px で 55px 相当 (足が Assembly の下部付近になるぐらい)
+ */
+const VERTICAL_OFFSET_RATIO = 55 / DEFAULT_HEIGHT
+
 /** カメラ位置(world) */
 const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
 
@@ -119,6 +126,8 @@ export default function BoxBot3D({
   const lineScale = Math.min(1, heightPx / DEFAULT_HEIGHT)
   /** Assembly(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる */
   const assemblySize = heightPx * BODY_HEIGHT_RATIO
+  /** Canvas を Assembly 中心から下方向へずらすオフセット(px) */
+  const verticalOffsetPx = heightPx * VERTICAL_OFFSET_RATIO
 
   return (
     <Assembly
@@ -136,7 +145,7 @@ export default function BoxBot3D({
           left: '50%',
           position: 'absolute',
           top: '50%',
-          transform: 'translate(-50%, -50%)',
+          transform: `translate(-50%, calc(-50% + ${verticalOffsetPx}px))`,
           width: heightPx,
         }}
       >
