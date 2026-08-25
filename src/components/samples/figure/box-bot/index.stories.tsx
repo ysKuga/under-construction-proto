@@ -29,9 +29,11 @@ export const Mode3D: Story = {
     mode: '3d',
   },
   render: (args) => (
-    <StoryComponent {...args}>
-      {process.env.NODE_ENV === 'development' && <Perf position="top-left" />}
-    </StoryComponent>
+    <div style={{ paddingTop: 140 }}>
+      <StoryComponent {...args}>
+        {process.env.NODE_ENV === 'development' && <Perf position="top-left" />}
+      </StoryComponent>
+    </div>
   ),
 }
 
@@ -210,6 +212,7 @@ export const OverlapGrid3D: Story = {
           display: 'grid',
           gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
           gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
+          paddingTop: 50,
         }}
       >
         {Array.from({ length: cols * rows }).map((_, i) => {
@@ -399,6 +402,7 @@ export const Walking: StoryObj<WalkingArgs> = {
           eventTarget={eventTarget}
           legCycle={legCycle}
           mode="3d"
+          style={{ marginTop: 140 }}
         />
       </div>
     )
@@ -436,7 +440,7 @@ export const Fall: Story = {
         <StoryComponent
           eventTarget={eventTarget}
           mode="3d"
-          style={{ height: 300 }}
+          style={{ height: 300, marginTop: 100 }}
         />
       </div>
     )
