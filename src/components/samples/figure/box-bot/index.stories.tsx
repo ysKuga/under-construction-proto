@@ -55,14 +55,17 @@ export const SlowRotate: Story = {
   },
 }
 
-/** style 経由でサイズ変更 */
+/** style 経由でサイズ変更(枠線付き、96px 以下の縮小時の崩れ調査用) */
 export const Sizes: Story = {
   render: () => (
     <div style={{ alignItems: 'flex-end', display: 'flex', gap: 16 }}>
-      <StoryComponent mode="3d" style={{ height: 600, width: 600 }} />
-      <StoryComponent mode="3d" style={{ height: 320, width: 320 }} />
-      <StoryComponent mode="3d" style={{ height: 200, width: 200 }} />
-      <StoryComponent mode="3d" style={{ height: 120, width: 120 }} />
+      {[600, 320, 200, 120, 96, 64, 48, 32].map((size) => (
+        <StoryComponent
+          key={size}
+          mode="3d"
+          style={{ height: size, outline: '1px solid red', width: size }}
+        />
+      ))}
     </div>
   ),
 }
@@ -131,10 +134,14 @@ const fovForScale = (baseSize: number, canvasSize: number) =>
  *   確保・中心配置されるため、本体の見かけの大きさを調整する fov 指定は不要
  * - 全セルへ bot(StoryComponent)を直接 grid アイテムとして並べる形式にした。\
  *   `position: absolute` + `transform: translate` で 1 体だけ中央寄せする方式は、\
- *   Canvas のページ内絶対位置をずらすと内部の描画結果が原因不明にズレる現象があり\
- *   (`outline` で可視化すると bot の足が Assembly 下端をはみ出しているのが分かる、\
- *   grid-column/grid-row 配置に変えても再現・全セル敷き詰めでも実は起きている)、\
- *   根本原因未特定のため保留中。outline は調査用に残している
+ *   Canvas のページ内絶対位置をずらすと内部の描画結果が原因不明にズレる現象があり撤回\
+ *   (詳細は下記「はみ出し原因」参照)
+ * - はみ出し原因: `orbit={false}` 時、`box-bot-3d` の Canvas は `OrbitControls`\
+ *   自体がマウントされず `target`(`ORBIT_TARGET`)への lookAt が一切適用されないため、\
+ *   キャリブレーション前提(`BODY_HEIGHT_RATIO`/`VERTICAL_OFFSET_RATIO`)の見え方から\
+ *   ズレていた。box-bot-3d 側で Canvas `onCreated` に明示 lookAt を追加して解消済み\
+ *   (`orbit={true}` 時は OrbitControls が毎フレーム上書きするため無害)。`outline` と\
+ *   下記の独立 bot(升目制約なし)は回帰確認用に残している
  */
 export const Grid3D: Story = {
   render: () => {
@@ -143,26 +150,34 @@ export const Grid3D: Story = {
     const cellSize = 96
 
     return (
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-          gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
-        }}
-      >
-        {Array.from({ length: cols * rows }).map((_, i) => (
-          <StoryComponent
-            key={i}
-            mode="3d"
-            orbit={false}
-            style={{
-              boxSizing: 'border-box',
-              height: cellSize,
-              outline: '1px solid red',
-              width: cellSize,
-            }}
-          />
-        ))}
+      <div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
+            gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
+          }}
+        >
+          {Array.from({ length: cols * rows }).map((_, i) => (
+            <StoryComponent
+              key={i}
+              mode="3d"
+              orbit={false}
+              style={{
+                boxSizing: 'border-box',
+                height: cellSize,
+                outline: '1px solid red',
+                width: cellSize,
+              }}
+            />
+          ))}
+        </div>
+        {/* 升目制約を受けない、通常サイズの独立 bot(比較用) */}
+        <StoryComponent
+          mode="3d"
+          orbit={false}
+          style={{ marginTop: 32, outline: '1px solid red' }}
+        />
       </div>
     )
   },
@@ -407,6 +422,7 @@ export const Walking: StoryObj<WalkingArgs> = {
           eventTarget={eventTarget}
           legCycle={legCycle}
           mode="3d"
+          style={{ outline: '1px solid red' }}
         />
       </div>
     )
