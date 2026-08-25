@@ -9,7 +9,7 @@ const Home = () => {
       <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
         Under Construction Proto
       </h1>
-      <BoxBot mode="3d" />
+      <BoxBot hopping mode="3d" />
     </div>
   )
 }

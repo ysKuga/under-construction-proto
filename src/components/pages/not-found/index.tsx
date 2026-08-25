@@ -16,6 +16,7 @@ const NotFound = () => {
         <BoxBot
           autoRotate={false}
           clickActionMap={{ body: ACTION_SPIN, head: ACTION_SPIN }}
+          hopping
           lightPosition={[0, 1.5, 6]}
           mode="3d"
           orbit={false}
