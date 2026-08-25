@@ -116,12 +116,6 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    *   どちらも歩いていない間は連動する脚の動きがないため無効
    */
   bodyBobbing?: boolean
-  /**
-   * Canvas 内(bot 以外の背景含む)にポインタがあるかどうかの ref
-   *
-   * - 待機演出(連続ジャンプ)の起動判定に使う。`BoxBot3D` の外側 div から渡される
-   */
-  canvasHoverRef?: RefObject<boolean>
   /** body/head/arm クリックで発火する action の対応。省略したキーは既定のまま */
   clickActionMap?: ClickActionMap
   /**
