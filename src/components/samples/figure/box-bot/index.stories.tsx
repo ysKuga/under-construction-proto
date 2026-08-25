@@ -29,9 +29,9 @@ export const Mode3D: Story = {
     mode: '3d',
   },
   render: (args) => (
-    <div style={{ paddingTop: 140 }}>
+    <div>
       <StoryComponent {...args}>
-        {process.env.NODE_ENV === 'development' && <Perf position="top-left" />}
+        <Perf position="top-left" />
       </StoryComponent>
     </div>
   ),
@@ -58,7 +58,7 @@ export const SlowRotate: Story = {
 /** style 経由でサイズ変更 */
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 16, paddingTop: 160 }}>
+    <div style={{ alignItems: 'flex-end', display: 'flex', gap: 16 }}>
       <StoryComponent mode="3d" style={{ height: 600, width: 600 }} />
       <StoryComponent mode="3d" style={{ height: 320, width: 320 }} />
       <StoryComponent mode="3d" style={{ height: 200, width: 200 }} />
@@ -212,7 +212,6 @@ export const OverlapGrid3D: Story = {
           display: 'grid',
           gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
           gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
-          paddingTop: 50,
         }}
       >
         {Array.from({ length: cols * rows }).map((_, i) => {
@@ -402,7 +401,6 @@ export const Walking: StoryObj<WalkingArgs> = {
           eventTarget={eventTarget}
           legCycle={legCycle}
           mode="3d"
-          style={{ marginTop: 140 }}
         />
       </div>
     )
@@ -429,7 +427,16 @@ export const Fall: Story = {
 
     return (
       <div>
-        <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+        <div
+          style={{
+            alignItems: 'center',
+            display: 'flex',
+            gap: 12,
+            position: 'absolute',
+            top: 0,
+            zIndex: 10,
+          }}
+        >
           <Button onClick={() => void fall()} type="button" variant="outline">
             Fall
           </Button>
@@ -440,7 +447,7 @@ export const Fall: Story = {
         <StoryComponent
           eventTarget={eventTarget}
           mode="3d"
-          style={{ height: 300, marginTop: 100 }}
+          style={{ height: 300, marginLeft: 100, marginTop: 50 }}
         />
       </div>
     )
