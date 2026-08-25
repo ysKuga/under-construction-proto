@@ -9,7 +9,7 @@ import { LEG_CYCLE_SEC } from './_components/box-bot-3d/_components/box-bot-mode
 import type { LegStyle } from './_components/box-bot-3d/_components/box-bot-model/index.types'
 import { useBoxBotActionDispatcher } from './_components/box-bot-3d/_components/box-bot-model/use-box-bot-action-dispatcher'
 
-import { BoxBot as StoryComponent } from '.'
+import { BODY_HEIGHT_RATIO, BoxBot as StoryComponent } from '.'
 
 const meta: Meta<typeof StoryComponent> = {
   component: StoryComponent,
@@ -122,20 +122,20 @@ const fovForScale = (baseSize: number, canvasSize: number) =>
     180) /
   Math.PI
 
-/** Grid3D の Canvas 拡大率。ジャンプ演出込みで頭が見切れない値 */
-const GRID3D_CANVAS_SCALE = 2.8
-
 /**
  * 升目表示との組み合わせ(3D)
  *
- * - ジャンプ演出(頭部が上昇)で頭が Canvas 上端を超えないよう、Canvas 自体はセルよりも一回り大きく確保し、fov で本体の見かけの大きさを維持する
+ * - box-bot-3d 内部の Assembly(レイアウト占有範囲)がセルにちょうど収まるよう、\
+ *   Canvas サイズ(style.height)を `cellSize / BODY_HEIGHT_RATIO` で逆算する。\
+ *   Canvas 自体は fall/jump 等の可動域ぶんセルより大きくなるが、box-bot-3d 側で\
+ *   自動的に中心配置されるため、本体の見かけの大きさを調整する fov 指定は不要
  */
 export const Grid3D: Story = {
   render: () => {
     const cols = 5
     const rows = 3
     const cellSize = 96
-    const canvasSize = cellSize * GRID3D_CANVAS_SCALE
+    const canvasSize = cellSize / BODY_HEIGHT_RATIO
 
     return (
       <div
@@ -149,7 +149,6 @@ export const Grid3D: Story = {
           <StyledDiv key={i} style={{ position: 'relative' }}>
             {i === Math.floor((cols * rows) / 2) && (
               <StoryComponent
-                fov={fovForScale(cellSize, canvasSize)}
                 mode="3d"
                 orbit={false}
                 style={{
