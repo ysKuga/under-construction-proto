@@ -9,7 +9,9 @@ import {
   CLICK_ARM_LEFT,
   CLICK_ARM_RIGHT,
   CLICK_BODY,
+  CLICK_BODY_RELEASE,
   CLICK_HEAD,
+  CLICK_HEAD_RELEASE,
 } from '../index.constants'
 import { useBoxBotEventTarget } from '../index.contexts'
 import type { BoxBotModelProps, UseBoxBotModelReturn } from '../index.types'
@@ -33,6 +35,12 @@ const DEFAULT_CLICK_ACTION_MAP: Required<
  *   要素の意味(どこをクリックしたか)と実行される action が分離される
  * - `interactive` による制御は実行側(各 action hook)で行う。クリックハンドラ自体は常に登録し、\
  *   `stopPropagation`(クリック伝播の抑止)は interactive に関わらず必要なため
+ * - body/head は `onClick`(mouseup 後)でなく `onPointerDown` として呼び出す想定。\
+ *   Pointer Events は mouse/touch 統合のため、クリックに伴うページ遷移(not-found → home)\
+ *   より早いタイミングで action(spin 等)を起動でき、遷移までのリード時間を確保できる
+ * - `CLICK_BODY_RELEASE`/`CLICK_HEAD_RELEASE`(pointer up/out)は `clickActionMap` を経由せず、\
+ *   `use-spin-action` が押下継続判定のため直接購読する。他 action(jump 等)には「離す」概念が\
+ *   無いため、対応表を介さない非対称な扱いにしている
  *
  * @param props BoxBotModel に渡される props
  */
@@ -40,7 +48,12 @@ export const useClickActions = (
   props: Pick<BoxBotModelProps, 'clickActionMap'>,
 ): Pick<
   UseBoxBotModelReturn,
-  'clickArmLeft' | 'clickArmRight' | 'clickBody' | 'clickHead'
+  | 'clickArmLeft'
+  | 'clickArmRight'
+  | 'clickBody'
+  | 'clickHead'
+  | 'releaseBody'
+  | 'releaseHead'
 > => {
   const armLeftAction =
     props.clickActionMap?.armLeft ?? DEFAULT_CLICK_ACTION_MAP.armLeft
@@ -65,11 +78,11 @@ export const useClickActions = (
     target: eventTarget,
   })
 
-  const clickBody = (e: ThreeEvent<MouseEvent>) => {
+  const clickBody = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
     void dispatch(CLICK_BODY)
   }
-  const clickHead = (e: ThreeEvent<MouseEvent>) => {
+  const clickHead = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
     void dispatch(CLICK_HEAD)
   }
@@ -81,6 +94,21 @@ export const useClickActions = (
     e.stopPropagation()
     void dispatch(CLICK_ARM_RIGHT)
   }
+  const releaseBody = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation()
+    void dispatch(CLICK_BODY_RELEASE)
+  }
+  const releaseHead = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation()
+    void dispatch(CLICK_HEAD_RELEASE)
+  }
 
-  return { clickArmLeft, clickArmRight, clickBody, clickHead }
+  return {
+    clickArmLeft,
+    clickArmRight,
+    clickBody,
+    clickHead,
+    releaseBody,
+    releaseHead,
+  }
 }

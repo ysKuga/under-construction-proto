@@ -49,6 +49,9 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const postureRef: BoxBotRefs['postureRef'] = React.useRef(0)
   const rootRef: BoxBotRefs['rootRef'] = React.useRef(null)
   const spinActionRef: BoxBotRefs['spinActionRef'] = React.useRef(-1)
+  const spinHeldRef: BoxBotRefs['spinHeldRef'] = React.useRef(false)
+  const spinReleaseElapsedRef: BoxBotRefs['spinReleaseElapsedRef'] =
+    React.useRef(-1)
   const spinRef: BoxBotRefs['spinRef'] = React.useRef(null)
   const leftArmRef: BoxBotRefs['leftArmRef'] = React.useRef(null)
   const rightArmRef: BoxBotRefs['rightArmRef'] = React.useRef(null)
@@ -75,7 +78,9 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       rightLegRef,
       rootRef,
       spinActionRef,
+      spinHeldRef,
       spinRef,
+      spinReleaseElapsedRef,
       walkingBobRef,
       walkingRef,
     }),
@@ -95,6 +100,8 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       rightLegRef,
       rootRef,
       spinActionRef,
+      spinHeldRef,
+      spinReleaseElapsedRef,
       spinRef,
       walkingBobRef,
       walkingRef,
