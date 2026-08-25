@@ -9,7 +9,7 @@ import { LEG_CYCLE_SEC } from './_components/box-bot-3d/_components/box-bot-mode
 import type { LegStyle } from './_components/box-bot-3d/_components/box-bot-model/index.types'
 import { useBoxBotActionDispatcher } from './_components/box-bot-3d/_components/box-bot-model/use-box-bot-action-dispatcher'
 
-import { BODY_HEIGHT_RATIO, BoxBot as StoryComponent } from '.'
+import { BoxBot as StoryComponent } from '.'
 
 const meta: Meta<typeof StoryComponent> = {
   component: StoryComponent,
@@ -125,17 +125,22 @@ const fovForScale = (baseSize: number, canvasSize: number) =>
 /**
  * 升目表示との組み合わせ(3D)
  *
- * - box-bot-3d 内部の Assembly(レイアウト占有範囲)がセルにちょうど収まるよう、\
- *   Canvas サイズ(style.height)を `cellSize / BODY_HEIGHT_RATIO` で逆算する。\
- *   Canvas 自体は fall/jump 等の可動域ぶんセルより大きくなるが、box-bot-3d 側で\
- *   自動的に中心配置されるため、本体の見かけの大きさを調整する fov 指定は不要
+ * - style.height/width は box-bot-3d 内部で Assembly(レイアウト占有範囲)のサイズとして\
+ *   扱われるため、cellSize をそのまま渡すだけで Assembly がセルにちょうど収まる。\
+ *   Canvas(fall/jump 等の可動域込み実サイズ)は box-bot-3d 側で自動的に一回り大きく\
+ *   確保・中心配置されるため、本体の見かけの大きさを調整する fov 指定は不要
+ * - 全セルへ bot(StoryComponent)を直接 grid アイテムとして並べる形式にした。\
+ *   `position: absolute` + `transform: translate` で 1 体だけ中央寄せする方式は、\
+ *   Canvas のページ内絶対位置をずらすと内部の描画結果が原因不明にズレる現象があり\
+ *   (`outline` で可視化すると bot の足が Assembly 下端をはみ出しているのが分かる、\
+ *   grid-column/grid-row 配置に変えても再現・全セル敷き詰めでも実は起きている)、\
+ *   根本原因未特定のため保留中。outline は調査用に残している
  */
 export const Grid3D: Story = {
   render: () => {
     const cols = 5
     const rows = 3
     const cellSize = 96
-    const canvasSize = cellSize / BODY_HEIGHT_RATIO
 
     return (
       <div
@@ -146,23 +151,17 @@ export const Grid3D: Story = {
         }}
       >
         {Array.from({ length: cols * rows }).map((_, i) => (
-          <StyledDiv key={i} style={{ position: 'relative' }}>
-            {i === Math.floor((cols * rows) / 2) && (
-              <StoryComponent
-                mode="3d"
-                orbit={false}
-                style={{
-                  height: canvasSize,
-                  left: '50%',
-                  position: 'absolute',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: canvasSize,
-                  zIndex: 1,
-                }}
-              />
-            )}
-          </StyledDiv>
+          <StoryComponent
+            key={i}
+            mode="3d"
+            orbit={false}
+            style={{
+              boxSizing: 'border-box',
+              height: cellSize,
+              outline: '1px solid red',
+              width: cellSize,
+            }}
+          />
         ))}
       </div>
     )
