@@ -184,7 +184,7 @@ export interface BoxBotRefs {
   /** 全体のジャンプ・スケール・転倒回転制御グループ ref */
   rootRef: RefObject<Group | null>
   /**
-   * 回転(1回転して停止) action 進行度の ref
+   * 回転(加速→最大速度→減速して停止) action 進行度の ref
    *
    * - -1: 非実行中、0以上: 経過秒数
    */
