@@ -135,6 +135,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   interactive?: boolean
   /** 脚アニメーション(walking/marching 共通)の周期(秒) */
   legCycle?: number
+  /**
+   * body/head クリック確定で発火するコールバック
+   *
+   * - r3f 標準の click(pointerdown/pointerup が同一要素上で完結した場合のみ発火)を使うため、\
+   *   bot 外へドラッグして離した場合は発火しない(通常の a要素のクリックと同じセマンティクス)
+   */
+  onClick?: () => void
   /** 自動回転の速度 */
   rotateSpeed?: number
   /**
@@ -201,13 +208,17 @@ export interface BoxBotRefs {
   /** 全体のジャンプ・スケール・転倒回転制御グループ ref */
   rootRef: RefObject<Group | null>
   /**
-   * 回転(加速→最大速度→減速して停止) action 進行度の ref
+   * 回転(加速→押下中は最大速度維持→解放で減速して停止) action 進行度の ref
    *
-   * - -1: 非実行中、0以上: 経過秒数
+   * - -1: 非実行中、0以上: 経過秒数(解放後は加算を止め、離した瞬間の値で凍結)
    */
   spinActionRef: RefObject<number>
+  /** 回転 action の押下(body/head)継続中かどうかの ref */
+  spinHeldRef: RefObject<boolean>
   /** 自動回転グループ ref */
   spinRef: RefObject<Group | null>
+  /** 押下解放後の回転減速 進行度の ref。-1: 押下中または非実行、0以上: 解放からの経過秒数 */
+  spinReleaseElapsedRef: RefObject<number>
   /** 歩行中の body 全体上下(bobbing)制御グループ ref */
   walkingBobRef: RefObject<Group | null>
   /** 歩いている状態か(見た目の挙動は含まない)の ref */
@@ -287,10 +298,10 @@ export interface UseBoxBotModelReturn extends Pick<
   clickArmLeft: (e: ThreeEvent<MouseEvent>) => void
   /** 右腕クリックで CLICK_ARM_RIGHT を発火(実行される action は clickActionMap prop 側の対応で決まる) */
   clickArmRight: (e: ThreeEvent<MouseEvent>) => void
-  /** body クリックで CLICK_BODY を発火(実行される action は clickActionMap prop 側の対応で決まる) */
-  clickBody: (e: ThreeEvent<MouseEvent>) => void
-  /** head クリックで CLICK_HEAD を発火(実行される action は clickActionMap prop 側の対応で決まる) */
-  clickHead: (e: ThreeEvent<MouseEvent>) => void
+  /** body 押下で CLICK_BODY を発火(実行される action は clickActionMap prop 側の対応で決まる) */
+  clickBody: (e: ThreeEvent<PointerEvent>) => void
+  /** head 押下で CLICK_HEAD を発火(実行される action は clickActionMap prop 側の対応で決まる) */
+  clickHead: (e: ThreeEvent<PointerEvent>) => void
   /** 接地面(脚の下端)の y 座標。fall/getUp の回転中心に使う */
   groundY: number
   /** 頭の前面 z 座標 */
@@ -305,6 +316,12 @@ export interface UseBoxBotModelReturn extends Pick<
   legX: number
   /** 脚グループの付け根 y 座標 */
   legY: number
+  /** body/head クリック確定で発火するコールバック(props.onClick そのまま) */
+  onClick?: () => void
+  /** body 押下解放(pointer up/out)で CLICK_BODY_RELEASE を発火(spin action が押下継続判定に直接購読) */
+  releaseBody: (e: ThreeEvent<PointerEvent>) => void
+  /** head 押下解放(pointer up/out)で CLICK_HEAD_RELEASE を発火(spin action が押下継続判定に直接購読) */
+  releaseHead: (e: ThreeEvent<PointerEvent>) => void
   /** 初期 y 軸回転(ラジアン) */
   rotationY: number
   /** 肩の x オフセット */

@@ -30,6 +30,10 @@ export const ACTION_JUMP = 'BoxBot-action-jump'
 export const CLICK_BODY = 'BoxBot-click-body'
 /** head クリックの発火イベント名。どの action を実行するかは CLICK_ACTION_MAP 側の対応で決める */
 export const CLICK_HEAD = 'BoxBot-click-head'
+/** body 押下解放(pointer up/out)の発火イベント名。spin action が押下継続判定に直接購読する */
+export const CLICK_BODY_RELEASE = 'BoxBot-click-body-release'
+/** head 押下解放(pointer up/out)の発火イベント名。spin action が押下継続判定に直接購読する */
+export const CLICK_HEAD_RELEASE = 'BoxBot-click-head-release'
 
 /** 左腕上げ下げ action の発火イベント名 */
 export const ACTION_ARM_LEFT_TOGGLE = 'BoxBot-action-arm-left-toggle'
@@ -53,6 +57,14 @@ export const ACTION_GET_UP = 'BoxBot-action-get-up'
 
 /** 回転(加速→最大速度→減速して停止) action の発火イベント名 */
 export const ACTION_SPIN = 'BoxBot-action-spin'
+/**
+ * 回転 action の解放(押下終了)の発火イベント名
+ *
+ * - hover 共通の `onPointerOut`(`useBoxBotModel`)から dispatch される。\
+ *   `CLICK_BODY_RELEASE`/`CLICK_HEAD_RELEASE`(要素起点)と並行して\
+ *   `use-spin-action` の同じ解放処理に紐づく
+ */
+export const ACTION_SPIN_STOP = 'BoxBot-action-spin-stop'
 
 /** 待機演出(hopping、bot への hover/touch 中・回転中以外は連続ジャンプ)開始の発火イベント名 */
 export const ACTION_HOPPING_START = 'BoxBot-action-hopping-start'
@@ -109,9 +121,12 @@ export const GET_UP_DUR = 0.6
 export const SPIN_MAX_SPEED = Math.PI * 6
 /** 回転の加速フェーズの継続時間(秒)。0 から `SPIN_MAX_SPEED` まで加速するのにかける時間 */
 export const SPIN_ACCEL_DUR = 1
-/** 回転が最大角速度を維持する時間(秒) */
-export const SPIN_CRUISE_DUR = 1
-/** 回転の減速フェーズの継続時間(秒)。`SPIN_MAX_SPEED` から 0 まで減速するのにかける時間 */
+/**
+ * 回転の減速フェーズの継続時間(秒)
+ *
+ * - 押下解放(pointer up/out)時点の角速度から 0 まで減速するのにかける時間。\
+ *   押下継続中は加速後 `SPIN_MAX_SPEED` を維持し続け、減速はしない
+ */
 export const SPIN_DECEL_DUR = 1
 /** 倒れきった状態の fallPivotRef 前傾角度(rad、x 軸回転) */
 export const FALL_ANGLE = Math.PI / 2

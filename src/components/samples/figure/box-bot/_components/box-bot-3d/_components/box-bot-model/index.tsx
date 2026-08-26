@@ -32,6 +32,9 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     leftLegRef,
     legX,
     legY,
+    onClick,
+    releaseBody,
+    releaseHead,
     rightArmRef,
     rightLegRef,
     rootRef,
@@ -53,14 +56,50 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
               <group ref={walkingBobRef}>
                 <SketchBox
                   cfg={cfg}
-                  handlers={{ onClick: clickBody, ...hover }}
+                  handlers={{
+                    ...hover,
+                    onClick: (e) => {
+                      e.stopPropagation()
+                      onClick?.()
+                    },
+                    onPointerDown: (e) => {
+                      hover.onPointerDown?.(e)
+                      clickBody(e)
+                    },
+                    onPointerOut: (e) => {
+                      hover.onPointerOut?.(e)
+                      releaseBody(e)
+                    },
+                    onPointerUp: (e) => {
+                      hover.onPointerUp?.(e)
+                      releaseBody(e)
+                    },
+                  }}
                   position={[0, 0, 0]}
                   seed={cfg.seed + 1}
                   size={[cfg.body.w, cfg.body.h, cfg.body.d]}
                 />
                 <SketchBox
                   cfg={cfg}
-                  handlers={{ onClick: clickHead, ...hover }}
+                  handlers={{
+                    ...hover,
+                    onClick: (e) => {
+                      e.stopPropagation()
+                      onClick?.()
+                    },
+                    onPointerDown: (e) => {
+                      hover.onPointerDown?.(e)
+                      clickHead(e)
+                    },
+                    onPointerOut: (e) => {
+                      hover.onPointerOut?.(e)
+                      releaseHead(e)
+                    },
+                    onPointerUp: (e) => {
+                      hover.onPointerUp?.(e)
+                      releaseHead(e)
+                    },
+                  }}
                   position={[0, headY, 0]}
                   seed={cfg.seed + 2}
                   size={[cfg.head.w, cfg.head.h, cfg.head.d]}

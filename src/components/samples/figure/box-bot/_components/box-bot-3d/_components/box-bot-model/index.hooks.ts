@@ -2,6 +2,8 @@
 
 import * as React from 'react'
 
+import { useEventDispatcher } from '@/hooks/event'
+
 import { useArmAction } from './_action-hooks/arm-action'
 import { useMarchingAction, useWalkingAction } from './_action-hooks/leg-action'
 import { useAutoRotateAction } from './_action-hooks/use-auto-rotate-action'
@@ -13,12 +15,13 @@ import { useJumpAction } from './_action-hooks/use-jump-action'
 import { useSpinAction } from './_action-hooks/use-spin-action'
 import { useClickActions } from './_hooks/use-click-actions'
 import {
+  ACTION_SPIN_STOP,
   DEFAULTS,
   HEAD_FRONT_MARGIN,
   HEAD_GAP,
   SHOULDER_Y_OFFSET,
 } from './index.constants'
-import { useBoxBotRefs } from './index.contexts'
+import { useBoxBotEventTarget, useBoxBotRefs } from './index.contexts'
 import type {
   BoxBot3DConfig,
   BoxBotModelProps,
@@ -34,6 +37,7 @@ export function useBoxBotModel(
     autoWalk,
     hopping,
     interactive = true,
+    onClick,
     rotationY = 0,
     ...opts
   } = props
@@ -67,6 +71,9 @@ export function useBoxBotModel(
   const legY = -bodyTop
   const groundY = legY - cfg.leg.h
 
+  const eventTarget = useBoxBotEventTarget()
+  const dispatch = useEventDispatcher(eventTarget)
+
   const setCursor = (v: string) => {
     if (typeof document !== 'undefined') document.body.style.cursor = v
   }
@@ -77,6 +84,7 @@ export function useBoxBotModel(
           botHoverRef.current = true
         },
         onPointerOut: () => {
+          void dispatch(ACTION_SPIN_STOP)
           setCursor('auto')
           botHoverRef.current = false
         },
@@ -94,8 +102,14 @@ export function useBoxBotModel(
   useJumpAction(props)
   useSpinAction(props)
   useHoppingAction(props)
-  const { clickArmLeft, clickArmRight, clickBody, clickHead } =
-    useClickActions(props)
+  const {
+    clickArmLeft,
+    clickArmRight,
+    clickBody,
+    clickHead,
+    releaseBody,
+    releaseHead,
+  } = useClickActions(props)
   const { startFall } = useFallAction(props)
   const { startGetUp } = useGetUpAction(props)
   const { arm } = useArmAction(props, cfg)
@@ -140,7 +154,10 @@ export function useBoxBotModel(
     legX,
     legY,
     marchingRef,
+    onClick,
     postureRef,
+    releaseBody,
+    releaseHead,
     rightArmRef,
     rightLegRef,
     rootRef,

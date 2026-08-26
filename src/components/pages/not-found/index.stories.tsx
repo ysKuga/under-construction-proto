@@ -4,6 +4,11 @@ import NotFound from '.'
 
 const meta: Meta<typeof NotFound> = {
   component: NotFound,
+  parameters: {
+    nextjs: {
+      appDirectory: true,
+    },
+  },
 }
 
 export default meta
