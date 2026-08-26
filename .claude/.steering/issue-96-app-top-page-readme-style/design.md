@@ -94,7 +94,7 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - [x] not-found で確認した bot の挙動(回転・ジャンプしない)→ `interactive={false}` 明示指定が原因、削除し解消(コミット `7275480`、詳細は `_pr/pr-99-not-found-shadow/design.md` 参照)
 - [x] bot の縮小時の線の太さを調整 → `lineWidth` を表示サイズに応じて線形スケール(決定事項参照)
 - [x] stories の名前に実際のパス名を反映を検討 → `home/index.stories.tsx` の `Default` に `name: 'home (/)'` 付与(export 識別子は `Default` のまま、Storybook 表示名のみパス反映)。not-found は対象外(据置)
-- [ ] 404 にてクリックであると画面遷移が早すぎてアニメーションが見れなかった。
+- [x] 404 にてクリックであると画面遷移が早すぎてアニメーションが見れなかった。
   - PC
     - mousedown により spin を実行
   - SP
