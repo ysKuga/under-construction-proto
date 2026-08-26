@@ -79,6 +79,12 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - 修正: `box-bot-3d` の `Canvas` に `onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}` を追加し、`orbit` の有無に関わらず初期 lookAt を明示。`orbit={true}` 時は `OrbitControls` が毎フレーム上書きするため無害
 - 回帰確認用に `Grid3D` へ升目制約を受けない独立 bot、`Sizes` へ 96px 以下のサイズ、`Walking` へ outline を追加(常設)
 
+### favicon 刷新 (2026-08-26)
+
+- CRA テンプレート由来の React ロゴ favicon(`public/favicon.ico`)を、box-bot の頭部モチーフ(角丸 head + 目2つ + 口)を模したオリジナル favicon へ置換
+- Next.js App Router のメタデータファイル規約に沿い `src/app/icon.svg` を新設(自動的に `<link rel="icon">` が生成される)。旧 `public/favicon.ico` は削除
+- サイズは 16px/32px でラスタライズし視認性を確認。角ばりを強めるため矩形の `rx` を縮小、縦横比も頭部が縦に大きくなるよう調整
+
 ## 検討事項
 
 - [x] トップページの box-bot 表示完了(画面要素全表示完了)までの速度計測が未実施。本リポジトリで優先しているパフォーマンス・軽量方針との整合を確認し、表示速度向上案があれば検討する。 → `.claude/.steering/issue-96-app-top-page-readme-style/_closed/pr-98-performance-measurement/` へ分割、対応完了・close 済(PR #98)
@@ -88,7 +94,7 @@ box-bot-model 共通実装(home・not-found 両方に影響)。モバイルフ�
 - [x] not-found で確認した bot の挙動(回転・ジャンプしない)→ `interactive={false}` 明示指定が原因、削除し解消(コミット `7275480`、詳細は `_pr/pr-99-not-found-shadow/design.md` 参照)
 - [x] bot の縮小時の線の太さを調整 → `lineWidth` を表示サイズに応じて線形スケール(決定事項参照)
 - [x] stories の名前に実際のパス名を反映を検討 → `home/index.stories.tsx` の `Default` に `name: 'home (/)'` 付与(export 識別子は `Default` のまま、Storybook 表示名のみパス反映)。not-found は対象外(据置)
-- [ ] 404 にてクリックであると画面遷移が早すぎてアニメーションが見れなかった。
+- [x] 404 にてクリックであると画面遷移が早すぎてアニメーションが見れなかった。
   - PC
     - mousedown により spin を実行
   - SP
