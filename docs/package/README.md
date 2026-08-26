@@ -17,3 +17,5 @@ package.json に導入したライブラリについての記述を格納する�
     静的解析関連を格納
   - `format` \
     コードフォーマット関連を格納
+  - `pwa` \
+    PWA(Service Worker・manifest)関連を格納
