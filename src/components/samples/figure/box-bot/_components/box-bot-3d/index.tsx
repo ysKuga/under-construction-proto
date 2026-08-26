@@ -106,6 +106,7 @@ export default function BoxBot3D({
   groundPosition = GROUND_POSITION,
   interactive = true,
   lightPosition = DIRECTIONAL_LIGHT_POSITION,
+  onClick,
   orbit = true,
   rotateSpeed,
   shadowOpacity = SHADOW_OPACITY,
@@ -183,6 +184,7 @@ export default function BoxBot3D({
         <BoxBotModel
           autoRotate={autoRotate}
           interactive={interactive}
+          onClick={onClick}
           rotateSpeed={rotateSpeed}
           {...cfg}
           lineWidth={cfg.lineWidth ?? DEFAULTS.lineWidth * lineScale}

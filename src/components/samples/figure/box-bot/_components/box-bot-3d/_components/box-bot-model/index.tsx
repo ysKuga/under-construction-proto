@@ -32,6 +32,7 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     leftLegRef,
     legX,
     legY,
+    onClick,
     releaseBody,
     releaseHead,
     rightArmRef,
@@ -57,6 +58,10 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
                   cfg={cfg}
                   handlers={{
                     ...hover,
+                    onClick: (e) => {
+                      e.stopPropagation()
+                      onClick?.()
+                    },
                     onPointerDown: (e) => {
                       hover.onPointerDown?.(e)
                       clickBody(e)
@@ -78,6 +83,10 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
                   cfg={cfg}
                   handlers={{
                     ...hover,
+                    onClick: (e) => {
+                      e.stopPropagation()
+                      onClick?.()
+                    },
                     onPointerDown: (e) => {
                       hover.onPointerDown?.(e)
                       clickHead(e)

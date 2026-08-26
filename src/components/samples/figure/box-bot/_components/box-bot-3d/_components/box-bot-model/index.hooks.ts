@@ -37,6 +37,7 @@ export function useBoxBotModel(
     autoWalk,
     hopping,
     interactive = true,
+    onClick,
     rotationY = 0,
     ...opts
   } = props
@@ -153,6 +154,7 @@ export function useBoxBotModel(
     legX,
     legY,
     marchingRef,
+    onClick,
     postureRef,
     releaseBody,
     releaseHead,

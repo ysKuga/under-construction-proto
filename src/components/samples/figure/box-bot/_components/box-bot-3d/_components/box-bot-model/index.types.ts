@@ -135,6 +135,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   interactive?: boolean
   /** 脚アニメーション(walking/marching 共通)の周期(秒) */
   legCycle?: number
+  /**
+   * body/head クリック確定で発火するコールバック
+   *
+   * - r3f 標準の click(pointerdown/pointerup が同一要素上で完結した場合のみ発火)を使うため、\
+   *   bot 外へドラッグして離した場合は発火しない(通常の a要素のクリックと同じセマンティクス)
+   */
+  onClick?: () => void
   /** 自動回転の速度 */
   rotateSpeed?: number
   /**
@@ -309,6 +316,8 @@ export interface UseBoxBotModelReturn extends Pick<
   legX: number
   /** 脚グループの付け根 y 座標 */
   legY: number
+  /** body/head クリック確定で発火するコールバック(props.onClick そのまま) */
+  onClick?: () => void
   /** body 押下解放(pointer up/out)で CLICK_BODY_RELEASE を発火(spin action が押下継続判定に直接購読) */
   releaseBody: (e: ThreeEvent<PointerEvent>) => void
   /** head 押下解放(pointer up/out)で CLICK_HEAD_RELEASE を発火(spin action が押下継続判定に直接購読) */
