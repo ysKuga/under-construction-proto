@@ -64,3 +64,79 @@ fall (完全転倒) は対象外。案2 本体とは独立して評価できる�
 - fall の回転 pivot 変更・設置領域オフセットによる接地点辻褄合わせ。
 - get-up の逆補間。
 - 404 ページ `z-10` 手当て・`OrbitControls` target ずらしの不要化確認。
+
+---
+
+## フォローアップ検討: アクションの追加/削除をしやすくする
+
+PR #111 レビューで挙がった論点。実装は別途 (box-bot-01 で直接)。現時点は設計メモのみ。
+
+### 現状: 1 アクション追加で触る箇所 (jump 追加時の実績)
+
+7 ファイル・11 箇所:
+
+- `index.constants.ts`: `ACTION_XXX` 定数、`XXX_*` チューニング定数
+- `index.types.ts`: `BoxBotRefs` に `xxxRef` / `UseBoxBotActionDispatcherReturn` に `xxx()` /
+  `BoxBot3DConfig` に `xxx: {}` / `UseBoxBotModelReturn` の Pick
+- `index.contexts.tsx` (`BoxBotRefsProvider`): `useRef` + `useMemo` オブジェクト + deps 配列 (1 ファイル 3 箇所)
+- `_action-hooks/use-xxx-action.ts`: 新規 (ロジック本体、不可避)
+- `index.hooks.ts`: import + 呼出 + (JSX 用なら) ref 分割代入 + return オブジェクトへ追加
+- `use-box-bot-action-dispatcher.ts`: `xxx: () => dispatch(...)`
+- `index.tsx` (`BoxBotModelInner`): `xxxRef` を `<group>` に配線 (transform 駆動なら)
+- (`index.stories.tsx`: story)
+
+### 摩擦の主因
+
+- **中央 ref レジストリ** (`BoxBotRefsProvider`): 全アクションの ref を 1 箇所で宣言・memo 化・deps 列挙。
+  `jumpConfigRef` 追加時も 3 箇所同期。アクション単位のカプセル化なし。
+- **dispatcher の 3 重定義**: アクション名が「定数」「dispatcher メソッド」「戻り値型キー」に手動で 3 回出る。
+- **orchestrator** (`index.hooks.ts`): import / 呼出 / ref / return の最大 4 編集。
+- **config マージ**: `{ ...DEFAULTS.x, ...opts.x }` を手で 1 行追加。
+
+### 案A: アクションレジストリ (descriptor 配列) ★推奨方向
+
+各アクション = 1 フォルダ `_actions/<name>/index.ts` が descriptor を export:
+
+```ts
+export const jumpAction = defineAction({
+  name: 'jump',
+  event: 'BoxBot-action-jump',
+  defaults: { liftPx: 130, durSec: 0.55 }, // → cfg.jump に合流 (任意)
+  use: (ctx) => {
+    /* useEventListener + useFrame。ref は use() 内で自前 useRef */
+  },
+})
+```
+
+`_actions/index.ts` に `export const ACTIONS = [jumpAction, spinAction, fallAction, ...]`。
+
+- orchestrator: `for (const a of ACTIONS) a.use(ctx)` — 固定順ループ。モジュール定数配列なので Rules of Hooks OK。
+  アクション追加でこのファイルを触らない
+- dispatcher: `ACTIONS` から生成。戻り値型も mapped type で導出 → 3 重定義解消
+- config / DEFAULTS: `ACTIONS` の `defaults` を畳んでマージ → per-action 行なし
+- ref: 各アクションが `use()` 内で `useRef` を持つ。中央 provider から出る
+- 本当に共有される ref だけ小さな core context に残す (`rootRef` / `postureRef` / `botHoverRef` /
+  JSX バインドする physique group ref)
+- hopping が `jumpRef.current = 0` を直接叩く件 → `ACTION_JUMP` を dispatch する形にすればアクション間の
+  内部依存が消える
+
+→ 追加 = フォルダ作成 + 配列に 1 行。削除 = フォルダ削除 + 1 行削除。
+
+### 他案
+
+- **案B (レジストリ最小)**: 中央 ref provider は残しつつ `ACTIONS` から生成し memo-deps footgun を消す。
+  co-location は案 A より弱いが移行小
+- **案C (アクションごと Context provider を合成)**: `ACTIONS.reduce` で provider をネスト。分離は綺麗だが
+  provider ネスト深さ = アクション数、`useFrame` 実行順が読みにくい
+- **案D (現状維持 + 型で網羅チェック)**: `satisfies Record<ActionName, ...>` で dispatcher の記入漏れを
+  コンパイルエラーに。編集数は減らない
+
+### 実装前に確認・検証する点
+
+- **hooks-in-loop の lint**: `a.use()` を `for` / `map` で回すのを oxlint の `rules-of-hooks` が許すか。
+  ダメなら `useActions()` ヘルパを hook 扱いさせる or 行単位 disable
+- **`useFrame` 実行順依存**: 現状は `index.hooks.ts` の呼出順が暗黙の契約 (fall と jump の scale 書き込み等)。
+  配列順 = 実行順として明文化する
+- `interactive` ゲート・マウント時 `autoWalk` / `hopping` 初期化を descriptor のどこへ置くか (`onMount(ctx)` 等)
+- `_action-hooks/` → `_actions/` のリネーム是非 (命名一貫性ルール)
+- 移行は box-bot-01 で直接 (別 PR 想定)
