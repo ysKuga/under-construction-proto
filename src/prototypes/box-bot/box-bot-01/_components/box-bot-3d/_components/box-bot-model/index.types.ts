@@ -133,6 +133,15 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   hopping?: boolean
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
+  /**
+   * ジャンプ時に上下させる表示領域(Canvas ラッパー)の ref
+   *
+   * - ジャンプの縦移動を Canvas 内(`rootRef`)でなく DOM 側で行い、\
+   *   設置領域を上方向へ逸脱させて可動域を確保する(#108)
+   * - `BoxBot3D` が生成し Canvas 内の `use-jump-action` へ渡す。`use-jump-action` が\
+   *   `useFrame` 内で `.current.style.transform` を直接書き換える
+   */
+  jumpLiftRef?: RefObject<HTMLDivElement | null>
   /** 脚アニメーション(walking/marching 共通)の周期(秒) */
   legCycle?: number
   /**
