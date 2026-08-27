@@ -152,7 +152,8 @@ export default function BoxBot3D({
       style={{ ...style, height: assemblySize, width: assemblySize }}
     >
       {/* ジャンプ時に表示領域(Canvas)ごと上下させるラッパー。設置領域(Assembly)は
-          動かさず、この div の transform を use-jump-action が直接書き換える(#108) */}
+          動かさず、この div の top を use-jump-action が直接書き換える(#108)。
+          transform は中央寄せ専用に固定 */}
       <div
         ref={jumpLiftRef}
         style={{

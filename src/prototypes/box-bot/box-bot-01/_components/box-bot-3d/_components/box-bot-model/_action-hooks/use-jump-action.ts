@@ -19,9 +19,10 @@ import type { BoxBotModelProps } from '../index.types'
  *   クリック起点(`clickBody`/`clickHead`、`useClickActions`)・外部起点\
  *   (`useBoxBotActionDispatcher`)いずれも同じイベントを dispatch するため、実行判定が一本化される
  * - `interactive` による制御も実行側(`jumpAction`)で行う
- * - 縦移動は表示領域(`jumpLiftRef` = Canvas ラッパー DOM)の transform 書き換えで行い、\
+ * - 縦移動は表示領域(`jumpLiftRef` = Canvas ラッパー DOM)の `top` オフセット書き換えで行い、\
  *   Canvas 内では squash(`rootRef` の scale)のみ制御する(#108)。\
- *   `jumpRef`/`rootRef` 自体は `BoxBotRefsProvider` が生成し `useBoxBotRefs` 経由で取得する
+ *   ラッパーへの `transform` 変更は r3f Canvas の描画レイヤーが再合成されず画面が動かないため\
+ *   `top` を使う。`jumpRef`/`rootRef` 自体は `BoxBotRefsProvider` が生成し `useBoxBotRefs` 経由で取得する
  *
  * @param props BoxBotModel に渡される props
  */
@@ -59,9 +60,10 @@ export const useJumpAction = (
       }
     }
     rootRef.current.scale.set(sx, sy, sx)
-    // 表示領域ラッパーの基準 transform(translate(-50%, -50%))へジャンプ分を合成する
+    // 基準位置 top:50%(JSX 側)からジャンプ分だけ上へずらす。transform は
+    // 中央寄せ(translate(-50%,-50%))専用に固定し、こちらは触らない
     if (jumpLiftRef?.current) {
-      jumpLiftRef.current.style.transform = `translate(-50%, calc(-50% - ${lift}px))`
+      jumpLiftRef.current.style.top = `calc(50% - ${lift}px)`
     }
   })
 }

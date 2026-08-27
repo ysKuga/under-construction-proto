@@ -79,9 +79,9 @@ export const HOPPING_INTERVAL = 2.5
  * ジャンプ時に表示領域(Canvas ラッパー)を持ち上げる最大量(px)
  *
  * - 縦移動を Canvas 内(`rootRef`)でなく DOM 側で行うため world 単位でなく px
- * - 実測で調整する(#108)
+ * - bot が設置領域の枠を明確に飛び出す量にしている(#108、実測で調整)
  */
-export const JUMP_LIFT_PX = 40
+export const JUMP_LIFT_PX = 130
 /** ジャンプ中の縦方向のスクイッシュ量 */
 export const JUMP_SQUASH_Y = 0.08
 /** ジャンプ中の横方向のスクイッシュ量 */
