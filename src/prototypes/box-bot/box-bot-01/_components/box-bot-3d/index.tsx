@@ -17,9 +17,28 @@ export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
  * Assembly(設置領域)= Canvas(表示領域)のデフォルトの一辺(px)
  *
  * - 表示領域を設置領域と一致させる方針(#108)。`style.height` が数値でない場合のフォールバック
+ * - bot を少しだけ囲うサイズ。余白は最小限にする
  * - lineWidth の縮小スケール算出の基準値も兼ねる
  */
-const DEFAULT_HEIGHT = 480
+const DEFAULT_HEIGHT = 290
+
+/**
+ * bot の見かけの px サイズを較正した基準の組(Canvas 一辺 px / fov 度)
+ *
+ * - この Canvas サイズ・fov のとき bot(影なし)がちょうど収まる。ここを基準に、\
+ *   任意の Canvas サイズでも bot の画面上の大きさが一定になるよう fov を自動算出する
+ */
+const REFERENCE_HEIGHT = 480
+const REFERENCE_FOV = 64
+
+/**
+ * bot の見かけの大きさを Canvas サイズに依らず一定に保つための不変量
+ *
+ * - `assemblySize / tan(fov/2)` を一定にすると、Canvas を縮めても bot の画面上の\
+ *   px 高さが変わらない(カメラ位置は動かさず fov だけ絞る)
+ */
+const VIEW_INVARIANT =
+  REFERENCE_HEIGHT / Math.tan((REFERENCE_FOV * Math.PI) / 360)
 
 /** カメラ位置(world) */
 const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
@@ -57,12 +76,13 @@ const SHADOW_OPACITY = 0.35
 const ORBIT_MAX_DISTANCE = 12
 /** OrbitControls の最大ズームイン距離 */
 const ORBIT_MIN_DISTANCE = 3.5
-/** OrbitControls の注視点(world) */
-const ORBIT_TARGET: Vec3 = [
-  0,
-  // 転倒 (fall) 時に下部に見切れないように、少し上に注視点をずらす
-  -0.6, 0,
-]
+/**
+ * OrbitControls の注視点(world)
+ *
+ * - Canvas を bot ぴったりに縮めたため、直立 bot が Canvas 中央へ来るよう較正した値
+ * - fall 時の下部見切れ対策は #108 フェーズ1 で別途
+ */
+const ORBIT_TARGET: Vec3 = [-0.15, 0.2, 0]
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
@@ -88,7 +108,7 @@ export default function BoxBot3D({
   background = 'transparent',
   children,
   className,
-  fov = 64,
+  fov: fovProp,
   groundPosition = GROUND_POSITION,
   interactive = true,
   lightPosition = DIRECTIONAL_LIGHT_POSITION,
@@ -107,6 +127,14 @@ export default function BoxBot3D({
    */
   const assemblySize =
     typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
+  /**
+   * カメラ視野角(度)
+   *
+   * - 明示指定なければ assemblySize から自動算出し、Canvas サイズが変わっても\
+   *   bot の見かけの px サイズを一定に保つ(`VIEW_INVARIANT`)
+   */
+  const fov =
+    fovProp ?? (Math.atan(assemblySize / VIEW_INVARIANT) * 360) / Math.PI
   /**
    * lineWidth(screen-space px 固定)の縮小スケール
    *
