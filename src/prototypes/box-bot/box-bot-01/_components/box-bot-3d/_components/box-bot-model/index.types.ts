@@ -62,6 +62,13 @@ export interface BoxBot3DConfig {
   }
   /** 線(輪郭・目・口)の色 */
   ink: string
+  /** ジャンプ(単発 jump / 待機 hopping 共通)の設定 */
+  jump: {
+    /** 継続時間(秒) */
+    durSec: number
+    /** ジャンプ時に表示領域(Canvas ラッパー)を持ち上げる最大量(px) */
+    liftPx: number
+  }
   /** 脚の設定 */
   leg: {
     /** 奥行き */
@@ -193,6 +200,13 @@ export interface BoxBotRefs {
   /** hopping(待機演出)状態かどうかの ref */
   hoppingRef: RefObject<boolean>
   /**
+   * 実行中ジャンプの解決済みパラメータの ref
+   *
+   * - dispatch 時の上書き値 ?? `cfg.jump`。1 回のジャンプの開始時に確定させる
+   * - null のときは `cfg.jump` を使う(hopping 起点のジャンプは上書きしないため null のまま)
+   */
+  jumpConfigRef: RefObject<BoxBot3DConfig['jump'] | null>
+  /**
    * ジャンプ進行度の ref
    *
    * - -1: 非ジャンプ中、0以上: 経過秒数
@@ -254,6 +268,14 @@ export type Handlers = {
   onPointerUp?: (e: ThreeEvent<PointerEvent>) => void
 }
 
+/**
+ * ジャンプ 1 回ごとの上書きパラメータ
+ *
+ * - dispatch(`useBoxBotActionDispatcher().jump(...)`)時に指定する
+ * - 省略したキーは `cfg.jump`(props の `jump` ?? `DEFAULTS.jump`)の値を使う
+ */
+export type JumpOverride = Partial<BoxBot3DConfig['jump']>
+
 /** 歩き方。'swing': walking action、'bob': marching action */
 export type LegStyle = 'bob' | 'swing'
 
@@ -271,8 +293,12 @@ export interface UseBoxBotActionDispatcherReturn {
   hoppingStart: () => Promise<void>
   /** hopping(待機演出)を停止する */
   hoppingStop: () => Promise<void>
-  /** ジャンプ action を発火する */
-  jump: () => Promise<void>
+  /**
+   * ジャンプ action を発火する
+   *
+   * @param override この 1 回のジャンプの持ち上げ量・継続時間を上書きする(省略可)
+   */
+  jump: (override?: JumpOverride) => Promise<void>
   /** 足踏みしている状態(marching)の toggle action を発火する */
   marchingToggle: () => Promise<void>
   /** 歩いている状態(walking)の toggle action を発火する */

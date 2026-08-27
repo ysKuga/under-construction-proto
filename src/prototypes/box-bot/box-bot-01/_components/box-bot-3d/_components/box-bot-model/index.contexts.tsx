@@ -42,6 +42,7 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const botHoverRef: BoxBotRefs['botHoverRef'] = React.useRef(false)
   const hoppingCooldownRef: BoxBotRefs['hoppingCooldownRef'] = React.useRef(-1)
   const hoppingRef: BoxBotRefs['hoppingRef'] = React.useRef(false)
+  const jumpConfigRef: BoxBotRefs['jumpConfigRef'] = React.useRef(null)
   const jumpRef: BoxBotRefs['jumpRef'] = React.useRef(-1)
   const fallRef: BoxBotRefs['fallRef'] = React.useRef(-1)
   const fallPivotRef: BoxBotRefs['fallPivotRef'] = React.useRef(null)
@@ -69,6 +70,7 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       getUpRef,
       hoppingCooldownRef,
       hoppingRef,
+      jumpConfigRef,
       jumpRef,
       leftArmRef,
       leftLegRef,
@@ -91,6 +93,7 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       getUpRef,
       hoppingCooldownRef,
       hoppingRef,
+      jumpConfigRef,
       jumpRef,
       leftArmRef,
       leftLegRef,

@@ -11,7 +11,10 @@ import {
   ACTION_MARCHING_TOGGLE,
   ACTION_WALKING_TOGGLE,
 } from './index.constants'
-import type { UseBoxBotActionDispatcherReturn } from './index.types'
+import type {
+  JumpOverride,
+  UseBoxBotActionDispatcherReturn,
+} from './index.types'
 
 /**
  * box-bot-model の action を外部から実行する dispatcher
@@ -34,7 +37,8 @@ export const useBoxBotActionDispatcher = (
     getUp: () => dispatch(new Event(ACTION_GET_UP)),
     hoppingStart: () => dispatch(new Event(ACTION_HOPPING_START)),
     hoppingStop: () => dispatch(new Event(ACTION_HOPPING_STOP)),
-    jump: () => dispatch(new Event(ACTION_JUMP)),
+    jump: (override?: JumpOverride) =>
+      dispatch(new CustomEvent(ACTION_JUMP, { detail: override })),
     marchingToggle: () => dispatch(new Event(ACTION_MARCHING_TOGGLE)),
     walkingToggle: () => dispatch(new Event(ACTION_WALKING_TOGGLE)),
   }

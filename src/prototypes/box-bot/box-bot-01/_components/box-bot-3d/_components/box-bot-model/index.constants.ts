@@ -13,6 +13,7 @@ export const DEFAULTS: BoxBot3DConfig = {
   eye: { d: 0.06, h: 0.34, offset: 0.42, w: 0.06 },
   head: { d: 1.2, h: 1.0, w: 1.6 },
   ink: '#191B21',
+  jump: { durSec: 0.55, liftPx: 130 },
   leg: { d: 0.22, gap: 0.5, h: 0.5, w: 0.22 },
   lineWidth: 2.5,
   outline: true,
@@ -71,17 +72,8 @@ export const ACTION_HOPPING_START = 'BoxBot-action-hopping-start'
 /** 待機演出(hopping)停止の発火イベント名 */
 export const ACTION_HOPPING_STOP = 'BoxBot-action-hopping-stop'
 
-/** ジャンプの継続時間(秒) */
-export const JUMP_DUR = 0.55
 /** hopping、1 回のジャンプが終わってから次を始めるまでの間隔(秒) */
 export const HOPPING_INTERVAL = 2.5
-/**
- * ジャンプ時に表示領域(Canvas ラッパー)を持ち上げる最大量(px)
- *
- * - 縦移動を Canvas 内(`rootRef`)でなく DOM 側で行うため world 単位でなく px
- * - bot が設置領域の枠を明確に飛び出す量にしている(#108、実測で調整)
- */
-export const JUMP_LIFT_PX = 130
 /** ジャンプ中の縦方向のスクイッシュ量 */
 export const JUMP_SQUASH_Y = 0.08
 /** ジャンプ中の横方向のスクイッシュ量 */

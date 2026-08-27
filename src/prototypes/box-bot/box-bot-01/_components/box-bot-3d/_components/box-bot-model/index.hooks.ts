@@ -49,6 +49,7 @@ export function useBoxBotModel(
     body: { ...DEFAULTS.body, ...opts.body },
     eye: { ...DEFAULTS.eye, ...opts.eye },
     head: { ...DEFAULTS.head, ...opts.head },
+    jump: { ...DEFAULTS.jump, ...opts.jump },
     leg: { ...DEFAULTS.leg, ...opts.leg },
   }
 
@@ -99,7 +100,7 @@ export function useBoxBotModel(
       }
     : {}
 
-  useJumpAction(props)
+  useJumpAction(props, cfg)
   useSpinAction(props)
   useHoppingAction(props)
   const {
