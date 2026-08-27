@@ -156,7 +156,11 @@ export default function BoxBot3D({
         // 禁止カーソル等の視覚効果は draggable=false でも残ることがあるが、\
         // 見た目のみで実害は無いため許容する
         onDragStart={(e) => e.preventDefault()}
-        shadows
+        // shadows={true} は内部で PCFSoftShadowMap をデフォルト設定するが、
+        // three 0.185 で PCFSoftShadowMap は非推奨化され PCFShadowMap へ
+        // 強制フォールバックされる(警告発生・見た目は変化なし)。
+        // "percentage" 指定で PCFShadowMap を直接使い、非推奨経路を回避する
+        shadows="percentage"
         style={
           {
             background,
