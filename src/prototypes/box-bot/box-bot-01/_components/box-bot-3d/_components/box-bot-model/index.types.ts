@@ -2,6 +2,10 @@ import type { ThreeEvent } from '@react-three/fiber'
 import type { RefObject } from 'react'
 import type { Group } from 'three'
 
+import type { JumpConfig } from './_actions/jump/config'
+
+export type { JumpConfig, JumpOverride } from './_actions/jump/config'
+
 export interface ArmSideState {
   /** 上がっているか */
   up: boolean
@@ -62,13 +66,8 @@ export interface BoxBot3DConfig {
   }
   /** 線(輪郭・目・口)の色 */
   ink: string
-  /** ジャンプ(単発 jump / 待機 hopping 共通)の設定 */
-  jump: {
-    /** 継続時間(秒) */
-    durSec: number
-    /** ジャンプ時に表示領域(Canvas ラッパー)を持ち上げる最大量(px) */
-    liftPx: number
-  }
+  /** ジャンプ(単発 jump / 待機 hopping 共通)の設定。型・既定値は `_actions/jump` が持つ */
+  jump: JumpConfig
   /** 脚の設定 */
   leg: {
     /** 奥行き */
@@ -126,6 +125,15 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /** body/head/arm クリックで発火する action の対応。省略したキーは既定のまま */
   clickActionMap?: ClickActionMap
   /**
+   * 表示領域(Canvas ラッパー)の DOM ref
+   *
+   * - `BoxBot3D`(bot の外殻)が生成し、Canvas 内のアクションへ橋渡しする\
+   *   (Context は r3f Canvas 境界を越えないため props 配線)
+   * - jump は縦移動をこの要素の `top` 書き換えで行い、設置領域を上方向へ逸脱させて\
+   *   可動域を確保する(#108)。bot 本体はこの ref の用途を知らない
+   */
+  displayAreaRef?: RefObject<HTMLDivElement | null>
+  /**
    * action イベント発行/購読に使う EventTarget
    *
    * - 省略時は instance 固有のものを内部生成
@@ -140,15 +148,6 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   hopping?: boolean
   /** クリック操作(腕上げ下げ・ホップ)を有効にするか */
   interactive?: boolean
-  /**
-   * ジャンプ時に上下させる表示領域(Canvas ラッパー)の ref
-   *
-   * - ジャンプの縦移動を Canvas 内(`rootRef`)でなく DOM 側で行い、\
-   *   設置領域を上方向へ逸脱させて可動域を確保する(#108)
-   * - `BoxBot3D` が生成し Canvas 内の `use-jump-action` へ渡す。`use-jump-action` が\
-   *   `useFrame` 内で `.current.style.transform` を直接書き換える
-   */
-  jumpLiftRef?: RefObject<HTMLDivElement | null>
   /** 脚アニメーション(walking/marching 共通)の周期(秒) */
   legCycle?: number
   /**
@@ -199,19 +198,6 @@ export interface BoxBotRefs {
   hoppingCooldownRef: RefObject<number>
   /** hopping(待機演出)状態かどうかの ref */
   hoppingRef: RefObject<boolean>
-  /**
-   * 実行中ジャンプの解決済みパラメータの ref
-   *
-   * - dispatch 時の上書き値 ?? `cfg.jump`。1 回のジャンプの開始時に確定させる
-   * - null のときは `cfg.jump` を使う(hopping 起点のジャンプは上書きしないため null のまま)
-   */
-  jumpConfigRef: RefObject<BoxBot3DConfig['jump'] | null>
-  /**
-   * ジャンプ進行度の ref
-   *
-   * - -1: 非ジャンプ中、0以上: 経過秒数
-   */
-  jumpRef: RefObject<number>
   /** 左腕の回転支点グループ ref */
   leftArmRef: RefObject<Group | null>
   /** 左脚のグループ ref */
@@ -269,18 +255,12 @@ export type Handlers = {
 }
 
 /**
- * ジャンプ 1 回ごとの上書きパラメータ
+ * `useBoxBotActionDispatcher` の戻り値のうち、まだレジストリ化していないアクション分
  *
- * - dispatch(`useBoxBotActionDispatcher().jump(...)`)時に指定する
- * - 省略したキーは `cfg.jump`(props の `jump` ?? `DEFAULTS.jump`)の値を使う
+ * - レジストリ化済み(`BOX_BOT_ACTIONS`)の分は `use-box-bot-action-dispatcher` 側で\
+ *   `BoxBotActionDispatchers` により自動導出し、この型と合成する
  */
-export type JumpOverride = Partial<BoxBot3DConfig['jump']>
-
-/** 歩き方。'swing': walking action、'bob': marching action */
-export type LegStyle = 'bob' | 'swing'
-
-/** `useBoxBotActionDispatcher` の戻り値 */
-export interface UseBoxBotActionDispatcherReturn {
+export interface LegacyBoxBotActionDispatchers {
   /** 左腕上げ下げ action を発火する */
   armLeftToggle: () => Promise<void>
   /** 右腕上げ下げ action を発火する */
@@ -293,22 +273,18 @@ export interface UseBoxBotActionDispatcherReturn {
   hoppingStart: () => Promise<void>
   /** hopping(待機演出)を停止する */
   hoppingStop: () => Promise<void>
-  /**
-   * ジャンプ action を発火する
-   *
-   * @param override この 1 回のジャンプの持ち上げ量・継続時間を上書きする(省略可)
-   */
-  jump: (override?: JumpOverride) => Promise<void>
   /** 足踏みしている状態(marching)の toggle action を発火する */
   marchingToggle: () => Promise<void>
   /** 歩いている状態(walking)の toggle action を発火する */
   walkingToggle: () => Promise<void>
 }
 
+/** 歩き方。'swing': walking action、'bob': marching action */
+export type LegStyle = 'bob' | 'swing'
+
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
   | 'fallPivotRef'
-  | 'jumpRef'
   | 'leftArmRef'
   | 'leftLegRef'
   | 'marchingRef'

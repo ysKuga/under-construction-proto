@@ -32,7 +32,9 @@ export const BoxBotRefsContext = RequiredRefsContext
 export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
 
 /**
- * jump/spin/arm/leg/walking/marching の各 ref を生成し、action hook 群へ配布する
+ * spin/arm/leg/walking/marching 等、bot 本体で共有する ref 群を生成し配布する
+ *
+ * - アクション固有の ref(jump の進行度等)は各アクション(`_actions/<name>/`)が自前で持つ
  *
  * - 生成した ref オブジェクト自体は各 hook 内で `.current` を書き換えるのみで\
  *   差し替えないため、`useMemo` で Context 値を安定させ、Provider の再レンダーが\
@@ -42,8 +44,6 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const botHoverRef: BoxBotRefs['botHoverRef'] = React.useRef(false)
   const hoppingCooldownRef: BoxBotRefs['hoppingCooldownRef'] = React.useRef(-1)
   const hoppingRef: BoxBotRefs['hoppingRef'] = React.useRef(false)
-  const jumpConfigRef: BoxBotRefs['jumpConfigRef'] = React.useRef(null)
-  const jumpRef: BoxBotRefs['jumpRef'] = React.useRef(-1)
   const fallRef: BoxBotRefs['fallRef'] = React.useRef(-1)
   const fallPivotRef: BoxBotRefs['fallPivotRef'] = React.useRef(null)
   const getUpRef: BoxBotRefs['getUpRef'] = React.useRef(-1)
@@ -70,8 +70,6 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       getUpRef,
       hoppingCooldownRef,
       hoppingRef,
-      jumpConfigRef,
-      jumpRef,
       leftArmRef,
       leftLegRef,
       marchingRef,
@@ -93,8 +91,6 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       getUpRef,
       hoppingCooldownRef,
       hoppingRef,
-      jumpConfigRef,
-      jumpRef,
       leftArmRef,
       leftLegRef,
       marchingRef,

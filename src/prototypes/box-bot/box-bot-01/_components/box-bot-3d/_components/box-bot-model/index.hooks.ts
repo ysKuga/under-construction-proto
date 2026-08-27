@@ -11,8 +11,8 @@ import { useBodyBobbingAction } from './_action-hooks/use-body-bobbing-action'
 import { useFallAction } from './_action-hooks/use-fall-action'
 import { useGetUpAction } from './_action-hooks/use-get-up-action'
 import { useHoppingAction } from './_action-hooks/use-hopping-action'
-import { useJumpAction } from './_action-hooks/use-jump-action'
 import { useSpinAction } from './_action-hooks/use-spin-action'
+import { BOX_BOT_ACTIONS, type BoxBotActionContext } from './_actions'
 import { useClickActions } from './_hooks/use-click-actions'
 import {
   ACTION_SPIN_STOP,
@@ -53,11 +53,11 @@ export function useBoxBotModel(
     leg: { ...DEFAULTS.leg, ...opts.leg },
   }
 
+  const refs = useBoxBotRefs()
   const {
     botHoverRef,
     fallPivotRef,
     hoppingRef,
-    jumpRef,
     leftArmRef,
     leftLegRef,
     postureRef,
@@ -66,7 +66,7 @@ export function useBoxBotModel(
     rootRef,
     spinRef,
     walkingBobRef,
-  } = useBoxBotRefs()
+  } = refs
 
   const bodyTop = cfg.body.h / 2
   const legY = -bodyTop
@@ -100,9 +100,19 @@ export function useBoxBotModel(
       }
     : {}
 
-  useJumpAction(props, cfg)
+  // レジストリ化済みアクション(現状 jump のみ)。配列順 = useFrame 実行順。
+  // 追加/削除は _actions/index.ts の BOX_BOT_ACTIONS だけで完結する
+  const actionContext: BoxBotActionContext = {
+    cfg,
+    displayAreaRef: props.displayAreaRef,
+    eventTarget,
+    props,
+    refs,
+  }
+  for (const action of BOX_BOT_ACTIONS) action.use(actionContext)
+
   useSpinAction(props)
-  useHoppingAction(props)
+  useHoppingAction(props, cfg)
   const {
     clickArmLeft,
     clickArmRight,
@@ -149,7 +159,6 @@ export function useBoxBotModel(
     headY,
     hover,
     interactive,
-    jumpRef,
     leftArmRef,
     leftLegRef,
     legX,

@@ -143,19 +143,22 @@ export default function BoxBot3D({
    *   スクリーン上の見た目も自然に比例して細くなる
    */
   const lineScale = Math.min(1, assemblySize / DEFAULT_HEIGHT)
-  /** ジャンプ時に上下させる表示領域(Canvas ラッパー)の ref */
-  const jumpLiftRef = React.useRef<HTMLDivElement>(null)
+  /**
+   * 表示領域(Canvas ラッパー)の ref
+   *
+   * - Canvas 内のアクションへ橋渡しする。jump がこの要素の `top` を書き換えて縦移動する
+   */
+  const displayAreaRef = React.useRef<HTMLDivElement>(null)
 
   return (
     <Assembly
       className={className}
       style={{ ...style, height: assemblySize, width: assemblySize }}
     >
-      {/* ジャンプ時に表示領域(Canvas)ごと上下させるラッパー。設置領域(Assembly)は
-          動かさず、この div の top を use-jump-action が直接書き換える(#108)。
-          transform は中央寄せ専用に固定 */}
+      {/* 表示領域(Canvas)ラッパー。設置領域(Assembly)は動かさず、jump が
+          この div の top を書き換えて縦移動する(#108)。transform は中央寄せ専用に固定 */}
       <div
-        ref={jumpLiftRef}
+        ref={displayAreaRef}
         style={{
           height: '100%',
           left: '50%',
@@ -212,7 +215,7 @@ export default function BoxBot3D({
             onClick={onClick}
             rotateSpeed={rotateSpeed}
             {...cfg}
-            jumpLiftRef={jumpLiftRef}
+            displayAreaRef={displayAreaRef}
             lineWidth={cfg.lineWidth ?? DEFAULTS.lineWidth * lineScale}
           />
           {shadowVariant === 'cast' ? (

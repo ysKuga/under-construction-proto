@@ -1,3 +1,4 @@
+import { JUMP_DEFAULTS } from './_actions/jump/config'
 import type { BoxBot3DConfig } from './index.types'
 
 export const DEFAULTS: BoxBot3DConfig = {
@@ -13,7 +14,7 @@ export const DEFAULTS: BoxBot3DConfig = {
   eye: { d: 0.06, h: 0.34, offset: 0.42, w: 0.06 },
   head: { d: 1.2, h: 1.0, w: 1.6 },
   ink: '#191B21',
-  jump: { durSec: 0.55, liftPx: 130 },
+  jump: JUMP_DEFAULTS,
   leg: { d: 0.22, gap: 0.5, h: 0.5, w: 0.22 },
   lineWidth: 2.5,
   outline: true,
@@ -23,9 +24,6 @@ export const DEFAULTS: BoxBot3DConfig = {
   sketch: 0.035,
   sketchDetail: 7,
 }
-
-/** ジャンプ action の発火イベント名。クリックと useEventListener 両経路から同じ action を実行するための scope prefix 付きイベント名 */
-export const ACTION_JUMP = 'BoxBot-action-jump'
 
 /** body クリックの発火イベント名。どの action を実行するかは CLICK_ACTION_MAP 側の対応で決める */
 export const CLICK_BODY = 'BoxBot-click-body'
@@ -74,10 +72,6 @@ export const ACTION_HOPPING_STOP = 'BoxBot-action-hopping-stop'
 
 /** hopping、1 回のジャンプが終わってから次を始めるまでの間隔(秒) */
 export const HOPPING_INTERVAL = 2.5
-/** ジャンプ中の縦方向のスクイッシュ量 */
-export const JUMP_SQUASH_Y = 0.08
-/** ジャンプ中の横方向のスクイッシュ量 */
-export const JUMP_SQUASH_X = 0.05
 
 /** leftUp = true(上げ)時の左腕角度(z 軸回転) */
 export const ARM_UP_ANGLE = -2.25

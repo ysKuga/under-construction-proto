@@ -3,7 +3,7 @@ import type { CSSProperties, PropsWithChildren } from 'react'
 import type { BoxBotModelProps } from './_components/box-bot-model/index.types'
 
 export interface BoxBot3DProps
-  extends Omit<BoxBotModelProps, 'jumpLiftRef'>, PropsWithChildren {
+  extends Omit<BoxBotModelProps, 'displayAreaRef'>, PropsWithChildren {
   /** Canvas の背景色 */
   background?: string
   /** ルート要素の className */

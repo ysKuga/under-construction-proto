@@ -2,10 +2,10 @@ import type { ThreeEvent } from '@react-three/fiber'
 
 import { useEventDispatcher, useEventListener } from '@/hooks/event'
 
+import { ACTION_JUMP } from '../_actions/jump/config'
 import {
   ACTION_ARM_LEFT_TOGGLE,
   ACTION_ARM_RIGHT_TOGGLE,
-  ACTION_JUMP,
   CLICK_ARM_LEFT,
   CLICK_ARM_RIGHT,
   CLICK_BODY,
