@@ -20,7 +20,7 @@ export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
  * - bot を少しだけ囲うサイズ。余白は最小限にする
  * - lineWidth の縮小スケール算出の基準値も兼ねる
  */
-const DEFAULT_HEIGHT = 290
+const DEFAULT_HEIGHT = 234
 
 /**
  * bot の見かけの px サイズを較正した基準の組(Canvas 一辺 px / fov 度)
@@ -82,7 +82,7 @@ const ORBIT_MIN_DISTANCE = 3.5
  * - Canvas を bot ぴったりに縮めたため、直立 bot が Canvas 中央へ来るよう較正した値
  * - fall 時の下部見切れ対策は #108 フェーズ1 で別途
  */
-const ORBIT_TARGET: Vec3 = [-0.15, 0.2, 0]
+const ORBIT_TARGET: Vec3 = [-0.2, 0.2, 0]
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
