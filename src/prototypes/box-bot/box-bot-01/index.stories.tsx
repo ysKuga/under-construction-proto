@@ -10,6 +10,13 @@ import { useBoxBotActionDispatcher } from './_components/box-bot-3d/_components/
 import { BoxBot01 as StoryComponent } from '.'
 
 const meta: Meta<typeof StoryComponent> = {
+  args: {
+    // 表示領域の上下移動の確認では影が邪魔になるため消す
+    shadowOpacity: 0,
+    // 設置領域(Assembly)の枠。ジャンプ時に表示領域(Canvas)が設置領域を
+    // 上方向へ逸脱する様子を確認するため
+    style: { outline: '1px solid red' },
+  },
   component: StoryComponent,
 }
 
@@ -124,6 +131,7 @@ export const Walking: StoryObj<WalkingArgs> = {
           bodyBobbing={args.bodyBobbing}
           eventTarget={eventTarget}
           legCycle={legCycle}
+          shadowOpacity={0}
           style={{ outline: '1px solid red' }}
         />
       </div>
@@ -135,9 +143,8 @@ export const Walking: StoryObj<WalkingArgs> = {
  * fall(転倒)・getUp(起き上がり)action の挙動確認
  *
  * - 直立時のみ fall が、倒れている時のみ getUp が実際に発火する(内部ガード)
- * - Canvas 高さを既定(480px)より低くし、狭いウィンドウでも見切れないようにしている
- * - 表示領域限定(Jira UC-10)の検討対象。現状は Canvas が設置領域をはみ出して\
- *   転倒可動域を確保している
+ * - 設置領域(height=300)を狭めに指定。#108 で Canvas は設置領域と一致するため、\
+ *   完全転倒時は下部が Canvas 外へ見切れる(fall の可動域確保は #108 フェーズ1 で別途対応)
  */
 export const Fall: Story = {
   parameters: {
@@ -168,7 +175,13 @@ export const Fall: Story = {
         </div>
         <StoryComponent
           eventTarget={eventTarget}
-          style={{ height: 300, marginLeft: 100, marginTop: 50 }}
+          shadowOpacity={0}
+          style={{
+            height: 300,
+            marginLeft: 100,
+            marginTop: 50,
+            outline: '1px solid red',
+          }}
         />
       </div>
     )
