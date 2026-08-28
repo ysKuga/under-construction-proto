@@ -51,15 +51,6 @@ export type BoxBotActionContext = {
 }
 
 /**
- * `BoxBotAction` を型推論を効かせつつ定義する
- *
- * @param action アクション定義
- */
-export const defineAction = <Name extends string, Arg = never>(
-  action: BoxBotAction<Name, Arg>,
-): BoxBotAction<Name, Arg> => action
-
-/**
  * アクション配列から `useBoxBotActionDispatcher` の該当メソッド群の型を導出する
  *
  * - 引数型 `Arg` が `never` のアクションは `() => Promise<void>`、\

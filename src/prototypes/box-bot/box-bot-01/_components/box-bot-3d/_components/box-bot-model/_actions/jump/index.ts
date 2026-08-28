@@ -1,4 +1,4 @@
-import { defineAction } from '../types'
+import { defineAction } from '../define-action'
 
 import { ACTION_JUMP, type JumpOverride } from './config'
 import { useJump } from './use-jump'
