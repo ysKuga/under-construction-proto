@@ -3,21 +3,34 @@
 import { Ink } from './_components/ink'
 import { SketchBox } from './_components/sketch-box'
 import { ON_CLICK_BODY, ON_CLICK_HEAD } from './index.constants'
-import { BoxBotEventProvider, BoxBotRefsProvider } from './index.contexts'
+import {
+  BoxBotActionsProvider,
+  BoxBotEventProvider,
+  BoxBotRefsProvider,
+} from './index.contexts'
 import { useBoxBotModel } from './index.hooks'
 import type { BoxBotModelProps } from './index.types'
 
-export function BoxBotModel({ eventTarget, ...props }: BoxBotModelProps) {
+export function BoxBotModel({
+  actions,
+  clickBindings,
+  eventTarget,
+  ...props
+}: BoxBotModelProps) {
   return (
     <BoxBotEventProvider eventTarget={eventTarget}>
-      <BoxBotRefsProvider>
-        <BoxBotModelInner {...props} />
-      </BoxBotRefsProvider>
+      <BoxBotActionsProvider actions={actions} clickBindings={clickBindings}>
+        <BoxBotRefsProvider>
+          <BoxBotModelInner {...props} />
+        </BoxBotRefsProvider>
+      </BoxBotActionsProvider>
     </BoxBotEventProvider>
   )
 }
 
-function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
+function BoxBotModelInner(
+  props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
+) {
   const {
     cfg,
     createClickEmitter,

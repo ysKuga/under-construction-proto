@@ -2,9 +2,10 @@ import type { ThreeEvent } from '@react-three/fiber'
 import type { RefObject } from 'react'
 import type { Group } from 'three'
 
-import type { JumpConfig } from './_actions/jump/config'
+import type { JumpConfig } from '../../_actions/jump/config'
+import type { AnyBoxBotAction } from '../../_actions/types'
 
-export type { JumpConfig, JumpOverride } from './_actions/jump/config'
+export type { JumpConfig, JumpOverride } from '../../_actions/jump/config'
 
 export interface BoxBot3DConfig {
   /** 腕の設定 */
@@ -92,14 +93,19 @@ export interface BoxBot3DConfig {
 
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /**
-   * 要素クリック → 発火する action イベント名の対応
+   * このモデルが実行するアクション一覧
+   *
+   * - `BoxBot3D`(外殻)が解決して注入する。`box-bot-model` 内部は Context 経由で参照する
+   */
+  actions: readonly AnyBoxBotAction[]
+  /**
+   * 要素クリック → 発火する action イベント名の解決済み対応表
    *
    * - bot は要素押下で `ON_CLICK_BODY` / `ON_CLICK_HEAD` を発行するだけ。この対応表が\
    *   それをどの action イベントへ変換するかを決める
-   * - 省略キーは既定(`DEFAULT_CLICK_BINDINGS`、body/head とも jump)。\
-   *   値に `undefined` を渡すとその要素は何も起こさない
+   * - `BoxBot3D` が既定(`DEFAULT_CLICK_BINDINGS`)へ prop 上書きをマージして注入する
    */
-  clickBindings?: ClickBindings
+  clickBindings: ClickBindings
   /**
    * 表示領域(Canvas ラッパー)の DOM ref
    *

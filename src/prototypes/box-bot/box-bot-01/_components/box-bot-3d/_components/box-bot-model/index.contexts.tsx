@@ -6,7 +6,9 @@ import type { Group } from 'three'
 
 import { createRequiredContext } from '@/utils/create-required-context'
 
-import type { BoxBotRefs } from './index.types'
+import type { AnyBoxBotAction } from '../../_actions/types'
+
+import type { BoxBotRefs, ClickBindings } from './index.types'
 
 const { RequiredContext, useRequiredContext } =
   createRequiredContext<EventTarget>(
@@ -31,6 +33,50 @@ export const BoxBotRefsContext = RequiredRefsContext
 
 /** bot 本体で共有する ref 群を取得する */
 export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
+
+/** `BoxBot3D` から注入されるアクション設定 */
+export type BoxBotActions = {
+  /** このモデルが実行するアクション一覧 */
+  actions: readonly AnyBoxBotAction[]
+  /** 解決済みの要素クリック → action イベント名 対応表 */
+  clickBindings: ClickBindings
+}
+
+const {
+  RequiredContext: RequiredActionsContext,
+  useRequiredContext: useRequiredActionsContext,
+} = createRequiredContext<BoxBotActions>(
+  'useBoxBotActions should be used within <BoxBotActionsProvider>',
+)
+
+/** `BoxBot3D` から注入されるアクション設定を配布する Context */
+export const BoxBotActionsContext = RequiredActionsContext
+
+/** `BoxBot3D` から注入されたアクション一覧・クリック対応表を取得する */
+export const useBoxBotActions = (): BoxBotActions => useRequiredActionsContext()
+
+/**
+ * `BoxBot3D` が props で受け取り解決した `actions` / `clickBindings` を配布する
+ *
+ * - Context は r3f Canvas 境界を越えないため、`BoxBot3D` から `BoxBotModel` へは props、\
+ *   その内側でこの Provider が Context 化する
+ */
+export const BoxBotActionsProvider = ({
+  actions,
+  children,
+  clickBindings,
+}: PropsWithChildren<BoxBotActions>) => {
+  const value = React.useMemo<BoxBotActions>(
+    () => ({ actions, clickBindings }),
+    [actions, clickBindings],
+  )
+
+  return (
+    <BoxBotActionsContext.Provider value={value}>
+      {children}
+    </BoxBotActionsContext.Provider>
+  )
+}
 
 /**
  * bot 本体で共有する ref 群を生成し配布する

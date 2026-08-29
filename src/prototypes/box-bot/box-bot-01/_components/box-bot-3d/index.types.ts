@@ -1,13 +1,31 @@
 import type { CSSProperties, PropsWithChildren } from 'react'
 
-import type { BoxBotModelProps } from './_components/box-bot-model/index.types'
+import type { AnyBoxBotAction } from './_actions/types'
+import type {
+  BoxBotModelProps,
+  ClickBindings,
+} from './_components/box-bot-model/index.types'
 
 export interface BoxBot3DProps
-  extends Omit<BoxBotModelProps, 'displayAreaRef'>, PropsWithChildren {
+  extends
+    Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'displayAreaRef'>,
+    PropsWithChildren {
+  /**
+   * bot が実行するアクション一覧
+   *
+   * - 省略時は既定の `BOX_BOT_ACTIONS`。`BoxBot3D` が Context 化して内部へ配る
+   */
+  actions?: readonly AnyBoxBotAction[]
   /** Canvas の背景色 */
   background?: string
   /** ルート要素の className */
   className?: string
+  /**
+   * 要素クリック → 発火する action イベント名の上書き
+   *
+   * - 省略キーは既定(`DEFAULT_CLICK_BINDINGS`)。`BoxBot3D` がマージして Context 化する
+   */
+  clickBindings?: ClickBindings
   /**
    * カメラの視野角(度)
    *

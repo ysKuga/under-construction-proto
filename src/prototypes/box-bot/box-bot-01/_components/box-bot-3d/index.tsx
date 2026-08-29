@@ -4,6 +4,7 @@ import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import * as React from 'react'
 
+import { BOX_BOT_ACTIONS, DEFAULT_CLICK_BINDINGS } from './_actions'
 import { Assembly } from './_components/assembly'
 import { BoxBotModel } from './_components/box-bot-model'
 import { DEFAULTS } from './_components/box-bot-model/index.constants'
@@ -101,9 +102,11 @@ const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
  */
 
 export default function BoxBot3D({
+  actions = BOX_BOT_ACTIONS,
   background = 'transparent',
   children,
   className,
+  clickBindings,
   fov: fovProp,
   groundPosition = GROUND_POSITION,
   interactive = true,
@@ -115,6 +118,8 @@ export default function BoxBot3D({
   style,
   ...cfg
 }: BoxBot3DProps) {
+  /** 既定 + prop 上書きをマージした要素クリック対応表(Context へ注入) */
+  const resolvedClickBindings = { ...DEFAULT_CLICK_BINDINGS, ...clickBindings }
   /**
    * Assembly(設置領域)= Canvas(表示領域)の一辺(px)
    *
@@ -205,6 +210,8 @@ export default function BoxBot3D({
           />
           <hemisphereLight args={HEMISPHERE_LIGHT_ARGS} />
           <BoxBotModel
+            actions={actions}
+            clickBindings={resolvedClickBindings}
             interactive={interactive}
             onClick={onClick}
             {...cfg}

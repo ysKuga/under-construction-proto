@@ -4,7 +4,8 @@ import type { ThreeEvent } from '@react-three/fiber'
 
 import { useEventDispatcher } from '@/hooks/event'
 
-import { BOX_BOT_ACTIONS, type BoxBotActionContext } from './_actions'
+import type { BoxBotActionContext } from '../../_actions/types'
+
 import { useClickBindings } from './_hooks/use-click-bindings'
 import {
   DEFAULTS,
@@ -12,7 +13,11 @@ import {
   HEAD_GAP,
   SHOULDER_Y_OFFSET,
 } from './index.constants'
-import { useBoxBotEventTarget, useBoxBotRefs } from './index.contexts'
+import {
+  useBoxBotActions,
+  useBoxBotEventTarget,
+  useBoxBotRefs,
+} from './index.contexts'
 import type {
   BoxBot3DConfig,
   BoxBotModelProps,
@@ -22,7 +27,7 @@ import type {
 
 /** BoxBotModel のロジック(設定マージ・ジオメトリ寸法・アクション実行) */
 export function useBoxBotModel(
-  props: Omit<BoxBotModelProps, 'eventTarget'>,
+  props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
 ): UseBoxBotModelReturn {
   const { interactive = true, onClick, rotationY = 0, ...opts } = props
 
@@ -36,6 +41,8 @@ export function useBoxBotModel(
     jump: { ...DEFAULTS.jump, ...opts.jump },
     leg: { ...DEFAULTS.leg, ...opts.leg },
   }
+
+  const { actions } = useBoxBotActions()
 
   const boxBotRefs = useBoxBotRefs()
   const { rootRef } = boxBotRefs
@@ -66,11 +73,10 @@ export function useBoxBotModel(
       void dispatch(new Event(eventName))
     }
 
-  // 要素イベント → action イベントの中継(既定 + clickBindings prop 上書き)
-  useClickBindings(eventTarget, props.clickBindings ?? {})
+  // 要素イベント → action イベントの中継(対応表は Context から取得)
+  useClickBindings(eventTarget)
 
-  // レジストリ化済みアクション(現状 jump のみ)。配列順 = useFrame 実行順。
-  // 追加/削除は _actions/index.ts の BOX_BOT_ACTIONS だけで完結する
+  // Context 経由で注入されたアクションを実行。配列順 = useFrame 実行順
   const actionContext: BoxBotActionContext = {
     cfg,
     displayAreaRef: props.displayAreaRef,
@@ -78,7 +84,7 @@ export function useBoxBotModel(
     props,
     refs: boxBotRefs,
   }
-  for (const action of BOX_BOT_ACTIONS) action.use(actionContext)
+  for (const action of actions) action.use(actionContext)
 
   const bodyTop = cfg.body.h / 2
   const legY = -bodyTop

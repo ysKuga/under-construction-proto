@@ -4,7 +4,10 @@ import type {
   BoxBot3DConfig,
   BoxBotModelProps,
   BoxBotRefs,
-} from '../index.types'
+} from '../_components/box-bot-model/index.types'
+
+/** アクション一覧を受け取る箇所で使う、引数型を問わない `BoxBotAction` */
+export type AnyBoxBotAction = BoxBotAction<string, unknown>
 
 /**
  * box-bot アクションの定義
@@ -44,8 +47,8 @@ export type BoxBotActionContext = {
   displayAreaRef?: RefObject<HTMLDivElement | null>
   /** action イベント発行/購読に使う EventTarget */
   eventTarget: EventTarget
-  /** BoxBotModel に渡された props */
-  props: Omit<BoxBotModelProps, 'eventTarget'>
+  /** BoxBotModel に渡された props(注入系は除く) */
+  props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>
   /** bot 本体で共有する ref 群 */
   refs: BoxBotRefs
 }

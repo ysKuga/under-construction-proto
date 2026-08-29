@@ -1,6 +1,6 @@
 import { useEventDispatcher } from '@/hooks/event'
 
-import { BOX_BOT_ACTIONS, type BoxBotActionDispatchers } from './_actions'
+import { BOX_BOT_ACTIONS, type BoxBotActionDispatchers } from '../../_actions'
 
 /**
  * `useBoxBotActionDispatcher` の戻り値
