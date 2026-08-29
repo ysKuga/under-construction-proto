@@ -1,13 +1,13 @@
 import { useEventDispatcher, useEventListener } from '@/hooks/event'
 
 import { DEFAULT_CLICK_BINDINGS } from '../_actions'
-import { CLICK_BODY, CLICK_HEAD } from '../index.constants'
+import { ON_CLICK_BODY, ON_CLICK_HEAD } from '../index.constants'
 import type { ClickBindings } from '../index.types'
 
 /**
- * 要素クリックイベント(`CLICK_BODY` / `CLICK_HEAD`)を、対応する action イベントへ中継する
+ * 要素クリックイベント(`ON_CLICK_BODY` / `ON_CLICK_HEAD`)を、対応する action イベントへ中継する
  *
- * - bot 本体は要素押下で `CLICK_*` を発行するだけ。各 action は自分の action イベントを\
+ * - bot 本体は要素押下で `ON_CLICK_*` を発行するだけ。各 action は自分の action イベントを\
  *   購読するだけ。両者の紐づけをこの hook が `bindings`(既定は `DEFAULT_CLICK_BINDINGS`)で行う
  * - どちらもこの対応表の存在を知らない = クリック元と action が疎に保たれる
  *
@@ -22,14 +22,14 @@ export const useClickBindings = (
   const resolved = { ...DEFAULT_CLICK_BINDINGS, ...bindings }
 
   useEventListener(
-    CLICK_BODY,
+    ON_CLICK_BODY,
     () => {
       if (resolved.body) void dispatch(new Event(resolved.body))
     },
     { target: eventTarget },
   )
   useEventListener(
-    CLICK_HEAD,
+    ON_CLICK_HEAD,
     () => {
       if (resolved.head) void dispatch(new Event(resolved.head))
     },

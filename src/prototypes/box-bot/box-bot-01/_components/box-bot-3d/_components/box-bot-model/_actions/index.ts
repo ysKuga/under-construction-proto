@@ -15,7 +15,7 @@ export const BOX_BOT_ACTIONS = [jumpAction] as const
 /**
  * 要素クリック → 発火する action イベント名の既定の紐づけ(合成ルート)
  *
- * - bot 本体は要素押下で `CLICK_BODY` / `CLICK_HEAD` を発行するだけ。\
+ * - bot 本体は要素押下で `ON_CLICK_BODY` / `ON_CLICK_HEAD` を発行するだけ。\
  *   「どの要素でどの action を起こすか」を決めるのはここだけ。\
  *   `clickBindings` prop で個別に上書きできる
  */

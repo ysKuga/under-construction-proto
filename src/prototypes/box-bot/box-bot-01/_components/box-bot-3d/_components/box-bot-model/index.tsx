@@ -2,7 +2,7 @@
 
 import { Ink } from './_components/ink'
 import { SketchBox } from './_components/sketch-box'
-import { CLICK_BODY, CLICK_HEAD } from './index.constants'
+import { ON_CLICK_BODY, ON_CLICK_HEAD } from './index.constants'
 import { BoxBotEventProvider, BoxBotRefsProvider } from './index.contexts'
 import { useBoxBotModel } from './index.hooks'
 import type { BoxBotModelProps } from './index.types'
@@ -33,10 +33,10 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
     shoulderY,
   } = useBoxBotModel(props)
 
-  // 部位ごとに要素イベントを割り当てる。CLICK_BODY / CLICK_HEAD を差し替えれば
+  // 部位ごとに要素イベントを割り当てる。ON_CLICK_BODY / ON_CLICK_HEAD を差し替えれば
   // その部位の押下で発行されるイベントが変わる
-  const onPointerDownBody = emitClick(CLICK_BODY)
-  const onPointerDownHead = emitClick(CLICK_HEAD)
+  const onPointerDownBody = emitClick(ON_CLICK_BODY)
+  const onPointerDownHead = emitClick(ON_CLICK_HEAD)
 
   return (
     // rootRef: jump の squash(scale)対象。初期姿勢の y 回転もここへ

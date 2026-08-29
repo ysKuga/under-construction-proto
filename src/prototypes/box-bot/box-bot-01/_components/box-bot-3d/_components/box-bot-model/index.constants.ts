@@ -26,9 +26,9 @@ export const DEFAULTS: BoxBot3DConfig = {
 }
 
 /** body 要素の押下イベント名。どの action に紐づくかは `clickBindings` で決まる */
-export const CLICK_BODY = 'BoxBot-click-body'
+export const ON_CLICK_BODY = 'BoxBot-on-click-body'
 /** head 要素の押下イベント名。どの action に紐づくかは `clickBindings` で決まる */
-export const CLICK_HEAD = 'BoxBot-click-head'
+export const ON_CLICK_HEAD = 'BoxBot-on-click-head'
 
 /** 胴体上端から頭下端までの隙間(world) */
 export const HEAD_GAP = 0.1

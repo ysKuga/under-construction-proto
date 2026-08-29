@@ -102,7 +102,7 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /**
    * 要素クリック → 発火する action イベント名の対応
    *
-   * - bot は要素押下で `CLICK_BODY` / `CLICK_HEAD` を発行するだけ。この対応表が\
+   * - bot は要素押下で `ON_CLICK_BODY` / `ON_CLICK_HEAD` を発行するだけ。この対応表が\
    *   それをどの action イベントへ変換するかを決める
    * - 省略キーは既定(`DEFAULT_CLICK_BINDINGS`、body/head とも jump)。\
    *   値に `undefined` を渡すとその要素は何も起こさない
@@ -162,7 +162,7 @@ export interface UseBoxBotModelReturn extends Pick<BoxBotRefs, 'rootRef'> {
   /**
    * 要素の押下 → 指定した要素イベントを発行するハンドラを作る
    *
-   * - 例: `emitClick(CLICK_BODY)` を body 要素の `onPointerDown` に渡す。\
+   * - 例: `emitClick(ON_CLICK_BODY)` を body 要素の `onPointerDown` に渡す。\
    *   どの要素にどのイベントを割り当てるかは呼び出し側(部位を定義する JSX)が決める。\
    *   発行された要素イベントを action へ繋ぐのは `clickBindings`
    */
