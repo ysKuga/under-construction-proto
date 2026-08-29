@@ -4,7 +4,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 
 import { useEventDispatcher } from '@/hooks/event'
 
-import type { BoxBotActionContext } from '../../_actions/types'
+import type { BoxBotActionBaseContext } from '../../_actions/types'
 
 import { useClickBindings } from './_hooks/use-click-bindings'
 import {
@@ -29,7 +29,13 @@ import type {
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
 ): UseBoxBotModelReturn {
-  const { interactive = true, onClick, rotationY = 0, ...opts } = props
+  const {
+    actionConfig,
+    interactive = true,
+    onClick,
+    rotationY = 0,
+    ...opts
+  } = props
 
   const cfg: BoxBot3DConfig = {
     ...DEFAULTS,
@@ -38,7 +44,6 @@ export function useBoxBotModel(
     body: { ...DEFAULTS.body, ...opts.body },
     eye: { ...DEFAULTS.eye, ...opts.eye },
     head: { ...DEFAULTS.head, ...opts.head },
-    jump: { ...DEFAULTS.jump, ...opts.jump },
     leg: { ...DEFAULTS.leg, ...opts.leg },
   }
 
@@ -76,8 +81,11 @@ export function useBoxBotModel(
   // 要素イベント → action イベントの中継(対応表は Context から取得)
   useClickBindings(eventTarget)
 
-  // Context 経由で注入されたアクションを実行。配列順 = useFrame 実行順
-  const actionContext: BoxBotActionContext = {
+  // Context 経由で注入されたアクションを実行。配列順 = useFrame 実行順。
+  // config 差し込みは各 descriptor (defineAction のラッパー) が行うため、
+  // ここでは生の actionConfig bag を載せるだけ
+  const actionContext: BoxBotActionBaseContext = {
+    actionConfig,
     cfg,
     displayAreaRef: props.displayAreaRef,
     eventTarget,

@@ -13,11 +13,11 @@ export type JumpConfig = {
  * ジャンプ 1 回ごとの上書きパラメータ
  *
  * - dispatch(`useBoxBotActionDispatcher().jump(...)`)時に指定する
- * - 省略したキーは `cfg.jump`(props の `jump` ?? `DEFAULTS.jump`)の値を使う
+ * - 省略したキーは `ctx.config`(`JUMP_DEFAULTS` ← `actionConfig.jump` 上書き)の値を使う
  */
 export type JumpOverride = Partial<JumpConfig>
 
-/** `cfg.jump` の既定値 */
+/** `ctx.config`(jump)の既定値。`actionConfig.jump` で部分上書きできる */
 export const JUMP_DEFAULTS: JumpConfig = { durSec: 0.55, liftPx: 130 }
 
 /** ジャンプ中の縦方向のスクイッシュ量 */
