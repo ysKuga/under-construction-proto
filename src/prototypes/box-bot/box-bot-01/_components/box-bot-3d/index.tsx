@@ -2,7 +2,9 @@
 
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import * as React from 'react'
 
+import { BOX_BOT_ACTIONS, DEFAULT_CLICK_BINDINGS } from './_actions'
 import { Assembly } from './_components/assembly'
 import { BoxBotModel } from './_components/box-bot-model'
 import { DEFAULTS } from './_components/box-bot-model/index.constants'
@@ -10,29 +12,32 @@ import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
-export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
+/**
+ * Assembly(設置領域)= Canvas(表示領域)のデフォルトの一辺(px)
+ *
+ * - 表示領域を設置領域と一致させる方針(#108)。`style.height` が数値でない場合のフォールバック
+ * - bot を少しだけ囲うサイズ。余白は最小限にする
+ * - lineWidth の縮小スケール算出の基準値も兼ねる
+ */
+const DEFAULT_HEIGHT = 234
 
 /**
- * Canvas(fall/jump 等の可動域を含む実サイズ)のデフォルト高さ(px)
+ * bot の見かけの px サイズを較正した基準の組(Canvas 一辺 px / fov 度)
  *
- * - lineWidth の縮小スケール算出の基準値、および Assembly デフォルトサイズ(`DEFAULT_HEIGHT * BODY_HEIGHT_RATIO`)の算出基準を兼ねる
+ * - この Canvas サイズ・fov のとき bot(影なし)がちょうど収まる。ここを基準に、\
+ *   任意の Canvas サイズでも bot の画面上の大きさが一定になるよう fov を自動算出する
  */
-const DEFAULT_HEIGHT = 480
+const REFERENCE_HEIGHT = 480
+const REFERENCE_FOV = 64
 
 /**
- * 通常体勢時の bot 見た目高さの Canvas に対する比率(実測値)
+ * bot の見かけの大きさを Canvas サイズに依らず一定に保つための不変量
  *
- * - fov=64・CAMERA_POSITION 既定値の状態で Canvas 480px 中の bot(影含む)の実測高さ 233px から算出
- * - style.height(Assembly サイズ)から Canvas 実サイズを逆算するのに使う
+ * - `assemblySize / tan(fov/2)` を一定にすると、Canvas を縮めても bot の画面上の\
+ *   px 高さが変わらない(カメラ位置は動かさず fov だけ絞る)
  */
-export const BODY_HEIGHT_RATIO = 233 / DEFAULT_HEIGHT
-
-/**
- * Canvas 中心から下方向へずらすオフセットの Canvas 高さに対する比率
- *
- * - 400px で 55px 相当 (足が Assembly の下部付近になるぐらい)
- */
-const VERTICAL_OFFSET_RATIO = 55 / DEFAULT_HEIGHT
+const VIEW_INVARIANT =
+  REFERENCE_HEIGHT / Math.tan((REFERENCE_FOV * Math.PI) / 360)
 
 /** カメラ位置(world) */
 const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
@@ -70,12 +75,13 @@ const SHADOW_OPACITY = 0.35
 const ORBIT_MAX_DISTANCE = 12
 /** OrbitControls の最大ズームイン距離 */
 const ORBIT_MIN_DISTANCE = 3.5
-/** OrbitControls の注視点(world) */
-const ORBIT_TARGET: Vec3 = [
-  0,
-  // 転倒 (fall) 時に下部に見切れないように、少し上に注視点をずらす
-  -0.6, 0,
-]
+/**
+ * OrbitControls の注視点(world)
+ *
+ * - Canvas を bot ぴったりに縮めたため、直立 bot が Canvas 中央へ来るよう較正した値
+ * - fall 時の下部見切れ対策は #108 フェーズ1 で別途
+ */
+const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
@@ -86,8 +92,7 @@ const ORBIT_TARGET: Vec3 = [
  * 辺は drei <Line>(fat-line)で描くため lineWidth(px)が効く。
  *
  * インタラクション(interactive=true):
- *   - 腕をクリック  … その腕を上げ下げ
- *   - 頭/胴をクリック … ジャンプ(ホップ)
+ *   - 頭/胴をクリック … ジャンプ
  *
  * 依存: three, @react-three/fiber, @react-three/drei
  *   npm i three @react-three/fiber @react-three/drei
@@ -97,32 +102,39 @@ const ORBIT_TARGET: Vec3 = [
  */
 
 export default function BoxBot3D({
-  autoRotate = true,
+  actions = BOX_BOT_ACTIONS,
   background = 'transparent',
   children,
   className,
-  fov = 64,
+  clickBindings,
+  fov: fovProp,
   groundPosition = GROUND_POSITION,
   interactive = true,
   lightPosition = DIRECTIONAL_LIGHT_POSITION,
   onClick,
   orbit = true,
-  rotateSpeed,
   shadowOpacity = SHADOW_OPACITY,
   shadowVariant = 'contact',
   style,
   ...cfg
 }: BoxBot3DProps) {
+  /** 既定 + prop 上書きをマージした要素クリック対応表(Context へ注入) */
+  const resolvedClickBindings = { ...DEFAULT_CLICK_BINDINGS, ...clickBindings }
   /**
-   * Assembly(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる。\
-   * style.height が数値でなければ DEFAULT_HEIGHT * BODY_HEIGHT_RATIO とみなす
+   * Assembly(設置領域)= Canvas(表示領域)の一辺(px)
+   *
+   * - 表示領域を設置領域と一致させる(#108)。`style.height` が数値でなければ DEFAULT_HEIGHT
    */
   const assemblySize =
-    typeof style?.height === 'number'
-      ? style.height
-      : DEFAULT_HEIGHT * BODY_HEIGHT_RATIO
-  /** Canvas(fall/jump 等の可動域を含む実サイズ)の高さ(px)。Assembly サイズから逆算 */
-  const heightPx = assemblySize / BODY_HEIGHT_RATIO
+    typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
+  /**
+   * カメラ視野角(度)
+   *
+   * - 明示指定なければ assemblySize から自動算出し、Canvas サイズが変わっても\
+   *   bot の見かけの px サイズを一定に保つ(`VIEW_INVARIANT`)
+   */
+  const fov =
+    fovProp ?? (Math.atan(assemblySize / VIEW_INVARIANT) * 360) / Math.PI
   /**
    * lineWidth(screen-space px 固定)の縮小スケール
    *
@@ -130,82 +142,98 @@ export default function BoxBot3D({
    * - outlineWidth は world 単位(box 自体の物理縁取り)のため対象外。Canvas 縮小に伴い\
    *   スクリーン上の見た目も自然に比例して細くなる
    */
-  const lineScale = Math.min(1, heightPx / DEFAULT_HEIGHT)
-  /** Canvas を Assembly 中心から下方向へずらすオフセット(px) */
-  const verticalOffsetPx = heightPx * VERTICAL_OFFSET_RATIO
+  const lineScale = Math.min(1, assemblySize / DEFAULT_HEIGHT)
+  /**
+   * 表示領域(Canvas ラッパー)の ref
+   *
+   * - Canvas 内のアクションへ橋渡しする。jump がこの要素の `top` を書き換えて縦移動する
+   */
+  const displayAreaRef = React.useRef<HTMLDivElement>(null)
 
   return (
     <Assembly
       className={className}
       style={{ ...style, height: assemblySize, width: assemblySize }}
     >
-      <Canvas
-        camera={{ fov, position: CAMERA_POSITION }}
-        dpr={CANVAS_DPR}
-        // mousedown 中にポインタを動かすとブラウザがネイティブドラッグ操作(HTML5
-        // Drag and Drop)を開始しようとし、canvas は draggable でないため
-        // ポインタイベントの配送が乱れる(raycast が反応しなくなる)ことがあった。
-        // draggable=false で潜在的なドラッグ対象からも明示的に外す
-        draggable={false}
-        gl={{ antialias: true }}
-        // orbit=false 時は OrbitControls が target への lookAt を行わないため、
-        // ここで明示する(orbit=true 時も無害、OrbitControls が毎フレーム上書きする)
-        onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}
-        // dragstart 自体も止め、raycast への実害(ポインタイベント配送の乱れ)を防ぐ。
-        // 禁止カーソル等の視覚効果は draggable=false でも残ることがあるが、\
-        // 見た目のみで実害は無いため許容する
-        onDragStart={(e) => e.preventDefault()}
-        // shadows={true} は内部で PCFSoftShadowMap をデフォルト設定するが、
-        // three 0.185 で PCFSoftShadowMap は非推奨化され PCFShadowMap へ
-        // 強制フォールバックされる(警告発生・見た目は変化なし)。
-        // "percentage" 指定で PCFShadowMap を直接使い、非推奨経路を回避する
-        shadows="percentage"
-        style={
-          {
-            background,
-            height: heightPx,
-            left: '50%',
-            position: 'absolute',
-            top: '50%',
-            transform: `translate(-50%, calc(-50% + ${verticalOffsetPx}px))`,
-            userSelect: 'none',
-            // ベンダープレフィックス付きのため CSSProperties 型に無く、下の as で吸収
-            WebkitUserDrag: 'none',
-            width: heightPx,
-          } as React.CSSProperties
-        }
+      {/* 表示領域(Canvas)ラッパー。設置領域(Assembly)は動かさず、jump が
+          この div の top を書き換えて縦移動する(#108)。transform は中央寄せ専用に固定 */}
+      <div
+        ref={displayAreaRef}
+        style={{
+          height: '100%',
+          left: '50%',
+          position: 'absolute',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '100%',
+        }}
       >
-        {children}
-        <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
-        <directionalLight
-          castShadow
-          intensity={DIRECTIONAL_LIGHT_INTENSITY}
-          position={lightPosition}
-          shadow-mapSize={DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE}
-        />
-        <hemisphereLight args={HEMISPHERE_LIGHT_ARGS} />
-        <BoxBotModel
-          autoRotate={autoRotate}
-          interactive={interactive}
-          onClick={onClick}
-          rotateSpeed={rotateSpeed}
-          {...cfg}
-          lineWidth={cfg.lineWidth ?? DEFAULTS.lineWidth * lineScale}
-        />
-        {shadowVariant === 'cast' ? (
-          <CastShadow opacity={shadowOpacity} position={groundPosition} />
-        ) : (
-          <ContactShadow opacity={shadowOpacity} position={groundPosition} />
-        )}
-        {orbit && (
-          <OrbitControls
-            enablePan={false}
-            maxDistance={ORBIT_MAX_DISTANCE}
-            minDistance={ORBIT_MIN_DISTANCE}
-            target={ORBIT_TARGET}
+        <Canvas
+          camera={{ fov, position: CAMERA_POSITION }}
+          dpr={CANVAS_DPR}
+          // mousedown 中にポインタを動かすとブラウザがネイティブドラッグ操作(HTML5
+          // Drag and Drop)を開始しようとし、canvas は draggable でないため
+          // ポインタイベントの配送が乱れる(raycast が反応しなくなる)ことがあった。
+          // draggable=false で潜在的なドラッグ対象からも明示的に外す
+          draggable={false}
+          gl={{ antialias: true }}
+          // orbit=false 時は OrbitControls が target への lookAt を行わないため、
+          // ここで明示する(orbit=true 時も無害、OrbitControls が毎フレーム上書きする)
+          onCreated={(state) => state.camera.lookAt(...ORBIT_TARGET)}
+          // dragstart 自体も止め、raycast への実害(ポインタイベント配送の乱れ)を防ぐ。
+          // 禁止カーソル等の視覚効果は draggable=false でも残ることがあるが、\
+          // 見た目のみで実害は無いため許容する
+          onDragStart={(e) => e.preventDefault()}
+          // shadows={true} は内部で PCFSoftShadowMap をデフォルト設定するが、
+          // three 0.185 で PCFSoftShadowMap は非推奨化され PCFShadowMap へ
+          // 強制フォールバックされる(警告発生・見た目は変化なし)。
+          // "percentage" 指定で PCFShadowMap を直接使い、非推奨経路を回避する
+          shadows="percentage"
+          style={
+            {
+              background,
+              height: '100%',
+              userSelect: 'none',
+              // ベンダープレフィックス付きのため CSSProperties 型に無く、下の as で吸収
+              WebkitUserDrag: 'none',
+              width: '100%',
+            } as React.CSSProperties
+          }
+        >
+          {children}
+          <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
+          <directionalLight
+            castShadow
+            intensity={DIRECTIONAL_LIGHT_INTENSITY}
+            position={lightPosition}
+            shadow-mapSize={DIRECTIONAL_LIGHT_SHADOW_MAP_SIZE}
           />
-        )}
-      </Canvas>
+          <hemisphereLight args={HEMISPHERE_LIGHT_ARGS} />
+          <BoxBotModel
+            actions={actions}
+            clickBindings={resolvedClickBindings}
+            interactive={interactive}
+            onClick={onClick}
+            {...cfg}
+            displayAreaRef={displayAreaRef}
+            lineWidth={cfg.lineWidth ?? DEFAULTS.lineWidth * lineScale}
+          />
+          {shadowVariant === 'cast' ? (
+            <CastShadow opacity={shadowOpacity} position={groundPosition} />
+          ) : (
+            <ContactShadow opacity={shadowOpacity} position={groundPosition} />
+          )}
+          {orbit && (
+            <OrbitControls
+              enablePan={false}
+              enableZoom={false}
+              maxDistance={ORBIT_MAX_DISTANCE}
+              minDistance={ORBIT_MIN_DISTANCE}
+              target={ORBIT_TARGET}
+            />
+          )}
+        </Canvas>
+      </div>
     </Assembly>
   )
 }

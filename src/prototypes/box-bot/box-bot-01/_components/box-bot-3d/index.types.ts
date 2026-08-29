@@ -1,16 +1,36 @@
 import type { CSSProperties, PropsWithChildren } from 'react'
 
-import type { BoxBotModelProps } from './_components/box-bot-model/index.types'
+import type { AnyBoxBotAction } from './_actions/types'
+import type {
+  BoxBotModelProps,
+  ClickBindings,
+} from './_components/box-bot-model/index.types'
 
-export interface BoxBot3DProps extends BoxBotModelProps, PropsWithChildren {
+export interface BoxBot3DProps
+  extends
+    Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'displayAreaRef'>,
+    PropsWithChildren {
+  /**
+   * bot が実行するアクション一覧
+   *
+   * - 省略時は既定の `BOX_BOT_ACTIONS`。`BoxBot3D` が Context 化して内部へ配る
+   */
+  actions?: readonly AnyBoxBotAction[]
   /** Canvas の背景色 */
   background?: string
   /** ルート要素の className */
   className?: string
   /**
+   * 要素クリック → 発火する action イベント名の上書き
+   *
+   * - 省略キーは既定(`DEFAULT_CLICK_BINDINGS`)。`BoxBot3D` がマージして Context 化する
+   */
+  clickBindings?: ClickBindings
+  /**
    * カメラの視野角(度)
    *
-   * - Canvas サイズを変える際、本体の見かけの大きさを保ったまま表示範囲だけ広げたい場合に調整する
+   * - 省略時は Canvas サイズから自動算出し、サイズが変わっても bot の見かけの大きさを一定に保つ
+   * - 表示範囲を意図的に広げ/狭めたい場合のみ明示指定する
    */
   fov?: number
   /**
