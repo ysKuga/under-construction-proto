@@ -3,9 +3,9 @@ import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
 
-import { useBoxBotActionDispatcher } from './_components/box-bot-3d/_components/box-bot-model/use-box-bot-action-dispatcher'
+import { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-bot-action-dispatcher'
 
-import { BoxBot01 as StoryComponent } from '.'
+import StoryComponent from '.'
 
 const meta: Meta<typeof StoryComponent> = {
   args: {
