@@ -1,6 +1,6 @@
 import type {
   BoxBotAction,
-  BoxBotActionBaseContext,
+  BoxBotActionBaseHost,
   BoxBotActionContext,
 } from './types'
 
@@ -12,16 +12,16 @@ type ActionInput<Name extends string, Config> = {
   event: string
   /** dispatcher のキー */
   name: Name
-  /** Canvas 内で実行する購読・可視化フック。`ctx.config` は解決済みで渡る */
-  use: (ctx: BoxBotActionContext<Config>) => void
+  /** Canvas 内で実行する購読・可視化フック。`host.config` は解決済みで渡る */
+  use: (host: BoxBotActionContext<Config>) => void
 }
 
 /**
  * `BoxBotAction` を型推論を効かせつつ定義する
  *
- * - `use` を、`defaults` と `ctx.actionConfig[name]` をマージした `config` を差し込む\
+ * - `use` を、`defaults` と `host.actionConfig[name]` をマージした `config` を差し込む\
  *   形にラップして返す。設定のマージ・アクション名をキーにした引き当てはこの 1 箇所に閉じ、\
- *   orchestrator は生の `actionConfig` bag を ctx へ載せるだけでよい
+ *   orchestrator は生の `actionConfig` bag を host へ載せるだけでよい
  *
  * @param action アクション定義(`use` はラップ前)
  */
@@ -29,12 +29,12 @@ export const defineAction = <Name extends string, Arg = never, Config = never>(
   action: ActionInput<Name, Config>,
 ): BoxBotAction<Name, Arg, Config> => ({
   ...action,
-  use: (ctx: BoxBotActionBaseContext) =>
+  use: (host: BoxBotActionBaseHost) =>
     action.use({
-      ...ctx,
+      ...host,
       config: {
         ...action.defaults,
-        ...ctx.actionConfig?.[action.name],
+        ...host.actionConfig?.[action.name],
       } as Config,
     }),
 })
