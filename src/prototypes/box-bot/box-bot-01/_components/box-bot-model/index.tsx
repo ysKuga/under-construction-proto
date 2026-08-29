@@ -34,16 +34,11 @@ function BoxBotModelInner(
   const {
     cfg,
     createClickEmitter,
-    headFront,
-    headY,
     hover,
-    legX,
-    legY,
+    layout,
     onClick,
     rootRef,
     rotationY,
-    shoulderX,
-    shoulderY,
     yawRef,
   } = useBoxBotModel(props)
 
@@ -82,14 +77,14 @@ function BoxBotModelInner(
             },
             onPointerDown: onPointerDownHead,
           }}
-          position={[0, headY, 0]}
+          position={[0, layout.head.y, 0]}
           seed={cfg.seed + 2}
           size={[cfg.head.w, cfg.head.h, cfg.head.d]}
         />
 
         {/* 腕(静的。肩を支点に leftAngle / rightAngle だけ傾ける) */}
         <group
-          position={[-shoulderX, shoulderY, 0]}
+          position={[-layout.shoulder.x, layout.shoulder.y, 0]}
           rotation={[0, 0, cfg.arm.leftAngle]}
         >
           <SketchBox
@@ -100,7 +95,7 @@ function BoxBotModelInner(
           />
         </group>
         <group
-          position={[shoulderX, shoulderY, 0]}
+          position={[layout.shoulder.x, layout.shoulder.y, 0]}
           rotation={[0, 0, cfg.arm.rightAngle]}
         >
           <SketchBox
@@ -112,7 +107,7 @@ function BoxBotModelInner(
         </group>
 
         {/* 脚(静的) */}
-        <group position={[-legX, legY, 0]}>
+        <group position={[-layout.leg.x, layout.leg.y, 0]}>
           <SketchBox
             cfg={cfg}
             position={[0, -cfg.leg.h / 2, 0]}
@@ -120,7 +115,7 @@ function BoxBotModelInner(
             size={[cfg.leg.w, cfg.leg.h, cfg.leg.d]}
           />
         </group>
-        <group position={[legX, legY, 0]}>
+        <group position={[layout.leg.x, layout.leg.y, 0]}>
           <SketchBox
             cfg={cfg}
             position={[0, -cfg.leg.h / 2, 0]}
@@ -132,17 +127,17 @@ function BoxBotModelInner(
         {/* 顔 */}
         <Ink
           cfg={cfg}
-          position={[-cfg.eye.offset, headY + 0.05, headFront]}
+          position={[-cfg.eye.offset, layout.head.y + 0.05, layout.head.front]}
           size={[cfg.eye.w, cfg.eye.h, cfg.eye.d]}
         />
         <Ink
           cfg={cfg}
-          position={[cfg.eye.offset, headY + 0.05, headFront]}
+          position={[cfg.eye.offset, layout.head.y + 0.05, layout.head.front]}
           size={[cfg.eye.w, cfg.eye.h, cfg.eye.d]}
         />
         <Ink
           cfg={cfg}
-          position={[0, headY - 0.22, headFront]}
+          position={[0, layout.head.y - 0.22, layout.head.front]}
           size={[0.55, 0.055, 0.06]}
         />
       </group>
