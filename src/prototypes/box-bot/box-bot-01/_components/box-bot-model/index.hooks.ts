@@ -9,12 +9,8 @@ import { useEventDispatcher } from '@/hooks/event'
 import type { BoxBotActionBaseHost } from '../../_actions/types'
 
 import { useClickBindings } from './_hooks/use-click-bindings'
-import {
-  DEFAULTS,
-  HEAD_FRONT_MARGIN,
-  HEAD_GAP,
-  SHOULDER_Y_OFFSET,
-} from './index.constants'
+import { deriveLayout } from './_lib/derive-layout'
+import { DEFAULTS } from './index.constants'
 import {
   useBoxBotActions,
   useBoxBotEventTarget,
@@ -130,28 +126,17 @@ export function useBoxBotModel(
   // Context 経由で注入されたアクションを実行。配列順 = useFrame 実行順。
   for (const action of actions) action.use(actionHost)
 
-  const bodyTop = cfg.body.h / 2
-  const legY = -bodyTop
-  const headY = bodyTop + HEAD_GAP + cfg.head.h / 2
-  const headFront = cfg.head.d / 2 + HEAD_FRONT_MARGIN
-  const shoulderY = bodyTop - SHOULDER_Y_OFFSET
-  const shoulderX = cfg.body.w / 2
-  const legX = (cfg.body.w / 2) * cfg.leg.gap
+  const layout = deriveLayout(cfg)
 
   return {
     cfg,
     createClickEmitter,
-    headFront,
-    headY,
     hover,
     interactive,
-    legX,
-    legY,
+    layout,
     onClick,
     rootRef,
     rotationY,
-    shoulderX,
-    shoulderY,
     yawRef,
   }
 }

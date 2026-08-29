@@ -89,6 +89,36 @@ export interface BoxBot3DConfig {
   sketchDetail: number
 }
 
+/**
+ * 部位の配置アンカー
+ *
+ * - `cfg` から導出した派生座標。raw 寸法(`cfg.body.w` 等)ではない
+ * - 2 階層固定 `layout.<部位>.<軸 | 意味>`
+ */
+export interface BoxBotLayout {
+  /** 頭 */
+  head: {
+    /** 前面 z 座標(目・口を浮かせる面) */
+    front: number
+    /** 中心 y 座標 */
+    y: number
+  }
+  /** 脚 */
+  leg: {
+    /** 中心からの x オフセット */
+    x: number
+    /** 脚グループの付け根 y 座標 */
+    y: number
+  }
+  /** 肩(腕の付け根) */
+  shoulder: {
+    /** 中心からの x オフセット */
+    x: number
+    /** y 座標 */
+    y: number
+  }
+}
+
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /**
    * per-action 設定の外部上書き
@@ -184,24 +214,18 @@ export interface UseBoxBotModelReturn extends Pick<
   createClickEmitter: (
     eventName: string,
   ) => (e: ThreeEvent<PointerEvent>) => void
-  /** 頭の前面 z 座標 */
-  headFront: number
-  /** 頭の中心 y 座標 */
-  headY: number
   /** ホバー時のカーソル制御ハンドラ */
   hover: Handlers
   /** インタラクション有効か */
   interactive: boolean
-  /** 脚の x オフセット */
-  legX: number
-  /** 脚グループの付け根 y 座標 */
-  legY: number
+  /**
+   * 部位の配置アンカー(`cfg` からの派生座標)
+   *
+   * - アクセスは `layout.head.y` / `layout.leg.x` の形
+   */
+  layout: BoxBotLayout
   /** body/head クリック確定で発火するコールバック(props.onClick そのまま) */
   onClick?: () => void
   /** 初期 y 軸回転(ラジアン) */
   rotationY: number
-  /** 肩の x オフセット */
-  shoulderX: number
-  /** 肩の y 座標 */
-  shoulderY: number
 }
