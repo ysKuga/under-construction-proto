@@ -60,10 +60,11 @@ export function useBoxBotModel(
   // 要素の押下 → 指定した要素イベントを発行するハンドラを作る。
   // どの要素にどのイベント名を割り当てるかは呼び出し側(部位を定義する JSX)が決める。
   // どの action へ繋ぐかは use-click-bindings 側。ここは何も知らない
-  const emitClick = (eventName: string) => (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation()
-    void dispatch(new Event(eventName))
-  }
+  const createClickEmitter =
+    (eventName: string) => (e: ThreeEvent<PointerEvent>) => {
+      e.stopPropagation()
+      void dispatch(new Event(eventName))
+    }
 
   // 要素イベント → action イベントの中継(既定 + clickBindings prop 上書き)
   useClickBindings(eventTarget, props.clickBindings ?? {})
@@ -89,7 +90,7 @@ export function useBoxBotModel(
 
   return {
     cfg,
-    emitClick,
+    createClickEmitter,
     headFront,
     headY,
     hover,

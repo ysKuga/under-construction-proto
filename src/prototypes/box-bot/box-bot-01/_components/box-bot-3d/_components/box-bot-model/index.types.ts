@@ -162,11 +162,13 @@ export interface UseBoxBotModelReturn extends Pick<BoxBotRefs, 'rootRef'> {
   /**
    * 要素の押下 → 指定した要素イベントを発行するハンドラを作る
    *
-   * - 例: `emitClick(ON_CLICK_BODY)` を body 要素の `onPointerDown` に渡す。\
+   * - 例: `createClickEmitter(ON_CLICK_BODY)` を body 要素の `onPointerDown` に渡す。\
    *   どの要素にどのイベントを割り当てるかは呼び出し側(部位を定義する JSX)が決める。\
    *   発行された要素イベントを action へ繋ぐのは `clickBindings`
    */
-  emitClick: (eventName: string) => (e: ThreeEvent<PointerEvent>) => void
+  createClickEmitter: (
+    eventName: string,
+  ) => (e: ThreeEvent<PointerEvent>) => void
   /** 頭の前面 z 座標 */
   headFront: number
   /** 頭の中心 y 座標 */

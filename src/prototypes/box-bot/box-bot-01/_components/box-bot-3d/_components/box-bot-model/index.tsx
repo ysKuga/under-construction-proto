@@ -20,7 +20,7 @@ export function BoxBotModel({ eventTarget, ...props }: BoxBotModelProps) {
 function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
   const {
     cfg,
-    emitClick,
+    createClickEmitter,
     headFront,
     headY,
     hover,
@@ -35,8 +35,8 @@ function BoxBotModelInner(props: Omit<BoxBotModelProps, 'eventTarget'>) {
 
   // 部位ごとに要素イベントを割り当てる。ON_CLICK_BODY / ON_CLICK_HEAD を差し替えれば
   // その部位の押下で発行されるイベントが変わる
-  const onPointerDownBody = emitClick(ON_CLICK_BODY)
-  const onPointerDownHead = emitClick(ON_CLICK_HEAD)
+  const onPointerDownBody = createClickEmitter(ON_CLICK_BODY)
+  const onPointerDownHead = createClickEmitter(ON_CLICK_HEAD)
 
   return (
     // rootRef: jump の squash(scale)対象。初期姿勢の y 回転もここへ
