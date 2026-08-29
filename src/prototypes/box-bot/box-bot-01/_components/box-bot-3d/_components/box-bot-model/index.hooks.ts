@@ -5,8 +5,10 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { useEventDispatcher } from '@/hooks/event'
 
 import { BOX_BOT_ACTIONS, type BoxBotActionContext } from './_actions'
-import { ACTION_JUMP } from './_actions/jump/config'
+import { useClickBindings } from './_hooks/use-click-bindings'
 import {
+  CLICK_BODY,
+  CLICK_HEAD,
   DEFAULTS,
   HEAD_FRONT_MARGIN,
   HEAD_GAP,
@@ -16,6 +18,7 @@ import { useBoxBotEventTarget, useBoxBotRefs } from './index.contexts'
 import type {
   BoxBot3DConfig,
   BoxBotModelProps,
+  ClickTarget,
   Handlers,
   UseBoxBotModelReturn,
 } from './index.types'
@@ -57,11 +60,15 @@ export function useBoxBotModel(
       }
     : {}
 
-  /** body/head 押下で jump を発火する */
-  const fireJump = (e: ThreeEvent<PointerEvent>) => {
+  // body/head 押下 → 要素イベント(CLICK_BODY / CLICK_HEAD)を発行するだけ。
+  // どの action へ繋ぐかは知らない
+  const emitClick = (target: ClickTarget) => (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
-    void dispatch(new Event(ACTION_JUMP))
+    void dispatch(new Event(target === 'body' ? CLICK_BODY : CLICK_HEAD))
   }
+
+  // 要素イベント → action イベントの中継(既定 + clickBindings prop 上書き)
+  useClickBindings(eventTarget, props.clickBindings ?? {})
 
   // レジストリ化済みアクション(現状 jump のみ)。配列順 = useFrame 実行順。
   // 追加/削除は _actions/index.ts の BOX_BOT_ACTIONS だけで完結する
@@ -84,8 +91,8 @@ export function useBoxBotModel(
 
   return {
     cfg,
-    clickBody: fireJump,
-    clickHead: fireJump,
+    clickBody: emitClick('body'),
+    clickHead: emitClick('head'),
     headFront,
     headY,
     hover,

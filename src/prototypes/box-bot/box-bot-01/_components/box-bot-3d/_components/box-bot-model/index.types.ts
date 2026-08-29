@@ -100,6 +100,15 @@ export interface BoxBot3DConfig {
 
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /**
+   * 要素クリック → 発火する action イベント名の対応
+   *
+   * - bot は要素押下で `CLICK_BODY` / `CLICK_HEAD` を発行するだけ。この対応表が\
+   *   それをどの action イベントへ変換するかを決める
+   * - 省略キーは既定(`DEFAULT_CLICK_BINDINGS`、body/head とも jump)。\
+   *   値に `undefined` を渡すとその要素は何も起こさない
+   */
+  clickBindings?: ClickBindings
+  /**
    * 表示領域(Canvas ラッパー)の DOM ref
    *
    * - `BoxBot3D`(bot の外殻)が生成し、Canvas 内のアクションへ橋渡しする\
@@ -114,7 +123,7 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    * - 省略時は instance 固有のものを内部生成
    */
   eventTarget?: EventTarget
-  /** クリック操作(頭/胴クリックでジャンプ)を有効にするか */
+  /** クリック操作を有効にするか(無効時は要素クリックを発行しない) */
   interactive?: boolean
   /**
    * body/head クリック確定で発火するコールバック
@@ -133,6 +142,12 @@ export interface BoxBotRefs {
   rootRef: RefObject<Group | null>
 }
 
+/** 要素クリック → 発火する action イベント名の対応。省略キーは既定のまま */
+export type ClickBindings = Partial<Record<ClickTarget, string>>
+
+/** クリック可能な bot 要素 */
+export type ClickTarget = 'body' | 'head'
+
 export type Handlers = {
   onClick?: (e: ThreeEvent<MouseEvent>) => void
   onPointerDown?: (e: ThreeEvent<PointerEvent>) => void
@@ -144,9 +159,9 @@ export type Handlers = {
 export interface UseBoxBotModelReturn extends Pick<BoxBotRefs, 'rootRef'> {
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
-  /** body 押下でジャンプを発火 */
+  /** body 押下で `CLICK_BODY` を発行(紐づく action は `clickBindings` 側で決まる) */
   clickBody: (e: ThreeEvent<PointerEvent>) => void
-  /** head 押下でジャンプを発火 */
+  /** head 押下で `CLICK_HEAD` を発行(紐づく action は `clickBindings` 側で決まる) */
   clickHead: (e: ThreeEvent<PointerEvent>) => void
   /** 頭の前面 z 座標 */
   headFront: number

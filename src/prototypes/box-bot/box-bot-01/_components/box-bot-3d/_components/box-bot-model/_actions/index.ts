@@ -9,7 +9,17 @@ export * from './types'
  * - 配列の順 = `useFrame` の実行順
  * - 追加は descriptor を作ってここへ 1 行、削除は 1 行消すだけ。\
  *   dispatcher(`useBoxBotActionDispatcher`)のメソッド・型もこの配列から導出される
- * - 現状は jump のみレジストリ化。spin/fall/getUp/arm/leg/autorotate/bobbing は\
- *   `_action-hooks/` 側で従来どおり `useBoxBotModel` から直接呼ぶ(順次移行)
  */
 export const BOX_BOT_ACTIONS = [jumpAction] as const
+
+/**
+ * 要素クリック → 発火する action イベント名の既定の紐づけ(合成ルート)
+ *
+ * - bot 本体は要素押下で `CLICK_BODY` / `CLICK_HEAD` を発行するだけ。\
+ *   「どの要素でどの action を起こすか」を決めるのはここだけ。\
+ *   `clickBindings` prop で個別に上書きできる
+ */
+export const DEFAULT_CLICK_BINDINGS = {
+  body: jumpAction.event,
+  head: jumpAction.event,
+} as const
