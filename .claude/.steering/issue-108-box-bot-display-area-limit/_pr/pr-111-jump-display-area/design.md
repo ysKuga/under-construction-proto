@@ -213,7 +213,7 @@ export const jumpAction = defineAction({
 
 ## 完了: `box-bot-3d/` を `box-bot-01/` 直下へフラット化
 
-PR #111 マージ後、別 PR で実施。
+PR #111 マージ後、別 PR #112 で実施。
 
 - `box-bot-01/_components/box-bot-3d/` 配下
   (`index.tsx` / `index.types.ts` / `_actions/` / `_components/` / `_lib/`) を
