@@ -7,8 +7,6 @@ import { useEventDispatcher } from '@/hooks/event'
 import { BOX_BOT_ACTIONS, type BoxBotActionContext } from './_actions'
 import { useClickBindings } from './_hooks/use-click-bindings'
 import {
-  CLICK_BODY,
-  CLICK_HEAD,
   DEFAULTS,
   HEAD_FRONT_MARGIN,
   HEAD_GAP,
@@ -18,7 +16,6 @@ import { useBoxBotEventTarget, useBoxBotRefs } from './index.contexts'
 import type {
   BoxBot3DConfig,
   BoxBotModelProps,
-  ClickTarget,
   Handlers,
   UseBoxBotModelReturn,
 } from './index.types'
@@ -60,11 +57,12 @@ export function useBoxBotModel(
       }
     : {}
 
-  // body/head 押下 → 要素イベント(CLICK_BODY / CLICK_HEAD)を発行するだけ。
-  // どの action へ繋ぐかは知らない
-  const emitClick = (target: ClickTarget) => (e: ThreeEvent<PointerEvent>) => {
+  // 要素の押下 → 指定した要素イベントを発行するハンドラを作る。
+  // どの要素にどのイベント名を割り当てるかは呼び出し側(部位を定義する JSX)が決める。
+  // どの action へ繋ぐかは use-click-bindings 側。ここは何も知らない
+  const emitClick = (eventName: string) => (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
-    void dispatch(new Event(target === 'body' ? CLICK_BODY : CLICK_HEAD))
+    void dispatch(new Event(eventName))
   }
 
   // 要素イベント → action イベントの中継(既定 + clickBindings prop 上書き)
@@ -91,8 +89,7 @@ export function useBoxBotModel(
 
   return {
     cfg,
-    clickBody: emitClick('body'),
-    clickHead: emitClick('head'),
+    emitClick,
     headFront,
     headY,
     hover,
