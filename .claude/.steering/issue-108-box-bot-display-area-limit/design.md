@@ -73,6 +73,80 @@ GitHub #108 / Jira UC-10「box bot 改善」内「アクション範囲 (表示�
 - container オフセット量: 横倒し時の足元ズレ量 (前方 / 下方の px または比率)。
 - 影の追従: cast/contact shadow は接地面固定。体心回転で体が浮く間、影は Canvas 内で足元追従か、設置領域基準で別処理か。
 
+## box-bot アクションレジストリの後続作業 (PR #111 派生)
+
+PR #111 で jump をレジストリ形式へ移行 (`_actions/<name>/` descriptor + `BOX_BOT_ACTIONS` 配列 +
+`for..of` orchestrator + Context 注入)。fall/spin 等は検証のため一旦全削除、新形式で復帰予定。
+経緯は PR #111 [design.md](_pr/pr-111-jump-display-area/design.md) の「実装済み: 案A」参照。
+移行後に残った box-bot ↔ アクション間の結合が以下。実装は box-bot-01 で直接、別 PR 想定。
+
+### 残る結合 (優先度順)
+
+- **A. config が bot の型に穴を開けている (★最優先)**
+  - `BoxBot3DConfig.jump: JumpConfig` / `DEFAULTS.jump = JUMP_DEFAULTS` — bot の config 型・既定値に
+    jump 専用フィールド。jump を消すと宙に浮く。config を持つアクション追加 = bot の型を編集
+  - 方向: descriptor に `defaults` を持たせ bot が動的マージ。`BoxBot3DConfig` から
+    per-action フィールドを消す。詳細は下記「A の実装方針」
+- **B. `BoxBotActionContext` が service locator (広い)**
+  - アクションは `{ cfg, refs, displayAreaRef, props, eventTarget }` を丸ごと受け必要分を取る。
+    jump は `refs.rootRef` (THREE.Group と知っている) / `displayAreaRef.style.top` (DOM と知っている) へ到達
+  - 方向: アクションごとに narrow な host interface (port) + adapter。
+    `useJump(host: JumpHost)` が `host.applySquash` / `host.applyLift` / `host.onFrame` だけ知る形
+    (別途の設計メモ「host 化」参照)
+- **C. 型の相互依存**
+  - `_actions/types.ts` (`BoxBotActionContext`) ↔ `box-bot-model/index.types.ts`
+    (`BoxBot3DConfig` / `BoxBotModelProps` / `BoxBotRefs`)。`import type` のみで実害なしだが循環。
+    アクションが model の型の形を知っている
+- **D. `use-box-bot-action-dispatcher` が `BOX_BOT_ACTIONS` を直参照**
+  - Canvas 外 (story 直呼び) で Context 不可のため。カスタム `actions` prop 時に dispatcher が不整合
+  - 方向: `useBoxBotActionDispatcher(eventTarget, actions?)` の第2引数化 (戻り値型はジェネリック)
+- **E (補足). `use-click-bindings` が要素イベント 2 種をハードコード**
+  - `ON_CLICK_BODY` / `ON_CLICK_HEAD` を `useEventListener` 2 回。部位追加 = この hook を編集。
+    `ClickTarget` の値を回す形へ
+
+### A の実装方針 (検討済み 2026-08-29)
+
+現状の配線: `_actions/jump/config.ts` が `JumpConfig` 型 + `JUMP_DEFAULTS` 値を持つ。それを
+box-bot-model が `BoxBot3DConfig.jump` (型) / `DEFAULTS.jump` (値 import) / `useBoxBotModel` の
+`jump: { ...DEFAULTS.jump, ...opts.jump }` (マージ1行) の 3 箇所へ引き込んでいる。`useJump` は
+`ctx.cfg.jump` をキー名込みで読む。
+
+方針:
+
+1. **`BoxBot3DConfig` を純ジオメトリ/見た目へ**。`jump` フィールド削除、`JumpConfig`/`JumpOverride`
+   re-export 削除。`DEFAULTS` から `jump` キー削除、`JUMP_DEFAULTS` import 撤去。
+   → `index.constants.ts` の値 import (`_actions` → box-bot-model 方向) が消え、C の実害部分も軽くなる。
+2. **descriptor が `defaults` を持つ**。`defineAction` に `Config` 型パラメータ追加、
+   `jumpAction = defineAction<'jump', JumpOverride, JumpConfig>({ ..., defaults: JUMP_DEFAULTS })`。
+   `BoxBotActionConfigs<typeof BOX_BOT_ACTIONS>` を mapped type で導出 (`BoxBotActionDispatchers` と同手口)。
+   `defaults` は optional (config なしアクション対応)。
+3. **props は nested bag**。`BoxBotModelProps` に
+   `actionConfig?: Partial<BoxBotActionConfigs<typeof BOX_BOT_ACTIONS>>` を追加。
+   使い方: `<BoxBot3D actionConfig={{ jump: { liftPx: 200 } }} />`。per-action であることを型で明示。
+4. **orchestrator が 1 ループで畳む**。`useBoxBotModel` の per-key マージ (`arm`/`body`/...) は残し、
+   action ぶんは `Object.fromEntries(actions.map((a) => [a.name, { ...a.defaults, ...opts.actionConfig?.[a.name] }]))`。
+   per-action 行なし。
+5. **`use()` は generic ctx**。`BoxBotActionContext<Config = never>` を generic 化し `ctx.config` を型付け。
+   `useJump(ctx: BoxBotActionContext<JumpConfig>)` が `ctx.config` を読む。`ctx.cfg.jump` のキー名依存が消える。
+   単一引数のまま。B (narrow host) への布石にもなる。
+   - `cfg` は ctx に残す (純ジオメトリ化後の geometry/見た目参照用。将来 fall の `groundY` 算出等)。
+     jump は `cfg` を触らなくなる。
+
+影響ファイル (各小): `_actions/types.ts` (generic ctx + `BoxBotActionConfigs`) /
+`_actions/define-action.ts` (`Config` 型パラメータ + `defaults`) / `_actions/jump/index.ts` (`defaults` 渡す) /
+`_actions/jump/use-jump.ts` (`ctx.config` へ) / `box-bot-model/index.types.ts` (`jump` 削除・`actionConfig` 追加) /
+`box-bot-model/index.constants.ts` (`JUMP_DEFAULTS` 撤去) / `box-bot-model/index.hooks.ts` (`actionConfig` 畳み + ctx へ)。
+
+未整理: dispatch 時 1 回上書き (`JumpOverride` = `CustomEvent.detail`) は `Arg` 型パラメータ経由で別系統。
+本方針は触らない。`Config` (既定) と `Arg` (1回上書き) は jump では両方 `JumpConfig` 系だが概念別、型パラメータは分ける。
+
+### 次にやるなら
+
+1. **A** (config を descriptor へ) — 型の穴が一番痛い
+2. **B** (narrow host + adapter) — 接点最小化
+3. D / E — 軽い
+4. fall/spin 等の復帰 (削除したアクション群を新レジストリ形式で戻す)
+
 ## 決定事項
 
 - 2026-08-27: 案2 (表示領域中心で回転 + 設置領域の相対位置アニメ) を採用。fall 完全転倒を維持。Canvas 固定サイズ。
