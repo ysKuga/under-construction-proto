@@ -140,3 +140,73 @@ export const jumpAction = defineAction({
 - `interactive` ゲート・マウント時 `autoWalk` / `hopping` 初期化を descriptor のどこへ置くか (`onMount(ctx)` 等)
 - `_action-hooks/` → `_actions/` のリネーム是非 (命名一貫性ルール)
 - 移行は box-bot-01 で直接 (別 PR 想定)
+
+---
+
+## 実装済み: 案A + Context 注入 (box-bot-01、PR #111 ブランチ)
+
+案A (レジストリ) を jump のみで試作し、その後 Context 注入まで進めた。fall/spin 等は
+検証しやすさのため一旦全削除 (別途復帰予定)。
+
+### やったこと (コミット順)
+
+- `05bb671` jump をレジストリへ切り出し。`_actions/jump/` (config / use-jump / descriptor)、
+  `BOX_BOT_ACTIONS = [jumpAction]`、`for (const a of BOX_BOT_ACTIONS) a.use(ctx)`。
+  `BoxBotRefsProvider` から `jumpRef`/`jumpConfigRef` を除去 (アクション内 `useRef` へ)。
+  hopping は `jumpRef` 直叩き → `ACTION_JUMP` dispatch へ
+- `f99a2f5` `defineAction` を `_actions/types.ts` (型のみ) から `_actions/define-action.ts` へ分離
+- `7e02a1b` box-bot-01 を jump のみへ縮小 (spin/fall/getUp/arm/leg/autoRotate/bodyBobbing/hopping 削除、
+  非 jump 定数・型・ref・dispatcher メソッド・stories を削除、bot 静止)
+- `d5ca582` click→jump を binding 層で分離。bot は `ON_CLICK_BODY`/`ON_CLICK_HEAD` を発行、
+  `use-click-bindings` が対応表で action イベントへ中継、`DEFAULT_CLICK_BINDINGS` は
+  `jumpAction.event` 由来。`clickBindings` prop で上書き
+- `d0f2621` `CLICK_BODY/HEAD` → `ON_CLICK_BODY/HEAD` へ改名
+- `67d6358` `emitClick` → `createClickEmitter` (ハンドラ生成ファクトリなので `create*` 命名)。
+  部位ごとの割当 (`ON_CLICK_BODY` を渡す) は `BoxBotModelInner` へ
+- `343ccc2` **`_actions/` を `box-bot-model/` から `box-bot-3d/` 直下へ移動**。
+  `BoxBot3D` が `actions?` / `clickBindings?` を props で受け、`?? BOX_BOT_ACTIONS` /
+  `{ ...DEFAULT_CLICK_BINDINGS, ...clickBindings }` を解決 → `<BoxBotModel>` へ (Canvas 境界越え) →
+  `BoxBotActionsProvider` で Context 化 → `useBoxBotModel` / `useClickBindings` が
+  `useBoxBotActions()` で参照。`box-bot-model` は `BOX_BOT_ACTIONS` /
+  `DEFAULT_CLICK_BINDINGS` の**値**を import しない
+- 付随: `bd72dc5` bot 表示位置を Canvas 中央へ較正、`fc361d3` 腕を軽く外へ開く (見た目調整)
+
+### 疎になった軸
+
+- 登録・発見: 注入 (`_actions/index.ts` の配列 + Context)。追加 = フォルダ + 1 行、削除 = 逆
+- orchestrator: `for (const a of actions) a.use(ctx)` のみ。特定アクションを import しない
+- dispatcher: 配列から `Object.fromEntries` で生成、型も `BoxBotActionDispatchers<typeof BOX_BOT_ACTIONS>`
+- click → action: data table (`clickBindings`)、注入・上書き可。要素イベントと action イベントは互いを参照しない
+- アクション固有 ref (`jumpRef` 等) は `_actions/<name>/use-*.ts` 内に閉じる
+- hooks-in-loop: oxlint `rules-of-hooks` は `for..of` (モジュール定数配列) を許容 (検証済み)
+
+## 残る結合 (ABCD、優先度順)
+
+- **A. config が bot の型に穴を開けている (★最優先)**
+  - `BoxBot3DConfig.jump: JumpConfig` / `DEFAULTS.jump = JUMP_DEFAULTS` — bot の config 型・既定値に
+    jump 専用フィールド。jump を消すと宙に浮く。config を持つアクション追加 = bot の型を編集
+  - 方向: descriptor に `configSchema` / `defaults` を持たせ bot が動的マージ。
+    `BoxBot3DConfig` から per-action フィールドを消し `cfg.actionConfig[name]` 等へ
+- **B. `BoxBotActionContext` が service locator (広い)**
+  - アクションは `{ cfg, refs, displayAreaRef, props, eventTarget }` を丸ごと受け必要分を取る。
+    jump は `refs.rootRef` (THREE.Group と知っている) / `displayAreaRef.style.top` (DOM と知っている) へ到達
+  - 方向: アクションごとに narrow な host interface (port) + adapter。
+    `useJump(host: JumpHost)` が `host.applySquash` / `host.applyLift` / `host.onFrame` だけ知る形
+    (別途の設計メモ「host 化」参照)
+- **C. 型の相互依存**
+  - `_actions/types.ts` (`BoxBotActionContext`) ↔ `box-bot-model/index.types.ts`
+    (`BoxBot3DConfig` / `BoxBotModelProps` / `BoxBotRefs`)。`import type` のみで実害なしだが循環。
+    アクションが model の型の形を知っている
+- **D. `use-box-bot-action-dispatcher` が `BOX_BOT_ACTIONS` を直参照**
+  - Canvas 外 (story 直呼び) で Context 不可のため。カスタム `actions` prop 時に dispatcher が不整合
+  - 方向: `useBoxBotActionDispatcher(eventTarget, actions?)` の第2引数化 (戻り値型はジェネリック)
+- **E (補足). `use-click-bindings` が要素イベント 2 種をハードコード**
+  - `ON_CLICK_BODY` / `ON_CLICK_HEAD` を `useEventListener` 2 回。部位追加 = この hook を編集。
+    `ClickTarget` の値を回す形へ
+
+## 次にやるなら
+
+1. **A** (config を descriptor へ) — 型の穴が一番痛い
+2. **B** (narrow host + adapter) — 接点最小化
+3. D / E — 軽い
+4. fall/spin 等の復帰 (削除したアクション群を新レジストリ形式で戻す)
