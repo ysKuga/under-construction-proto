@@ -123,19 +123,26 @@ box-bot-model が `BoxBot3DConfig.jump` (型) / `DEFAULTS.jump` (値 import) / `
 3. **props は nested bag**。`BoxBotModelProps` に
    `actionConfig?: Partial<BoxBotActionConfigs<typeof BOX_BOT_ACTIONS>>` を追加。
    使い方: `<BoxBot3D actionConfig={{ jump: { liftPx: 200 } }} />`。per-action であることを型で明示。
-4. **orchestrator が 1 ループで畳む**。`useBoxBotModel` の per-key マージ (`arm`/`body`/...) は残し、
-   action ぶんは `Object.fromEntries(actions.map((a) => [a.name, { ...a.defaults, ...opts.actionConfig?.[a.name] }]))`。
-   per-action 行なし。
-5. **`use()` は generic ctx**。`BoxBotActionContext<Config = never>` を generic 化し `ctx.config` を型付け。
-   `useJump(ctx: BoxBotActionContext<JumpConfig>)` が `ctx.config` を読む。`ctx.cfg.jump` のキー名依存が消える。
-   単一引数のまま。B (narrow host) への布石にもなる。
-   - `cfg` は ctx に残す (純ジオメトリ化後の geometry/見た目参照用。将来 fall の `groundY` 算出等)。
-     jump は `cfg` を触らなくなる。
+4. **`use()` は generic ctx。config 復元は descriptor 内で行う**。
+   - `BoxBotActionContext<Config = never>` を generic 化し `config: Config` を持たせる。
+     `useJump(ctx: BoxBotActionContext<JumpConfig>)` は `ctx.config` を型付きで読む (`ctx.cfg.jump` 依存消滅)。
+   - `defineAction<Name, Arg, Config>({ defaults, use })` が、内部で `use` を
+     `(ctx: BoxBotActionContext) => use({ ...ctx, config: { ...defaults, ...ctx.actionConfig?.[name] } })`
+     にラップして返す。per-action の `Config` 型は `defineAction` の型引数で保持され、ラッパー境界で確定。
+   - orchestrator (`useBoxBotModel` の `for (const action of actions)`) は raw な
+     `actionConfig: opts.actionConfig ?? {}` を base ctx に載せ `action.use(baseCtx)` を回すだけ。
+     `AnyBoxBotAction` に潰れても `use` の中身はラップ済みなので型は緩まない。base ctx の型は
+     `BoxBotActionContext` (= `BoxBotActionContext<never>`、`config` へはアクセス不可)。
+   - defaults マージは descriptor 内に閉じる。`useBoxBotModel` の per-key マージ (`arm`/`body`/...) は現状維持、
+     action ぶんの畳み込みループは持たない。
+   - stringly な `actionConfig?.[name]` は `defineAction` 内部の 1 箇所のみ。アクション作者は触らない。
+5. **`cfg` は ctx に残す** (純ジオメトリ化後の geometry/見た目参照用。将来 fall の `groundY` 算出等)。
+   jump は `cfg` を touch しなくなる。
 
-影響ファイル (各小): `_actions/types.ts` (generic ctx + `BoxBotActionConfigs`) /
-`_actions/define-action.ts` (`Config` 型パラメータ + `defaults`) / `_actions/jump/index.ts` (`defaults` 渡す) /
-`_actions/jump/use-jump.ts` (`ctx.config` へ) / `box-bot-model/index.types.ts` (`jump` 削除・`actionConfig` 追加) /
-`box-bot-model/index.constants.ts` (`JUMP_DEFAULTS` 撤去) / `box-bot-model/index.hooks.ts` (`actionConfig` 畳み + ctx へ)。
+影響ファイル (各小): `_actions/types.ts` (generic ctx + `BoxBotActionConfigs` + ctx へ `actionConfig`) /
+`_actions/define-action.ts` (`Config` 型パラメータ + `defaults` + `use` ラップ) / `_actions/jump/index.ts` (`defaults` 渡す) /
+`_actions/jump/use-jump.ts` (`ctx.config` へ) / `box-bot-model/index.types.ts` (`jump` 削除・`actionConfig` prop 追加) /
+`box-bot-model/index.constants.ts` (`JUMP_DEFAULTS` 撤去) / `box-bot-model/index.hooks.ts` (base ctx へ raw `actionConfig`)。
 
 未整理: dispatch 時 1 回上書き (`JumpOverride` = `CustomEvent.detail`) は `Arg` 型パラメータ経由で別系統。
 本方針は触らない。`Config` (既定) と `Arg` (1回上書き) は jump では両方 `JumpConfig` 系だが概念別、型パラメータは分ける。
