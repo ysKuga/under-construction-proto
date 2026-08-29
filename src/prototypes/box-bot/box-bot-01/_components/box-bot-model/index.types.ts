@@ -2,10 +2,10 @@ import type { ThreeEvent } from '@react-three/fiber'
 import type { RefObject } from 'react'
 import type { Group } from 'three'
 
-import type { JumpConfig } from '../../_actions/jump/config'
-import type { AnyBoxBotAction } from '../../_actions/types'
-
-export type { JumpConfig, JumpOverride } from '../../_actions/jump/config'
+import type {
+  ActionConfigOverrides,
+  AnyBoxBotAction,
+} from '../../_actions/types'
 
 export interface BoxBot3DConfig {
   /** 腕の設定 */
@@ -54,8 +54,6 @@ export interface BoxBot3DConfig {
   }
   /** 線(輪郭・目・口)の色 */
   ink: string
-  /** ジャンプの設定。型・既定値は `_actions/jump` が持つ */
-  jump: JumpConfig
   /** 脚の設定 */
   leg: {
     /** 奥行き */
@@ -92,6 +90,14 @@ export interface BoxBot3DConfig {
 }
 
 export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
+  /**
+   * per-action 設定の外部上書き
+   *
+   * - キー = アクション名。`BoxBot3D`(外殻)が厳密型(`BoxBotActionConfigs`)で受け、\
+   *   ここへは緩い形で渡す。`defineAction` のラッパーが各アクションの `defaults` と\
+   *   マージして `ctx.config` にする
+   */
+  actionConfig?: ActionConfigOverrides
   /**
    * このモデルが実行するアクション一覧
    *

@@ -1,5 +1,3 @@
-import { JUMP_DEFAULTS } from '../../_actions/jump/config'
-
 import type { BoxBot3DConfig } from './index.types'
 
 export const DEFAULTS: BoxBot3DConfig = {
@@ -15,7 +13,6 @@ export const DEFAULTS: BoxBot3DConfig = {
   eye: { d: 0.06, h: 0.34, offset: 0.42, w: 0.06 },
   head: { d: 1.2, h: 1.0, w: 1.6 },
   ink: '#191B21',
-  jump: JUMP_DEFAULTS,
   leg: { d: 0.22, gap: 0.5, h: 0.5, w: 0.22 },
   lineWidth: 2.5,
   outline: true,

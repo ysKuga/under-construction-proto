@@ -102,6 +102,7 @@ const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
  */
 
 export default function BoxBot3D({
+  actionConfig,
   actions = BOX_BOT_ACTIONS,
   background = 'transparent',
   children,
@@ -210,6 +211,7 @@ export default function BoxBot3D({
           />
           <hemisphereLight args={HEMISPHERE_LIGHT_ARGS} />
           <BoxBotModel
+            actionConfig={actionConfig}
             actions={actions}
             clickBindings={resolvedClickBindings}
             interactive={interactive}

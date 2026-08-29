@@ -25,6 +25,19 @@ type Story = StoryObj<typeof StoryComponent>
 export const Default: Story = {}
 
 /**
+ * `actionConfig` prop で jump の既定値を上書き
+ *
+ * - dispatch の 1 回上書き(`jump({...})`)ではなく props で既定を差し替える。\
+ *   クリック起点・hopping にも効く
+ * - `BoxBot3DConfig` に jump フィールドは無く、値は `_actions/jump` の descriptor が持つ(残る結合 A)
+ */
+export const ConfigOverride: Story = {
+  args: {
+    actionConfig: { jump: { durSec: 0.8, liftPx: 260 } },
+  },
+}
+
+/**
  * jump action の挙動・パラメータ調節
  *
  * - Jump ボタンで単発ジャンプ。スライダーで持ち上げ量(px)・継続時間(秒)を変え、\

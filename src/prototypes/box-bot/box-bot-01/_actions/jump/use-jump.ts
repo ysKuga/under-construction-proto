@@ -17,8 +17,9 @@ import {
  * ジャンプ action の購読・可視化
  *
  * - `ACTION_JUMP`(クリック起点・外部 dispatch・hopping いずれも同じ)を購読し `jumpRef` を起動
- * - 持ち上げ量・継続時間は `cfg.jump` を既定に、dispatch 時の `CustomEvent.detail`(`JumpOverride`)で\
- *   1 回だけ上書きできる。開始時に解決して `jumpConfigRef` に固定し、`useFrame` はそれを読む
+ * - 持ち上げ量・継続時間は `ctx.config`(`JUMP_DEFAULTS` ← `actionConfig.jump` 上書き)を既定に、\
+ *   dispatch 時の `CustomEvent.detail`(`JumpOverride`)で 1 回だけ上書きできる。\
+ *   開始時に解決して `jumpConfigRef` に固定し、`useFrame` はそれを読む
  * - 縦移動は表示領域(`displayAreaRef` = Canvas ラッパー DOM)の `top` 書き換えで行い、\
  *   Canvas 内では squash(`rootRef` の scale)のみ制御する。ラッパーへの `transform` 変更は\
  *   r3f Canvas の描画レイヤーが再合成されず画面が動かないため `top` を使う(#108)
@@ -26,14 +27,14 @@ import {
  *
  * @param ctx アクション実行コンテキスト
  */
-export const useJump = (ctx: BoxBotActionContext): void => {
-  const { cfg, displayAreaRef, eventTarget, props, refs } = ctx
+export const useJump = (ctx: BoxBotActionContext<JumpConfig>): void => {
+  const { config, displayAreaRef, eventTarget, props, refs } = ctx
   const { interactive } = props
   const { rootRef } = refs
 
   /** ジャンプ進行度。-1: 非ジャンプ中、0以上: 経過秒数 */
   const jumpRef = useRef(-1)
-  /** 実行中ジャンプの解決済みパラメータ。null のときは `cfg.jump` を使う */
+  /** 実行中ジャンプの解決済みパラメータ。null のときは `config` を使う */
   const jumpConfigRef = useRef<JumpConfig | null>(null)
 
   const onJump = (e: Event) => {
@@ -42,8 +43,8 @@ export const useJump = (ctx: BoxBotActionContext): void => {
 
     const override = (e as CustomEvent<JumpOverride | undefined>).detail
     jumpConfigRef.current = {
-      durSec: override?.durSec ?? cfg.jump.durSec,
-      liftPx: override?.liftPx ?? cfg.jump.liftPx,
+      durSec: override?.durSec ?? config.durSec,
+      liftPx: override?.liftPx ?? config.liftPx,
     }
     jumpRef.current = 0
   }
@@ -54,8 +55,8 @@ export const useJump = (ctx: BoxBotActionContext): void => {
   useFrame((_, dt) => {
     if (!rootRef.current) return
 
-    // hopping 起点のジャンプは jumpConfigRef を立てないため cfg.jump に fallback
-    const { durSec, liftPx } = jumpConfigRef.current ?? cfg.jump
+    // hopping 起点のジャンプは jumpConfigRef を立てないため config に fallback
+    const { durSec, liftPx } = jumpConfigRef.current ?? config
 
     let lift = 0,
       sx = 1,

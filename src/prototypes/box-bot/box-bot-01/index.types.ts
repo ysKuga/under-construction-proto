@@ -1,6 +1,7 @@
 import type { CSSProperties, PropsWithChildren } from 'react'
 
-import type { AnyBoxBotAction } from './_actions/types'
+import { BOX_BOT_ACTIONS } from './_actions'
+import type { AnyBoxBotAction, BoxBotActionConfigs } from './_actions/types'
 import type {
   BoxBotModelProps,
   ClickBindings,
@@ -8,8 +9,22 @@ import type {
 
 export interface BoxBot3DProps
   extends
-    Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'displayAreaRef'>,
+    Omit<
+      BoxBotModelProps,
+      'actionConfig' | 'actions' | 'clickBindings' | 'displayAreaRef'
+    >,
     PropsWithChildren {
+  /**
+   * per-action 設定の上書き
+   *
+   * - キー = アクション名、値 = そのアクションの設定の部分指定
+   * - 既定の `BOX_BOT_ACTIONS` から型が導出される。例: `{ jump: { liftPx: 200 } }`
+   */
+  actionConfig?: {
+    [K in keyof BoxBotActionConfigs<typeof BOX_BOT_ACTIONS>]?: Partial<
+      BoxBotActionConfigs<typeof BOX_BOT_ACTIONS>[K]
+    >
+  }
   /**
    * bot が実行するアクション一覧
    *
