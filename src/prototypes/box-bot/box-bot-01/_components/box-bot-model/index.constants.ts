@@ -1,4 +1,5 @@
 import { JUMP_DEFAULTS } from '../../_actions/jump/config'
+
 import type { BoxBot3DConfig } from './index.types'
 
 export const DEFAULTS: BoxBot3DConfig = {
