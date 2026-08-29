@@ -113,6 +113,12 @@ export type BoxBotActionHost = {
    * - `sx` は x/z 軸、`sy` は y 軸の倍率。adapter が全体グループの `scale` へ反映する
    */
   applySquash: (sx: number, sy: number) => void
+  /**
+   * yaw(y 軸回転)を増分で加える
+   *
+   * - `rad` はこのフレームで加算する角度。adapter が回転グループの `rotation.y` へ加算する
+   */
+  applyYawDelta: (rad: number) => void
   /** action イベント発行/購読に使う EventTarget */
   eventTarget: EventTarget
   /** クリック操作が有効か。無効時はアクションを起動しない */

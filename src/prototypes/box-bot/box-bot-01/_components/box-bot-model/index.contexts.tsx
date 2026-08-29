@@ -81,14 +81,19 @@ export const BoxBotActionsProvider = ({
 /**
  * bot 本体で共有する ref 群を生成し配布する
  *
- * - 現状は `rootRef`(jump の squash 対象)のみ。アクション固有の ref は\
- *   各アクション(`_actions/<name>/`)が自前で `useRef` する
+ * - `rootRef`(jump の squash 対象)と `yawRef`(y 軸回転を累積するグループ)。\
+ *   どちらも JSX の `<group ref>` にバインドされ、adapter 経由でアクションへ操作面を渡す
+ * - アクション固有の ref は各アクション(`_actions/<name>/`)が自前で `useRef` する
  * - 複数アクションから同じ ref を参照する形は Context で配布する(r3f-state ルール)
  */
 export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const rootRef = React.useRef<Group>(null)
+  const yawRef = React.useRef<Group>(null)
 
-  const refs = React.useMemo<BoxBotRefs>(() => ({ rootRef }), [rootRef])
+  const refs = React.useMemo<BoxBotRefs>(
+    () => ({ rootRef, yawRef }),
+    [rootRef, yawRef],
+  )
 
   return (
     <BoxBotRefsContext.Provider value={refs}>

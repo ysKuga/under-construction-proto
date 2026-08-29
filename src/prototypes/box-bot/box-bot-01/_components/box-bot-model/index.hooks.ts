@@ -51,6 +51,11 @@ const writeLift = (
   }
 }
 
+/** y 軸回転グループへ `rad` を増分加算する */
+const writeYawDelta = (yawRef: RefObject<Group | null>, rad: number): void => {
+  if (yawRef.current) yawRef.current.rotation.y += rad
+}
+
 /** BoxBotModel のロジック(設定マージ・ジオメトリ寸法・アクション実行) */
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
@@ -75,7 +80,7 @@ export function useBoxBotModel(
 
   const { actions } = useBoxBotActions()
 
-  const { rootRef } = useBoxBotRefs()
+  const { rootRef, yawRef } = useBoxBotRefs()
 
   const eventTarget = useBoxBotEventTarget()
   const dispatch = useEventDispatcher(eventTarget)
@@ -117,6 +122,7 @@ export function useBoxBotModel(
     actionConfig,
     applyLift: (px) => writeLift(displayAreaRef, px),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
+    applyYawDelta: (rad) => writeYawDelta(yawRef, rad),
     eventTarget,
     interactive,
   }
@@ -146,5 +152,6 @@ export function useBoxBotModel(
     rotationY,
     shoulderX,
     shoulderY,
+    yawRef,
   }
 }

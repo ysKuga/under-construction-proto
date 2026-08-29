@@ -1,4 +1,5 @@
 import { jumpAction } from './jump'
+import { spinAction } from './spin'
 
 export * from './define-action'
 export * from './types'
@@ -10,7 +11,7 @@ export * from './types'
  * - 追加は descriptor を作ってここへ 1 行、削除は 1 行消すだけ。\
  *   dispatcher(`useBoxBotActionDispatcher`)のメソッド・型もこの配列から導出される
  */
-export const BOX_BOT_ACTIONS = [jumpAction] as const
+export const BOX_BOT_ACTIONS = [jumpAction, spinAction] as const
 
 /**
  * 要素クリック → 発火する action イベント名の既定の紐づけ(合成ルート)
@@ -18,8 +19,9 @@ export const BOX_BOT_ACTIONS = [jumpAction] as const
  * - bot 本体は要素押下で `ON_CLICK_BODY` / `ON_CLICK_HEAD` を発行するだけ。\
  *   「どの要素でどの action を起こすか」を決めるのはここだけ。\
  *   `clickBindings` prop で個別に上書きできる
+ * - 既定: 胴 → jump、頭 → spin
  */
 export const DEFAULT_CLICK_BINDINGS = {
   body: jumpAction.event,
-  head: jumpAction.event,
+  head: spinAction.event,
 } as const
