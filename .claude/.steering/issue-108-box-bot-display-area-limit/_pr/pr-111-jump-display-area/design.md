@@ -210,3 +210,20 @@ export const jumpAction = defineAction({
 2. **B** (narrow host + adapter) — 接点最小化
 3. D / E — 軽い
 4. fall/spin 等の復帰 (削除したアクション群を新レジストリ形式で戻す)
+
+## 直後の予定: `box-bot-3d/` を `box-bot-01/` 直下へフラット化
+
+このメモまでを PR #111 としてマージ。直後に別 PR で下記を行う。
+
+- `src/prototypes/box-bot/box-bot-01/_components/box-bot-3d/` 配下
+  (`index.tsx` / `index.types.ts` / `_actions/` / `_components/` 等) を
+  `src/prototypes/box-bot/box-bot-01/` 直下へ移動
+- 理由:
+  - `box-bot-01/_components/` 配下が `box-bot-3d/` ただ 1 つ。冗長なネスト
+  - `box-bot-01/index.tsx` は現状 re-export barrel のみ
+    (`export { default as BoxBot01 } from './_components/box-bot-3d'`)
+- 変更:
+  - `box-bot-01/index.tsx` を BoxBot3D 本体へ (barrel 維持の是非は着手時に判断)
+  - `index.stories.tsx` の import 追従
+  - 相対 import パスを一括修正 (階層が 1 つ減る)。`git mv` + パス置換
+- PR #111 とは分ける (レビュー粒度・diff を分離するため)
