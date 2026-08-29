@@ -77,7 +77,7 @@ GitHub #108 / Jira UC-10「box bot 改善」内「アクション範囲 (表示�
 
 PR #111 で jump をレジストリ形式へ移行 (`_actions/<name>/` descriptor + `BOX_BOT_ACTIONS` 配列 +
 `for..of` orchestrator + Context 注入)。fall/spin 等は検証のため一旦全削除、新形式で復帰予定。
-経緯は PR #111 [design.md](_pr/pr-111-jump-display-area/design.md) の「実装済み: 案A」参照。
+経緯は PR #111 [design.md](_closed/pr-111-jump-display-area/design.md) の「実装済み: 案A」参照。
 移行後に残った box-bot ↔ アクション間の結合が以下。実装は box-bot-01 で直接、別 PR 想定。
 
 ### 残る結合 (優先度順)
