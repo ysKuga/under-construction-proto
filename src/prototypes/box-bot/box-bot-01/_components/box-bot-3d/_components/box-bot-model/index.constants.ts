@@ -4,9 +4,9 @@ import type { BoxBot3DConfig } from './index.types'
 export const DEFAULTS: BoxBot3DConfig = {
   arm: {
     d: 0.18,
-    leftAngle: -0.5,
+    leftAngle: 0,
     leftLen: 1.15,
-    rightAngle: 2.4,
+    rightAngle: 0,
     rightLen: 1.0,
     w: 0.18,
   },

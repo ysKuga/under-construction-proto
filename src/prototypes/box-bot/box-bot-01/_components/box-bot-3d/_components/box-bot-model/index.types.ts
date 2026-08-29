@@ -11,19 +11,11 @@ export interface BoxBot3DConfig {
   arm: {
     /** 奥行き */
     d: number
-    /**
-     * 左腕の角度(z 軸回転)
-     *
-     * - leftUp = false(下げ)時の値
-     */
+    /** 左腕の傾き(肩を支点にした z 軸回転、rad)。0 = 下げ */
     leftAngle: number
     /** 左腕の長さ */
     leftLen: number
-    /**
-     * 右腕の角度(z 軸回転)
-     *
-     * - rightUp = true(上げ)時の値
-     */
+    /** 右腕の傾き(肩を支点にした z 軸回転、rad)。0 = 下げ */
     rightAngle: number
     /** 右腕の長さ */
     rightLen: number
