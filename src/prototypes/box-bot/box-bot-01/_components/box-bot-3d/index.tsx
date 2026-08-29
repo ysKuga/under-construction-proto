@@ -11,8 +11,6 @@ import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
-export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
-
 /**
  * Assembly(設置領域)= Canvas(表示領域)のデフォルトの一辺(px)
  *
@@ -93,8 +91,7 @@ const ORBIT_TARGET: Vec3 = [-0.2, 0.2, 0]
  * 辺は drei <Line>(fat-line)で描くため lineWidth(px)が効く。
  *
  * インタラクション(interactive=true):
- *   - 腕をクリック  … その腕を上げ下げ
- *   - 頭/胴をクリック … ジャンプ(ホップ)
+ *   - 頭/胴をクリック … ジャンプ
  *
  * 依存: three, @react-three/fiber, @react-three/drei
  *   npm i three @react-three/fiber @react-three/drei
@@ -104,7 +101,6 @@ const ORBIT_TARGET: Vec3 = [-0.2, 0.2, 0]
  */
 
 export default function BoxBot3D({
-  autoRotate = true,
   background = 'transparent',
   children,
   className,
@@ -114,7 +110,6 @@ export default function BoxBot3D({
   lightPosition = DIRECTIONAL_LIGHT_POSITION,
   onClick,
   orbit = true,
-  rotateSpeed,
   shadowOpacity = SHADOW_OPACITY,
   shadowVariant = 'contact',
   style,
@@ -210,10 +205,8 @@ export default function BoxBot3D({
           />
           <hemisphereLight args={HEMISPHERE_LIGHT_ARGS} />
           <BoxBotModel
-            autoRotate={autoRotate}
             interactive={interactive}
             onClick={onClick}
-            rotateSpeed={rotateSpeed}
             {...cfg}
             displayAreaRef={displayAreaRef}
             lineWidth={cfg.lineWidth ?? DEFAULTS.lineWidth * lineScale}

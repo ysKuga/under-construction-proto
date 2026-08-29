@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import type { PropsWithChildren } from 'react'
+import type { Group } from 'three'
 
 import { createRequiredContext } from '@/utils/create-required-context'
 
@@ -25,87 +26,23 @@ const {
   'useBoxBotRefs should be used within <BoxBotRefsProvider>',
 )
 
-/** box-bot-model の各 action hook が共有する ref 群を配布する Context */
+/** bot 本体で共有する ref 群を配布する Context */
 export const BoxBotRefsContext = RequiredRefsContext
 
-/** box-bot-model の各 action hook が共有する ref 群を取得する */
+/** bot 本体で共有する ref 群を取得する */
 export const useBoxBotRefs = (): BoxBotRefs => useRequiredRefsContext()
 
 /**
- * spin/arm/leg/walking/marching 等、bot 本体で共有する ref 群を生成し配布する
+ * bot 本体で共有する ref 群を生成し配布する
  *
- * - アクション固有の ref(jump の進行度等)は各アクション(`_actions/<name>/`)が自前で持つ
- *
- * - 生成した ref オブジェクト自体は各 hook 内で `.current` を書き換えるのみで\
- *   差し替えないため、`useMemo` で Context 値を安定させ、Provider の再レンダーが\
- *   下位 Consumer の不要な再レンダーを誘発しないようにする
+ * - 現状は `rootRef`(jump の squash 対象)のみ。アクション固有の ref は\
+ *   各アクション(`_actions/<name>/`)が自前で `useRef` する
+ * - 複数アクションから同じ ref を参照する形は Context で配布する(r3f-state ルール)
  */
 export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
-  const botHoverRef: BoxBotRefs['botHoverRef'] = React.useRef(false)
-  const hoppingCooldownRef: BoxBotRefs['hoppingCooldownRef'] = React.useRef(-1)
-  const hoppingRef: BoxBotRefs['hoppingRef'] = React.useRef(false)
-  const fallRef: BoxBotRefs['fallRef'] = React.useRef(-1)
-  const fallPivotRef: BoxBotRefs['fallPivotRef'] = React.useRef(null)
-  const getUpRef: BoxBotRefs['getUpRef'] = React.useRef(-1)
-  const postureRef: BoxBotRefs['postureRef'] = React.useRef(0)
-  const rootRef: BoxBotRefs['rootRef'] = React.useRef(null)
-  const spinActionRef: BoxBotRefs['spinActionRef'] = React.useRef(-1)
-  const spinHeldRef: BoxBotRefs['spinHeldRef'] = React.useRef(false)
-  const spinReleaseElapsedRef: BoxBotRefs['spinReleaseElapsedRef'] =
-    React.useRef(-1)
-  const spinRef: BoxBotRefs['spinRef'] = React.useRef(null)
-  const leftArmRef: BoxBotRefs['leftArmRef'] = React.useRef(null)
-  const rightArmRef: BoxBotRefs['rightArmRef'] = React.useRef(null)
-  const leftLegRef: BoxBotRefs['leftLegRef'] = React.useRef(null)
-  const rightLegRef: BoxBotRefs['rightLegRef'] = React.useRef(null)
-  const walkingBobRef: BoxBotRefs['walkingBobRef'] = React.useRef(null)
-  const walkingRef: BoxBotRefs['walkingRef'] = React.useRef(false)
-  const marchingRef: BoxBotRefs['marchingRef'] = React.useRef(false)
+  const rootRef = React.useRef<Group>(null)
 
-  const refs = React.useMemo<BoxBotRefs>(
-    () => ({
-      botHoverRef,
-      fallPivotRef,
-      fallRef,
-      getUpRef,
-      hoppingCooldownRef,
-      hoppingRef,
-      leftArmRef,
-      leftLegRef,
-      marchingRef,
-      postureRef,
-      rightArmRef,
-      rightLegRef,
-      rootRef,
-      spinActionRef,
-      spinHeldRef,
-      spinRef,
-      spinReleaseElapsedRef,
-      walkingBobRef,
-      walkingRef,
-    }),
-    [
-      botHoverRef,
-      fallPivotRef,
-      fallRef,
-      getUpRef,
-      hoppingCooldownRef,
-      hoppingRef,
-      leftArmRef,
-      leftLegRef,
-      marchingRef,
-      postureRef,
-      rightArmRef,
-      rightLegRef,
-      rootRef,
-      spinActionRef,
-      spinHeldRef,
-      spinReleaseElapsedRef,
-      spinRef,
-      walkingBobRef,
-      walkingRef,
-    ],
-  )
+  const refs = React.useMemo<BoxBotRefs>(() => ({ rootRef }), [rootRef])
 
   return (
     <BoxBotRefsContext.Provider value={refs}>
