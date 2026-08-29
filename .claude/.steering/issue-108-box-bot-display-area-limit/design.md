@@ -153,7 +153,7 @@ box-bot-model が `BoxBot3DConfig.jump` (型) / `DEFAULTS.jump` (値 import) / `
 2. **B** (narrow host + adapter) — 接点最小化
 3. D / E — 軽い
 4. fall/spin 等の復帰 (削除したアクション群を新レジストリ形式で戻す)
-5. 部位アンカーの戻り値まとめ (`layout`) — 独立、いつでも。下記
+5. ~~部位アンカーの戻り値まとめ (`layout`)~~ — 実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors。下記
 
 ### B の pilot (実装済み 2026-08-29、ブランチ 108-box-bot-action-host)
 
@@ -169,17 +169,19 @@ spin (one-shot) を 2 個目の consumer として復帰させ B を試作。
 - 残: `onFrame` / `onAction` は host に載せず r3f / `useEventListener` 直 import 継続。
   fall 復帰時に 3 個目の consumer で host 語彙を再検討
 
-### 部位アンカーの戻り値まとめ (`layout`、未着手)
+### 部位アンカーの戻り値まとめ (`layout`、実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors)
 
 `useBoxBotModel` の戻り値のうち cfg から計算する部位配置 (`headY` / `headFront` / `shoulderX` / `shoulderY` /
 `legX` / `legY`) をネスト化。アクセスは `layout.leg.x` / `layout.head.front` の形。
 
-- コンテナ名 `layout` (部位の配置アンカー)。`geometry` は raw 寸法と紛らわしい、`anchors` も可
+- コンテナ名 `layout` (部位の配置アンカー)
 - 形: `{ head: { y, front }, shoulder: { x, y }, leg: { x, y } }`。2 階層固定 `layout.<部位>.<軸 | 意味>`
-- 純関数 `deriveLayout(cfg): BoxBotLayout` を `_lib/` へ切り出し、hook は呼ぶだけ。幾何計算を hook から分離・テスト可能
-- `UseBoxBotModelReturn` の flat 6 キー → `layout` 1 つ。各フィールド JSDoc。消費は `BoxBotModelInner` のみ (~6 箇所)
-- raw 寸法直参照 (`cfg.body.w` 等) は `cfg.*` のまま。移すのは派生アンカーだけ
-- B との噛み合い: fall が要る `groundY` (脚下端) は `layout.ground.y` として足せる。
+- 純関数 `deriveLayout(cfg): BoxBotLayout` を `box-bot-model/_lib/derive-layout.ts` へ切り出し、hook は呼ぶだけ。
+  `__tests__/derive-layout.test.ts` で DEFAULTS からの導出値・スケール方向を検証
+- `UseBoxBotModelReturn` の flat 6 キー → `layout` 1 つ。`BoxBotLayout` を `index.types.ts` に定義、各フィールド JSDoc。
+  消費は `BoxBotModelInner` のみ
+- raw 寸法直参照 (`cfg.body.w` / `cfg.eye.offset` 等) は `cfg.*` のまま
+- 未実施 (fall 復帰時): `groundY` (脚下端) を `layout.ground.y` として追加。
   将来 host が raw `cfg` でなく `layout` (読み取り専用の派生幾何) を露出する形の下地
   (上記「A の実装方針」5 の「cfg は ctx に残す」を絞った版)
 - **`refs` のネストは fall 復帰後に `layout` と対で再検討**。現状は `rootRef` / `yawRef` の 2 個のみで
