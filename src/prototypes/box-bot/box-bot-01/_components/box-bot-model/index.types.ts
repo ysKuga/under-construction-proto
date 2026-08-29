@@ -144,6 +144,14 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 export interface BoxBotRefs {
   /** 全体グループ。jump の squash(scale)対象。JSX で `<group ref>` にバインドする */
   rootRef: RefObject<Group | null>
+  /**
+   * y 軸回転を増分で累積するグループ
+   *
+   * - `rotation.y` を `+=` で足す対象。spin / autoRotate 等 複数 action が相乗りする
+   * - `rootRef` を包む外側グループ。JSX で `<group ref>` にバインドする。\
+   *   回転 prop を持たせないことで、再レンダー時に累積回転が巻き戻らないようにする
+   */
+  yawRef: RefObject<Group | null>
 }
 
 /** 要素クリック → 発火する action イベント名の対応。省略キーは既定のまま */
@@ -160,7 +168,10 @@ export type Handlers = {
   onPointerUp?: (e: ThreeEvent<PointerEvent>) => void
 }
 
-export interface UseBoxBotModelReturn extends Pick<BoxBotRefs, 'rootRef'> {
+export interface UseBoxBotModelReturn extends Pick<
+  BoxBotRefs,
+  'rootRef' | 'yawRef'
+> {
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
   /**

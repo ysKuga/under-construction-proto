@@ -13,24 +13,27 @@ import {
   type JumpOverride,
 } from './config'
 
+/** jump が host から必要とする操作面 */
+type JumpHost = Pick<
+  BoxBotActionContext<JumpConfig>,
+  'applyLift' | 'applySquash' | 'config' | 'eventTarget' | 'interactive'
+>
+
 /**
  * ジャンプ action の購読・可視化
  *
  * - `ACTION_JUMP`(クリック起点・外部 dispatch・hopping いずれも同じ)を購読し `jumpRef` を起動
- * - 持ち上げ量・継続時間は `ctx.config`(`JUMP_DEFAULTS` ← `actionConfig.jump` 上書き)を既定に、\
+ * - 持ち上げ量・継続時間は `host.config`(`JUMP_DEFAULTS` ← `actionConfig.jump` 上書き)を既定に、\
  *   dispatch 時の `CustomEvent.detail`(`JumpOverride`)で 1 回だけ上書きできる。\
  *   開始時に解決して `jumpConfigRef` に固定し、`useFrame` はそれを読む
- * - 縦移動は表示領域(`displayAreaRef` = Canvas ラッパー DOM)の `top` 書き換えで行い、\
- *   Canvas 内では squash(`rootRef` の scale)のみ制御する。ラッパーへの `transform` 変更は\
- *   r3f Canvas の描画レイヤーが再合成されず画面が動かないため `top` を使う(#108)
- * - `jumpRef` / `jumpConfigRef` は本アクションがローカルに持つ(bot 本体の ref 群から独立)
+ * - 縦移動は `host.applyLift`(adapter が表示領域 DOM の `top` を書き換える)、\
+ *   潰しは `host.applySquash`(adapter が全体グループの scale へ)。THREE / DOM を直接触らない
+ * - `jumpRef` / `jumpConfigRef` は本アクションがローカルに持つ
  *
- * @param ctx アクション実行コンテキスト
+ * @param host アクション実行に必要な操作面(adapter が実装)
  */
-export const useJump = (ctx: BoxBotActionContext<JumpConfig>): void => {
-  const { config, displayAreaRef, eventTarget, props, refs } = ctx
-  const { interactive } = props
-  const { rootRef } = refs
+export const useJump = (host: JumpHost): void => {
+  const { applyLift, applySquash, config, eventTarget, interactive } = host
 
   /** ジャンプ進行度。-1: 非ジャンプ中、0以上: 経過秒数 */
   const jumpRef = useRef(-1)
@@ -51,10 +54,8 @@ export const useJump = (ctx: BoxBotActionContext<JumpConfig>): void => {
 
   useEventListener(ACTION_JUMP, onJump, { target: eventTarget })
 
-  // 進行度に応じた squash(rootRef の scale)と表示領域の持ち上げ(displayAreaRef の top)更新
+  // 進行度に応じた squash と表示領域の持ち上げを毎フレーム適用
   useFrame((_, dt) => {
-    if (!rootRef.current) return
-
     // hopping 起点のジャンプは jumpConfigRef を立てないため config に fallback
     const { durSec, liftPx } = jumpConfigRef.current ?? config
 
@@ -73,10 +74,7 @@ export const useJump = (ctx: BoxBotActionContext<JumpConfig>): void => {
         sx = 1 - JUMP_SQUASH_X * Math.sin(p * Math.PI * 2)
       }
     }
-    rootRef.current.scale.set(sx, sy, sx)
-    // 基準位置 top:50%(JSX 側)からジャンプ分だけ上へずらす。transform は中央寄せ専用に固定
-    if (displayAreaRef?.current) {
-      displayAreaRef.current.style.top = `calc(50% - ${lift}px)`
-    }
+    applySquash(sx, sy)
+    applyLift(lift)
   })
 }

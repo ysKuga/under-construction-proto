@@ -153,6 +153,38 @@ box-bot-model が `BoxBot3DConfig.jump` (型) / `DEFAULTS.jump` (値 import) / `
 2. **B** (narrow host + adapter) — 接点最小化
 3. D / E — 軽い
 4. fall/spin 等の復帰 (削除したアクション群を新レジストリ形式で戻す)
+5. 部位アンカーの戻り値まとめ (`layout`) — 独立、いつでも。下記
+
+### B の pilot (実装済み 2026-08-29、ブランチ 108-box-bot-action-host)
+
+spin (one-shot) を 2 個目の consumer として復帰させ B を試作。
+
+- host = `BoxBotActionHost` (`interactive` / `eventTarget` / `applySquash` / `applyLift` / `applyYawDelta`)。
+  各アクションは `Pick` で narrow に受ける (`JumpHost` / `SpinHost`)。fat な base ctx (`cfg` / `refs` / `props` 丸ごと) 撤去
+- adapter = `box-bot-model/index.hooks.ts`。THREE / DOM 書き込みは module scope の `write*` に隔離、
+  render scope では ref オブジェクトを渡すだけ (`react-hooks/refs` 対策。`useMemo` ラップは不可、module scope 関数が正解)
+- **C は副作用で消滅**: `_actions/types.ts` の import がゼロ。`box-bot-model → _actions` の一方向のみ、循環なし
+- yaw 累積グループの ref を `spinRef` → `yawRef` へ改名 (spin 専用でなく spin / autoRotate が相乗り)
+- spin の局所進行度 ref は `spinRef` のまま (`use-jump` の `jumpRef` と対)
+- 残: `onFrame` / `onAction` は host に載せず r3f / `useEventListener` 直 import 継続。
+  fall 復帰時に 3 個目の consumer で host 語彙を再検討
+
+### 部位アンカーの戻り値まとめ (`layout`、未着手)
+
+`useBoxBotModel` の戻り値のうち cfg から計算する部位配置 (`headY` / `headFront` / `shoulderX` / `shoulderY` /
+`legX` / `legY`) をネスト化。アクセスは `layout.leg.x` / `layout.head.front` の形。
+
+- コンテナ名 `layout` (部位の配置アンカー)。`geometry` は raw 寸法と紛らわしい、`anchors` も可
+- 形: `{ head: { y, front }, shoulder: { x, y }, leg: { x, y } }`。2 階層固定 `layout.<部位>.<軸 | 意味>`
+- 純関数 `deriveLayout(cfg): BoxBotLayout` を `_lib/` へ切り出し、hook は呼ぶだけ。幾何計算を hook から分離・テスト可能
+- `UseBoxBotModelReturn` の flat 6 キー → `layout` 1 つ。各フィールド JSDoc。消費は `BoxBotModelInner` のみ (~6 箇所)
+- raw 寸法直参照 (`cfg.body.w` 等) は `cfg.*` のまま。移すのは派生アンカーだけ
+- B との噛み合い: fall が要る `groundY` (脚下端) は `layout.ground.y` として足せる。
+  将来 host が raw `cfg` でなく `layout` (読み取り専用の派生幾何) を露出する形の下地
+  (上記「A の実装方針」5 の「cfg は ctx に残す」を絞った版)
+- **`refs` のネストは fall 復帰後に `layout` と対で再検討**。現状は `rootRef` / `yawRef` の 2 個のみで
+  時期尚早。fall で `fallPivotRef` / `leftArmRef` / `rightArmRef` 等が増えてから、
+  部位別ネスト (`refs.arm.leftRef` 等、葉の `Ref` サフィックスは維持。`refs.yawRef` も可) を判断
 
 ## 決定事項
 

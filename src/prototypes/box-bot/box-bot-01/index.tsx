@@ -92,7 +92,7 @@ const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
  * 辺は drei <Line>(fat-line)で描くため lineWidth(px)が効く。
  *
  * インタラクション(interactive=true):
- *   - 頭/胴をクリック … ジャンプ
+ *   - 胴をクリック … ジャンプ / 頭をクリック … スピン(既定の clickBindings)
  *
  * 依存: three, @react-three/fiber, @react-three/drei
  *   npm i three @react-three/fiber @react-three/drei
