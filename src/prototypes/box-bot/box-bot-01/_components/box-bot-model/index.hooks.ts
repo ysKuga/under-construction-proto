@@ -54,6 +54,24 @@ const writeYawDelta = (yawRef: RefObject<Group | null>, rad: number): void => {
   if (yawRef.current) yawRef.current.rotation.y += rad
 }
 
+/** 接地点 pivot グループの前傾角(`rotation.x`)を `rad` に設定する(fall) */
+const writeTilt = (
+  fallPivotRef: RefObject<Group | null>,
+  rad: number,
+): void => {
+  if (fallPivotRef.current) fallPivotRef.current.rotation.x = rad
+}
+
+/** 左右の腕グループの前方スイング角(`rotation.x`)を `rad` に設定する(fall) */
+const writeArmAngle = (
+  leftArmRef: RefObject<Group | null>,
+  rightArmRef: RefObject<Group | null>,
+  rad: number,
+): void => {
+  if (leftArmRef.current) leftArmRef.current.rotation.x = rad
+  if (rightArmRef.current) rightArmRef.current.rotation.x = rad
+}
+
 /** BoxBotModel のロジック(設定マージ・ジオメトリ寸法・アクション実行) */
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
@@ -78,7 +96,8 @@ export function useBoxBotModel(
 
   const { actions } = useBoxBotActions()
 
-  const { rootRef, yawRef } = useBoxBotRefs()
+  const { fallPivotRef, leftArmRef, rightArmRef, rootRef, yawRef } =
+    useBoxBotRefs()
 
   const eventTarget = useBoxBotEventTarget()
   const dispatch = useEventDispatcher(eventTarget)
@@ -122,8 +141,10 @@ export function useBoxBotModel(
   // ここでは生の actionConfig bag を載せるだけ
   const actionHost: BoxBotActionBaseHost = {
     actionConfig,
+    applyArmAngle: (rad) => writeArmAngle(leftArmRef, rightArmRef, rad),
     applyLift: (px) => writeLift(displayAreaRef, px),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
+    applyTiltAngle: (rad) => writeTilt(fallPivotRef, rad),
     applyYawDelta: (rad) => writeYawDelta(yawRef, rad),
     eventTarget,
     interactive,
@@ -137,10 +158,13 @@ export function useBoxBotModel(
   return {
     cfg,
     createClickEmitter,
+    fallPivotRef,
     hover,
     interactive,
     layout,
+    leftArmRef,
     onClick,
+    rightArmRef,
     rootRef,
     rotationY,
     yawRef,

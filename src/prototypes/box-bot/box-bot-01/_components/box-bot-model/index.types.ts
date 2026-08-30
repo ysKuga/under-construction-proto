@@ -177,6 +177,17 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 
 /** bot 本体で共有する ref 群 */
 export interface BoxBotRefs {
+  /**
+   * 接地点(脚下端)へ pivot 済みのグループ
+   *
+   * - fall がここへ `rotation.x` を入れて足元を軸に前傾させる。体の中心で回すと\
+   *   足元が浮くため、`rootRef` の内側でこのグループだけを回す。JSX で `<group ref>` にバインド
+   */
+  fallPivotRef: RefObject<Group | null>
+  /** 左腕グループ。fall が `rotation.x` を入れて頭側へ引き寄せる。JSX で `<group ref>` にバインド */
+  leftArmRef: RefObject<Group | null>
+  /** 右腕グループ。fall が `rotation.x` を入れて頭側へ引き寄せる。JSX で `<group ref>` にバインド */
+  rightArmRef: RefObject<Group | null>
   /** 全体グループ。jump の squash(scale)対象。JSX で `<group ref>` にバインドする */
   rootRef: RefObject<Group | null>
   /**
@@ -211,7 +222,7 @@ export type Handlers = {
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
-  'rootRef' | 'yawRef'
+  'fallPivotRef' | 'leftArmRef' | 'rightArmRef' | 'rootRef' | 'yawRef'
 > {
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig

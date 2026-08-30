@@ -1,3 +1,4 @@
+import { fallAction } from './fall'
 import { jumpAction } from './jump'
 import { spinAction } from './spin'
 
@@ -11,7 +12,7 @@ export * from './types'
  * - 追加は descriptor を作ってここへ 1 行、削除は 1 行消すだけ。\
  *   dispatcher(`useBoxBotActionDispatcher`)のメソッド・型もこの配列から導出される
  */
-export const BOX_BOT_ACTIONS = [jumpAction, spinAction] as const
+export const BOX_BOT_ACTIONS = [jumpAction, spinAction, fallAction] as const
 
 /**
  * 要素クリック → 発火する action イベント名の既定の紐づけ(合成ルート)
