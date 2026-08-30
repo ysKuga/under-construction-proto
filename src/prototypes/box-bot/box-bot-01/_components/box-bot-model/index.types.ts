@@ -137,7 +137,7 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
   /**
    * 要素クリック → 発火する action イベント名の解決済み対応表
    *
-   * - bot は要素押下で `ON_CLICK_BODY` / `ON_CLICK_HEAD` を発行するだけ。この対応表が\
+   * - bot は要素押下で `ON_CLICK_ELEMENT`(`detail` に押下要素)を発行するだけ。この対応表が\
    *   それをどの action イベントへ変換するかを決める
    * - `BoxBot3D` が既定(`DEFAULT_CLICK_BINDINGS`)へ prop 上書きをマージして注入する
    */
@@ -187,6 +187,12 @@ export interface BoxBotRefs {
 /** 要素クリック → 発火する action イベント名の対応。省略キーは既定のまま */
 export type ClickBindings = Partial<Record<ClickTarget, string>>
 
+/** `ON_CLICK_ELEMENT` の `detail`。押下された bot 要素を運ぶ */
+export type ClickElementDetail = {
+  /** 押下された要素 */
+  target: ClickTarget
+}
+
 /** クリック可能な bot 要素 */
 export type ClickTarget = 'body' | 'head'
 
@@ -205,14 +211,14 @@ export interface UseBoxBotModelReturn extends Pick<
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
   /**
-   * 要素の押下 → 指定した要素イベントを発行するハンドラを作る
+   * 要素の押下 → その要素を `detail` に載せた `ON_CLICK_ELEMENT` を発行するハンドラを作る
    *
-   * - 例: `createClickEmitter(ON_CLICK_BODY)` を body 要素の `onPointerDown` に渡す。\
-   *   どの要素にどのイベントを割り当てるかは呼び出し側(部位を定義する JSX)が決める。\
+   * - 例: `createClickEmitter('body')` を body 要素の `onPointerDown` に渡す。\
+   *   どの要素かは呼び出し側(部位を定義する JSX)が決める。\
    *   発行された要素イベントを action へ繋ぐのは `clickBindings`
    */
   createClickEmitter: (
-    eventName: string,
+    target: ClickTarget,
   ) => (e: ThreeEvent<PointerEvent>) => void
   /** ホバー時のカーソル制御ハンドラ */
   hover: Handlers
