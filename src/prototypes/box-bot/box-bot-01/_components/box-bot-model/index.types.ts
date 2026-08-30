@@ -185,7 +185,7 @@ export interface BoxBotRefs {
   /**
    * fall がシルエット中心を軸に前傾させるグループ
    *
-   * - fall がここへ `rotation.x` / `scale` を入れる。`rootRef` の内側、bot 全体を包む。\
+   * - fall がここへ `rotation.x` を入れる。`rootRef` の内側、bot 全体を包む。\
    *   親が `layout.center.y` へ移動済みで、この group の原点がシルエット中心に一致する。\
    *   足元が前方へ出た「倒れ込み」の見た目は表示領域の DOM ずらしで合わせる(#108)。\
    *   JSX で `<group ref>` にバインド

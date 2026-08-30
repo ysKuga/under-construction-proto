@@ -108,12 +108,6 @@ export type BoxBotActionHost = {
    */
   applyArmAngle: (rad: number) => void
   /**
-   * 前傾グループ(`fallPivotRef`)へ一様スケールを掛ける(絶対値)
-   *
-   * - `s` は倍率。横倒しで表示領域を超えないよう fall が縮小に使う
-   */
-  applyFallScale: (s: number) => void
-  /**
    * 表示領域(Canvas ラッパー)を基準位置(中央)からずらす
    *
    * - `x` は画面右、`y` は画面上を正とする px。adapter が DOM の `left` / `top` を書き換える(#108)
