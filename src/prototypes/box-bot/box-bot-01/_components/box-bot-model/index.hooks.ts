@@ -38,14 +38,18 @@ const writeSquash = (
   rootRef.current?.scale.set(sx, sy, sx)
 }
 
-/** 表示領域(Canvas ラッパー)を中央から `px` だけ上へ持ち上げる(#108) */
-const writeLift = (
+/**
+ * 表示領域(Canvas ラッパー)を中央から `x`(右)/ `y`(上)px ずらす(#108)
+ *
+ * - 基準位置 left:50% / top:50%(JSX 側)からずらす。transform は中央寄せ専用に固定
+ */
+const writeShift = (
   displayAreaRef: RefObject<HTMLDivElement | null> | undefined,
-  px: number,
+  offset: { x: number; y: number },
 ): void => {
-  // 基準位置 top:50%(JSX 側)からずらす。transform は中央寄せ専用に固定
   if (displayAreaRef?.current) {
-    displayAreaRef.current.style.top = `calc(50% - ${px}px)`
+    displayAreaRef.current.style.left = `calc(50% + ${offset.x}px)`
+    displayAreaRef.current.style.top = `calc(50% - ${offset.y}px)`
   }
 }
 
@@ -54,7 +58,7 @@ const writeYawDelta = (yawRef: RefObject<Group | null>, rad: number): void => {
   if (yawRef.current) yawRef.current.rotation.y += rad
 }
 
-/** 接地点 pivot グループの前傾角(`rotation.x`)を `rad` に設定する(fall) */
+/** 前傾グループ(`fallPivotRef`)の前傾角(`rotation.x`)を `rad` に設定する(fall) */
 const writeTilt = (
   fallPivotRef: RefObject<Group | null>,
   rad: number,
@@ -142,7 +146,7 @@ export function useBoxBotModel(
   const actionHost: BoxBotActionBaseHost = {
     actionConfig,
     applyArmAngle: (rad) => writeArmAngle(leftArmRef, rightArmRef, rad),
-    applyLift: (px) => writeLift(displayAreaRef, px),
+    applyShift: (offset) => writeShift(displayAreaRef, offset),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
     applyTiltAngle: (rad) => writeTilt(fallPivotRef, rad),
     applyYawDelta: (rad) => writeYawDelta(yawRef, rad),

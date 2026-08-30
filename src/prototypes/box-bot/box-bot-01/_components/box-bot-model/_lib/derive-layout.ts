@@ -15,11 +15,18 @@ import type { BoxBot3DConfig, BoxBotLayout } from '../index.types'
  */
 export const deriveLayout = (cfg: BoxBot3DConfig): BoxBotLayout => {
   const bodyTop = cfg.body.h / 2
+  // 脚グループの付け根(-bodyTop)から脚 1 本ぶん下がった足元
+  const groundY = -bodyTop - cfg.leg.h
+  // 頭上端(頭の付け根 + 頭の高さ)
+  const headTopY = bodyTop + HEAD_GAP + cfg.head.h
 
   return {
+    center: {
+      // 足元〜頭上端の中点。直立時にカメラが収める範囲の中心。fall の回転 pivot に使う
+      y: (headTopY + groundY) / 2,
+    },
     ground: {
-      // 脚グループの付け根(-bodyTop)から脚 1 本ぶん下がった位置
-      y: -bodyTop - cfg.leg.h,
+      y: groundY,
     },
     head: {
       front: cfg.head.d / 2 + HEAD_FRONT_MARGIN,

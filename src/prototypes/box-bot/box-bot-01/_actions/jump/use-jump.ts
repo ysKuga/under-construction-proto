@@ -16,7 +16,7 @@ import {
 /** jump が host から必要とする操作面 */
 type JumpHost = Pick<
   BoxBotActionContext<JumpConfig>,
-  'applyLift' | 'applySquash' | 'config' | 'eventTarget' | 'interactive'
+  'applyShift' | 'applySquash' | 'config' | 'eventTarget' | 'interactive'
 >
 
 /**
@@ -26,14 +26,14 @@ type JumpHost = Pick<
  * - 持ち上げ量・継続時間は `host.config`(`JUMP_DEFAULTS` ← `actionConfig.jump` 上書き)を既定に、\
  *   dispatch 時の `CustomEvent.detail`(`JumpOverride`)で 1 回だけ上書きできる。\
  *   開始時に解決して `jumpConfigRef` に固定し、`useFrame` はそれを読む
- * - 縦移動は `host.applyLift`(adapter が表示領域 DOM の `top` を書き換える)、\
+ * - 縦移動は `host.applyShift`(`{ x: 0, y: lift }`。adapter が表示領域 DOM の `top` を書き換える)、\
  *   潰しは `host.applySquash`(adapter が全体グループの scale へ)。THREE / DOM を直接触らない
  * - `jumpRef` / `jumpConfigRef` は本アクションがローカルに持つ
  *
  * @param host アクション実行に必要な操作面(adapter が実装)
  */
 export const useJump = (host: JumpHost): void => {
-  const { applyLift, applySquash, config, eventTarget, interactive } = host
+  const { applyShift, applySquash, config, eventTarget, interactive } = host
 
   /** ジャンプ進行度。-1: 非ジャンプ中、0以上: 経過秒数 */
   const jumpRef = useRef(-1)
@@ -75,6 +75,6 @@ export const useJump = (host: JumpHost): void => {
       }
     }
     applySquash(sx, sy)
-    applyLift(lift)
+    applyShift({ x: 0, y: lift })
   })
 }
