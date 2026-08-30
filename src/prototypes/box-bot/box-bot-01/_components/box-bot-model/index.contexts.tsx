@@ -81,18 +81,22 @@ export const BoxBotActionsProvider = ({
 /**
  * bot 本体で共有する ref 群を生成し配布する
  *
- * - `rootRef`(jump の squash 対象)と `yawRef`(y 軸回転を累積するグループ)。\
- *   どちらも JSX の `<group ref>` にバインドされ、adapter 経由でアクションへ操作面を渡す
- * - アクション固有の ref は各アクション(`_actions/<name>/`)が自前で `useRef` する
- * - 複数アクションから同じ ref を参照する形は Context で配布する(r3f-state ルール)
+ * - `rootRef`(jump の squash 対象)/ `yawRef`(y 軸回転の累積)/ `fallPivotRef`(fall の前傾)/\
+ *   `leftArmRef` `rightArmRef`(fall の腕引き寄せ)。いずれも JSX の `<group ref>` にバインドされ、\
+ *   adapter 経由でアクションへ操作面を渡す
+ * - 単発の進行度など アクション固有の ref は各アクション(`_actions/<name>/`)が自前で `useRef` する
+ * - JSX と adapter の双方から参照される bot 構造の ref を Context で配布する(r3f-state ルール)
  */
 export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const rootRef = React.useRef<Group>(null)
   const yawRef = React.useRef<Group>(null)
+  const fallPivotRef = React.useRef<Group>(null)
+  const leftArmRef = React.useRef<Group>(null)
+  const rightArmRef = React.useRef<Group>(null)
 
   const refs = React.useMemo<BoxBotRefs>(
-    () => ({ rootRef, yawRef }),
-    [rootRef, yawRef],
+    () => ({ fallPivotRef, leftArmRef, rightArmRef, rootRef, yawRef }),
+    [fallPivotRef, leftArmRef, rightArmRef, rootRef, yawRef],
   )
 
   return (

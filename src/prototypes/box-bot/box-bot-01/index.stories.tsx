@@ -106,6 +106,38 @@ export const Jump: Story = {
 }
 
 /**
+ * fall action の挙動確認
+ *
+ * - Fall / Get up ボタンで姿勢をトグル(1 つの `fall()` dispatch)。直立なら転倒、\
+ *   横倒しなら起き上がり。転倒中は接地点(足元)を軸に前傾し、腕を頭側へ引き寄せる
+ * - #108: 前傾で頭が設置領域(赤枠)の下前方へはみ出す。表示領域の限定はフェーズ1で対応
+ */
+export const Fall: Story = {
+  parameters: {
+    options: { showPanel: false },
+  },
+  render: () => {
+    const [eventTarget] = React.useState(() => new EventTarget())
+    const { fall } = useBoxBotActionDispatcher(eventTarget)
+
+    return (
+      <div>
+        <div style={{ position: 'relative', zIndex: 10 }}>
+          <Button onClick={() => void fall()} type="button" variant="outline">
+            Fall / Get up
+          </Button>
+        </div>
+        <StoryComponent
+          eventTarget={eventTarget}
+          shadowOpacity={0}
+          style={{ marginTop: 160, outline: '1px solid red' }}
+        />
+      </div>
+    )
+  },
+}
+
+/**
  * spin action の挙動・パラメータ調節
  *
  * - Spin ボタンで単発スピン(加速 → 最大速度維持 → 減速 → 停止)。スライダーで最大角速度・\

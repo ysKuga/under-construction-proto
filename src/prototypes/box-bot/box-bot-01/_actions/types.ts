@@ -102,6 +102,12 @@ export type BoxBotActionDispatchers<
  */
 export type BoxBotActionHost = {
   /**
+   * 両腕の前方スイング角を設定する(絶対値)
+   *
+   * - `rad` は肩を支点にした x 軸回転。adapter が左右の腕グループの `rotation.x` へ反映する
+   */
+  applyArmAngle: (rad: number) => void
+  /**
    * 表示領域(Canvas ラッパー)を上へ持ち上げる
    *
    * - `px` は基準位置(中央)からの持ち上げ量。adapter が DOM の `top` を書き換える(#108)
@@ -113,6 +119,13 @@ export type BoxBotActionHost = {
    * - `sx` は x/z 軸、`sy` は y 軸の倍率。adapter が全体グループの `scale` へ反映する
    */
   applySquash: (sx: number, sy: number) => void
+  /**
+   * 接地点を軸にした前傾角を設定する(絶対値)
+   *
+   * - `rad` は足元(脚下端)まわりの x 軸回転。adapter が接地点へ pivot 済みのグループの
+   *   `rotation.x` へ反映する。体の中心で回すと足元が浮くため pivot を分ける
+   */
+  applyTiltAngle: (rad: number) => void
   /**
    * yaw(y 軸回転)を増分で加える
    *
