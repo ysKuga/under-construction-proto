@@ -137,4 +137,11 @@ export type BoxBotActionHost = {
   eventTarget: EventTarget
   /** クリック操作が有効か。無効時はアクションを起動しない */
   interactive: boolean
+  /**
+   * 現在の実効 facing(bot の向き、rad)を返す
+   *
+   * - `rotationY`(初期回転 prop)+ `yawRef` の累積回転(spin / autoRotate)
+   * - 0 = カメラ正面(world +z)。fall が倒れ始めに固定し、画面ずらし方向の基準にする
+   */
+  readFacing: () => number
 }
