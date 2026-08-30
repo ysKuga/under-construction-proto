@@ -108,11 +108,12 @@ export type BoxBotActionHost = {
    */
   applyArmAngle: (rad: number) => void
   /**
-   * 表示領域(Canvas ラッパー)を上へ持ち上げる
+   * 表示領域(Canvas ラッパー)を基準位置(中央)からずらす
    *
-   * - `px` は基準位置(中央)からの持ち上げ量。adapter が DOM の `top` を書き換える(#108)
+   * - `x` は画面右、`y` は画面上を正とする px。adapter が DOM の `left` / `top` を書き換える(#108)
+   * - jump は縦移動(`{ x: 0, y: lift }`)、fall は横倒し時の倒れ込みずらしに使う
    */
-  applyLift: (px: number) => void
+  applyShift: (offset: { x: number; y: number }) => void
   /**
    * squash(潰し)を適用する
    *
