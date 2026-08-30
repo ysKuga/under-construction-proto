@@ -96,6 +96,11 @@ export interface BoxBot3DConfig {
  * - 2 階層固定 `layout.<部位>.<軸 | 意味>`
  */
 export interface BoxBotLayout {
+  /** 接地点 */
+  ground: {
+    /** 脚下端の y 座標(足元。fall の回転 pivot になる) */
+    y: number
+  }
   /** 頭 */
   head: {
     /** 前面 z 座標(目・口を浮かせる面) */

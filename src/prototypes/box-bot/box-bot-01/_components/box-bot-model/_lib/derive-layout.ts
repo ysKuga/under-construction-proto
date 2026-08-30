@@ -17,6 +17,10 @@ export const deriveLayout = (cfg: BoxBot3DConfig): BoxBotLayout => {
   const bodyTop = cfg.body.h / 2
 
   return {
+    ground: {
+      // 脚グループの付け根(-bodyTop)から脚 1 本ぶん下がった位置
+      y: -bodyTop - cfg.leg.h,
+    },
     head: {
       front: cfg.head.d / 2 + HEAD_FRONT_MARGIN,
       y: bodyTop + HEAD_GAP + cfg.head.h / 2,
