@@ -165,10 +165,12 @@ export const Fall: Story = {
             />
           </label>
         </div>
+        {/* 転倒で Canvas が設置領域を左下へはみ出すため、story viewport 左端で
+            切れないよう右へ寄せる(スライダー min -200 でも収まる余白) */}
         <StoryComponent
           eventTarget={eventTarget}
           shadowOpacity={0}
-          style={{ marginTop: 160, outline: '1px solid red' }}
+          style={{ marginLeft: 260, marginTop: 160, outline: '1px solid red' }}
         />
       </div>
     )
