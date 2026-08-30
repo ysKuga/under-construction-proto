@@ -10,7 +10,7 @@ import type { BoxBotActionBaseHost } from '../../_actions/types'
 
 import { useClickBindings } from './_hooks/use-click-bindings'
 import { deriveLayout } from './_lib/derive-layout'
-import { DEFAULTS } from './index.constants'
+import { DEFAULTS, ON_CLICK_ELEMENT } from './index.constants'
 import {
   useBoxBotActions,
   useBoxBotEventTarget,
@@ -19,6 +19,8 @@ import {
 import type {
   BoxBot3DConfig,
   BoxBotModelProps,
+  ClickElementDetail,
+  ClickTarget,
   Handlers,
   UseBoxBotModelReturn,
 } from './index.types'
@@ -95,13 +97,17 @@ export function useBoxBotModel(
       }
     : {}
 
-  // 要素の押下 → 指定した要素イベントを発行するハンドラを作る。
-  // どの要素にどのイベント名を割り当てるかは呼び出し側(部位を定義する JSX)が決める。
+  // 要素の押下 → その要素を detail に載せた ON_CLICK_ELEMENT を発行するハンドラを作る。
+  // どの部位を割り当てるかは呼び出し側(部位を定義する JSX)が決める。
   // どの action へ繋ぐかは use-click-bindings 側。ここは何も知らない
   const createClickEmitter =
-    (eventName: string) => (e: ThreeEvent<PointerEvent>) => {
+    (target: ClickTarget) => (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation()
-      void dispatch(new Event(eventName))
+      void dispatch(
+        new CustomEvent<ClickElementDetail>(ON_CLICK_ELEMENT, {
+          detail: { target },
+        }),
+      )
     }
 
   // 要素イベント → action イベントの中継(対応表は Context から取得)

@@ -2,7 +2,6 @@
 
 import { Ink } from './_components/ink'
 import { SketchBox } from './_components/sketch-box'
-import { ON_CLICK_BODY, ON_CLICK_HEAD } from './index.constants'
 import {
   BoxBotActionsProvider,
   BoxBotEventProvider,
@@ -42,10 +41,10 @@ function BoxBotModelInner(
     yawRef,
   } = useBoxBotModel(props)
 
-  // 部位ごとに要素イベントを割り当てる。ON_CLICK_BODY / ON_CLICK_HEAD を差し替えれば
-  // その部位の押下で発行されるイベントが変わる
-  const onPointerDownBody = createClickEmitter(ON_CLICK_BODY)
-  const onPointerDownHead = createClickEmitter(ON_CLICK_HEAD)
+  // 部位ごとに押下ハンドラを割り当てる。渡した ClickTarget が ON_CLICK_ELEMENT の
+  // detail に載り、use-click-bindings が clickBindings で action イベントへ中継する
+  const onPointerDownBody = createClickEmitter('body')
+  const onPointerDownHead = createClickEmitter('head')
 
   return (
     // yawRef: y 軸回転を累積するグループ(spin / autoRotate 等が rotation.y を += する)。
