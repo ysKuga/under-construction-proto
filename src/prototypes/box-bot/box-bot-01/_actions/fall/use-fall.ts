@@ -40,7 +40,10 @@ type FallHost = Pick<
  * - 「倒れ込み」の移動は `host.applyShift`(adapter が表示領域 DOM をずらす)。前傾と同じ\
  *   進行度で `shiftX` / `shiftY` まで補間し、get-up で 0 へ戻す。THREE / DOM は直接触らない
  * - 転倒開始時は腕を即座に `FALL_ARM_ANGLE` へ切替え、起き上がりでのみ 0 へ補間して戻す。\
- *   ずらし量は起動時に解決して `shiftRef` に固定(get-up も同じ値を逆再生)
+ *   ずらし量は起動時に解決して `shiftConfigRef` に固定(get-up も同じ値を逆再生)
+ * - `useFrame` は jump と同じく毎フレーム現在の目標値を無条件適用する。横倒し静止中も\
+ *   書き続けるので、再レンダーで表示領域の inline style(`top`/`left` 50%)が復元されても\
+ *   次フレームで倒れ位置へ戻る(早期 return して放置すると中心へスナップして見える)
  *
  * @param host アクション実行に必要な操作面(adapter が実装)
  */
@@ -69,7 +72,6 @@ export const useFall = (host: FallHost): void => {
       shiftConfigRef.current = { ...config, ...override }
       phaseRef.current = 1
       tRef.current = 0
-      applyArmAngle(FALL_ARM_ANGLE)
     } else if (phaseRef.current === 2) {
       phaseRef.current = 3
       tRef.current = 0
@@ -78,42 +80,50 @@ export const useFall = (host: FallHost): void => {
 
   useEventListener(ACTION_FALL, onFall, { target: eventTarget })
 
-  // 転倒 / 起き上がりの進行度に応じて前傾角・腕角・表示領域ずらしを毎フレーム適用
+  // 転倒中〜横倒し〜起き上がりの間、毎フレーム現在の目標値を無条件適用する。
+  //   posture: 0 = 直立 … 1 = 横倒し。前傾角・ずらし量はこれに比例
+  //   arm: 転倒開始で即 FALL_ARM_ANGLE、get-up 進行度で 0 へ戻す(前傾とは別カーブ)
+  // 横倒し静止中も書き続けるので、再レンダーで表示領域の inline style が復元されても戻る。
   useFrame((_, dt) => {
-    if (tRef.current < 0) return
+    // アニメ中のフェーズはタイマーを進め、終端でフェーズを切替える
+    if (tRef.current >= 0) {
+      const dur = phaseRef.current === 1 ? FALL_DUR : GET_UP_DUR
+      tRef.current += dt
+      if (tRef.current >= dur) {
+        const wasGetUp = phaseRef.current === 3
+        phaseRef.current = phaseRef.current === 1 ? 2 : 0
+        tRef.current = -1
+        if (wasGetUp) {
+          // 復帰完了。最後に一度 0 へ戻し、以降は shift を jump に委ねる
+          applyTiltAngle(0)
+          applyArmAngle(0)
+          applyShift({ x: 0, y: 0 })
+        }
+      }
+    }
+
+    // 直立(未転倒 / 復帰後)は何もしない。表示領域ずらしは jump が所有する
+    if (phaseRef.current === 0) return
 
     const { shiftX, shiftY } = shiftConfigRef.current ?? config
 
-    if (phaseRef.current === 1) {
-      tRef.current += dt
-      if (tRef.current >= FALL_DUR) {
-        phaseRef.current = 2
-        tRef.current = -1
-        applyTiltAngle(FALL_ANGLE)
-        applyShift({ x: shiftX, y: shiftY })
-        return
-      }
-      const e = ease(tRef.current / FALL_DUR)
-      applyTiltAngle(FALL_ANGLE * e)
-      applyShift({ x: shiftX * e, y: shiftY * e })
-      return
+    let posture: number
+    let arm: number
+    if (phaseRef.current === 2) {
+      posture = 1
+      arm = FALL_ARM_ANGLE
+    } else if (phaseRef.current === 1) {
+      posture = ease(tRef.current / FALL_DUR)
+      arm = FALL_ARM_ANGLE
+    } else {
+      // phase 3: 起き上がり(前傾・腕とも p^2 で 0 へ)
+      const p = tRef.current / GET_UP_DUR
+      posture = 1 - p * p
+      arm = FALL_ARM_ANGLE * (1 - p * p)
     }
 
-    if (phaseRef.current === 3) {
-      tRef.current += dt
-      if (tRef.current >= GET_UP_DUR) {
-        phaseRef.current = 0
-        tRef.current = -1
-        applyTiltAngle(0)
-        applyArmAngle(0)
-        applyShift({ x: 0, y: 0 })
-        return
-      }
-      const p = tRef.current / GET_UP_DUR
-      const k = 1 - p * p
-      applyTiltAngle(FALL_ANGLE * k)
-      applyArmAngle(FALL_ARM_ANGLE * k)
-      applyShift({ x: shiftX * k, y: shiftY * k })
-    }
+    applyTiltAngle(FALL_ANGLE * posture)
+    applyArmAngle(arm)
+    applyShift({ x: shiftX * posture, y: shiftY * posture })
   })
 }
