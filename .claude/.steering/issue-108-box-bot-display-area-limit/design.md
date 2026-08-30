@@ -80,23 +80,25 @@ PR #111 で jump をレジストリ形式へ移行 (`_actions/<name>/` descripto
 経緯は PR #111 [design.md](_closed/pr-111-jump-display-area/design.md) の「実装済み: 案A」参照。
 移行後に残った box-bot ↔ アクション間の結合が以下。実装は box-bot-01 で直接、別 PR 想定。
 
-### 残る結合 (優先度順)
+### 残る結合
 
-- **A. config が bot の型に穴を開けている (★最優先)**
-  - `BoxBot3DConfig.jump: JumpConfig` / `DEFAULTS.jump = JUMP_DEFAULTS` — bot の config 型・既定値に
-    jump 専用フィールド。jump を消すと宙に浮く。config を持つアクション追加 = bot の型を編集
-  - 方向: descriptor に `defaults` を持たせ bot が動的マージ。`BoxBot3DConfig` から
-    per-action フィールドを消す。詳細は下記「A の実装方針」
-- **B. `BoxBotActionContext` が service locator (広い)**
-  - アクションは `{ cfg, refs, displayAreaRef, props, eventTarget }` を丸ごと受け必要分を取る。
-    jump は `refs.rootRef` (THREE.Group と知っている) / `displayAreaRef.style.top` (DOM と知っている) へ到達
-  - 方向: アクションごとに narrow な host interface (port) + adapter。
-    `useJump(host: JumpHost)` が `host.applySquash` / `host.applyLift` / `host.onFrame` だけ知る形
-    (別途の設計メモ「host 化」参照)
-- **C. 型の相互依存**
-  - `_actions/types.ts` (`BoxBotActionContext`) ↔ `box-bot-model/index.types.ts`
-    (`BoxBot3DConfig` / `BoxBotModelProps` / `BoxBotRefs`)。`import type` のみで実害なしだが循環。
-    アクションが model の型の形を知っている
+A / B / C は PR #114 / #115 で解消済み。未対応は D / E のみ。
+
+#### 解消済み
+
+- **A. config が bot の型に穴を開けていた** — PR #114 (`ceb3de7`)
+  - `defineAction<Name, Arg, Config>` が `defaults` を持ち、`use` を `config` 差し込みでラップ。
+    `BoxBot3DConfig` から `jump` フィールド・`DEFAULTS.jump` を撤去。`actionConfig` bag は
+    box-bot-model 内部で緩い型、`BoxBot3D` 外殻で `BoxBotActionConfigs` の厳密型。詳細は下記「A の実装方針」
+- **B. `BoxBotActionContext` が service locator だった** — PR #115 (`fc3258a`)
+  - narrow host (`BoxBotActionHost`) + adapter (`box-bot-model/index.hooks.ts` の module scope `write*`)。
+    各アクションは `Pick` で必要分だけ受ける (`JumpHost` / `SpinHost`)。fat な base ctx
+    (`cfg` / `refs` / `props` 丸ごと) は撤去。詳細は下記「B の pilot」
+- **C. 型の相互依存** — B の副作用で消滅
+  - `box-bot-model/index.types.ts` は `_actions` から import するのみの一方向。循環なし
+
+#### 未対応
+
 - **D. `use-box-bot-action-dispatcher` が `BOX_BOT_ACTIONS` を直参照**
   - Canvas 外 (story 直呼び) で Context 不可のため。カスタム `actions` prop 時に dispatcher が不整合
   - 方向: `useBoxBotActionDispatcher(eventTarget, actions?)` の第2引数化 (戻り値型はジェネリック)
@@ -149,11 +151,12 @@ box-bot-model が `BoxBot3DConfig.jump` (型) / `DEFAULTS.jump` (値 import) / `
 
 ### 次にやるなら
 
-1. **A** (config を descriptor へ) — 型の穴が一番痛い
-2. **B** (narrow host + adapter) — 接点最小化
-3. D / E — 軽い
-4. fall/spin 等の復帰 (削除したアクション群を新レジストリ形式で戻す)
-5. ~~部位アンカーの戻り値まとめ (`layout`)~~ — 実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors。下記
+1. ~~**A** (config を descriptor へ)~~ — 実装済み PR #114
+2. ~~**B** (narrow host + adapter)~~ — pilot 実装済み PR #115。fall 復帰時に 3 個目 consumer で host 語彙を再検討
+3. **D / E** — 軽い。レジストリ結合の最後
+4. **fall の復帰** (spin は #115 で復帰済み)。削除したアクションを新レジストリ形式で戻す
+5. **フェーズ1** (案2、fall 表示領域限定) — fall 復帰が前提。#108 の本来の目的
+6. ~~部位アンカーの戻り値まとめ (`layout`)~~ — 実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors。下記
 
 ### B の pilot (実装済み 2026-08-29、ブランチ 108-box-bot-action-host)
 
