@@ -96,9 +96,14 @@ export interface BoxBot3DConfig {
  * - 2 階層固定 `layout.<部位>.<軸 | 意味>`
  */
 export interface BoxBotLayout {
+  /** 直立時のシルエット中心 */
+  center: {
+    /** 足元〜頭上端の中点 y 座標。fall はこの点を軸に前傾する(シルエットが表示領域中心に留まる) */
+    y: number
+  }
   /** 接地点 */
   ground: {
-    /** 脚下端の y 座標(足元。fall の回転 pivot になる) */
+    /** 脚下端の y 座標(足元) */
     y: number
   }
   /** 頭 */
@@ -178,9 +183,10 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 /** bot 本体で共有する ref 群 */
 export interface BoxBotRefs {
   /**
-   * fall が体心を軸に前傾させるグループ
+   * fall がシルエット中心を軸に前傾させるグループ
    *
-   * - fall がここへ `rotation.x` を入れる。`rootRef` の内側、bot 全体を包む。\
+   * - fall がここへ `rotation.x` / `scale` を入れる。`rootRef` の内側、bot 全体を包む。\
+   *   親が `layout.center.y` へ移動済みで、この group の原点がシルエット中心に一致する。\
    *   足元が前方へ出た「倒れ込み」の見た目は表示領域の DOM ずらしで合わせる(#108)。\
    *   JSX で `<group ref>` にバインド
    */

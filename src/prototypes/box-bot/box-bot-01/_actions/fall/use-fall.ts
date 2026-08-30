@@ -10,6 +10,7 @@ import {
   FALL_ANGLE,
   FALL_ARM_ANGLE,
   FALL_DUR,
+  FALL_SCALE,
   type FallConfig,
   type FallOverride,
   GET_UP_DUR,
@@ -22,6 +23,7 @@ const ease = (p: number): number => p * (2 - p)
 type FallHost = Pick<
   BoxBotActionContext<FallConfig>,
   | 'applyArmAngle'
+  | 'applyFallScale'
   | 'applyShift'
   | 'applyTiltAngle'
   | 'config'
@@ -35,8 +37,9 @@ type FallHost = Pick<
  * - `phaseRef`: 0 直立 / 1 転倒中 / 2 横倒しで静止 / 3 起き上がり中
  * - `ACTION_FALL`(クリック起点・外部 dispatch 共通)を購読。直立中なら転倒、\
  *   横倒し中なら起き上がりを起動する(アニメ中は無視)。get-up は転倒の逆補間
- * - Canvas 内は姿勢のみ: 前傾は `host.applyTiltAngle`(adapter が体心 pivot グループの\
- *   `rotation.x` へ)、腕は `host.applyArmAngle`(左右の腕グループの `rotation.x` へ)
+ * - Canvas 内は姿勢のみ: 前傾は `host.applyTiltAngle`(adapter がシルエット中心 pivot の\
+ *   `rotation.x` へ)、腕は `host.applyArmAngle`、横倒しで表示領域を超えないための縮小は\
+ *   `host.applyFallScale`。いずれも前傾と同じ進行度で補間する
  * - 「倒れ込み」の移動は `host.applyShift`(adapter が表示領域 DOM をずらす)。前傾と同じ\
  *   進行度で `shiftX` / `shiftY` まで補間し、get-up で 0 へ戻す。THREE / DOM は直接触らない
  * - 転倒開始時は腕を即座に `FALL_ARM_ANGLE` へ切替え、起き上がりでのみ 0 へ補間して戻す。\
@@ -50,6 +53,7 @@ type FallHost = Pick<
 export const useFall = (host: FallHost): void => {
   const {
     applyArmAngle,
+    applyFallScale,
     applyShift,
     applyTiltAngle,
     config,
@@ -97,6 +101,7 @@ export const useFall = (host: FallHost): void => {
           // 復帰完了。最後に一度 0 へ戻し、以降は shift を jump に委ねる
           applyTiltAngle(0)
           applyArmAngle(0)
+          applyFallScale(1)
           applyShift({ x: 0, y: 0 })
         }
       }
@@ -124,6 +129,7 @@ export const useFall = (host: FallHost): void => {
 
     applyTiltAngle(FALL_ANGLE * posture)
     applyArmAngle(arm)
+    applyFallScale(1 - (1 - FALL_SCALE) * posture)
     applyShift({ x: shiftX * posture, y: shiftY * posture })
   })
 }

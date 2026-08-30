@@ -18,6 +18,9 @@ test('DEFAULTS から既知のアンカー座標を導出する', () => {
   expect(layout.leg.y).toBeCloseTo(-0.85)
   // 脚の付け根(-0.85)から脚 1 本ぶん下がった足元
   expect(layout.ground.y).toBeCloseTo(-0.85 - DEFAULTS.leg.h)
+  // 足元 と 頭上端(0.85 + HEAD_GAP + head.h)の中点
+  const headTop = 0.85 + HEAD_GAP + DEFAULTS.head.h
+  expect(layout.center.y).toBeCloseTo((headTop + (-0.85 - DEFAULTS.leg.h)) / 2)
 })
 
 test('body.h を上げると頭は上へ、脚の付け根は下へ動く', () => {
@@ -32,6 +35,8 @@ test('body.h を上げると頭は上へ、脚の付け根は下へ動く', () =
   expect(grown.head.y).toBeGreaterThan(base.head.y)
   expect(grown.leg.y).toBeLessThan(base.leg.y)
   expect(grown.ground.y).toBeLessThan(base.ground.y)
+  // 頭上端と足元が同量ずつ外へ広がるため、中点は body.h に依らない
+  expect(grown.center.y).toBeCloseTo(base.center.y)
 })
 
 test('leg.gap は脚の x オフセットのみに効く', () => {

@@ -58,12 +58,20 @@ const writeYawDelta = (yawRef: RefObject<Group | null>, rad: number): void => {
   if (yawRef.current) yawRef.current.rotation.y += rad
 }
 
-/** 体心 pivot グループ(`fallPivotRef`)の前傾角(`rotation.x`)を `rad` に設定する(fall) */
+/** 前傾グループ(`fallPivotRef`)の前傾角(`rotation.x`)を `rad` に設定する(fall) */
 const writeTilt = (
   fallPivotRef: RefObject<Group | null>,
   rad: number,
 ): void => {
   if (fallPivotRef.current) fallPivotRef.current.rotation.x = rad
+}
+
+/** 前傾グループ(`fallPivotRef`)へ一様スケール `s` を設定する(fall) */
+const writeFallScale = (
+  fallPivotRef: RefObject<Group | null>,
+  s: number,
+): void => {
+  fallPivotRef.current?.scale.setScalar(s)
 }
 
 /** 左右の腕グループの前方スイング角(`rotation.x`)を `rad` に設定する(fall) */
@@ -146,6 +154,7 @@ export function useBoxBotModel(
   const actionHost: BoxBotActionBaseHost = {
     actionConfig,
     applyArmAngle: (rad) => writeArmAngle(leftArmRef, rightArmRef, rad),
+    applyFallScale: (s) => writeFallScale(fallPivotRef, s),
     applyShift: (offset) => writeShift(displayAreaRef, offset),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
     applyTiltAngle: (rad) => writeTilt(fallPivotRef, rad),

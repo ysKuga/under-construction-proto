@@ -108,6 +108,12 @@ export type BoxBotActionHost = {
    */
   applyArmAngle: (rad: number) => void
   /**
+   * 前傾グループ(`fallPivotRef`)へ一様スケールを掛ける(絶対値)
+   *
+   * - `s` は倍率。横倒しで表示領域を超えないよう fall が縮小に使う
+   */
+  applyFallScale: (s: number) => void
+  /**
    * 表示領域(Canvas ラッパー)を基準位置(中央)からずらす
    *
    * - `x` は画面右、`y` は画面上を正とする px。adapter が DOM の `left` / `top` を書き換える(#108)
@@ -123,7 +129,7 @@ export type BoxBotActionHost = {
   /**
    * 前傾角を設定する(絶対値)
    *
-   * - `rad` は体心まわりの x 軸回転。adapter が `fallPivotRef` グループの `rotation.x` へ反映する
+   * - `rad` はシルエット中心まわりの x 軸回転。adapter が `fallPivotRef` グループの `rotation.x` へ反映する
    * - 足元の辻褄(横倒し時に足元が前方へ出た見た目)は `applyShift` の表示領域ずらしで合わせる(#108)
    */
   applyTiltAngle: (rad: number) => void
