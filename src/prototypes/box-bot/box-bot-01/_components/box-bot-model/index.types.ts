@@ -178,10 +178,11 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 /** bot 本体で共有する ref 群 */
 export interface BoxBotRefs {
   /**
-   * 接地点(脚下端)へ pivot 済みのグループ
+   * fall が体心を軸に前傾させるグループ
    *
-   * - fall がここへ `rotation.x` を入れて足元を軸に前傾させる。体の中心で回すと\
-   *   足元が浮くため、`rootRef` の内側でこのグループだけを回す。JSX で `<group ref>` にバインド
+   * - fall がここへ `rotation.x` を入れる。`rootRef` の内側、bot 全体を包む。\
+   *   足元が前方へ出た「倒れ込み」の見た目は表示領域の DOM ずらしで合わせる(#108)。\
+   *   JSX で `<group ref>` にバインド
    */
   fallPivotRef: RefObject<Group | null>
   /** 左腕グループ。fall が `rotation.x` を入れて頭側へ引き寄せる。JSX で `<group ref>` にバインド */

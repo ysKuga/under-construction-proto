@@ -121,10 +121,10 @@ export type BoxBotActionHost = {
    */
   applySquash: (sx: number, sy: number) => void
   /**
-   * 接地点を軸にした前傾角を設定する(絶対値)
+   * 前傾角を設定する(絶対値)
    *
-   * - `rad` は足元(脚下端)まわりの x 軸回転。adapter が接地点へ pivot 済みのグループの
-   *   `rotation.x` へ反映する。体の中心で回すと足元が浮くため pivot を分ける
+   * - `rad` は体心まわりの x 軸回転。adapter が `fallPivotRef` グループの `rotation.x` へ反映する
+   * - 足元の辻褄(横倒し時に足元が前方へ出た見た目)は `applyShift` の表示領域ずらしで合わせる(#108)
    */
   applyTiltAngle: (rad: number) => void
   /**

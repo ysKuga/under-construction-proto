@@ -10,13 +10,23 @@ import {
   FALL_ANGLE,
   FALL_ARM_ANGLE,
   FALL_DUR,
+  type FallConfig,
+  type FallOverride,
   GET_UP_DUR,
 } from './config'
 
+/** 転倒の進行度カーブ(ease-out。0→1 で減速しながら到達) */
+const ease = (p: number): number => p * (2 - p)
+
 /** fall が host から必要とする操作面 */
 type FallHost = Pick<
-  BoxBotActionContext,
-  'applyArmAngle' | 'applyTiltAngle' | 'eventTarget' | 'interactive'
+  BoxBotActionContext<FallConfig>,
+  | 'applyArmAngle'
+  | 'applyShift'
+  | 'applyTiltAngle'
+  | 'config'
+  | 'eventTarget'
+  | 'interactive'
 >
 
 /**
@@ -25,24 +35,38 @@ type FallHost = Pick<
  * - `phaseRef`: 0 直立 / 1 転倒中 / 2 横倒しで静止 / 3 起き上がり中
  * - `ACTION_FALL`(クリック起点・外部 dispatch 共通)を購読。直立中なら転倒、\
  *   横倒し中なら起き上がりを起動する(アニメ中は無視)。get-up は転倒の逆補間
- * - 前傾は `host.applyTiltAngle`(adapter が接地点 pivot グループの `rotation.x` へ)、\
- *   腕は `host.applyArmAngle`(adapter が左右の腕グループの `rotation.x` へ)。THREE を直接触らない
- * - 転倒開始時は腕を即座に `FALL_ARM_ANGLE` へ切替え、起き上がりでのみ 0 へ補間して戻す
+ * - Canvas 内は姿勢のみ: 前傾は `host.applyTiltAngle`(adapter が体心 pivot グループの\
+ *   `rotation.x` へ)、腕は `host.applyArmAngle`(左右の腕グループの `rotation.x` へ)
+ * - 「倒れ込み」の移動は `host.applyShift`(adapter が表示領域 DOM をずらす)。前傾と同じ\
+ *   進行度で `shiftX` / `shiftY` まで補間し、get-up で 0 へ戻す。THREE / DOM は直接触らない
+ * - 転倒開始時は腕を即座に `FALL_ARM_ANGLE` へ切替え、起き上がりでのみ 0 へ補間して戻す。\
+ *   ずらし量は起動時に解決して `shiftRef` に固定(get-up も同じ値を逆再生)
  *
  * @param host アクション実行に必要な操作面(adapter が実装)
  */
 export const useFall = (host: FallHost): void => {
-  const { applyArmAngle, applyTiltAngle, eventTarget, interactive } = host
+  const {
+    applyArmAngle,
+    applyShift,
+    applyTiltAngle,
+    config,
+    eventTarget,
+    interactive,
+  } = host
 
   /** 姿勢フェーズ。0 直立 / 1 転倒中 / 2 横倒しで静止 / 3 起き上がり中 */
   const phaseRef = useRef(0)
   /** 現フェーズの経過秒。-1: アニメーションしていない */
   const tRef = useRef(-1)
+  /** 実行中の転倒の解決済みずらし量。null のときは `config` を使う */
+  const shiftConfigRef = useRef<FallConfig | null>(null)
 
-  const onFall = () => {
+  const onFall = (e: Event) => {
     if (!interactive) return
 
     if (phaseRef.current === 0) {
+      const override = (e as CustomEvent<FallOverride | undefined>).detail
+      shiftConfigRef.current = { ...config, ...override }
       phaseRef.current = 1
       tRef.current = 0
       applyArmAngle(FALL_ARM_ANGLE)
@@ -54,9 +78,11 @@ export const useFall = (host: FallHost): void => {
 
   useEventListener(ACTION_FALL, onFall, { target: eventTarget })
 
-  // 転倒 / 起き上がりの進行度に応じて前傾角・腕角を毎フレーム適用
+  // 転倒 / 起き上がりの進行度に応じて前傾角・腕角・表示領域ずらしを毎フレーム適用
   useFrame((_, dt) => {
     if (tRef.current < 0) return
+
+    const { shiftX, shiftY } = shiftConfigRef.current ?? config
 
     if (phaseRef.current === 1) {
       tRef.current += dt
@@ -64,10 +90,12 @@ export const useFall = (host: FallHost): void => {
         phaseRef.current = 2
         tRef.current = -1
         applyTiltAngle(FALL_ANGLE)
+        applyShift({ x: shiftX, y: shiftY })
         return
       }
-      const p = tRef.current / FALL_DUR
-      applyTiltAngle(FALL_ANGLE * (p * (2 - p)))
+      const e = ease(tRef.current / FALL_DUR)
+      applyTiltAngle(FALL_ANGLE * e)
+      applyShift({ x: shiftX * e, y: shiftY * e })
       return
     }
 
@@ -78,11 +106,14 @@ export const useFall = (host: FallHost): void => {
         tRef.current = -1
         applyTiltAngle(0)
         applyArmAngle(0)
+        applyShift({ x: 0, y: 0 })
         return
       }
       const p = tRef.current / GET_UP_DUR
-      applyTiltAngle(FALL_ANGLE * (1 - p * p))
-      applyArmAngle(FALL_ARM_ANGLE * (1 - p * p))
+      const k = 1 - p * p
+      applyTiltAngle(FALL_ANGLE * k)
+      applyArmAngle(FALL_ARM_ANGLE * k)
+      applyShift({ x: shiftX * k, y: shiftY * k })
     }
   })
 }

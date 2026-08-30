@@ -58,7 +58,7 @@ const writeYawDelta = (yawRef: RefObject<Group | null>, rad: number): void => {
   if (yawRef.current) yawRef.current.rotation.y += rad
 }
 
-/** 接地点 pivot グループの前傾角(`rotation.x`)を `rad` に設定する(fall) */
+/** 体心 pivot グループ(`fallPivotRef`)の前傾角(`rotation.x`)を `rad` に設定する(fall) */
 const writeTilt = (
   fallPivotRef: RefObject<Group | null>,
   rad: number,

@@ -106,11 +106,13 @@ export const Jump: Story = {
 }
 
 /**
- * fall action の挙動確認
+ * fall action の挙動・パラメータ調節
  *
- * - Fall / Get up ボタンで姿勢をトグル(1 つの `fall()` dispatch)。直立なら転倒、\
- *   横倒しなら起き上がり。転倒中は接地点(足元)を軸に前傾し、腕を頭側へ引き寄せる
- * - #108: 前傾で頭が設置領域(赤枠)の下前方へはみ出す。表示領域の限定はフェーズ1で対応
+ * - Fall / Get up ボタンで姿勢をトグル(`fall({ shiftX, shiftY })` dispatch)。直立なら転倒、\
+ *   横倒しなら起き上がり。Canvas 内は体心まわりの前傾のみ
+ * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
+ *   スライダーで画面右(x)・上(y)方向のずらし量(px、負で左/下)を実測する。\
+ *   jump と同じく設置領域(赤枠)を Canvas がはみ出す
  */
 export const Fall: Story = {
   parameters: {
@@ -119,13 +121,49 @@ export const Fall: Story = {
   render: () => {
     const [eventTarget] = React.useState(() => new EventTarget())
     const { fall } = useBoxBotActionDispatcher(eventTarget)
+    const [shiftX, setShiftX] = React.useState(-40)
+    const [shiftY, setShiftY] = React.useState(-70)
 
     return (
       <div>
-        <div style={{ position: 'relative', zIndex: 10 }}>
-          <Button onClick={() => void fall()} type="button" variant="outline">
+        <div
+          style={{
+            alignItems: 'center',
+            display: 'flex',
+            gap: 12,
+            position: 'relative',
+            zIndex: 10,
+          }}
+        >
+          <Button
+            onClick={() => void fall({ shiftX, shiftY })}
+            type="button"
+            variant="outline"
+          >
             Fall / Get up
           </Button>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            x {shiftX}px
+            <input
+              max={200}
+              min={-200}
+              onChange={(e) => setShiftX(Number(e.target.value))}
+              step={10}
+              type="range"
+              value={shiftX}
+            />
+          </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            y {shiftY}px
+            <input
+              max={200}
+              min={-200}
+              onChange={(e) => setShiftY(Number(e.target.value))}
+              step={10}
+              type="range"
+              value={shiftY}
+            />
+          </label>
         </div>
         <StoryComponent
           eventTarget={eventTarget}
