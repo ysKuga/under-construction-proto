@@ -108,10 +108,12 @@ export const Jump: Story = {
 /**
  * fall action の挙動・パラメータ調節
  *
- * - Fall / Get up ボタンで姿勢をトグル(`fall({ shiftX, shiftY })` dispatch)。\
+ * - Fall / Get up ボタンで姿勢をトグル(`fall({ shiftDistance, dropDistance })` dispatch)。\
  *   直立なら転倒、横倒しなら起き上がり。Canvas 内はシルエット中心まわりの前傾のみ
  * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
- *   x / y スライダーで画面右・上方向のずらし量(px、負で左/下)を実測する。\
+ *   倒れ込む向きは bot の向き(facing、`rotationY`)から算出する。facing スライダーで\
+ *   bot を回し、shiftDistance スライダーでずらし距離(px)を実測する。\
+ *   dropDistance スライダーで横倒し時に足元が浮くぶんの下げ量(px)を実測する。\
  *   jump と同じく設置領域(赤枠)を Canvas がはみ出す
  */
 export const Fall: Story = {
@@ -121,8 +123,9 @@ export const Fall: Story = {
   render: () => {
     const [eventTarget] = React.useState(() => new EventTarget())
     const { fall } = useBoxBotActionDispatcher(eventTarget)
-    const [shiftX, setShiftX] = React.useState(-40)
-    const [shiftY, setShiftY] = React.useState(-70)
+    const [facingDeg, setFacingDeg] = React.useState(0)
+    const [shiftDistance, setShiftDistance] = React.useState(80)
+    const [dropDistance, setDropDistance] = React.useState(60)
 
     return (
       <div>
@@ -136,39 +139,51 @@ export const Fall: Story = {
           }}
         >
           <Button
-            onClick={() => void fall({ shiftX, shiftY })}
+            onClick={() => void fall({ dropDistance, shiftDistance })}
             type="button"
             variant="outline"
           >
             Fall / Get up
           </Button>
           <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            x {shiftX}px
+            facing {facingDeg}°
             <input
-              max={200}
-              min={-200}
-              onChange={(e) => setShiftX(Number(e.target.value))}
-              step={10}
+              max={180}
+              min={-180}
+              onChange={(e) => setFacingDeg(Number(e.target.value))}
+              step={15}
               type="range"
-              value={shiftX}
+              value={facingDeg}
             />
           </label>
           <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            y {shiftY}px
+            shiftDistance {shiftDistance}px
             <input
               max={200}
-              min={-200}
-              onChange={(e) => setShiftY(Number(e.target.value))}
+              min={0}
+              onChange={(e) => setShiftDistance(Number(e.target.value))}
               step={10}
               type="range"
-              value={shiftY}
+              value={shiftDistance}
+            />
+          </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            dropDistance {dropDistance}px
+            <input
+              max={200}
+              min={0}
+              onChange={(e) => setDropDistance(Number(e.target.value))}
+              step={10}
+              type="range"
+              value={dropDistance}
             />
           </label>
         </div>
-        {/* 転倒で Canvas が設置領域を左下へはみ出すため、story viewport 左端で
-            切れないよう右へ寄せる(スライダー min -200 でも収まる余白) */}
+        {/* 転倒で Canvas が設置領域をはみ出すため、story viewport 端で
+            切れないよう余白を取る(facing により倒れ込む向きが変わる) */}
         <StoryComponent
           eventTarget={eventTarget}
+          rotationY={(facingDeg * Math.PI) / 180}
           shadowOpacity={0}
           style={{ marginLeft: 260, marginTop: 160, outline: '1px solid red' }}
         />
