@@ -83,7 +83,7 @@ PR #111 で jump をレジストリ形式へ移行 (`_actions/<name>/` descripto
 ### 残る結合
 
 A / B / C は PR #114 / #115、D / E はブランチ 108-box-bot-registry-followup で解消済み。
-残る結合はなし。次は fall 復帰 → フェーズ1。
+残る結合はなし。fall 復帰済み (ブランチ 108-box-bot-fall-restore)。次はフェーズ1。
 
 #### 解消済み
 
@@ -154,7 +154,7 @@ box-bot-model が `BoxBot3DConfig.jump` (型) / `DEFAULTS.jump` (値 import) / `
 1. ~~**A** (config を descriptor へ)~~ — 実装済み PR #114
 2. ~~**B** (narrow host + adapter)~~ — pilot 実装済み PR #115。fall 復帰時に 3 個目 consumer で host 語彙を再検討
 3. ~~**D / E**~~ — 実装済み ブランチ 108-box-bot-registry-followup。レジストリ結合は解消完了
-4. **fall の復帰** (spin は #115 で復帰済み)。削除したアクションを新レジストリ形式で戻す
+4. ~~**fall の復帰**~~ — 実装済み ブランチ 108-box-bot-fall-restore。下記
 5. **フェーズ1** (案2、fall 表示領域限定) — fall 復帰が前提。#108 の本来の目的
 6. ~~部位アンカーの戻り値まとめ (`layout`)~~ — 実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors。下記
 
@@ -172,6 +172,30 @@ spin (one-shot) を 2 個目の consumer として復帰させ B を試作。
 - 残: `onFrame` / `onAction` は host に載せず r3f / `useEventListener` 直 import 継続。
   fall 復帰時に 3 個目の consumer で host 語彙を再検討
 
+### fall の復帰 (実装済み 2026-08-30、ブランチ 108-box-bot-fall-restore)
+
+fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consumer として新レジストリ形式へ復帰。
+接地点まわりの前傾は据え置き (表示領域中心への pivot 変更はフェーズ1)。
+
+- **単一 descriptor**。`_actions/fall/` (`config.ts` 定数 / `use-fall.ts` / `index.ts`)。
+  get-up は別 action にせず `useFall` 内の逆補間。`phaseRef` (0 直立 / 1 転倒中 / 2 横倒し静止 / 3 起き上がり中) を
+  `useFrame` 内で進める。1 回の `fall()` dispatch が直立 ⇄ 横倒しをトグル。config なし (継続時間・角度は定数固定)
+  → `defineAction<'fall'>` の `defaults` なし経路 (config-less アクション) の初適用
+- **host 語彙 (3 個目 consumer の結論)**: intent verb を 2 つ追加。
+  `applyTiltAngle(rad)` (接地点 pivot の絶対 `rotation.x`) / `applyArmAngle(rad)` (左右腕グループの絶対 `rotation.x`)。
+  `applyYawDelta` の増分と違い絶対値 (`applyLift` / `applySquash` と同系)。`onFrame` / `onAction` は据え置き (host 非搭載)
+- **adapter**: `index.hooks.ts` に module scope `writeTilt` / `writeArmAngle` を追加、`actionHost` へ配線。
+  render scope では ref オブジェクトを渡すだけ (既存パターン踏襲)
+- **共有 ref**: `BoxBotRefs` に `fallPivotRef` / `leftArmRef` / `rightArmRef` を追加 (JSX と adapter 双方が参照)。
+  進行度 (`phaseRef` / `tRef`) は `useFall` ローカル
+- **JSX pivot chain**: `rootRef` 内側に `translate(ground.y) → fallPivotRef → translate(-ground.y)` を挟む。
+  腕は外側グループで静的 z 傾き、内側 `*ArmRef` グループを fall が x 軸で回す (z 傾きを clobber しない)
+- **`layout.ground.y`** を追加実装 (`deriveLayout` / `BoxBotLayout` / test)。`-body.h/2 - leg.h` = 脚下端
+- 未実施 (フェーズ1): 404 ページ `z-10` / `OrbitControls` target ずらしの撤去確認、影の追従
+- **`refs` のネスト再検討**: `fallPivotRef` / `leftArmRef` / `rightArmRef` が増えたので `layout` と対で判断可能に。
+  現状は flat 5 個 (`rootRef` / `yawRef` / `fallPivotRef` / `leftArmRef` / `rightArmRef`)。
+  腕は左右で対 → `refs.arm.leftRef` / `refs.arm.rightRef` のネスト余地あり。別ブランチで検討
+
 ### 部位アンカーの戻り値まとめ (`layout`、実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors)
 
 `useBoxBotModel` の戻り値のうち cfg から計算する部位配置 (`headY` / `headFront` / `shoulderX` / `shoulderY` /
@@ -184,12 +208,10 @@ spin (one-shot) を 2 個目の consumer として復帰させ B を試作。
 - `UseBoxBotModelReturn` の flat 6 キー → `layout` 1 つ。`BoxBotLayout` を `index.types.ts` に定義、各フィールド JSDoc。
   消費は `BoxBotModelInner` のみ
 - raw 寸法直参照 (`cfg.body.w` / `cfg.eye.offset` 等) は `cfg.*` のまま
-- 未実施 (fall 復帰時): `groundY` (脚下端) を `layout.ground.y` として追加。
+- ~~未実施 (fall 復帰時): `groundY` (脚下端) を `layout.ground.y` として追加~~ — 実装済み (fall 復帰と同時)。
   将来 host が raw `cfg` でなく `layout` (読み取り専用の派生幾何) を露出する形の下地
   (上記「A の実装方針」5 の「cfg は ctx に残す」を絞った版)
-- **`refs` のネストは fall 復帰後に `layout` と対で再検討**。現状は `rootRef` / `yawRef` の 2 個のみで
-  時期尚早。fall で `fallPivotRef` / `leftArmRef` / `rightArmRef` 等が増えてから、
-  部位別ネスト (`refs.arm.leftRef` 等、葉の `Ref` サフィックスは維持。`refs.yawRef` も可) を判断
+- **`refs` のネストは fall 復帰後に `layout` と対で再検討** — fall 復帰済み。上記「fall の復帰」の末尾参照
 
 ## 決定事項
 
