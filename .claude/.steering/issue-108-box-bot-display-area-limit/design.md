@@ -63,23 +63,25 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
 厳密な足固定は閉形式で出せるが、`FWD`/`DOWN` を手調整の定数 + ease にして jump と揃える。
 
 - [x] Canvas 固定サイズ化 — #107 / #118 で完了 (`DEFAULT_HEIGHT = 234`、Canvas = 設置領域と一致)。
-- [ ] fall の回転 pivot を接地点 → 体心へ。`index.tsx` の
-      `translate(layout.ground.y) → fallPivotRef → translate(-layout.ground.y)` チェーンを撤去し、
-      `fallPivotRef` を素の中心回転グループへ戻す。`applyTiltAngle` の JSDoc (接地点前提) を更新。
-      90° の箱回転を中心軸で行えば bounding box は正方形 Canvas 内に収まる (見切れ解消)。
-- [ ] jump の `applyLift(px)` を `applyShift({ x, y })` へ一般化。`writeLift` → `writeShift`
-      (`displayAreaRef` の `left` / `top` を `calc(50% + …)` で書換)。`use-jump` は
-      `applyShift({ x: 0, y: -lift })` へ移行。DOM オフセット機構を 1 本に統一。
-- [ ] fall の `useFrame` で進行度 `p` に応じ `applyTiltAngle(FALL_ANGLE · ease(p))` と
-      `applyShift({ x: FWD · p, y: DOWN · p })` を同時適用。`FWD` / `DOWN` は `config.ts` の定数、
-      Fall story にスライダー追加して実測 (jump story と同様)。
-- [ ] get-up の逆補間 (回転 + shift の 0 への復帰)。
+- [x] fall の回転 pivot を接地点 → **シルエット中心** (`layout.center.y` = 足元〜頭上端の中点) へ。
+      `index.tsx` に `translate(center.y) → fallPivotRef → translate(-center.y)` チェーン。
+      体心 (原点) だと頭が長いぶん横倒しで左下へ寄るため、中点に変更 (PR #119 `4f469ae`)。
+- [x] jump の `applyLift(px)` を `applyShift({ x, y })` へ一般化。`writeLift` → `writeShift`
+      (`displayAreaRef` の `left` / `top` を `calc(50% ± …)` で書換)。`use-jump` は
+      `applyShift({ x: 0, y: lift })` へ移行 (PR #119 `f389ed6`)。
+- [x] fall の `useFrame` で `applyTiltAngle(FALL_ANGLE · ease(p))` と
+      `applyShift({ x: shiftX · p, y: shiftY · p })` を同時適用。`shiftX` / `shiftY` は
+      `FallConfig` (既定 `-40` / `-70`)、Fall story にスライダー (PR #119 `ca20e74`)。
+- [x] get-up の逆補間 (回転 + shift の 0 への復帰)。`useFrame` は毎フレーム無条件適用へ
+      (早期 return だと再レンダーで inline style が復元され中心へスナップ、PR #119 `15ffabf`)。
 - [ ] 404 ページの `z-10` 手当て・`OrbitControls` target ずらしが不要になることを確認。
 
 不採用 (当初案から変更、2026-08-30):
 
 - ~~接地点の辻褄合わせを `ui-container` の ref 移動で表現~~ → 表示領域 (`displayAreaRef`) の DOM シフトへ統一。
 - ~~設置領域 ref を Canvas 外へ供給する配線 (`containerRef` prop / context)~~ → `displayAreaRef` が既にその役割。
+- ~~横倒し時の一様縮小 (`FallConfig.scale`)~~ → 追加したが (PR #119 `da231aa`)、シルエット中心 pivot だけで
+  表示領域にほぼ収まり不要と判断し撤去 (`e7b70ef`)。
 
 ### 詰めるパラメータ (実測要)
 
@@ -88,6 +90,40 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
   数学的には `(I−R(θ))·(体心→足)` の平行移動だが、手調整定数 + ease で近似 (厳密な足固定より jump との一貫性優先)。
 - 影の追従: cast/contact shadow は接地面固定。体心回転で体が浮く間、影は Canvas 内で足元追従か、設置領域基準で別処理か。
   当面は Fall story 側で `shadowOpacity: 0` 継続。
+
+### フェーズ 1 の後続: 向き (facing) からの転倒方向算出 (検討済み 2026-08-30、未着手)
+
+現状 fall の画面シフトは screen 固定 (常に左下)。bot がどちら向きでも同じ方向へ倒れ込む。
+「向き」概念を入れ、転倒方向を facing から算出する。
+
+方針 (2026-08-30 ユーザーと合意):
+
+- **向き = 既存 yaw と同一概念**。`rotationY` prop を「向き (facing、rad、0 = カメラ正面 +z)」として
+  意味づけ強化 (改名しない)。実効 facing = `rotationY` + `yawRef.rotation.y` (spin / autoRotate 累積)。
+- **向きは連続 (角度 rad)**。離散 enum ではない。
+
+転倒方向の算出は 2 パート:
+
+- **A. 3D の傾き軸 — 追加不要**。`fallPivotRef` は既に `yawRef > rootRef(rotationY)` の内側にあり、
+  local x 軸まわりの `rotation.x` 傾きがそのまま「facing 前方へ倒れる」になる。現状維持。
+- **B. 画面シフト方向 — facing から算出**。現状の `shiftX` / `shiftY` (screen 固定 2 値) を
+  `shiftDistance` (スカラ 1 値) + facing 由来の方向へ置き換える。
+  1. 倒れ始めに実効 facing `θ = rotationY + yawRef.current.rotation.y` を固定
+     (`shiftConfigRef` と同様 `facingRef` へ。get-up も同じ θ で逆再生)
+  2. world 前方水平ベクトル `d = (sin θ, 0, cos θ)`
+  3. カメラ投影で画面 2D 方向へ:
+     `p0 = Vec3(0, center.y, 0).project(camera)` / `p1 = Vec3(d.x, center.y, d.z).project(camera)`、
+     `screen = normalize(p1 - p0)` (NDC y と画面 px y の符号差は実測調整)
+  4. `applyShift({ x: screen.x · shiftDistance · posture, y: screen.y · shiftDistance · posture })`
+  - カメラ固定 → θ 不変なら投影は 1 回。spin 中に倒れて θ が変わる時のみ再投影 (倒れ始め固定なら不要)。
+
+実装時の変更範囲:
+
+- `FallConfig`: `shiftX` / `shiftY` → `shiftDistance` (+任意で `shiftAngleOffset` = facing からのズレ rad)
+- fall action: `useThree` でカメラ直参照 (host に足さない。既存の `onFrame` 直 import と同方針)。
+  `layout.center.y` は `deriveLayout` 直呼び or host 経由
+- `rotationY` の JSDoc に「向き。fall の倒れ込み方向の基準」を明記
+- Fall story: x / y スライダー → facing 角度 + `shiftDistance` スライダー
 
 ## box-bot アクションレジストリの後続作業 (PR #111 派生)
 
