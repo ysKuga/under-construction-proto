@@ -82,7 +82,8 @@ PR #111 で jump をレジストリ形式へ移行 (`_actions/<name>/` descripto
 
 ### 残る結合
 
-A / B / C は PR #114 / #115 で解消済み。未対応は D / E のみ。
+A / B / C は PR #114 / #115、D / E はブランチ 108-box-bot-registry-followup で解消済み。
+残る結合はなし。次は fall 復帰 → フェーズ1。
 
 #### 解消済み
 
@@ -97,14 +98,13 @@ A / B / C は PR #114 / #115 で解消済み。未対応は D / E のみ。
 - **C. 型の相互依存** — B の副作用で消滅
   - `box-bot-model/index.types.ts` は `_actions` から import するのみの一方向。循環なし
 
-#### 未対応
-
-- **D. `use-box-bot-action-dispatcher` が `BOX_BOT_ACTIONS` を直参照**
-  - Canvas 外 (story 直呼び) で Context 不可のため。カスタム `actions` prop 時に dispatcher が不整合
-  - 方向: `useBoxBotActionDispatcher(eventTarget, actions?)` の第2引数化 (戻り値型はジェネリック)
-- **E (補足). `use-click-bindings` が要素イベント 2 種をハードコード**
-  - `ON_CLICK_BODY` / `ON_CLICK_HEAD` を `useEventListener` 2 回。部位追加 = この hook を編集。
-    `ClickTarget` の値を回す形へ
+- **D. `use-box-bot-action-dispatcher` が `BOX_BOT_ACTIONS` を直参照** — ブランチ 108-box-bot-registry-followup
+  - `useBoxBotActionDispatcher(eventTarget, actions?)` の第2引数化。省略時 `BOX_BOT_ACTIONS`、
+    戻り値型はアクション一覧からジェネリック導出。直参照は既定値の1箇所へ縮小
+- **E (補足). `use-click-bindings` が要素イベント 2 種をハードコード** — ブランチ 108-box-bot-registry-followup
+  - `ON_CLICK_BODY` / `ON_CLICK_HEAD` を単一 `ON_CLICK_ELEMENT`(`detail` に押下要素)へ集約。
+    `use-click-bindings` は 1 リスナで中継。部位追加時にこの hook を触らない
+    (`ClickTarget` ループ案は `react-hooks/rules-of-hooks` に触れるため単一イベント + detail 分岐へ)
 
 ### A の実装方針 (検討済み 2026-08-29)
 
@@ -153,7 +153,7 @@ box-bot-model が `BoxBot3DConfig.jump` (型) / `DEFAULTS.jump` (値 import) / `
 
 1. ~~**A** (config を descriptor へ)~~ — 実装済み PR #114
 2. ~~**B** (narrow host + adapter)~~ — pilot 実装済み PR #115。fall 復帰時に 3 個目 consumer で host 語彙を再検討
-3. **D / E** — 軽い。レジストリ結合の最後
+3. ~~**D / E**~~ — 実装済み ブランチ 108-box-bot-registry-followup。レジストリ結合は解消完了
 4. **fall の復帰** (spin は #115 で復帰済み)。削除したアクションを新レジストリ形式で戻す
 5. **フェーズ1** (案2、fall 表示領域限定) — fall 復帰が前提。#108 の本来の目的
 6. ~~部位アンカーの戻り値まとめ (`layout`)~~ — 実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors。下記
