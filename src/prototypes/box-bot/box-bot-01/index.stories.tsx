@@ -108,11 +108,11 @@ export const Jump: Story = {
 /**
  * fall action の挙動・パラメータ調節
  *
- * - Fall / Get up ボタンで姿勢をトグル(`fall({ shiftX, shiftY })` dispatch)。直立なら転倒、\
- *   横倒しなら起き上がり。Canvas 内はシルエット中心まわりの前傾のみ(表示領域に収まるよう僅かに縮小)
+ * - Fall / Get up ボタンで姿勢をトグル(`fall({ scale, shiftX, shiftY })` dispatch)。\
+ *   直立なら転倒、横倒しなら起き上がり。Canvas 内はシルエット中心まわりの前傾のみ
  * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
- *   スライダーで画面右(x)・上(y)方向のずらし量(px、負で左/下)を実測する。\
- *   jump と同じく設置領域(赤枠)を Canvas がはみ出す
+ *   x / y スライダーで画面右・上方向のずらし量(px、負で左/下)、scale スライダーで\
+ *   横倒し時の縮小率(1 で縮小なし)を実測する。jump と同じく設置領域(赤枠)を Canvas がはみ出す
  */
 export const Fall: Story = {
   parameters: {
@@ -123,6 +123,7 @@ export const Fall: Story = {
     const { fall } = useBoxBotActionDispatcher(eventTarget)
     const [shiftX, setShiftX] = React.useState(-40)
     const [shiftY, setShiftY] = React.useState(-70)
+    const [scale, setScale] = React.useState(0.88)
 
     return (
       <div>
@@ -136,7 +137,7 @@ export const Fall: Story = {
           }}
         >
           <Button
-            onClick={() => void fall({ shiftX, shiftY })}
+            onClick={() => void fall({ scale, shiftX, shiftY })}
             type="button"
             variant="outline"
           >
@@ -162,6 +163,17 @@ export const Fall: Story = {
               step={10}
               type="range"
               value={shiftY}
+            />
+          </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            scale {scale.toFixed(2)}
+            <input
+              max={1}
+              min={0.6}
+              onChange={(e) => setScale(Number(e.target.value))}
+              step={0.02}
+              type="range"
+              value={scale}
             />
           </label>
         </div>

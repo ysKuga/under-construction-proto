@@ -10,7 +10,6 @@ import {
   FALL_ANGLE,
   FALL_ARM_ANGLE,
   FALL_DUR,
-  FALL_SCALE,
   type FallConfig,
   type FallOverride,
   GET_UP_DUR,
@@ -110,7 +109,7 @@ export const useFall = (host: FallHost): void => {
     // 直立(未転倒 / 復帰後)は何もしない。表示領域ずらしは jump が所有する
     if (phaseRef.current === 0) return
 
-    const { shiftX, shiftY } = shiftConfigRef.current ?? config
+    const { scale, shiftX, shiftY } = shiftConfigRef.current ?? config
 
     let posture: number
     let arm: number
@@ -129,7 +128,7 @@ export const useFall = (host: FallHost): void => {
 
     applyTiltAngle(FALL_ANGLE * posture)
     applyArmAngle(arm)
-    applyFallScale(1 - (1 - FALL_SCALE) * posture)
+    applyFallScale(1 - (1 - scale) * posture)
     applyShift({ x: shiftX * posture, y: shiftY * posture })
   })
 }

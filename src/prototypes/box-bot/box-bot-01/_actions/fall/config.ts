@@ -11,14 +11,6 @@ export const GET_UP_DUR = 0.6
 export const FALL_ANGLE = Math.PI / 2
 
 /**
- * 倒れきった状態の縮小率
- *
- * - 横倒しで bot の長辺が水平になり表示領域(正方形)の幅を僅かに超えるため、
- *   前傾の進行度に比例してこの値まで縮める。1 = 縮小なし
- */
-export const FALL_SCALE = 0.88
-
-/**
  * 転倒中に腕を頭の近くへ引き寄せる角度 (rad、x 軸回転)
  *
  * - fall 発火時に即座に切替える (経過時間による補間はしない)。頭をかばう動きを意図
@@ -35,6 +27,13 @@ export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
  * - 転倒進行度に同期してこの量まで補間し、get-up で 0 へ戻す
  */
 export type FallConfig = {
+  /**
+   * 倒れきった状態の一様スケール
+   *
+   * - 横倒しで bot の長辺が表示領域(正方形)の幅を僅かに超えるぶんを縮める。\
+   *   前傾の進行度に比例してこの値まで補間する。1 = 縮小なし(無効化)
+   */
+  scale: number
   /** 画面右方向へのずらし量 (px)。負で左 */
   shiftX: number
   /** 画面上方向へのずらし量 (px)。負で下 */
@@ -52,6 +51,7 @@ export type FallOverride = Partial<FallConfig>
 
 /** `host.config`(fall)の既定値。`actionConfig.fall` で部分上書きできる */
 export const FALL_DEFAULTS: FallConfig = {
+  scale: 0.88,
   shiftX: -40,
   shiftY: -70,
 }
