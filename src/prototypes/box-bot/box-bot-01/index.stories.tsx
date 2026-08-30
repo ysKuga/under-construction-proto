@@ -3,6 +3,7 @@ import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
 
+import { ACTION_FALL } from './_actions/fall'
 import { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-bot-action-dispatcher'
 
 import StoryComponent from '.'
@@ -105,94 +106,7 @@ export const Jump: Story = {
   },
 }
 
-/**
- * fall action の挙動・パラメータ調節
- *
- * - Fall / Get up ボタンで姿勢をトグル(`fall({ shiftDistance, dropDistance })` dispatch)。\
- *   直立なら転倒、横倒しなら起き上がり。Canvas 内はシルエット中心まわりの前傾のみ
- * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
- *   倒れ込む向きは bot の向き(facing、`rotationY`)から算出する。facing スライダーで\
- *   bot を回し、shiftDistance スライダーでずらし距離(px)を実測する。\
- *   dropDistance スライダーで横倒し時に足元が浮くぶんの下げ量(px)を実測する。\
- *   jump と同じく設置領域(赤枠)を Canvas がはみ出す
- */
-export const Fall: Story = {
-  parameters: {
-    options: { showPanel: false },
-  },
-  render: () => {
-    const [eventTarget] = React.useState(() => new EventTarget())
-    const { fall } = useBoxBotActionDispatcher(eventTarget)
-    const [facingDeg, setFacingDeg] = React.useState(0)
-    const [shiftDistance, setShiftDistance] = React.useState(80)
-    const [dropDistance, setDropDistance] = React.useState(60)
-
-    return (
-      <div>
-        <div
-          style={{
-            alignItems: 'center',
-            display: 'flex',
-            gap: 12,
-            position: 'relative',
-            zIndex: 10,
-          }}
-        >
-          <Button
-            onClick={() => void fall({ dropDistance, shiftDistance })}
-            type="button"
-            variant="outline"
-          >
-            Fall / Get up
-          </Button>
-          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            facing {facingDeg}°
-            <input
-              max={180}
-              min={-180}
-              onChange={(e) => setFacingDeg(Number(e.target.value))}
-              step={15}
-              type="range"
-              value={facingDeg}
-            />
-          </label>
-          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            shiftDistance {shiftDistance}px
-            <input
-              max={200}
-              min={0}
-              onChange={(e) => setShiftDistance(Number(e.target.value))}
-              step={10}
-              type="range"
-              value={shiftDistance}
-            />
-          </label>
-          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            dropDistance {dropDistance}px
-            <input
-              max={200}
-              min={0}
-              onChange={(e) => setDropDistance(Number(e.target.value))}
-              step={10}
-              type="range"
-              value={dropDistance}
-            />
-          </label>
-        </div>
-        {/* 転倒で Canvas が設置領域をはみ出すため、story viewport 端で
-            切れないよう余白を取る(facing により倒れ込む向きが変わる) */}
-        <StoryComponent
-          eventTarget={eventTarget}
-          rotationY={(facingDeg * Math.PI) / 180}
-          shadowOpacity={0}
-          style={{ marginLeft: 260, marginTop: 160, outline: '1px solid red' }}
-        />
-      </div>
-    )
-  },
-}
-
-/** Fall バリアント story で並べる bot の向き */
+/** Fall story で並べる bot の向き(facing) */
 const FALL_FACING_VARIANTS = [
   { deg: 0, label: '正面 (0°)' },
   { deg: 180, label: '背面 (180°)' },
@@ -200,22 +114,36 @@ const FALL_FACING_VARIANTS = [
 ]
 
 /**
- * fall の倒れ込み方向を複数の向きで同時比較
+ * fall action の挙動・パラメータ調節(向きバリエーションを同時比較)
  *
- * - bot を 3 体並べ、それぞれ `rotationY`(facing)を正面 / 背面 / 右向きに固定。\
- *   全体で 1 つの `eventTarget` を共有するため、Fall ボタン 1 回で 3 体が同時に転倒 / 起き上がる
- * - facing ごとに画面上の倒れ込み方向が変わることを確認する。shiftDistance / dropDistance は
- *   3 体共通で dispatch する
+ * - bot を 3 体並べ、`rotationY`(facing)を正面 / 背面 / 右向きに固定。bot ごとに
+ *   独立した `eventTarget` を持つ(共有すると listener 多重登録でエラー)
+ * - Fall / Get up ボタン 1 回で 3 体へ同時に `ACTION_FALL` を dispatch。直立なら転倒、
+ *   横倒しなら起き上がり。facing ごとに画面上の倒れ込み方向が変わることを確認する
+ * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
+ *   shiftDistance スライダーで facing 方向へのずらし距離(px)、dropDistance スライダーで
+ *   横倒し時に足元が浮くぶんの下げ量(px)を実測する。3 体共通の値を dispatch する
  */
-export const FallFacingVariants: Story = {
+export const Fall: Story = {
   parameters: {
     options: { showPanel: false },
   },
   render: () => {
-    const [eventTarget] = React.useState(() => new EventTarget())
-    const { fall } = useBoxBotActionDispatcher(eventTarget)
+    const [targets] = React.useState(() =>
+      FALL_FACING_VARIANTS.map(() => new EventTarget()),
+    )
     const [shiftDistance, setShiftDistance] = React.useState(80)
     const [dropDistance, setDropDistance] = React.useState(60)
+
+    const fallAll = () => {
+      for (const target of targets) {
+        target.dispatchEvent(
+          new CustomEvent(ACTION_FALL, {
+            detail: { dropDistance, shiftDistance },
+          }),
+        )
+      }
+    }
 
     return (
       <div>
@@ -228,11 +156,7 @@ export const FallFacingVariants: Story = {
             zIndex: 10,
           }}
         >
-          <Button
-            onClick={() => void fall({ dropDistance, shiftDistance })}
-            type="button"
-            variant="outline"
-          >
+          <Button onClick={fallAll} type="button" variant="outline">
             Fall / Get up(3 体同時)
           </Button>
           <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
@@ -262,11 +186,11 @@ export const FallFacingVariants: Story = {
         <div
           style={{ display: 'flex', gap: 160, marginLeft: 200, marginTop: 220 }}
         >
-          {FALL_FACING_VARIANTS.map((variant) => (
+          {FALL_FACING_VARIANTS.map((variant, i) => (
             <div key={variant.deg} style={{ textAlign: 'center' }}>
               <div style={{ marginBottom: 8 }}>{variant.label}</div>
               <StoryComponent
-                eventTarget={eventTarget}
+                eventTarget={targets[i]}
                 rotationY={(variant.deg * Math.PI) / 180}
                 shadowOpacity={0}
                 style={{ outline: '1px solid red' }}

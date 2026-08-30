@@ -131,8 +131,9 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
   `shiftDirRef` へ固定、get-up も同じ方向を逆再生
 - NDC y と `applyShift` y はどちらも上方向正 → 符号反転不要
 - `rotationY` JSDoc に「向き (facing)。fall の倒れ込み方向の基準」を明記
-- Fall story: x / y スライダー → facing 角度 (deg) + `shiftDistance` + `dropDistance` スライダー。
-  `rotationY` へ facing を渡す
+- Fall story: bot 3 体を正面 / 背面 / 右向き (`rotationY` 固定) で並べ、bot ごとに独立 `eventTarget`
+  (共有すると listener 多重登録エラー)。Fall ボタン 1 回で 3 体へ同時 dispatch。
+  `shiftDistance` / `dropDistance` スライダーは 3 体共通
 
 ## box-bot アクションレジストリの後続作業 (PR #111 派生)
 
