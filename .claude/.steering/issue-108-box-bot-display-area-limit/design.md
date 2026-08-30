@@ -91,7 +91,7 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
 - 影の追従: cast/contact shadow は接地面固定。体心回転で体が浮く間、影は Canvas 内で足元追従か、設置領域基準で別処理か。
   当面は Fall story 側で `shadowOpacity: 0` 継続。
 
-### フェーズ 1 の後続: 向き (facing) からの転倒方向算出 (検討済み 2026-08-30、未着手)
+### フェーズ 1 の後続: 向き (facing) からの転倒方向算出 (実装済み 2026-08-30、ブランチ 108-box-bot-fall-facing-direction)
 
 現状 fall の画面シフトは screen 固定 (常に左下)。bot がどちら向きでも同じ方向へ倒れ込む。
 「向き」概念を入れ、転倒方向を facing から算出する。
@@ -117,13 +117,22 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
   4. `applyShift({ x: screen.x · shiftDistance · posture, y: screen.y · shiftDistance · posture })`
   - カメラ固定 → θ 不変なら投影は 1 回。spin 中に倒れて θ が変わる時のみ再投影 (倒れ始め固定なら不要)。
 
-実装時の変更範囲:
+実装結果:
 
-- `FallConfig`: `shiftX` / `shiftY` → `shiftDistance` (+任意で `shiftAngleOffset` = facing からのズレ rad)
-- fall action: `useThree` でカメラ直参照 (host に足さない。既存の `onFrame` 直 import と同方針)。
-  `layout.center.y` は `deriveLayout` 直呼び or host 経由
-- `rotationY` の JSDoc に「向き。fall の倒れ込み方向の基準」を明記
-- Fall story: x / y スライダー → facing 角度 + `shiftDistance` スライダー
+- `FallConfig`: `shiftX` / `shiftY` → `shiftDistance` (facing 方向へのずらし、スカラ、既定 80) +
+  `dropDistance` (facing 非依存の画面下げ量、既定 60、実測要)。中心 pivot で横倒し時に足元が
+  立ち姿勢の接地点より浮くため、`dropDistance` で下げて足元高さへ戻す。`shiftAngleOffset` は
+  facing スライダーで全方向テストでき YAGNI と判断し不採用 (符号ズレが実測で出たら追加)
+- host に `readFacing(): number` を追加 (`rotationY` + `yawRef.rotation.y`)。`apply*` と違い読み取り。
+  fall だけが `Pick`。adapter は module scope `readFacing(yawRef, rotationY)` を閉じ込め
+- fall action: `useThree((s) => s.camera)` でカメラ直参照 (host に足さない)。`projectFacingToScreen`
+  で `(sin θ, 0, cos θ)` と原点を NDC 投影し差を正規化 → 画面 2D 方向。`center.y` は使わず y=0 で投影
+  (差は方向にほぼ効かず、prototype の手調整 `shiftDistance` で吸収)。倒れ始めに 1 回計算し
+  `shiftDirRef` へ固定、get-up も同じ方向を逆再生
+- NDC y と `applyShift` y はどちらも上方向正 → 符号反転不要
+- `rotationY` JSDoc に「向き (facing)。fall の倒れ込み方向の基準」を明記
+- Fall story: x / y スライダー → facing 角度 (deg) + `shiftDistance` + `dropDistance` スライダー。
+  `rotationY` へ facing を渡す
 
 ## box-bot アクションレジストリの後続作業 (PR #111 派生)
 
