@@ -42,6 +42,7 @@ const projectFacingToScreen = (
 type FallHost = Pick<
   BoxBotActionContext<FallConfig>,
   | 'applyArmAngle'
+  | 'applyShadowLift'
   | 'applyShift'
   | 'applyTiltAngle'
   | 'config'
@@ -63,6 +64,8 @@ type FallHost = Pick<
  *   進行方向の移動に使う(奥向き=上、手前向き=下、横向き=左右)。\
  *   これに加え、中心 pivot で足元が浮くぶんを `dropDistance` で画面下へ一定量補正する。\
  *   前傾と同じ進行度で補間し、get-up で 0 へ戻す。THREE / DOM は直接触らない
+ * - 接地影は `host.applyShadowLift`(adapter が影グループの `position.y` へ)。体が浮くぶん\
+ *   `shadowLift` まで影を持ち上げて体へ寄せる。進行度に同期、get-up で 0
  * - 転倒開始時は腕を即座に `FALL_ARM_ANGLE` へ切替え、起き上がりでのみ 0 へ補間して戻す。\
  *   ずらし距離・投影済み方向は起動時に解決して `shiftConfigRef` / `shiftDirRef` に固定\
  *   (get-up も同じ値を逆再生)
@@ -75,6 +78,7 @@ type FallHost = Pick<
 export const useFall = (host: FallHost): void => {
   const {
     applyArmAngle,
+    applyShadowLift,
     applyShift,
     applyTiltAngle,
     config,
@@ -129,6 +133,7 @@ export const useFall = (host: FallHost): void => {
           applyTiltAngle(0)
           applyArmAngle(0)
           applyShift({ x: 0, y: 0 })
+          applyShadowLift(0)
         }
       }
     }
@@ -136,7 +141,8 @@ export const useFall = (host: FallHost): void => {
     // 直立(未転倒 / 復帰後)は何もしない。表示領域ずらしは jump が所有する
     if (phaseRef.current === 0) return
 
-    const { dropDistance, shiftDistance } = shiftConfigRef.current ?? config
+    const { dropDistance, shadowLift, shiftDistance } =
+      shiftConfigRef.current ?? config
     const dir = shiftDirRef.current
 
     let posture: number
@@ -161,5 +167,7 @@ export const useFall = (host: FallHost): void => {
       x: dir.x * shiftDistance * posture,
       y: dir.y * shiftDistance * posture - dropDistance * posture,
     })
+    // 影を体へ寄せる(接地面固定の影が浮いた体から離れるのを打ち消す)
+    applyShadowLift(shadowLift * posture)
   })
 }

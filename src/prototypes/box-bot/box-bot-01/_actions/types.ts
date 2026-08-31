@@ -108,6 +108,13 @@ export type BoxBotActionHost = {
    */
   applyArmAngle: (rad: number) => void
   /**
+   * 接地影を world +y へ持ち上げる(絶対値)
+   *
+   * - `y` は world 単位。adapter が影グループの `position.y` へ反映する
+   * - fall が横倒し時に体が浮くぶん影を体へ寄せるのに使う。直立時は 0
+   */
+  applyShadowLift: (y: number) => void
+  /**
    * 表示領域(Canvas ラッパー)を基準位置(中央)からずらす
    *
    * - `x` は画面右、`y` は画面上を正とする px。adapter が DOM の `left` / `top` を書き換える(#108)

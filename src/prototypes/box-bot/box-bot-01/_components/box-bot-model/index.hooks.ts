@@ -58,6 +58,14 @@ const writeYawDelta = (yawRef: RefObject<Group | null>, rad: number): void => {
   if (yawRef.current) yawRef.current.rotation.y += rad
 }
 
+/** 接地影グループ(`shadowLiftRef`)の持ち上げ量(`position.y`)を `y` に設定する(fall) */
+const writeShadowLift = (
+  shadowLiftRef: RefObject<Group | null> | undefined,
+  y: number,
+): void => {
+  if (shadowLiftRef?.current) shadowLiftRef.current.position.y = y
+}
+
 /** 前傾グループ(`fallPivotRef`)の前傾角(`rotation.x`)を `rad` に設定する(fall) */
 const writeTilt = (
   fallPivotRef: RefObject<Group | null>,
@@ -146,7 +154,7 @@ export function useBoxBotModel(
   // 要素イベント → action イベントの中継(対応表は Context から取得)
   useClickBindings(eventTarget)
 
-  const { displayAreaRef } = props
+  const { displayAreaRef, shadowLiftRef } = props
 
   // アクションへ渡す操作面(adapter)。bot 内部構造(THREE.Group / 表示領域 DOM)への
   // 書き込みは module scope の write* に閉じ込め、ここでは ref オブジェクトを渡すだけ
@@ -156,6 +164,7 @@ export function useBoxBotModel(
   const actionHost: BoxBotActionBaseHost = {
     actionConfig,
     applyArmAngle: (rad) => writeArmAngle(leftArmRef, rightArmRef, rad),
+    applyShadowLift: (y) => writeShadowLift(shadowLiftRef, y),
     applyShift: (offset) => writeShift(displayAreaRef, offset),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
     applyTiltAngle: (rad) => writeTilt(fallPivotRef, rad),

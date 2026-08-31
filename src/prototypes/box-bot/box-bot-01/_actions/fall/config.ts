@@ -37,6 +37,14 @@ export type FallConfig = {
    */
   dropDistance: number
   /**
+   * 横倒し時に接地影を体へ近づける量 (world +y、実測要)
+   *
+   * - 影は接地面固定なので、体が中心 pivot で浮くと影だけ下に取り残される。
+   *   転倒進行度に同期して影を world +y へ持ち上げ、寝た体の近くへ寄せる
+   *   (体である程度覆われてよい)。get-up で 0 へ戻す
+   */
+  shadowLift: number
+  /**
    * 進行方向へずらす距離 (px、実測要)
    *
    * - 倒れ始めの facing をカメラ投影した画面 2D 方向 (右+ / 上+) に掛ける。
@@ -57,5 +65,6 @@ export type FallOverride = Partial<FallConfig>
 /** `host.config`(fall)の既定値。`actionConfig.fall` で部分上書きできる */
 export const FALL_DEFAULTS: FallConfig = {
   dropDistance: 25,
+  shadowLift: 0.5,
   shiftDistance: 55,
 }

@@ -1,4 +1,6 @@
 import { Shadow } from '@react-three/drei'
+import type { RefObject } from 'react'
+import type { Group } from 'three'
 
 import type { Vec3 } from '../../index.types'
 
@@ -16,13 +18,15 @@ const COLOR_STOP = 0.2
  *
  * - シルエット投影(ContactShadows)ではなく、body の幅 × 奥行に合わせた楕円 1 枚。\
  *   `facing`(bot の向き)ぶん接地面内で回すので、横向きの bot は影も横長に寝る
- * - 転倒で姿勢(前傾)が変わっても形・位置は変えない(接地面に貼り付いたただの影)
+ * - 転倒で姿勢(前傾)が変わっても形は変えない。位置は `liftRef` の group を fall が\
+ *   `position.y` で持ち上げ、浮いた体へ寄せる(直立時は 0)
  * - fall 中は Canvas ごと DOM シフトされるため画面上は bot に追従する
  */
 export function ContactShadow({
   bodyDepth,
   bodyWidth,
   facing,
+  liftRef,
   opacity,
   position,
 }: {
@@ -32,19 +36,25 @@ export function ContactShadow({
   bodyWidth: number
   /** bot の向き(rad)。楕円を接地面内でこのぶん回す */
   facing: number
+  /** fall が `position.y` を持ち上げるグループの ref */
+  liftRef?: RefObject<Group | null>
   /** 影の不透明度 */
   opacity: number
   /** 接地影の中心位置(world) */
   position: Vec3
 }) {
   return (
-    <group position={position} rotation={[0, facing, 0]}>
-      <Shadow
-        colorStop={COLOR_STOP}
-        opacity={opacity}
-        rotation={FLAT_ROTATION}
-        scale={[bodyWidth * MARGIN, bodyDepth * MARGIN, 1]}
-      />
+    <group position={position}>
+      <group ref={liftRef}>
+        <group rotation={[0, facing, 0]}>
+          <Shadow
+            colorStop={COLOR_STOP}
+            opacity={opacity}
+            rotation={FLAT_ROTATION}
+            scale={[bodyWidth * MARGIN, bodyDepth * MARGIN, 1]}
+          />
+        </group>
+      </group>
     </group>
   )
 }
