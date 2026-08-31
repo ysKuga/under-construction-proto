@@ -21,19 +21,21 @@ import {
 const ease = (p: number): number => p * (2 - p)
 
 /**
- * facing 前方水平ベクトルをカメラ投影し、画面横方向(右+)の単位成分を返す
+ * facing 前方水平ベクトルをカメラ投影し、画面 2D 方向(右+ / 上+)の単位ベクトルを返す
  *
- * - `facing` の水平ベクトル `(sin θ, 0, cos θ)` と原点を NDC へ投影し、差を正規化した x
- * - 縦成分は使わない。前後向き(カメラの奥/手前)では ≈ 0、真横向きで ≈ ±1
- * - 足元の縦位置を facing で暴れさせないため。縦ずれは `dropDistance` 一本で合わせる
+ * - `facing` の水平ベクトル `(sin θ, 0, cos θ)` と原点を NDC へ投影し、差を正規化
+ * - 倒れ込みは「進行方向」へ動かす: 奥向きは画面上、手前向きは画面下、横向きは左右
  */
-const projectFacingScreenX = (camera: Camera, facing: number): number => {
+const projectFacingToScreen = (
+  camera: Camera,
+  facing: number,
+): { x: number; y: number } => {
   const origin = new Vector3(0, 0, 0).project(camera)
   const tip = new Vector3(Math.sin(facing), 0, Math.cos(facing)).project(camera)
   const x = tip.x - origin.x
   const y = tip.y - origin.y
   const len = Math.hypot(x, y) || 1
-  return x / len
+  return { x: x / len, y: y / len }
 }
 
 /** fall が host から必要とする操作面 */
@@ -57,12 +59,12 @@ type FallHost = Pick<
  * - Canvas 内は姿勢のみ: 前傾は `host.applyTiltAngle`(adapter がシルエット中心 pivot の\
  *   `rotation.x` へ)、腕は `host.applyArmAngle`。いずれも前傾と同じ進行度で補間する
  * - 「倒れ込み」の移動は `host.applyShift`(adapter が表示領域 DOM をずらす)。\
- *   横方向は倒れ始めの facing(`host.readFacing`)をカメラ投影した画面横成分 × `shiftDistance`\
- *   (前後向きは ≈ 0、真横向きで最大)。縦方向は facing に依らず `dropDistance` 一本で、\
- *   中心 pivot で足元が浮くぶんを画面下へ補正する。\
+ *   倒れ始めの facing(`host.readFacing`)をカメラ投影した画面 2D 方向 × `shiftDistance` を\
+ *   進行方向の移動に使う(奥向き=上、手前向き=下、横向き=左右)。\
+ *   これに加え、中心 pivot で足元が浮くぶんを `dropDistance` で画面下へ一定量補正する。\
  *   前傾と同じ進行度で補間し、get-up で 0 へ戻す。THREE / DOM は直接触らない
  * - 転倒開始時は腕を即座に `FALL_ARM_ANGLE` へ切替え、起き上がりでのみ 0 へ補間して戻す。\
- *   ずらし距離・投影済み横成分は起動時に解決して `shiftConfigRef` / `shiftXRef` に固定\
+ *   ずらし距離・投影済み方向は起動時に解決して `shiftConfigRef` / `shiftDirRef` に固定\
  *   (get-up も同じ値を逆再生)
  * - `useFrame` は jump と同じく毎フレーム現在の目標値を無条件適用する。横倒し静止中も\
  *   書き続けるので、再レンダーで表示領域の inline style(`top`/`left` 50%)が復元されても\
@@ -89,8 +91,8 @@ export const useFall = (host: FallHost): void => {
   const tRef = useRef(-1)
   /** 実行中の転倒の解決済みずらし距離。null のときは `config` を使う */
   const shiftConfigRef = useRef<FallConfig | null>(null)
-  /** 倒れ始めに固定した画面ずらしの横成分(右+、-1〜1) */
-  const shiftXRef = useRef(0)
+  /** 倒れ始めに固定した画面ずらし方向(単位ベクトル、右+ / 上+) */
+  const shiftDirRef = useRef<{ x: number; y: number }>({ x: 0, y: -1 })
 
   const onFall = (e: Event) => {
     if (!interactive) return
@@ -98,7 +100,7 @@ export const useFall = (host: FallHost): void => {
     if (phaseRef.current === 0) {
       const override = (e as CustomEvent<FallOverride | undefined>).detail
       shiftConfigRef.current = { ...config, ...override }
-      shiftXRef.current = projectFacingScreenX(camera, readFacing())
+      shiftDirRef.current = projectFacingToScreen(camera, readFacing())
       phaseRef.current = 1
       tRef.current = 0
     } else if (phaseRef.current === 2) {
@@ -135,7 +137,7 @@ export const useFall = (host: FallHost): void => {
     if (phaseRef.current === 0) return
 
     const { dropDistance, shiftDistance } = shiftConfigRef.current ?? config
-    const shiftX = shiftXRef.current
+    const dir = shiftDirRef.current
 
     let posture: number
     let arm: number
@@ -154,10 +156,10 @@ export const useFall = (host: FallHost): void => {
 
     applyTiltAngle(FALL_ANGLE * posture)
     applyArmAngle(arm)
-    // 横: facing の画面横成分ぶん倒れ込む / 縦: facing に依らず足元の浮きを打ち消す
+    // 進行方向(facing 投影)へ shiftDistance ぶん + 足元の浮き補正で dropDistance ぶん下げ
     applyShift({
-      x: shiftX * shiftDistance * posture,
-      y: -dropDistance * posture,
+      x: dir.x * shiftDistance * posture,
+      y: dir.y * shiftDistance * posture - dropDistance * posture,
     })
   })
 }

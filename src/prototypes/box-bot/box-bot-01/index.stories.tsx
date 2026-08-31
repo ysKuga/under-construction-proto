@@ -157,8 +157,8 @@ export const Fall: Story = {
     const [targets] = React.useState(() =>
       FALL_FACING_GRID.map(() => new EventTarget()),
     )
-    const [shiftDistance, setShiftDistance] = React.useState(80)
-    const [dropDistance, setDropDistance] = React.useState(60)
+    const [shiftDistance, setShiftDistance] = React.useState(55)
+    const [dropDistance, setDropDistance] = React.useState(25)
 
     const fallAll = () => {
       for (const target of targets) {
