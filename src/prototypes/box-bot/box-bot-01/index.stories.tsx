@@ -196,15 +196,14 @@ export const Fall: Story = {
             />
           </label>
         </div>
-        {/* 各 bot の Canvas が転倒で四方へはみ出すため、間隔・余白を広めに取り、
-            体数が増えても折り返して収まるようにする */}
+        {/* 転倒で Canvas が四方へはみ出すぶんの間隔・余白。体数が増えても折り返して収まる */}
         <div
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 140,
-            marginLeft: 160,
-            marginTop: 220,
+            gap: 60,
+            marginLeft: 40,
+            marginTop: 80,
           }}
         >
           {FALL_FACING_VARIANTS.map((variant, i) => (
