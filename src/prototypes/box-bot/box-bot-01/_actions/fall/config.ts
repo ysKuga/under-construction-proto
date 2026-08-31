@@ -24,7 +24,7 @@ export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
  *
  * - Canvas 内ではシルエット中心まわりに回すだけ。足元が前方へ出た「倒れ込み」の見た目は、
  *   表示領域 (Canvas ラッパー) を DOM でずらして表現する (#108 フェーズ1、jump と同じ機構)
- * - ずらす向きは倒れ始めの facing (bot の向き) から算出する。方向スカラ 1 値だけを持つ
+ * - 横は倒れ始めの facing (bot の向き) をカメラ投影した画面横成分、縦は facing 非依存の下げ量
  * - 転倒進行度に同期してこの距離まで補間し、get-up で 0 へ戻す
  */
 export type FallConfig = {
@@ -36,7 +36,12 @@ export type FallConfig = {
    * - facing 非依存。転倒進行度に同期してこの量まで補間し、get-up で 0 へ戻す
    */
   dropDistance: number
-  /** 倒れ込み方向へずらす距離 (px)。方向は倒れ始めの facing をカメラ投影して決める */
+  /**
+   * 倒れ込みで横へずらす距離 (px)
+   *
+   * - 倒れ始めの facing をカメラ投影した画面横成分に掛ける。前後向き (正面/背面) は ≈ 0、
+   *   真横向きで最大。縦方向のずれは持たない (足元の縦位置は `dropDistance` 一本で合わせる)
+   */
   shiftDistance: number
 }
 

@@ -125,15 +125,19 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
   facing スライダーで全方向テストでき YAGNI と判断し不採用 (符号ズレが実測で出たら追加)
 - host に `readFacing(): number` を追加 (`rotationY` + `yawRef.rotation.y`)。`apply*` と違い読み取り。
   fall だけが `Pick`。adapter は module scope `readFacing(yawRef, rotationY)` を閉じ込め
-- fall action: `useThree((s) => s.camera)` でカメラ直参照 (host に足さない)。`projectFacingToScreen`
-  で `(sin θ, 0, cos θ)` と原点を NDC 投影し差を正規化 → 画面 2D 方向。`center.y` は使わず y=0 で投影
-  (差は方向にほぼ効かず、prototype の手調整 `shiftDistance` で吸収)。倒れ始めに 1 回計算し
-  `shiftDirRef` へ固定、get-up も同じ方向を逆再生
-- NDC y と `applyShift` y はどちらも上方向正 → 符号反転不要
+- fall action: `useThree((s) => s.camera)` でカメラ直参照 (host に足さない)。`projectFacingScreenX`
+  で `(sin θ, 0, cos θ)` と原点を NDC 投影し差を正規化、**x 成分 (画面横) のみ**返す。`center.y` は
+  使わず y=0 で投影。倒れ始めに 1 回計算し `shiftXRef` へ固定、get-up も同じ値を逆再生
+- **画面ずらしの縦成分は facing に載せない**。カメラが斜め見下ろしのため facing の奥/手前成分が
+  投影 y に強く出て、正面が下・背面が上へ暴れる (足元がバラつく)。縦は `dropDistance` 一本
+  (facing 非依存) にして 5 向きとも足元が揃うようにした。横 (`shiftX·shiftDistance`) は前後向きで
+  ≈ 0、真横向きで最大
 - `rotationY` JSDoc に「向き (facing)。fall の倒れ込み方向の基準」を明記
-- Fall story: bot 3 体を正面 / 背面 / 右向き (`rotationY` 固定) で並べ、bot ごとに独立 `eventTarget`
-  (共有すると listener 多重登録エラー)。Fall ボタン 1 回で 3 体へ同時 dispatch。
-  `shiftDistance` / `dropDistance` スライダーは 3 体共通
+- Fall story: bot 5 体を `FACE_CAMERA_YAW` (bot→カメラ水平 yaw) 基準のオフセットで並べる
+  (左斜め / 正面 / 右斜め / 右向き / 背面)。`rotationY = 0` は world +z で斜め見下ろしカメラでは
+  画面上斜めを向くため。`CAMERA_POSITION` / `ORBIT_TARGET` を `index.tsx` から export。
+  bot ごとに独立 `eventTarget` (共有すると listener 多重登録エラー)、Fall ボタン 1 回で全体へ
+  `ACTION_FALL` 直 dispatch。`shiftDistance` / `dropDistance` スライダーは全体共通
 
 ## box-bot アクションレジストリの後続作業 (PR #111 派生)
 
