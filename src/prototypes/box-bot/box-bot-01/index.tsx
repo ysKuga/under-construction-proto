@@ -223,7 +223,13 @@ export default function BoxBot3D({
           {shadowVariant === 'cast' ? (
             <CastShadow opacity={shadowOpacity} position={groundPosition} />
           ) : (
-            <ContactShadow opacity={shadowOpacity} position={groundPosition} />
+            <ContactShadow
+              bodyDepth={cfg.body?.d ?? DEFAULTS.body.d}
+              bodyWidth={cfg.body?.w ?? DEFAULTS.body.w}
+              facing={cfg.rotationY ?? 0}
+              opacity={shadowOpacity}
+              position={groundPosition}
+            />
           )}
           {orbit && (
             <OrbitControls
