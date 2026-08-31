@@ -120,26 +120,29 @@ const FACE_CAMERA_YAW = Math.atan2(
 /**
  * Fall story の 3x3 配置
  *
- * - 中央を空け、周囲 8 セルへ 8 方向。`deg` はカメラ正対からのオフセット、
- *   セルの方角と bot の向き(倒れ込む向き)を一致させる
+ * - 周囲 8 セルは 8 方向、`deg` はカメラ正対からのオフセット。セルの方角と bot の向き
+ *   (倒れ込む向き)を一致させる。`orbit: false` で視点固定(回転抑止)
+ * - 中央セルは `orbit: true`。マウスドラッグでカメラを回して立体を確認する用
  */
 const FALL_FACING_GRID = [
-  { col: 1, deg: 225, row: 1 },
-  { col: 2, deg: 180, row: 1 },
-  { col: 3, deg: 135, row: 1 },
-  { col: 1, deg: 270, row: 2 },
-  { col: 3, deg: 90, row: 2 },
-  { col: 1, deg: 315, row: 3 },
-  { col: 2, deg: 0, row: 3 },
-  { col: 3, deg: 45, row: 3 },
+  { col: 1, deg: 225, orbit: false, row: 1 },
+  { col: 2, deg: 180, orbit: false, row: 1 },
+  { col: 3, deg: 135, orbit: false, row: 1 },
+  { col: 1, deg: 270, orbit: false, row: 2 },
+  { col: 2, deg: 0, orbit: true, row: 2 },
+  { col: 3, deg: 90, orbit: false, row: 2 },
+  { col: 1, deg: 315, orbit: false, row: 3 },
+  { col: 2, deg: 0, orbit: false, row: 3 },
+  { col: 3, deg: 45, orbit: false, row: 3 },
 ]
 
 /**
  * fall action の挙動・パラメータ調節(8 方向を 3x3 で同時比較)
  *
- * - bot 8 体を 3x3 の周囲 8 セルへ配置(中央は空)。各 bot は自セルの方角を向き、
- *   `rotationY`(facing)はカメラ正対から 45° 刻み。bot ごとに独立した `eventTarget`
- *   を持つ(共有すると listener 多重登録でエラー)
+ * - 周囲 8 体は 3x3 の外周セルへ配置、各 bot は自セルの方角を向く(`rotationY` はカメラ
+ *   正対から 45° 刻み)。`orbit: false` で視点固定 = 倒れ込み方向を同条件で比較できる
+ * - 中央 1 体は `orbit: true` でマウスドラッグ回転可。立体の確認用
+ * - bot ごとに独立した `eventTarget`(共有すると listener 多重登録でエラー)
  * - Fall / Get up ボタン 1 回で全体へ同時に `ACTION_FALL` を dispatch。倒れ込み方向が
  *   セルの外側(その方角)へ向くことを確認する
  * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
@@ -179,7 +182,7 @@ export const Fall: Story = {
           }}
         >
           <Button onClick={fallAll} type="button" variant="outline">
-            Fall / Get up(8 体同時)
+            Fall / Get up(9 体同時)
           </Button>
           <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
             shiftDistance {shiftDistance}px
@@ -204,7 +207,7 @@ export const Fall: Story = {
             />
           </label>
         </div>
-        {/* 中央を空けた 3x3。1 マス = bot 既定サイズ。左列が転倒で見切れないよう左に余白 */}
+        {/* 3x3。1 マス = bot 既定サイズ。左列が転倒で見切れないよう左に余白 */}
         <div
           style={{
             display: 'grid',
@@ -216,11 +219,12 @@ export const Fall: Story = {
         >
           {FALL_FACING_GRID.map((cell, i) => (
             <div
-              key={cell.deg}
+              key={`${cell.col}-${cell.row}`}
               style={{ gridColumn: `${cell.col}`, gridRow: `${cell.row}` }}
             >
               <StoryComponent
                 eventTarget={targets[i]}
+                orbit={cell.orbit}
                 rotationY={FACE_CAMERA_YAW + (cell.deg * Math.PI) / 180}
                 style={{ outline: '1px solid red' }}
               />
