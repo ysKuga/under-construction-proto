@@ -3,9 +3,10 @@ import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
 
+import { ACTION_FALL } from './_actions/fall'
 import { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-bot-action-dispatcher'
 
-import StoryComponent from '.'
+import StoryComponent, { CAMERA_POSITION, ORBIT_TARGET } from '.'
 
 const meta: Meta<typeof StoryComponent> = {
   args: {
@@ -106,23 +107,57 @@ export const Jump: Story = {
 }
 
 /**
- * fall action の挙動・パラメータ調節
+ * カメラに正対する facing (rad)
  *
- * - Fall / Get up ボタンで姿勢をトグル(`fall({ shiftX, shiftY })` dispatch)。\
- *   直立なら転倒、横倒しなら起き上がり。Canvas 内はシルエット中心まわりの前傾のみ
+ * - `rotationY = 0` は world +z 向きだが、カメラは斜め上・斜め右から見るため画面上は斜めを向く。
+ *   bot → カメラの水平ベクトルの yaw を使い、画面に正対 (顔をカメラへ真っ直ぐ) させる
+ */
+const FACE_CAMERA_YAW = Math.atan2(
+  CAMERA_POSITION[0] - ORBIT_TARGET[0],
+  CAMERA_POSITION[2] - ORBIT_TARGET[2],
+)
+
+/** Fall story で並べる bot の向き(facing、カメラ正対を基準にしたオフセット) */
+const FALL_FACING_VARIANTS = [
+  { label: '左斜め (-45°)', yaw: FACE_CAMERA_YAW - Math.PI / 4 },
+  { label: '正面 (カメラ正対)', yaw: FACE_CAMERA_YAW },
+  { label: '右斜め (+45°)', yaw: FACE_CAMERA_YAW + Math.PI / 4 },
+  { label: '右向き (+90°)', yaw: FACE_CAMERA_YAW + Math.PI / 2 },
+  { label: '背面 (180°)', yaw: FACE_CAMERA_YAW + Math.PI },
+]
+
+/**
+ * fall action の挙動・パラメータ調節(向きバリエーションを同時比較)
+ *
+ * - bot を複数体並べ、`rotationY`(facing)をカメラ正対からのオフセット(左斜め / 正面 /
+ *   右斜め / 右向き / 背面)で固定。bot ごとに独立した `eventTarget` を持つ
+ *   (共有すると listener 多重登録でエラー)
+ * - Fall / Get up ボタン 1 回で全体へ同時に `ACTION_FALL` を dispatch。直立なら転倒、
+ *   横倒しなら起き上がり。facing ごとに画面上の倒れ込み方向が変わることを確認する
  * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
- *   x / y スライダーで画面右・上方向のずらし量(px、負で左/下)を実測する。\
- *   jump と同じく設置領域(赤枠)を Canvas がはみ出す
+ *   shiftDistance スライダーで facing 方向へのずらし距離(px)、dropDistance スライダーで
+ *   横倒し時に足元が浮くぶんの下げ量(px)を実測する。全体共通の値を dispatch する
  */
 export const Fall: Story = {
   parameters: {
     options: { showPanel: false },
   },
   render: () => {
-    const [eventTarget] = React.useState(() => new EventTarget())
-    const { fall } = useBoxBotActionDispatcher(eventTarget)
-    const [shiftX, setShiftX] = React.useState(-40)
-    const [shiftY, setShiftY] = React.useState(-70)
+    const [targets] = React.useState(() =>
+      FALL_FACING_VARIANTS.map(() => new EventTarget()),
+    )
+    const [shiftDistance, setShiftDistance] = React.useState(80)
+    const [dropDistance, setDropDistance] = React.useState(60)
+
+    const fallAll = () => {
+      for (const target of targets) {
+        target.dispatchEvent(
+          new CustomEvent(ACTION_FALL, {
+            detail: { dropDistance, shiftDistance },
+          }),
+        )
+      }
+    }
 
     return (
       <div>
@@ -135,43 +170,54 @@ export const Fall: Story = {
             zIndex: 10,
           }}
         >
-          <Button
-            onClick={() => void fall({ shiftX, shiftY })}
-            type="button"
-            variant="outline"
-          >
-            Fall / Get up
+          <Button onClick={fallAll} type="button" variant="outline">
+            Fall / Get up(3 体同時)
           </Button>
           <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            x {shiftX}px
+            shiftDistance {shiftDistance}px
             <input
               max={200}
-              min={-200}
-              onChange={(e) => setShiftX(Number(e.target.value))}
+              min={0}
+              onChange={(e) => setShiftDistance(Number(e.target.value))}
               step={10}
               type="range"
-              value={shiftX}
+              value={shiftDistance}
             />
           </label>
           <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-            y {shiftY}px
+            dropDistance {dropDistance}px
             <input
               max={200}
-              min={-200}
-              onChange={(e) => setShiftY(Number(e.target.value))}
+              min={0}
+              onChange={(e) => setDropDistance(Number(e.target.value))}
               step={10}
               type="range"
-              value={shiftY}
+              value={dropDistance}
             />
           </label>
         </div>
-        {/* 転倒で Canvas が設置領域を左下へはみ出すため、story viewport 左端で
-            切れないよう右へ寄せる(スライダー min -200 でも収まる余白) */}
-        <StoryComponent
-          eventTarget={eventTarget}
-          shadowOpacity={0}
-          style={{ marginLeft: 260, marginTop: 160, outline: '1px solid red' }}
-        />
+        {/* 転倒で Canvas が四方へはみ出すぶんの間隔・余白。体数が増えても折り返して収まる */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 60,
+            marginLeft: 40,
+            marginTop: 80,
+          }}
+        >
+          {FALL_FACING_VARIANTS.map((variant, i) => (
+            <div key={variant.label} style={{ textAlign: 'center' }}>
+              <div style={{ marginBottom: 8 }}>{variant.label}</div>
+              <StoryComponent
+                eventTarget={targets[i]}
+                rotationY={variant.yaw}
+                shadowOpacity={0}
+                style={{ outline: '1px solid red' }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     )
   },

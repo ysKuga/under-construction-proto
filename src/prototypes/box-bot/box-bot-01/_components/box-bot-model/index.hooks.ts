@@ -76,6 +76,16 @@ const writeArmAngle = (
   if (rightArmRef.current) rightArmRef.current.rotation.x = rad
 }
 
+/**
+ * 現在の実効 facing(bot の向き)を rad で返す(fall の画面ずらし方向の基準)
+ *
+ * - 初期回転 `rotationY` に `yawRef` の累積回転(spin / autoRotate)を足したもの
+ */
+const readFacing = (
+  yawRef: RefObject<Group | null>,
+  rotationY: number,
+): number => rotationY + (yawRef.current?.rotation.y ?? 0)
+
 /** BoxBotModel のロジック(設定マージ・ジオメトリ寸法・アクション実行) */
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
@@ -152,6 +162,7 @@ export function useBoxBotModel(
     applyYawDelta: (rad) => writeYawDelta(yawRef, rad),
     eventTarget,
     interactive,
+    readFacing: () => readFacing(yawRef, rotationY),
   }
 
   // Context 経由で注入されたアクションを実行。配列順 = useFrame 実行順。

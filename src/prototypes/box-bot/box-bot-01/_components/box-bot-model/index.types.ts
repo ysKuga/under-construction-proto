@@ -176,7 +176,14 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    *   bot 外へドラッグして離した場合は発火しない(通常の a要素のクリックと同じセマンティクス)
    */
   onClick?: () => void
-  /** 初期 y 軸回転(ラジアン、既定: 0) */
+  /**
+   * 向き(facing)。初期 y 軸回転(ラジアン、既定: 0)
+   *
+   * - 0 = カメラ正面(world +z)。`yawRef` の累積回転(spin / autoRotate)と合算した値が\
+   *   実効 facing になる
+   * - fall の倒れ込み(表示領域ずらし)方向の基準。倒れ始めの実効 facing をカメラ投影して\
+   *   画面上のずらし向きを決める
+   */
   rotationY?: number
 }
 
