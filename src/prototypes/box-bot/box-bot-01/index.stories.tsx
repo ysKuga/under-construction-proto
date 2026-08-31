@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ACTION_FALL } from './_actions/fall'
 import { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-bot-action-dispatcher'
 
-import StoryComponent from '.'
+import StoryComponent, { CAMERA_POSITION, ORBIT_TARGET } from '.'
 
 const meta: Meta<typeof StoryComponent> = {
   args: {
@@ -106,11 +106,22 @@ export const Jump: Story = {
   },
 }
 
-/** Fall story で並べる bot の向き(facing) */
+/**
+ * カメラに正対する facing (rad)
+ *
+ * - `rotationY = 0` は world +z 向きだが、カメラは斜め上・斜め右から見るため画面上は斜めを向く。
+ *   bot → カメラの水平ベクトルの yaw を使い、画面に正対 (顔をカメラへ真っ直ぐ) させる
+ */
+const FACE_CAMERA_YAW = Math.atan2(
+  CAMERA_POSITION[0] - ORBIT_TARGET[0],
+  CAMERA_POSITION[2] - ORBIT_TARGET[2],
+)
+
+/** Fall story で並べる bot の向き(facing、カメラ正対を基準にしたオフセット) */
 const FALL_FACING_VARIANTS = [
-  { deg: 0, label: '正面 (0°)' },
-  { deg: 180, label: '背面 (180°)' },
-  { deg: 90, label: '右向き (90°)' },
+  { label: '正面 (カメラ正対)', yaw: FACE_CAMERA_YAW },
+  { label: '背面', yaw: FACE_CAMERA_YAW + Math.PI },
+  { label: '右向き', yaw: FACE_CAMERA_YAW + Math.PI / 2 },
 ]
 
 /**
@@ -187,11 +198,11 @@ export const Fall: Story = {
           style={{ display: 'flex', gap: 160, marginLeft: 200, marginTop: 220 }}
         >
           {FALL_FACING_VARIANTS.map((variant, i) => (
-            <div key={variant.deg} style={{ textAlign: 'center' }}>
+            <div key={variant.label} style={{ textAlign: 'center' }}>
               <div style={{ marginBottom: 8 }}>{variant.label}</div>
               <StoryComponent
                 eventTarget={targets[i]}
-                rotationY={(variant.deg * Math.PI) / 180}
+                rotationY={variant.yaw}
                 shadowOpacity={0}
                 style={{ outline: '1px solid red' }}
               />

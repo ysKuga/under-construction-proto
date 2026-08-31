@@ -40,7 +40,7 @@ const VIEW_INVARIANT =
   REFERENCE_HEIGHT / Math.tan((REFERENCE_FOV * Math.PI) / 360)
 
 /** カメラ位置(world) */
-const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
+export const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
 
 /** Canvas の devicePixelRatio 範囲 */
 const CANVAS_DPR: [number, number] = [1, 2]
@@ -81,7 +81,7 @@ const ORBIT_MIN_DISTANCE = 3.5
  * - Canvas を bot ぴったりに縮めたため、直立 bot が Canvas 中央へ来るよう較正した値
  * - fall 時の下部見切れ対策は #108 フェーズ1 で別途
  */
-const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
+export const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
