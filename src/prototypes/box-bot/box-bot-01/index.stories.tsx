@@ -117,23 +117,34 @@ const FACE_CAMERA_YAW = Math.atan2(
   CAMERA_POSITION[2] - ORBIT_TARGET[2],
 )
 
-/** Fall story で並べる bot の向き(facing、カメラ正対を基準にしたオフセット) */
-const FALL_FACING_VARIANTS = [
-  { label: '左斜め (-45°)', yaw: FACE_CAMERA_YAW - Math.PI / 4 },
-  { label: '正面 (カメラ正対)', yaw: FACE_CAMERA_YAW },
-  { label: '右斜め (+45°)', yaw: FACE_CAMERA_YAW + Math.PI / 4 },
-  { label: '右向き (+90°)', yaw: FACE_CAMERA_YAW + Math.PI / 2 },
-  { label: '背面 (180°)', yaw: FACE_CAMERA_YAW + Math.PI },
+/**
+ * Fall story の 3x3 配置
+ *
+ * - 周囲 8 セルは 8 方向、`deg` はカメラ正対からのオフセット。セルの方角と bot の向き
+ *   (倒れ込む向き)を一致させる。`orbit: false` で視点固定(回転抑止)
+ * - 中央セルは `orbit: true`。マウスドラッグでカメラを回して立体を確認する用
+ */
+const FALL_FACING_GRID = [
+  { col: 1, deg: 225, orbit: false, row: 1 },
+  { col: 2, deg: 180, orbit: false, row: 1 },
+  { col: 3, deg: 135, orbit: false, row: 1 },
+  { col: 1, deg: 270, orbit: false, row: 2 },
+  { col: 2, deg: 0, orbit: true, row: 2 },
+  { col: 3, deg: 90, orbit: false, row: 2 },
+  { col: 1, deg: 315, orbit: false, row: 3 },
+  { col: 2, deg: 0, orbit: false, row: 3 },
+  { col: 3, deg: 45, orbit: false, row: 3 },
 ]
 
 /**
- * fall action の挙動・パラメータ調節(向きバリエーションを同時比較)
+ * fall action の挙動・パラメータ調節(8 方向を 3x3 で同時比較)
  *
- * - bot を複数体並べ、`rotationY`(facing)をカメラ正対からのオフセット(左斜め / 正面 /
- *   右斜め / 右向き / 背面)で固定。bot ごとに独立した `eventTarget` を持つ
- *   (共有すると listener 多重登録でエラー)
- * - Fall / Get up ボタン 1 回で全体へ同時に `ACTION_FALL` を dispatch。直立なら転倒、
- *   横倒しなら起き上がり。facing ごとに画面上の倒れ込み方向が変わることを確認する
+ * - 周囲 8 体は 3x3 の外周セルへ配置、各 bot は自セルの方角を向く(`rotationY` はカメラ
+ *   正対から 45° 刻み)。`orbit: false` で視点固定 = 倒れ込み方向を同条件で比較できる
+ * - 中央 1 体は `orbit: true` でマウスドラッグ回転可。立体の確認用
+ * - bot ごとに独立した `eventTarget`(共有すると listener 多重登録でエラー)
+ * - Fall / Get up ボタン 1 回で全体へ同時に `ACTION_FALL` を dispatch。倒れ込み方向が
+ *   セルの外側(その方角)へ向くことを確認する
  * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
  *   shiftDistance スライダーで facing 方向へのずらし距離(px)、dropDistance スライダーで
  *   横倒し時に足元が浮くぶんの下げ量(px)を実測する。全体共通の値を dispatch する
@@ -144,10 +155,10 @@ export const Fall: Story = {
   },
   render: () => {
     const [targets] = React.useState(() =>
-      FALL_FACING_VARIANTS.map(() => new EventTarget()),
+      FALL_FACING_GRID.map(() => new EventTarget()),
     )
-    const [shiftDistance, setShiftDistance] = React.useState(80)
-    const [dropDistance, setDropDistance] = React.useState(60)
+    const [shiftDistance, setShiftDistance] = React.useState(55)
+    const [dropDistance, setDropDistance] = React.useState(25)
 
     const fallAll = () => {
       for (const target of targets) {
@@ -171,7 +182,7 @@ export const Fall: Story = {
           }}
         >
           <Button onClick={fallAll} type="button" variant="outline">
-            Fall / Get up(3 体同時)
+            Fall / Get up(9 体同時)
           </Button>
           <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
             shiftDistance {shiftDistance}px
@@ -196,23 +207,25 @@ export const Fall: Story = {
             />
           </label>
         </div>
-        {/* 転倒で Canvas が四方へはみ出すぶんの間隔・余白。体数が増えても折り返して収まる */}
+        {/* 3x3。1 マス = bot 既定サイズ。左列が転倒で見切れないよう左に余白 */}
         <div
           style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 60,
-            marginLeft: 40,
-            marginTop: 80,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 234px)',
+            gridTemplateRows: 'repeat(3, 234px)',
+            marginLeft: 200,
+            marginTop: 40,
           }}
         >
-          {FALL_FACING_VARIANTS.map((variant, i) => (
-            <div key={variant.label} style={{ textAlign: 'center' }}>
-              <div style={{ marginBottom: 8 }}>{variant.label}</div>
+          {FALL_FACING_GRID.map((cell, i) => (
+            <div
+              key={`${cell.col}-${cell.row}`}
+              style={{ gridColumn: `${cell.col}`, gridRow: `${cell.row}` }}
+            >
               <StoryComponent
                 eventTarget={targets[i]}
-                rotationY={variant.yaw}
-                shadowOpacity={0}
+                orbit={cell.orbit}
+                rotationY={FACE_CAMERA_YAW + (cell.deg * Math.PI) / 180}
                 style={{ outline: '1px solid red' }}
               />
             </div>

@@ -88,8 +88,9 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
 - 固定 Canvas サイズ: 済 (`DEFAULT_HEIGHT = 234`)。
 - シフト量 `FWD` / `DOWN`: 横倒し時に体を前方・下方へずらす px。中心回転を接地点 pivot 相当に見せる補正。
   数学的には `(I−R(θ))·(体心→足)` の平行移動だが、手調整定数 + ease で近似 (厳密な足固定より jump との一貫性優先)。
-- 影の追従: cast/contact shadow は接地面固定。体心回転で体が浮く間、影は Canvas 内で足元追従か、設置領域基準で別処理か。
-  当面は Fall story 側で `shadowOpacity: 0` 継続。
+- 影の追従: ~~cast/contact shadow は接地面固定~~ → contact 影を **body 形状に紐づく固定楕円** (drei `Shadow`) へ
+  差し替え、`facing` ぶん接地面内で回す。転倒で体が浮くぶんは `FallConfig.shadowLift` (world +y、進行度同期) で
+  影を体へ寄せる (体である程度覆われてよい)。ブランチ 108-box-bot-fall-shadow-grid。cast は未対応。
 
 ### フェーズ 1 の後続: 向き (facing) からの転倒方向算出 (実装済み 2026-08-30、ブランチ 108-box-bot-fall-facing-direction)
 
@@ -138,6 +139,22 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
   画面上斜めを向くため。`CAMERA_POSITION` / `ORBIT_TARGET` を `index.tsx` から export。
   bot ごとに独立 `eventTarget` (共有すると listener 多重登録エラー)、Fall ボタン 1 回で全体へ
   `ACTION_FALL` 直 dispatch。`shiftDistance` / `dropDistance` スライダーは全体共通
+
+### フェーズ 1 の後続: grid story と挙動調整 (実装済み、ブランチ 108-box-bot-fall-shadow-grid)
+
+facing 転倒方向の後続。Fall story を並び替え + fall の縦挙動 + 影を調整。
+
+- Fall story を **3x3 グリッド 9 体**へ。周囲 8 セルは `FACE_CAMERA_YAW` から 45° 刻み 8 方向、
+  セルの方角 = bot の向き = 倒れ込む向き。周囲は `orbit=false` で視点固定 (同条件比較)、
+  中央 1 体は `orbit=true` で回転可 (立体確認用)。左列が見切れないよう grid に `marginLeft`
+- **画面ずらしの縦成分を「進行方向」へ戻す**。`projectFacingScreenX` (横のみ) → `projectFacingToScreen`
+  (2D) へ。`applyShift` の縦に facing 投影の縦成分を復活: 奥向き=画面上、手前向き=画面下、横向き=左右。
+  `dropDistance` は facing 非依存の一定下げとして残す (足元浮き補正、小さめ)。
+  既定 `shiftDistance` 55 / `dropDistance` 25
+- **接地影を body 形状 + facing 連動の楕円**へ (drei `Shadow`)。`bodyWidth × bodyDepth` の楕円を
+  `facing` ぶん回す。転倒で姿勢が変わっても形は不変
+- **転倒時に影を体へ寄せる**。`FallConfig.shadowLift` (world +y、既定 0.5) を進行度同期で影グループの
+  `position.y` へ。配線は `displayAreaRef` パターン踏襲 (`shadowLiftRef` prop + host `applyShadowLift`)
 
 ## box-bot アクションレジストリの後続作業 (PR #111 派生)
 

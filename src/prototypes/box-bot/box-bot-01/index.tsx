@@ -3,6 +3,7 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import * as React from 'react'
+import type { Group } from 'three'
 
 import { BOX_BOT_ACTIONS, DEFAULT_CLICK_BINDINGS } from './_actions'
 import { Assembly } from './_components/assembly'
@@ -150,6 +151,12 @@ export default function BoxBot3D({
    * - Canvas 内のアクションへ橋渡しする。jump がこの要素の `top` を書き換えて縦移動する
    */
   const displayAreaRef = React.useRef<HTMLDivElement>(null)
+  /**
+   * 接地影を持ち上げるグループの ref
+   *
+   * - fall が横倒し時に体が浮くぶん、この group の `position.y` を上げて影を体へ寄せる
+   */
+  const shadowLiftRef = React.useRef<Group>(null)
 
   return (
     <Assembly
@@ -219,11 +226,19 @@ export default function BoxBot3D({
             {...cfg}
             displayAreaRef={displayAreaRef}
             lineWidth={cfg.lineWidth ?? DEFAULTS.lineWidth * lineScale}
+            shadowLiftRef={shadowLiftRef}
           />
           {shadowVariant === 'cast' ? (
             <CastShadow opacity={shadowOpacity} position={groundPosition} />
           ) : (
-            <ContactShadow opacity={shadowOpacity} position={groundPosition} />
+            <ContactShadow
+              bodyDepth={cfg.body?.d ?? DEFAULTS.body.d}
+              bodyWidth={cfg.body?.w ?? DEFAULTS.body.w}
+              facing={cfg.rotationY ?? 0}
+              liftRef={shadowLiftRef}
+              opacity={shadowOpacity}
+              position={groundPosition}
+            />
           )}
           {orbit && (
             <OrbitControls

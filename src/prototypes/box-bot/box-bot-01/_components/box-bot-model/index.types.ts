@@ -185,6 +185,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
    *   画面上のずらし向きを決める
    */
   rotationY?: number
+  /**
+   * 接地影を持ち上げるグループの ref(fall 用)
+   *
+   * - `BoxBot3D` が生成し、影を包む `<group>` にバインドして Canvas 内のアクションへ橋渡しする
+   * - fall が横倒し時に体が浮くぶん、この group の `position.y` を上げて影を体へ寄せる
+   */
+  shadowLiftRef?: RefObject<Group | null>
 }
 
 /** bot 本体で共有する ref 群 */
