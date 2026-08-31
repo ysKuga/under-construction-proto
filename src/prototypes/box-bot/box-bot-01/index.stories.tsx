@@ -119,21 +119,24 @@ const FACE_CAMERA_YAW = Math.atan2(
 
 /** Fall story で並べる bot の向き(facing、カメラ正対を基準にしたオフセット) */
 const FALL_FACING_VARIANTS = [
+  { label: '左斜め (-45°)', yaw: FACE_CAMERA_YAW - Math.PI / 4 },
   { label: '正面 (カメラ正対)', yaw: FACE_CAMERA_YAW },
-  { label: '背面', yaw: FACE_CAMERA_YAW + Math.PI },
-  { label: '右向き', yaw: FACE_CAMERA_YAW + Math.PI / 2 },
+  { label: '右斜め (+45°)', yaw: FACE_CAMERA_YAW + Math.PI / 4 },
+  { label: '右向き (+90°)', yaw: FACE_CAMERA_YAW + Math.PI / 2 },
+  { label: '背面 (180°)', yaw: FACE_CAMERA_YAW + Math.PI },
 ]
 
 /**
  * fall action の挙動・パラメータ調節(向きバリエーションを同時比較)
  *
- * - bot を 3 体並べ、`rotationY`(facing)を正面 / 背面 / 右向きに固定。bot ごとに
- *   独立した `eventTarget` を持つ(共有すると listener 多重登録でエラー)
- * - Fall / Get up ボタン 1 回で 3 体へ同時に `ACTION_FALL` を dispatch。直立なら転倒、
+ * - bot を複数体並べ、`rotationY`(facing)をカメラ正対からのオフセット(左斜め / 正面 /
+ *   右斜め / 右向き / 背面)で固定。bot ごとに独立した `eventTarget` を持つ
+ *   (共有すると listener 多重登録でエラー)
+ * - Fall / Get up ボタン 1 回で全体へ同時に `ACTION_FALL` を dispatch。直立なら転倒、
  *   横倒しなら起き上がり。facing ごとに画面上の倒れ込み方向が変わることを確認する
  * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
  *   shiftDistance スライダーで facing 方向へのずらし距離(px)、dropDistance スライダーで
- *   横倒し時に足元が浮くぶんの下げ量(px)を実測する。3 体共通の値を dispatch する
+ *   横倒し時に足元が浮くぶんの下げ量(px)を実測する。全体共通の値を dispatch する
  */
 export const Fall: Story = {
   parameters: {
@@ -193,9 +196,16 @@ export const Fall: Story = {
             />
           </label>
         </div>
-        {/* 各 bot の Canvas が転倒で四方へはみ出すため、間隔・余白を広めに取る */}
+        {/* 各 bot の Canvas が転倒で四方へはみ出すため、間隔・余白を広めに取り、
+            体数が増えても折り返して収まるようにする */}
         <div
-          style={{ display: 'flex', gap: 160, marginLeft: 200, marginTop: 220 }}
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 140,
+            marginLeft: 160,
+            marginTop: 220,
+          }}
         >
           {FALL_FACING_VARIANTS.map((variant, i) => (
             <div key={variant.label} style={{ textAlign: 'center' }}>
