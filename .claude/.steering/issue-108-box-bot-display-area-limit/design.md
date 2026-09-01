@@ -3,10 +3,14 @@
 ## 目的
 
 box-bot 3D のアクション (特に fall 完全転倒) が canvas 矩形を逸脱して見切れる問題を、
-canvas を設置領域と一致させたまま解消する。試作は `src/prototypes/box-bot/box-bot-01/` で行う。
+canvas を設置領域と一致させたまま解消する。実装は box-bot-01
+(当初 `src/prototypes/box-bot/box-bot-01/`、2026-09-01 に `src/components/theater/figure/box-bot/box-bot-01/` へ移設) で行う。
 
 GitHub #108 / Jira UC-10「box bot 改善」内「アクション範囲 (表示領域) の限定」に対応。
 コピー設置は #107 に切り出し済み。
+
+`samples/figure/box-bot` (影を各パーツから精度算出するデモ用) と box-bot-01 は別実装として恒久維持する。
+box-bot-01 はゲーム内で actor の figure として使う本実装。既存アクションの復帰 + 今後のアクション追加を見込む。
 
 ## 背景・制約
 
@@ -304,11 +308,39 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
 - **`refs` のネストは fall 復帰後に `layout` と対で再検討** — 検討済み 2026-09-01、結論: flat 維持。
   詳細は上記「fall の復帰」末尾
 
+## 未実装 action の復帰 (検討済み 2026-09-01)
+
+`samples/figure/box-bot` にあり box-bot-01 に無い action。box-bot-01 側でレジストリ形式
+(`_actions/<name>/` descriptor) へ復帰させる。samples への移植ではない (両実装は別物として維持)。
+
+- **auto-rotate**: `autoRotate` 中、yaw を毎フレーム回転。追加 ref なし (`yawRef` 既存)。spin と yaw 相乗り
+- **arm-toggle**: 左右腕の上げ下げ toggle (`rotation.z`)。追加 ref なし (arm refs 既存、z 傾き / x 回転は
+  グループ分離済み)。fall と腕グループ共有
+- **walking**: 歩行、脚 swing (`rotation.x`)。`leftLegRef` / `rightLegRef` + posture 判定を追加。fall 姿勢と排他
+- **marching**: 足踏み、脚 bob (`position.y`)。leg refs + posture 判定を追加。fall 姿勢と排他
+- **body-bobbing**: walking/marching 中の体上下。`walkingBobRef` + leg refs を追加。walking/marching が前提
+- **hopping**: 待機演出 (連続ジャンプ)。`hoppingRef` 等 + jump 見た目再利用。jump / spin / hover 状態と協調
+
+get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復帰不要。
+
+論点:
+
+- **posture 共有**: 現状 fall は `phaseRef` をローカルに閉じている。walking / marching / arm が「倒れ中は
+  toggle 無効」を判定する経路が無い → host に `readPosture()` を追加 (`readFacing` と同系の読み取り動詞)。
+- **leg ref 追加 = `refs` ネストの YAGNI 解除条件**: `leftLegRef` / `rightLegRef` を足す時点で arm / leg
+  両方が左右対になる → 上記「refs のネスト再検討」の解除条件どおり `refs.arm.*` / `refs.leg.*` を一括ネスト。
+- **arm config の非対称**: samples は `cfg.arm.rightAngle` を arm-action の up 角度に流用し、静止時は
+  `ARM_DOWN_ANGLE` 別定数。左は逆。復帰時にこの歪みを踏襲するか対称な形へ作り直すか要検討
+  (box-bot-01 の静止時 arm 角は 2026-09-01 に samples 静止時と同じ `-0.5` / `0.5` へ合わせ済み)。
+
 ## 決定事項
 
 - 2026-08-27: 案2 (表示領域中心で回転 + 設置領域の相対位置アニメ) を採用。fall 完全転倒を維持。Canvas 固定サイズ。
 - 2026-08-27: 試作は samples を汚さず prototypes/box-bot/box-bot-01 で行う。assembly もローカルコピーし改変対象にする。
 - 2026-08-27: コピー設置は #107 に切り出し。案2 の実装は別 issue とする。
+- 2026-09-01: box-bot-01 を `src/components/theater/figure/box-bot/box-bot-01/` へ移設。samples とは別実装
+  として恒久維持 (samples = デモ用、box-bot-01 = ゲーム内 actor の figure 本実装)。未実装 action は
+  box-bot-01 側で復帰させる。
 
 ## 懸念・リスク
 
