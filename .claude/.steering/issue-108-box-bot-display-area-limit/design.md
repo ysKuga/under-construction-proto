@@ -340,7 +340,10 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
   108-box-bot-body-bobbing)。`walkingBobRef` 追加 + host verb (`readLegSwing` / `readLegBob` /
   `applyBodyBob`)。dispatch せず walking/marching に常時連動、無効化は `actions` から外す。
   詳細は `_pr/pr-126-box-bot-body-bobbing/design.md`
-- **hopping**: 待機演出 (連続ジャンプ)。`hoppingRef` 等 + jump 見た目再利用。jump / spin / hover 状態と協調。後続 PR
+- **hopping**: ~~待機演出 (連続ジャンプ)~~ — **実装済み** (2026-09-01、PR #127、ブランチ
+  108-box-bot-hopping-action)。toggle 方式、active 中は `config.intervalSec` ごとに `ACTION_JUMP`
+  を dispatch し jump の見た目を再利用 (共有 ref なし)。`readPosture()` gate のみ、get-up 後に自動再開。
+  spin/hover 協調は最小案で不採用、新規 host verb なし。詳細は `_pr/pr-127-box-bot-hopping-action/design.md`
 
 get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復帰不要。
 
@@ -436,6 +439,10 @@ box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullW
   (`refs` 役割軸ネスト・脚 ref 追加・`postureRef` + `readPosture`/`reportPosture`・
   `applyLegSwing`/`applyLegBob`) と walking / marching を実装。walking/marching は toggle 方式 +
   posture gate、左右の現在値を action ローカル所有。body-bobbing / hopping は後続 PR。
+- 2026-09-01: hopping を PR #127 で復帰。toggle 方式、active 中は `config.intervalSec` ごとに
+  `ACTION_JUMP` を dispatch し jump の見た目を再利用 (共有 ref なし、jump 側の実行中ガードで重複を弾く)。
+  spin/hover 状態との協調は作り込まず `readPosture()` gate のみ (最小案)、新規 host verb なし。
+  これで「未実装 action の復帰」節の hopping まで全て実装済み。
 
 ## 懸念・リスク
 

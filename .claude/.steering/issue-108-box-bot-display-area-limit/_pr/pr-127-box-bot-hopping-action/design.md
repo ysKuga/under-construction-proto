@@ -82,11 +82,12 @@ spin / hover 状態との協調は **作り込まない**。posture gate のみ�
   (`actionConfig={{ hopping: { intervalSec } }}`)
 - `marginLeft: 200` / `marginTop: 160`
 
-## 検証
+## 検証 (2026-09-01)
 
-- [ ] `check-types` / `lint` (oxlint + eslint) / `test`
-- [ ] Storybook 目視: Hop トグルで連続ジャンプ、再トグルで停止、Fall 中は停止し get-up 後に自動再開、
-      `intervalSec` スライダーで間隔が変わる。既存 jump / spin のリグレッションなし
+- [x] `check-types` / `lint` (oxlint + eslint) / `test`
+- [x] Storybook 目視 (Playwright ヘッドレス、表示領域 div の `style.top` を監視):
+      Hop トグル on で `top` が sin 波振動 (連続ジャンプ)、再トグル off で base へ静止、
+      Hop 中に Fall で振動が止まり fall の固定オフセットのみ (gate 動作)。ページエラーなし
 
 ## 決定事項
 
