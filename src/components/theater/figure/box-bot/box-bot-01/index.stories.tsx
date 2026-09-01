@@ -26,6 +26,32 @@ type Story = StoryObj<typeof StoryComponent>
 export const Default: Story = {}
 
 /**
+ * `canvasWidth` で表示領域(Canvas)の幅だけ広げる
+ *
+ * - 設置領域(赤枠)は正方形のまま。表示領域はその中心を基準に横へ逸脱して広がる
+ * - bot の見かけの大きさ・表示領域の高さは不変。左右に見える範囲だけ増える
+ * - 隣接要素と衝突しない文脈向けの opt-in(#108 の「表示領域 = 設置領域」原則の緩和)
+ */
+export const FullWidth: Story = {
+  args: {
+    canvasWidth: '100vw',
+  },
+  render: (args) => (
+    <div
+      style={{
+        alignItems: 'center',
+        display: 'flex',
+        height: '100vh',
+        justifyContent: 'center',
+        overflowX: 'clip',
+      }}
+    >
+      <StoryComponent {...args} />
+    </div>
+  ),
+}
+
+/**
  * `actionConfig` prop で jump の既定値を上書き
  *
  * - dispatch の 1 回上書き(`jump({...})`)ではなく props で既定を差し替える。\
@@ -148,6 +174,8 @@ const FALL_FACING_GRID = [
  * - #108 フェーズ1: 「倒れ込み」の移動は表示領域(Canvas ラッパー)の DOM ずらしで表現。\
  *   shiftDistance スライダーで facing 方向へのずらし距離(px)、dropDistance スライダーで
  *   横倒し時に足元が浮くぶんの下げ量(px)を実測する。全体共通の値を dispatch する
+ * - armAngle スライダーで転倒時に腕を頭側へ引き寄せる角度(°、x 軸回転)を実測する。\
+ *   静的な肩の開き(`cfg.arm.*Angle`)と合成されるため、肩の開きを変えたら再調整する
  */
 export const Fall: Story = {
   parameters: {
@@ -159,12 +187,17 @@ export const Fall: Story = {
     )
     const [shiftDistance, setShiftDistance] = React.useState(55)
     const [dropDistance, setDropDistance] = React.useState(25)
+    const [armAngleDeg, setArmAngleDeg] = React.useState(-180)
 
     const fallAll = () => {
       for (const target of targets) {
         target.dispatchEvent(
           new CustomEvent(ACTION_FALL, {
-            detail: { dropDistance, shiftDistance },
+            detail: {
+              armAngle: (armAngleDeg * Math.PI) / 180,
+              dropDistance,
+              shiftDistance,
+            },
           }),
         )
       }
@@ -204,6 +237,17 @@ export const Fall: Story = {
               step={10}
               type="range"
               value={dropDistance}
+            />
+          </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            armAngle {armAngleDeg}°
+            <input
+              max={0}
+              min={-180}
+              onChange={(e) => setArmAngleDeg(Number(e.target.value))}
+              step={5}
+              type="range"
+              value={armAngleDeg}
             />
           </label>
         </div>

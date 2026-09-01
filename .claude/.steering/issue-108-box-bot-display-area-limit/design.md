@@ -3,10 +3,14 @@
 ## 目的
 
 box-bot 3D のアクション (特に fall 完全転倒) が canvas 矩形を逸脱して見切れる問題を、
-canvas を設置領域と一致させたまま解消する。試作は `src/prototypes/box-bot/box-bot-01/` で行う。
+canvas を設置領域と一致させたまま解消する。実装は box-bot-01
+(当初 `src/prototypes/box-bot/box-bot-01/`、2026-09-01 に `src/components/theater/figure/box-bot/box-bot-01/` へ移設) で行う。
 
 GitHub #108 / Jira UC-10「box bot 改善」内「アクション範囲 (表示領域) の限定」に対応。
 コピー設置は #107 に切り出し済み。
+
+`samples/figure/box-bot` (影を各パーツから精度算出するデモ用) と box-bot-01 は別実装として恒久維持する。
+box-bot-01 はゲーム内で actor の figure として使う本実装。既存アクションの復帰 + 今後のアクション追加を見込む。
 
 ## 背景・制約
 
@@ -275,9 +279,16 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
   腕は外側グループで静的 z 傾き、内側 `*ArmRef` グループを fall が x 軸で回す (z 傾きを clobber しない)
 - **`layout.ground.y`** を追加実装 (`deriveLayout` / `BoxBotLayout` / test)。`-body.h/2 - leg.h` = 脚下端
 - 未実施 (フェーズ1): 404 ページ `z-10` / `OrbitControls` target ずらしの撤去確認、影の追従
-- **`refs` のネスト再検討**: `fallPivotRef` / `leftArmRef` / `rightArmRef` が増えたので `layout` と対で判断可能に。
-  現状は flat 5 個 (`rootRef` / `yawRef` / `fallPivotRef` / `leftArmRef` / `rightArmRef`)。
-  腕は左右で対 → `refs.arm.leftRef` / `refs.arm.rightRef` のネスト余地あり。別ブランチで検討
+- **`refs` のネスト再検討** (検討済み 2026-09-01、結論: flat 維持): flat 5 個
+  (`rootRef` / `yawRef` / `fallPivotRef` / `leftArmRef` / `rightArmRef`) のまま。
+  - 消費は 2 箇所のみ (`index.tsx` の `<group ref>` bind / `index.hooks.ts` の module scope `write*` 配線)。
+    どちらも flat destructure で足りている。action 側は host の `apply*` 経由で refs を直接触らない
+  - `layout` は **部位軸** (head / shoulder / leg)、`refs` は **変換の役割軸**
+    (squash 対象 / yaw 累積 / 前傾 pivot / 腕)。root / yaw / fallPivot は部位でないため `layout` と同じ
+    ネスト方針を当てると置き場が概念的に歪む
+  - 左右対は arm のみ。ここだけ `refs.arm.*` にすると flat / nested 混在で一貫性が逆に悪化
+  - YAGNI 解除条件: fall が脚も引き寄せて `leftLegRef` / `rightLegRef` が増えたら、arm / leg 両方が
+    左右対になる → その時点で `refs.arm.*` / `refs.leg.*` を一括ネスト
 
 ### 部位アンカーの戻り値まとめ (`layout`、実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors)
 
@@ -294,13 +305,66 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
 - ~~未実施 (fall 復帰時): `groundY` (脚下端) を `layout.ground.y` として追加~~ — 実装済み (fall 復帰と同時)。
   将来 host が raw `cfg` でなく `layout` (読み取り専用の派生幾何) を露出する形の下地
   (上記「A の実装方針」5 の「cfg は ctx に残す」を絞った版)
-- **`refs` のネストは fall 復帰後に `layout` と対で再検討** — fall 復帰済み。上記「fall の復帰」の末尾参照
+- **`refs` のネストは fall 復帰後に `layout` と対で再検討** — 検討済み 2026-09-01、結論: flat 維持。
+  詳細は上記「fall の復帰」末尾
+
+## 未実装 action の復帰 (検討済み 2026-09-01)
+
+`samples/figure/box-bot` にあり box-bot-01 に無い action。box-bot-01 側でレジストリ形式
+(`_actions/<name>/` descriptor) へ復帰させる。samples への移植ではない (両実装は別物として維持)。
+
+- **auto-rotate**: `autoRotate` 中、yaw を毎フレーム回転。追加 ref なし (`yawRef` 既存)。spin と yaw 相乗り
+- **arm-toggle**: 左右腕の上げ下げ toggle (`rotation.z`)。追加 ref なし (arm refs 既存、z 傾き / x 回転は
+  グループ分離済み)。fall と腕グループ共有
+- **walking**: 歩行、脚 swing (`rotation.x`)。`leftLegRef` / `rightLegRef` + posture 判定を追加。fall 姿勢と排他
+- **marching**: 足踏み、脚 bob (`position.y`)。leg refs + posture 判定を追加。fall 姿勢と排他
+- **body-bobbing**: walking/marching 中の体上下。`walkingBobRef` + leg refs を追加。walking/marching が前提
+- **hopping**: 待機演出 (連続ジャンプ)。`hoppingRef` 等 + jump 見た目再利用。jump / spin / hover 状態と協調
+
+get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復帰不要。
+
+論点:
+
+- **posture 共有**: 現状 fall は `phaseRef` をローカルに閉じている。walking / marching / arm が「倒れ中は
+  toggle 無効」を判定する経路が無い → host に `readPosture()` を追加 (`readFacing` と同系の読み取り動詞)。
+- **leg ref 追加 = `refs` ネストの YAGNI 解除条件**: `leftLegRef` / `rightLegRef` を足す時点で arm / leg
+  両方が左右対になる → 上記「refs のネスト再検討」の解除条件どおり `refs.arm.*` / `refs.leg.*` を一括ネスト。
+- **arm config の非対称**: samples は `cfg.arm.rightAngle` を arm-action の up 角度に流用し、静止時は
+  `ARM_DOWN_ANGLE` 別定数。左は逆。復帰時にこの歪みを踏襲するか対称な形へ作り直すか要検討
+  (box-bot-01 の静止時 arm 角は 2026-09-01 に samples 静止時と同じ `-0.5` / `0.5` へ合わせ済み)。
+
+## 表示領域の幅を独立させる (`canvasWidth`、実装済み 2026-09-01)
+
+トップページのヒーロー等、隣接要素と衝突しない文脈で「bot の大きさ・表示領域の高さは
+そのままに、Canvas の幅だけ画面いっぱいへ広げたい」要求。
+
+- three の `PerspectiveCamera.fov` は縦画角。幅だけ広げると aspect が横長になり、
+  横に見える範囲 (余白) が増えるだけで bot の見かけの大きさ・縦位置は不変。
+- prop `canvasWidth?: number | string` を samples box-bot-3d / box-bot-01 双方に追加。
+  省略時は従来どおり (正方形、`表示領域 = 設置領域`)。指定時は表示領域 (Canvas ラッパー)
+  の `width` のみ差し替え、`left: 50%` + `translateX(-50%)` で設置領域中心を基準に横へ広がる。
+- 設置領域 (Assembly、正方形) は不変。#108 の「表示領域 = 設置領域」原則を横方向で
+  意図的に緩める opt-in。`100vw` を渡す場合、横スクロール防止に祖先で `overflow-x` をクリップ。
+- 既知の制約: 透明な広い Canvas は DOM 上クリックを奪う (背後へ透過しない)。`interactive`
+  bot でヒーロー用途なら `interactive={false}` か許容。
+
+### Assembly 依存の見直し (未着手、theater 移行に伴う検討事項)
+
+- `Assembly` (`ui-container` + `ui-assembly`、`aspect-square` 固定の薄いラッパー。CSS 定義は無く
+  マーカー class のみ) は「ゲーム内要素との組み合わせ」のために導入されたが、`canvasWidth` の
+  ように設置領域と表示領域を分離したい要求と正方形固定が噛み合わない。
+- theater 配下の実装へ移行していく方針のもと、Assembly の使用をとりやめ、設置領域 (正方形) と
+  表示領域 (可変) を独立要素で表す形を検討する。box-bot-01 の local Assembly は box-bot-01 専用の
+  ため影響範囲は閉じている。今回は Assembly を残したまま `canvasWidth` を子 div 側で吸収した。
 
 ## 決定事項
 
 - 2026-08-27: 案2 (表示領域中心で回転 + 設置領域の相対位置アニメ) を採用。fall 完全転倒を維持。Canvas 固定サイズ。
 - 2026-08-27: 試作は samples を汚さず prototypes/box-bot/box-bot-01 で行う。assembly もローカルコピーし改変対象にする。
 - 2026-08-27: コピー設置は #107 に切り出し。案2 の実装は別 issue とする。
+- 2026-09-01: box-bot-01 を `src/components/theater/figure/box-bot/box-bot-01/` へ移設。samples とは別実装
+  として恒久維持 (samples = デモ用、box-bot-01 = ゲーム内 actor の figure 本実装)。未実装 action は
+  box-bot-01 側で復帰させる。
 
 ## 懸念・リスク
 

@@ -106,6 +106,7 @@ export default function BoxBot3D({
   actionConfig,
   actions = BOX_BOT_ACTIONS,
   background = 'transparent',
+  canvasWidth,
   children,
   className,
   clickBindings,
@@ -164,7 +165,8 @@ export default function BoxBot3D({
       style={{ ...style, height: assemblySize, width: assemblySize }}
     >
       {/* 表示領域(Canvas)ラッパー。設置領域(Assembly)は動かさず、jump が
-          この div の top を書き換えて縦移動する(#108)。transform は中央寄せ専用に固定 */}
+          この div の top を書き換えて縦移動する(#108)。transform は中央寄せ専用に固定。
+          canvasWidth 指定時は設置領域を横へ逸脱して広がる(中央基準は維持) */}
       <div
         ref={displayAreaRef}
         style={{
@@ -173,7 +175,7 @@ export default function BoxBot3D({
           position: 'absolute',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '100%',
+          width: canvasWidth ?? '100%',
         }}
       >
         <Canvas

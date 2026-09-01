@@ -69,8 +69,15 @@ const SHADOW_OPACITY = 0.35
 
 /** OrbitControls の最大ズームアウト距離 */
 const ORBIT_MAX_DISTANCE = 12
-/** OrbitControls の最大ズームイン距離 */
-const ORBIT_MIN_DISTANCE = 3.5
+/**
+ * OrbitControls の最大ズームイン距離
+ *
+ * - 既定の視距離 (カメラ〜target) は約 6.8。ここまで寄れる下限。
+ * - 3.5 では寄ったとき通常姿勢の bot でも頭 (最上部) が Canvas 外へ切れるため
+ *   下限を上げている。トップページで拡大しても頭が収まる値。
+ *   fall (転倒) 時は拡大すると見切れるが、それは現状許容する。
+ */
+const ORBIT_MIN_DISTANCE = 5.2
 /** OrbitControls の注視点(world) */
 const ORBIT_TARGET: Vec3 = [
   0,
@@ -100,6 +107,7 @@ const ORBIT_TARGET: Vec3 = [
 export default function BoxBot3D({
   autoRotate = true,
   background = 'transparent',
+  canvasWidth,
   children,
   className,
   fov = 64,
@@ -172,7 +180,8 @@ export default function BoxBot3D({
             userSelect: 'none',
             // ベンダープレフィックス付きのため CSSProperties 型に無く、下の as で吸収
             WebkitUserDrag: 'none',
-            width: heightPx,
+            // canvasWidth 未指定時は高さと同じ(正方形)。指定時は幅だけ広げる(中央基準は維持)
+            width: canvasWidth ?? heightPx,
           } as React.CSSProperties
         }
       >

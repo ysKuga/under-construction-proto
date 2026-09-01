@@ -33,6 +33,16 @@ export interface BoxBot3DProps
   actions?: readonly AnyBoxBotAction[]
   /** Canvas の背景色 */
   background?: string
+  /**
+   * 表示領域(Canvas ラッパー)の幅。CSS 長さ or px 数値
+   *
+   * - 省略時は設置領域と一致(正方形)。#108 の「表示領域 = 設置領域」原則の既定
+   * - 明示すると設置領域を横へ逸脱して Canvas を広げる。高さ・fov は変えないため
+   *   bot の見かけの大きさは不変で、左右に見える範囲(余白)だけ増える
+   * - 隣接要素と衝突しない文脈(トップページのヒーロー等)向けの opt-in。\
+   *   `100vw` 等を渡す場合、横スクロール防止のため祖先で `overflow-x` をクリップする
+   */
+  canvasWidth?: number | string
   /** ルート要素の className */
   className?: string
   /**
