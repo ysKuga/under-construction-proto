@@ -69,8 +69,15 @@ const SHADOW_OPACITY = 0.35
 
 /** OrbitControls の最大ズームアウト距離 */
 const ORBIT_MAX_DISTANCE = 12
-/** OrbitControls の最大ズームイン距離 */
-const ORBIT_MIN_DISTANCE = 3.5
+/**
+ * OrbitControls の最大ズームイン距離
+ *
+ * - 既定の視距離 (カメラ〜target) は約 6.8。ここまで寄れる下限。
+ * - 3.5 では寄ったとき bot の頭 (最上部) が Canvas 外へ切れるため、
+ *   最大ズームでも頭が収まる範囲まで下限を上げている (既定視距離とほぼ同じにし、
+ *   ズームインはわずかに留める)。
+ */
+const ORBIT_MIN_DISTANCE = 6.5
 /** OrbitControls の注視点(world) */
 const ORBIT_TARGET: Vec3 = [
   0,
