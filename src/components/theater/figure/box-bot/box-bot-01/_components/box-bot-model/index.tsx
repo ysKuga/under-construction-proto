@@ -97,13 +97,14 @@ function BoxBotModelInner(
                 size={[cfg.head.w, cfg.head.h, cfg.head.d]}
               />
 
-              {/* 腕。外側グループで肩を支点に leftAngle / rightAngle の静的 z 傾き、
-              内側の *ArmRef グループを fall が x 軸で回して頭側へ引き寄せる */}
+              {/* 腕。肩を支点に、*ArmRef グループ(肩の開きの外側)を fall が x 軸で前へ回し、
+              arm-toggle が z 軸で持ち上げる。内側グループが leftAngle / rightAngle の静的な
+              肩の開き。fall の x 回転を開きの内側で行うと左右非対称に流れるため外側へ出す */}
               <group
                 position={[-layout.shoulder.x, layout.shoulder.y, 0]}
-                rotation={[0, 0, cfg.arm.leftAngle]}
+                ref={armLeftRef}
               >
-                <group ref={armLeftRef}>
+                <group rotation={[0, 0, cfg.arm.leftAngle]}>
                   <SketchBox
                     cfg={cfg}
                     handlers={{ ...hover, onPointerDown: onPointerDownArmLeft }}
@@ -115,9 +116,9 @@ function BoxBotModelInner(
               </group>
               <group
                 position={[layout.shoulder.x, layout.shoulder.y, 0]}
-                rotation={[0, 0, cfg.arm.rightAngle]}
+                ref={armRightRef}
               >
-                <group ref={armRightRef}>
+                <group rotation={[0, 0, cfg.arm.rightAngle]}>
                   <SketchBox
                     cfg={cfg}
                     handlers={{

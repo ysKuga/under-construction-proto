@@ -443,8 +443,14 @@ box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullW
   固定 Canvas を「体高を収める正方形」にすれば足りるはずだが、影・ジャンプ余白との兼ね合いは実測次第。
 - r3f Canvas はページ内絶対位置をずらすと内部描画がズレる既知現象あり (samples stories の Grid3D コメント参照)。
   設置領域 (Canvas の親) を動かす方式がこれに抵触しないか要検証。
-- ~~**fall の転倒角が samples と違う**~~ → **対応済み** (2026-09-01)。原因は腕の畳み角
-  `FALL_ARM_ANGLE`: box-bot-01 が `-π` (-180°) で腕が背中側へ回り込み倒れた体・地面へめり込んでいた。
-  samples 同値の `-3π/4` (-135°) へ変更 (`_actions/fall/config.ts`、Fall story の初期値も -135° へ)。
-  体の前傾角 `FALL_ANGLE` (両者 `π/2`)・pivot 位置 (box-bot-01=シルエット中心、samples=接地点) の差は
-  #108 フェーズ1 の意図的なもので別扱い。
+- ~~**fall の転倒時に腕が内側へ流れてめり込む**~~ → **対応済み** (2026-09-01)。真因は腕グループの
+  入れ子順。box-bot-01 は外側に静的な肩の開き `rotation={[0,0,cfg.arm.leftAngle]}` があり、その
+  **内側**の `armRef` を fall が x 回転していた → 開いた座標系での x 回転になり左右非対称に流れていた
+  (samples の腕は肩の開き無しの 1 層で、`armRef.rotation.x` がそのまま前方)。
+  - 修正: `armRef` を肩の開きの**外側** (position グループ) へ移し、静的な肩の開きをその子へ
+    (`box-bot-model/index.tsx`)。fall の x 回転が肩の開きより先に効き、開いた腕を丸ごと前へ回す
+  - 併せて `FALL_ARM_ANGLE` を `-π` → samples 同値の `-3π/4` (-135°) へ (`_actions/fall/config.ts`、
+    Fall story 初期値も -135°)
+  - arm-toggle (`armRef.rotation.z`) は親子で肩の開きと合算されるため見た目不変。通常姿勢も不変
+  - 体の前傾角 `FALL_ANGLE` (両者 `π/2`)・pivot 位置 (box-bot-01=シルエット中心、samples=接地点) の
+    差は #108 フェーズ1 の意図的なもので別扱い
