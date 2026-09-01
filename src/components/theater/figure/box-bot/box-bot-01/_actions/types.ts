@@ -116,6 +116,14 @@ export type BoxBotActionHost = {
    */
   applyArmLift: (lift: { left: number; right: number }) => void
   /**
+   * 体全体の上下オフセットを設定する(絶対値)
+   *
+   * - `y` は world +y。adapter が `walkingBobRef` の `position.y` へ反映する
+   * - body-bobbing が walking / marching の脚の動きに同期して体を持ち上げる。0 で静止位置。\
+   *   jump の squash(`rootRef`)とは別グループなので衝突しない
+   */
+  applyBodyBob: (y: number) => void
+  /**
    * 左右の脚の足踏みオフセットを設定する(絶対値)
    *
    * - `left` / `right` は脚グループの付け根 base(`layout.leg.y`)からの `position.y` オフセット(world)。\
@@ -175,6 +183,19 @@ export type BoxBotActionHost = {
    * - 0 = カメラ正面(world +z)。fall が倒れ始めに固定し、画面ずらし方向の基準にする
    */
   readFacing: () => number
+  /**
+   * 左右の脚の現在の足踏みオフセットを返す(world、付け根 base からの相対)
+   *
+   * - `leg.leftRef` / `leg.rightRef` の `position.y` から `layout.leg.y` を引いた値。\
+   *   marching が書いた値を body-bobbing が読む
+   */
+  readLegBob: () => { left: number; right: number }
+  /**
+   * 左右の脚の現在の前後スイング角を返す(rad)
+   *
+   * - `leg.leftRef` / `leg.rightRef` の `rotation.x`。walking が書いた値を body-bobbing が読む
+   */
+  readLegSwing: () => { left: number; right: number }
   /**
    * 現在の姿勢フェーズを返す
    *
