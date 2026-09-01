@@ -240,7 +240,11 @@ export default function BoxBot3D({
             shadowLiftRef={shadowLiftRef}
           />
           {shadowVariant === 'cast' ? (
-            <CastShadow opacity={shadowOpacity} position={groundPosition} />
+            <CastShadow
+              liftRef={shadowLiftRef}
+              opacity={shadowOpacity}
+              position={groundPosition}
+            />
           ) : (
             <ContactShadow
               bodyDepth={cfg.body?.d ?? DEFAULTS.body.d}
