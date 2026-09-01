@@ -129,8 +129,7 @@ export function useBoxBotModel(
 
   const { actions } = useBoxBotActions()
 
-  const { fallPivotRef, leftArmRef, rightArmRef, rootRef, yawRef } =
-    useBoxBotRefs()
+  const { arm, fallPivotRef, leg, rootRef, yawRef } = useBoxBotRefs()
 
   const eventTarget = useBoxBotEventTarget()
   const dispatch = useEventDispatcher(eventTarget)
@@ -174,9 +173,9 @@ export function useBoxBotModel(
   // ここでは生の actionConfig bag を載せるだけ
   const actionHost: BoxBotActionBaseHost = {
     actionConfig,
-    applyArmAngle: (rad) => writeArmAngle(leftArmRef, rightArmRef, rad),
+    applyArmAngle: (rad) => writeArmAngle(arm.leftRef, arm.rightRef, rad),
     applyArmLift: (lift) =>
-      writeArmLift(leftArmRef, rightArmRef, lift.left, lift.right),
+      writeArmLift(arm.leftRef, arm.rightRef, lift.left, lift.right),
     applyShadowLift: (y) => writeShadowLift(shadowLiftRef, y),
     applyShift: (offset) => writeShift(displayAreaRef, offset),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
@@ -193,15 +192,15 @@ export function useBoxBotModel(
   const layout = deriveLayout(cfg)
 
   return {
+    arm,
     cfg,
     createClickEmitter,
     fallPivotRef,
     hover,
     interactive,
     layout,
-    leftArmRef,
+    leg,
     onClick,
-    rightArmRef,
     rootRef,
     rotationY,
     yawRef,

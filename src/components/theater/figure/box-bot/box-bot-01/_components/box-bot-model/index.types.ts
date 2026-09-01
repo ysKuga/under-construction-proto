@@ -196,6 +196,13 @@ export interface BoxBotModelProps extends Partial<BoxBot3DConfig> {
 
 /** bot 本体で共有する ref 群 */
 export interface BoxBotRefs {
+  /** 左右の腕グループ(肩を支点にした内側グループ) */
+  arm: {
+    /** 左腕グループ。fall が `rotation.x`、arm-toggle が `rotation.z` を入れる。JSX で `<group ref>` にバインド */
+    leftRef: RefObject<Group | null>
+    /** 右腕グループ。fall が `rotation.x`、arm-toggle が `rotation.z` を入れる。JSX で `<group ref>` にバインド */
+    rightRef: RefObject<Group | null>
+  }
   /**
    * fall がシルエット中心を軸に前傾させるグループ
    *
@@ -205,10 +212,21 @@ export interface BoxBotRefs {
    *   JSX で `<group ref>` にバインド
    */
   fallPivotRef: RefObject<Group | null>
-  /** 左腕グループ。fall が `rotation.x` を入れて頭側へ引き寄せる。JSX で `<group ref>` にバインド */
-  leftArmRef: RefObject<Group | null>
-  /** 右腕グループ。fall が `rotation.x` を入れて頭側へ引き寄せる。JSX で `<group ref>` にバインド */
-  rightArmRef: RefObject<Group | null>
+  /** 左右の脚グループ(付け根を支点にした変換対象) */
+  leg: {
+    /** 左脚グループ。walking が `rotation.x`、marching が `position.y` を入れる。JSX で `<group ref>` にバインド */
+    leftRef: RefObject<Group | null>
+    /** 右脚グループ。walking が `rotation.x`、marching が `position.y` を入れる。JSX で `<group ref>` にバインド */
+    rightRef: RefObject<Group | null>
+  }
+  /**
+   * 姿勢フェーズの共有値
+   *
+   * - 0 = 直立、非 0 = 転倒中 / 横倒し静止 / 起き上がり中。fall が `reportPosture` で書き、\
+   *   walking / marching が `readPosture` で読んで倒れ中の開始を弾く
+   * - fall 内の進行管理は `use-fall` ローカルの `phaseRef` が持つ。これはそのミラー(読み取り専用)
+   */
+  postureRef: RefObject<number>
   /** 全体グループ。jump の squash(scale)対象。JSX で `<group ref>` にバインドする */
   rootRef: RefObject<Group | null>
   /**
@@ -243,7 +261,7 @@ export type Handlers = {
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
-  'fallPivotRef' | 'leftArmRef' | 'rightArmRef' | 'rootRef' | 'yawRef'
+  'arm' | 'fallPivotRef' | 'leg' | 'rootRef' | 'yawRef'
 > {
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig
