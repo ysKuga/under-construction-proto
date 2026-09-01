@@ -348,6 +348,35 @@ get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復�
 - 既知の制約: 透明な広い Canvas は DOM 上クリックを奪う (背後へ透過しない)。`interactive`
   bot でヒーロー用途なら `interactive={false}` か許容。
 
+### 高さも独立させる (`canvasHeight`、実装済み 2026-09-01)
+
+トップページで拡大 (OrbitControls ズームイン) してジャンプすると、bot の頭が Canvas
+上端で見切れる。「bot の大きさは変えず Canvas の高さだけ広げて縦の可動域を増やす」要求。
+
+- `canvasWidth` と違い、幅と同じ手 (ラッパーの寸法差し替えのみ) は効かない。`fov` は縦画角で
+  Canvas 高さに依存しないため、Canvas を縦へ伸ばすと同じ画角がより多い px にマップされ、
+  bot が大きく見えてしまう。
+- prop `canvasHeight?: number` を samples box-bot-3d / box-bot-01 双方に追加。px 数値のみ
+  (CSS 文字列は実 px が不定で fov 補正できないため不可。`canvasWidth` の `number | string`
+  とは差をつけた)。省略時は従来どおり。
+- 実装:
+  - samples: `canvasHeightPx = canvasHeight ?? heightPx`。`effectiveFov = 2·atan(tan(fov/2)·
+    canvasHeightPx/heightPx)` で拡大率ぶん画角を広げ、Canvas `style.height` を `canvasHeightPx`
+    に差し替え。story の `fovForScale` (Circle) と同じ式。
+  - box-bot-01: `fov` は元々 `assemblySize` から `VIEW_INVARIANT` 経由で線形算出のため、
+    基準を `canvasHeightPx = canvasHeight ?? assemblySize` へ差し替えるだけ。表示領域ラッパーの
+    `height` を `canvasHeight ?? '100%'` に。
+- 中央寄せ (`translate(-50%, …)`) はそのまま。Canvas が上下対称に伸び、上方向のクリアランスが
+  増えてジャンプの見切れが解消する。設置領域 (Assembly、正方形) は不変。
+- トップページ (`components/pages/home`) の `<BoxBot mode="3d" />` に `canvasHeight={640}` を
+  指定。OrbitControls の最大ズームイン (`ORBIT_MIN_DISTANCE = 5.2`、既定視距離の約 0.76 倍)
+  時に頭が Canvas 上端で見切れていた問題への対処。640 で最大ズームでも頭上に約 110px の
+  余白が残る (実効 fov ≒ 80°、実測)。両 story の `FullWidth` も同じ 640 に揃えた。
+- `ORBIT_MIN_DISTANCE` 引き上げ (ズーム制限強化) や `ORBIT_TARGET.y` 変更 (bot を下げる)
+  でも上端の見切れは緩和できるが、前者はズームの寄り幅を削り、後者は samples の fall で
+  下端が見切れる (target.y = -0.6 は fall 用の調整)。canvasHeight なら bot サイズ・
+  fall のフレーミングを保ったまま上下の余白だけ増やせるため、これを採った。
+
 ### Assembly 依存の見直し (未着手、theater 移行に伴う検討事項)
 
 - `Assembly` (`ui-container` + `ui-assembly`、`aspect-square` 固定の薄いラッパー。CSS 定義は無く
