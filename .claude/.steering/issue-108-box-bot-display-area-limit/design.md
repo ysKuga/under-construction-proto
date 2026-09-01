@@ -328,19 +328,28 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
   (下記論点「arm config の非対称」の「対称な形へ作り直す」を採用。samples の `cfg.arm.rightAngle`
   流用はしない)。arm クリック target (`arm-left` / `arm-right`) は追加したが `DEFAULT_CLICK_BINDINGS`
   へは登録せず、既定では腕クリックは何も起こさない
-- **walking**: 歩行、脚 swing (`rotation.x`)。`leftLegRef` / `rightLegRef` + posture 判定を追加。fall 姿勢と排他
-- **marching**: 足踏み、脚 bob (`position.y`)。leg refs + posture 判定を追加。fall 姿勢と排他
-- **body-bobbing**: walking/marching 中の体上下。`walkingBobRef` + leg refs を追加。walking/marching が前提
-- **hopping**: 待機演出 (連続ジャンプ)。`hoppingRef` 等 + jump 見た目再利用。jump / spin / hover 状態と協調
+- **walking**: ~~歩行、脚 swing (`rotation.x`)~~ — **実装済み** (2026-09-01、PR #125、ブランチ
+  108-box-bot-gait-actions)。toggle 方式、posture gate (`readPosture() !== 0` で無視)。左右現在角は
+  action ローカル所有 (`*AngleRef`) で settle。詳細は `_pr/pr-125-box-bot-gait-actions/design.md`
+- **marching**: ~~足踏み、脚 bob (`position.y`)~~ — **実装済み** (同 PR)。toggle 方式、posture gate。
+  左右オフセットを action ローカル (`*OffsetRef`) で所有。base は `layout.leg.y`
+- **基盤 refactor** (同 PR): `BoxBotRefs` を役割軸ネスト (`refs.arm.*` / `refs.leg.*`、`postureRef` 追加)、
+  脚グループへ ref bind、`host.readPosture()` / `reportPosture()` (fall が `phaseRef` 遷移でミラー)、
+  host verb `applyLegSwing` / `applyLegBob`
+- **body-bobbing**: walking/marching 中の体上下。`walkingBobRef` + leg refs を追加。walking/marching が前提。後続 PR
+- **hopping**: 待機演出 (連続ジャンプ)。`hoppingRef` 等 + jump 見た目再利用。jump / spin / hover 状態と協調。後続 PR
 
 get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復帰不要。
 
 論点:
 
-- **posture 共有**: 現状 fall は `phaseRef` をローカルに閉じている。walking / marching / arm が「倒れ中は
-  toggle 無効」を判定する経路が無い → host に `readPosture()` を追加 (`readFacing` と同系の読み取り動詞)。
-- **leg ref 追加 = `refs` ネストの YAGNI 解除条件**: `leftLegRef` / `rightLegRef` を足す時点で arm / leg
-  両方が左右対になる → 上記「refs のネスト再検討」の解除条件どおり `refs.arm.*` / `refs.leg.*` を一括ネスト。
+- ~~**posture 共有**: 現状 fall は `phaseRef` をローカルに閉じている~~ → **決着** (PR #125)。host に
+  `readPosture()` (read) + `reportPosture()` (fall 専用 write) を追加。`postureRef` (number) を
+  `BoxBotRefs` に持ち、fall は `phaseRef` の遷移を `setPhase` 経由でここへミラー。`phaseRef` 自体は
+  fall ローカルのまま (進行管理)、`postureRef` は他 action の読み取り専用。
+- ~~**leg ref 追加 = `refs` ネストの YAGNI 解除条件**~~ → **実施** (PR #125)。`refs.arm.{leftRef,rightRef}` /
+  `refs.leg.{leftRef,rightRef}` へ一括ネスト。`rootRef` / `yawRef` / `fallPivotRef` は変換の役割で
+  部位でないため flat 維持。
 - ~~**arm config の非対称**: samples は `cfg.arm.rightAngle` を arm-action の up 角度に流用~~ →
   **決着** (2026-09-01)。arm-toggle は非対称を踏襲せず対称形で新規実装。`ArmToggleConfig`
   = `{ upDelta, approachRate }` の 2 値のみ。目標角は左 `-upDelta` / 右 `+upDelta`、静止は 0
@@ -419,6 +428,11 @@ box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullW
   auto-rotate = イベントトグル方式、arm-toggle = 単一 descriptor + side 引数 + host `applyArmLift`、
   左右対称で新規実装。残り 4 action (walking / marching / body-bobbing / hopping) は leg ref 追加・
   `refs` ネスト refactor・`host.readPosture()` が絡むため後続 PR。
+- 2026-09-01: gait 系 (walking / marching / body-bobbing / hopping) の復帰を
+  `_pr/pr-125-box-bot-gait-actions/` へ分割。PR #125 で基盤 refactor
+  (`refs` 役割軸ネスト・脚 ref 追加・`postureRef` + `readPosture`/`reportPosture`・
+  `applyLegSwing`/`applyLegBob`) と walking / marching を実装。walking/marching は toggle 方式 +
+  posture gate、左右の現在値を action ローカル所有。body-bobbing / hopping は後続 PR。
 
 ## 懸念・リスク
 

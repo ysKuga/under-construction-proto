@@ -33,26 +33,31 @@ samples への移植ではなく box-bot-01 側で新規実装 (両実装は別�
 
 ## 実装計画
 
-### PR #125: 基盤 refactor + walking / marching
+### PR #125: 基盤 refactor + walking / marching (実装済み 2026-09-01)
 
-- [ ] `BoxBotRefs` を役割軸ネストへ (`arm: { leftRef, rightRef }` / `leg: { leftRef, rightRef }`、
+- [x] `BoxBotRefs` を役割軸ネストへ (`arm: { leftRef, rightRef }` / `leg: { leftRef, rightRef }`、
       `rootRef` / `yawRef` / `fallPivotRef` は flat 維持、`postureRef: RefObject<number>` 追加)
-  - [ ] `box-bot-model/index.types.ts` — `BoxBotRefs` 型、`UseBoxBotModelReturn` の Pick
-  - [ ] `box-bot-model/index.contexts.tsx` — `BoxBotRefsProvider` の useRef / useMemo
-  - [ ] `box-bot-model/index.hooks.ts` — destructure・`write*` 引数・戻り値
-  - [ ] `box-bot-model/index.tsx` — `<group ref>` bind (arm ネスト参照 + 脚グループへ ref 付与)
-- [ ] `host.readPosture()` / `reportPosture()` 追加
-  - [ ] `_actions/types.ts` `BoxBotActionHost` に 2 verb
-  - [ ] `box-bot-model/index.hooks.ts` — `readPosture` / `writePosture` (module scope) + 配線
-  - [ ] `_actions/fall/use-fall.ts` — `FallHost` に `reportPosture`、phase 遷移時にミラー
-- [ ] host verb `applyLegSwing` / `applyLegBob` 追加 (`_actions/types.ts` + adapter)
-- [ ] walking action (`_actions/walking/`: config.ts / use-walking.ts / index.ts / index.stories.tsx)
-- [ ] marching action (`_actions/marching/`: 同構成)
-- [ ] `_actions/index.ts` `BOX_BOT_ACTIONS` へ `walkingAction` / `marchingAction` を
-      `armToggleAction` の後・`fallAction` の前に登録 (`DEFAULT_CLICK_BINDINGS` へは登録しない)
-- [ ] `check-types` / `lint` / `test` / Storybook 目視 (Walking/Marching + 既存リグレッション)
+  - [x] `box-bot-model/index.types.ts` — `BoxBotRefs` 型、`UseBoxBotModelReturn` の Pick
+  - [x] `box-bot-model/index.contexts.tsx` — `BoxBotRefsProvider` の useRef / useMemo
+  - [x] `box-bot-model/index.hooks.ts` — destructure・`write*` 引数・戻り値
+  - [x] `box-bot-model/index.tsx` — `<group ref>` bind (arm/leg はネストを plain 識別子へ展開してから
+        ref 属性へ。member 経由の ref アクセスは `react(refs)` の render 中アクセス検出に触れるため)
+- [x] `host.readPosture()` / `reportPosture()` 追加
+  - [x] `_actions/types.ts` `BoxBotActionHost` に 2 verb
+  - [x] `box-bot-model/index.hooks.ts` — `readPosture` / `writePosture` (module scope) + 配線
+  - [x] `_actions/fall/use-fall.ts` — `FallHost` に `reportPosture`、`setPhase` ヘルパで phase 遷移時にミラー
+- [x] host verb `applyLegSwing` / `applyLegBob` 追加 (`_actions/types.ts` + adapter。
+      `writeLegBob` の base に `layout.leg.y` を渡すため `deriveLayout` を actionHost 構築前へ移動)
+- [x] walking action (`_actions/walking/`: config.ts / use-walking.ts / index.ts / index.stories.tsx)。
+      左右の現在角は action ローカル (`*AngleRef`) で所有し settle。arm-toggle と同型
+- [x] marching action (`_actions/marching/`: 同構成。左右オフセットを `*OffsetRef` でローカル所有)
+- [x] `_actions/index.ts` `BOX_BOT_ACTIONS` へ `walkingAction` / `marchingAction` を
+      `armToggleAction` の後・`fallAction` の前に登録 (`DEFAULT_CLICK_BINDINGS` へは登録せず)
+- [x] `check-types` / `lint` (oxlint + eslint) / `test` (122 passed) / Storybook 目視
+      (Walking/Marching で脚の swing/bob・stop 時の 0 復帰・Fall 後の posture gate、
+      ArmToggle/Fall/Spin/Jump/AutoRotate のリグレッションなしを Playwright で確認)
 
-event-driven-actions.md の順 (event定義 → 挙動検討 → 挙動実装) で進める。walking/marching は
+event-driven-actions.md の順 (event定義 → 挙動検討 → 挙動実装) で進めた。walking/marching は
 toggle 方式 (auto-rotate 先例)、補間は `_lib/approach.ts` (arm-toggle 先例)。
 
 ### 後続 PR: body-bobbing
