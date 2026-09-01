@@ -2,6 +2,7 @@ import { armToggleAction } from './arm-toggle'
 import { autoRotateAction } from './auto-rotate'
 import { bodyBobbingAction } from './body-bobbing'
 import { fallAction } from './fall'
+import { hoppingAction } from './hopping'
 import { jumpAction } from './jump'
 import { marchingAction } from './marching'
 import { spinAction } from './spin'
@@ -19,6 +20,7 @@ export * from './types'
  */
 export const BOX_BOT_ACTIONS = [
   jumpAction,
+  hoppingAction,
   spinAction,
   autoRotateAction,
   armToggleAction,
