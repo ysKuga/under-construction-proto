@@ -31,18 +31,23 @@ function BoxBotModelInner(
   props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
 ) {
   const {
+    arm,
     cfg,
     createClickEmitter,
     fallPivotRef,
     hover,
     layout,
-    leftArmRef,
+    leg,
     onClick,
-    rightArmRef,
     rootRef,
     rotationY,
     yawRef,
   } = useBoxBotModel(props)
+
+  // ネストされた ref はプレーンな識別子へ展開してから JSX の ref 属性に渡す
+  // (member 経由の ref アクセスは react(refs) の render 中アクセス検出に触れる)
+  const { leftRef: armLeftRef, rightRef: armRightRef } = arm
+  const { leftRef: legLeftRef, rightRef: legRightRef } = leg
 
   // 部位ごとに押下ハンドラを割り当てる。渡した ClickTarget が ON_CLICK_ELEMENT の
   // detail に載り、use-click-bindings が clickBindings で action イベントへ中継する
@@ -92,13 +97,14 @@ function BoxBotModelInner(
                 size={[cfg.head.w, cfg.head.h, cfg.head.d]}
               />
 
-              {/* 腕。外側グループで肩を支点に leftAngle / rightAngle の静的 z 傾き、
-              内側の *ArmRef グループを fall が x 軸で回して頭側へ引き寄せる */}
+              {/* 腕。肩を支点に、*ArmRef グループ(肩の開きの外側)を fall が x 軸で前へ回し、
+              arm-toggle が z 軸で持ち上げる。内側グループが leftAngle / rightAngle の静的な
+              肩の開き。fall の x 回転を開きの内側で行うと左右非対称に流れるため外側へ出す */}
               <group
                 position={[-layout.shoulder.x, layout.shoulder.y, 0]}
-                rotation={[0, 0, cfg.arm.leftAngle]}
+                ref={armLeftRef}
               >
-                <group ref={leftArmRef}>
+                <group rotation={[0, 0, cfg.arm.leftAngle]}>
                   <SketchBox
                     cfg={cfg}
                     handlers={{ ...hover, onPointerDown: onPointerDownArmLeft }}
@@ -110,9 +116,9 @@ function BoxBotModelInner(
               </group>
               <group
                 position={[layout.shoulder.x, layout.shoulder.y, 0]}
-                rotation={[0, 0, cfg.arm.rightAngle]}
+                ref={armRightRef}
               >
-                <group ref={rightArmRef}>
+                <group rotation={[0, 0, cfg.arm.rightAngle]}>
                   <SketchBox
                     cfg={cfg}
                     handlers={{
@@ -126,8 +132,12 @@ function BoxBotModelInner(
                 </group>
               </group>
 
-              {/* 脚(静的) */}
-              <group position={[-layout.leg.x, layout.leg.y, 0]}>
+              {/* 脚。付け根グループを walking が rotation.x、marching が position.y で動かす。
+                  静止時は layout.leg.y のまま */}
+              <group
+                position={[-layout.leg.x, layout.leg.y, 0]}
+                ref={legLeftRef}
+              >
                 <SketchBox
                   cfg={cfg}
                   position={[0, -cfg.leg.h / 2, 0]}
@@ -135,7 +145,10 @@ function BoxBotModelInner(
                   size={[cfg.leg.w, cfg.leg.h, cfg.leg.d]}
                 />
               </group>
-              <group position={[layout.leg.x, layout.leg.y, 0]}>
+              <group
+                position={[layout.leg.x, layout.leg.y, 0]}
+                ref={legRightRef}
+              >
                 <SketchBox
                   cfg={cfg}
                   position={[0, -cfg.leg.h / 2, 0]}

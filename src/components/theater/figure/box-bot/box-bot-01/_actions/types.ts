@@ -116,6 +116,22 @@ export type BoxBotActionHost = {
    */
   applyArmLift: (lift: { left: number; right: number }) => void
   /**
+   * 左右の脚の足踏みオフセットを設定する(絶対値)
+   *
+   * - `left` / `right` は脚グループの付け根 base(`layout.leg.y`)からの `position.y` オフセット(world)。\
+   *   adapter が `leg.leftRef` / `leg.rightRef` の `position.y` へ `base + offset` で反映する
+   * - 0 で静止位置。marching が使う。walking(`rotation.x`)とは軸が別で共存できる
+   */
+  applyLegBob: (offsets: { left: number; right: number }) => void
+  /**
+   * 左右の脚の前後スイング角を設定する(絶対値)
+   *
+   * - `left` / `right` は付け根を支点にした x 軸回転(rad)。adapter が `leg.leftRef` /\
+   *   `leg.rightRef` の `rotation.x` へ反映する
+   * - 0 で直立。walking が使う。marching(`position.y`)とは軸が別で共存できる
+   */
+  applyLegSwing: (angles: { left: number; right: number }) => void
+  /**
    * 接地影を world +y へ持ち上げる(絶対値)
    *
    * - `y` は world 単位。adapter が影グループの `position.y` へ反映する
@@ -159,4 +175,17 @@ export type BoxBotActionHost = {
    * - 0 = カメラ正面(world +z)。fall が倒れ始めに固定し、画面ずらし方向の基準にする
    */
   readFacing: () => number
+  /**
+   * 現在の姿勢フェーズを返す
+   *
+   * - 0 = 直立、非 0 = 転倒中 / 横倒し静止 / 起き上がり中(fall の `phaseRef` と同値)
+   * - walking / marching が「倒れ中は開始しない」判定に使う。`readFacing` と同系の読み取り動詞
+   */
+  readPosture: () => number
+  /**
+   * 姿勢フェーズを共有状態へ書き込む
+   *
+   * - fall が `phaseRef` の遷移に合わせて呼ぶ。他 action は `readPosture` で読むだけ
+   */
+  reportPosture: (phase: number) => void
 }

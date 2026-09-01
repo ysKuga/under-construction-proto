@@ -10,6 +10,7 @@
 - **個別作業(検討段階、PR 未作成、issue 非紐づけ)**: `YYYYMMDD-slug`(従来通り)
 - **実装フェーズ(PR あり)**: `_pr/pr-{PR番号}-slug/`(`_closed/` と対になる中間ディレクトリ、issue 配下・非紐づけ共通)
   - 空 PR を先に作成し番号を確保 → 検討段階の `YYYYMMDD-slug` から `_pr/pr-{PR番号}-slug/` へ `git mv`
+  - **issue 直結配下のサブ作業で着手が確定済みの場合**、`YYYYMMDD-slug` の検討段階を挟まず、最初から `_pr/pr-{PR番号}-slug/` で作成する。手順: 空コミットで PR を先行作成 → 番号確保 → その番号でディレクトリ作成し design.md 配置。以後の実装コミットはこの PR へ紐づく
 
 ## close
 

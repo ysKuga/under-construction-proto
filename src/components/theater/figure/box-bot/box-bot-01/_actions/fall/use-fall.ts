@@ -48,6 +48,7 @@ type FallHost = Pick<
   | 'eventTarget'
   | 'interactive'
   | 'readFacing'
+  | 'reportPosture'
 >
 
 /**
@@ -84,12 +85,20 @@ export const useFall = (host: FallHost): void => {
     eventTarget,
     interactive,
     readFacing,
+    reportPosture,
   } = host
 
   const camera = useThree((s) => s.camera)
 
   /** 姿勢フェーズ。0 直立 / 1 転倒中 / 2 横倒しで静止 / 3 起き上がり中 */
   const phaseRef = useRef(0)
+
+  // phaseRef の更新は必ずこれを通す。共有 postureRef へミラーして
+  // walking / marching が「倒れ中は開始しない」を判定できるようにする
+  const setPhase = (phase: number): void => {
+    phaseRef.current = phase
+    reportPosture(phase)
+  }
   /** 現フェーズの経過秒。-1: アニメーションしていない */
   const tRef = useRef(-1)
   /** 実行中の転倒の解決済みずらし距離。null のときは `config` を使う */
@@ -104,10 +113,10 @@ export const useFall = (host: FallHost): void => {
       const override = (e as CustomEvent<FallOverride | undefined>).detail
       shiftConfigRef.current = { ...config, ...override }
       shiftDirRef.current = projectFacingToScreen(camera, readFacing())
-      phaseRef.current = 1
+      setPhase(1)
       tRef.current = 0
     } else if (phaseRef.current === 2) {
-      phaseRef.current = 3
+      setPhase(3)
       tRef.current = 0
     }
   }
@@ -125,7 +134,7 @@ export const useFall = (host: FallHost): void => {
       tRef.current += dt
       if (tRef.current >= dur) {
         const wasGetUp = phaseRef.current === 3
-        phaseRef.current = phaseRef.current === 1 ? 2 : 0
+        setPhase(phaseRef.current === 1 ? 2 : 0)
         tRef.current = -1
         if (wasGetUp) {
           // 復帰完了。最後に一度 0 へ戻し、以降は shift を jump に委ねる
