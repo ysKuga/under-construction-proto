@@ -165,7 +165,7 @@ export function useBoxBotModel(
 
   const { actions } = useBoxBotActions()
 
-  const { arm, fallPivotRef, leg, postureRef, rootRef, yawRef } =
+  const { arm, fallPivotRef, leg, postureRef, rootRef, walkingBobRef, yawRef } =
     useBoxBotRefs()
 
   const eventTarget = useBoxBotEventTarget()
@@ -252,6 +252,7 @@ export function useBoxBotModel(
     onClick,
     rootRef,
     rotationY,
+    walkingBobRef,
     yawRef,
   }
 }
