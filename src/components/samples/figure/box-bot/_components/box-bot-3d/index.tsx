@@ -3,7 +3,7 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
-import { Assembly } from '@/components/ad/molecules/assembly'
+import { cn } from '@/utils/cn'
 
 import { BoxBotModel } from './_components/box-bot-model'
 import { DEFAULTS } from './_components/box-bot-model/index.constants'
@@ -16,7 +16,7 @@ export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
 /**
  * Canvas(fall/jump 等の可動域を含む実サイズ)のデフォルト高さ(px)
  *
- * - lineWidth の縮小スケール算出の基準値、および Assembly デフォルトサイズ(`DEFAULT_HEIGHT * BODY_HEIGHT_RATIO`)の算出基準を兼ねる
+ * - lineWidth の縮小スケール算出の基準値、および設置領域デフォルトサイズ(`DEFAULT_HEIGHT * BODY_HEIGHT_RATIO`)の算出基準を兼ねる
  */
 const DEFAULT_HEIGHT = 480
 
@@ -24,14 +24,14 @@ const DEFAULT_HEIGHT = 480
  * 通常体勢時の bot 見た目高さの Canvas に対する比率(実測値)
  *
  * - fov=64・CAMERA_POSITION 既定値の状態で Canvas 480px 中の bot(影含む)の実測高さ 233px から算出
- * - style.height(Assembly サイズ)から Canvas 実サイズを逆算するのに使う
+ * - style.height(設置領域サイズ)から Canvas 実サイズを逆算するのに使う
  */
 export const BODY_HEIGHT_RATIO = 233 / DEFAULT_HEIGHT
 
 /**
  * Canvas 中心から下方向へずらすオフセットの Canvas 高さに対する比率
  *
- * - 400px で 55px 相当 (足が Assembly の下部付近になるぐらい)
+ * - 400px で 55px 相当 (足が設置領域の下部付近になるぐらい)
  */
 const VERTICAL_OFFSET_RATIO = 55 / DEFAULT_HEIGHT
 
@@ -124,14 +124,14 @@ export default function BoxBot3D({
   ...cfg
 }: BoxBot3DProps) {
   /**
-   * Assembly(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる。\
+   * 設置領域(レイアウト上占有する正方形)の一辺(px)。通常体勢時の bot 実寸に合わせる。\
    * style.height が数値でなければ DEFAULT_HEIGHT * BODY_HEIGHT_RATIO とみなす
    */
   const assemblySize =
     typeof style?.height === 'number'
       ? style.height
       : DEFAULT_HEIGHT * BODY_HEIGHT_RATIO
-  /** Canvas(fall/jump 等の可動域を含む実サイズ)の高さ(px)。Assembly サイズから逆算 */
+  /** Canvas(fall/jump 等の可動域を含む実サイズ)の高さ(px)。設置領域サイズから逆算 */
   const heightPx = assemblySize / BODY_HEIGHT_RATIO
   /**
    * Canvas の実描画高さ(px)
@@ -159,12 +159,12 @@ export default function BoxBot3D({
    *   スクリーン上の見た目も自然に比例して細くなる
    */
   const lineScale = Math.min(1, heightPx / DEFAULT_HEIGHT)
-  /** Canvas を Assembly 中心から下方向へずらすオフセット(px) */
+  /** Canvas を設置領域中心から下方向へずらすオフセット(px) */
   const verticalOffsetPx = heightPx * VERTICAL_OFFSET_RATIO
 
   return (
-    <Assembly
-      className={className}
+    <div
+      className={cn('ui-container', 'relative', className)}
       style={{ ...style, height: assemblySize, width: assemblySize }}
     >
       <Canvas
@@ -237,6 +237,6 @@ export default function BoxBot3D({
           />
         )}
       </Canvas>
-    </Assembly>
+    </div>
   )
 }
