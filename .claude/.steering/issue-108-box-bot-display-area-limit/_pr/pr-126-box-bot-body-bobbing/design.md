@@ -1,6 +1,7 @@
 # box-bot-01 body-bobbing action 復帰
 
-- 親 issue: #108 (`../design.md` の「未実装 action の復帰」節)
+- 親 issue: #108 (`../../design.md` の「未実装 action の復帰」節)
+- PR: #126
 - base: main (PR #125 マージ済み: walking / marching 復帰 + 基盤 refactor)
 
 ## 目的
