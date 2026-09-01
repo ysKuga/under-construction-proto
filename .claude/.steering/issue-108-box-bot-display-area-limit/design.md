@@ -443,3 +443,6 @@ box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullW
   固定 Canvas を「体高を収める正方形」にすれば足りるはずだが、影・ジャンプ余白との兼ね合いは実測次第。
 - r3f Canvas はページ内絶対位置をずらすと内部描画がズレる既知現象あり (samples stories の Grid3D コメント参照)。
   設置領域 (Canvas の親) を動かす方式がこれに抵触しないか要検証。
+- **fall の転倒角が samples と違う (未対応、2026-09-01 確認)**: box-bot-01 の fall は転倒時に bot が
+  内側 (画面奥/横) を向いてめり込む。samples の転倒角・向きと不一致。`FALL_ANGLE` / `applyTiltAngle`
+  の符号か pivot まわりの座標系の差が原因の可能性。gait actions とは別件、fall 単体の調整事項。
