@@ -275,9 +275,16 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
   腕は外側グループで静的 z 傾き、内側 `*ArmRef` グループを fall が x 軸で回す (z 傾きを clobber しない)
 - **`layout.ground.y`** を追加実装 (`deriveLayout` / `BoxBotLayout` / test)。`-body.h/2 - leg.h` = 脚下端
 - 未実施 (フェーズ1): 404 ページ `z-10` / `OrbitControls` target ずらしの撤去確認、影の追従
-- **`refs` のネスト再検討**: `fallPivotRef` / `leftArmRef` / `rightArmRef` が増えたので `layout` と対で判断可能に。
-  現状は flat 5 個 (`rootRef` / `yawRef` / `fallPivotRef` / `leftArmRef` / `rightArmRef`)。
-  腕は左右で対 → `refs.arm.leftRef` / `refs.arm.rightRef` のネスト余地あり。別ブランチで検討
+- **`refs` のネスト再検討** (検討済み 2026-09-01、結論: flat 維持): flat 5 個
+  (`rootRef` / `yawRef` / `fallPivotRef` / `leftArmRef` / `rightArmRef`) のまま。
+  - 消費は 2 箇所のみ (`index.tsx` の `<group ref>` bind / `index.hooks.ts` の module scope `write*` 配線)。
+    どちらも flat destructure で足りている。action 側は host の `apply*` 経由で refs を直接触らない
+  - `layout` は **部位軸** (head / shoulder / leg)、`refs` は **変換の役割軸**
+    (squash 対象 / yaw 累積 / 前傾 pivot / 腕)。root / yaw / fallPivot は部位でないため `layout` と同じ
+    ネスト方針を当てると置き場が概念的に歪む
+  - 左右対は arm のみ。ここだけ `refs.arm.*` にすると flat / nested 混在で一貫性が逆に悪化
+  - YAGNI 解除条件: fall が脚も引き寄せて `leftLegRef` / `rightLegRef` が増えたら、arm / leg 両方が
+    左右対になる → その時点で `refs.arm.*` / `refs.leg.*` を一括ネスト
 
 ### 部位アンカーの戻り値まとめ (`layout`、実装済み 2026-08-29、ブランチ 108-box-bot-layout-anchors)
 
@@ -294,7 +301,8 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
 - ~~未実施 (fall 復帰時): `groundY` (脚下端) を `layout.ground.y` として追加~~ — 実装済み (fall 復帰と同時)。
   将来 host が raw `cfg` でなく `layout` (読み取り専用の派生幾何) を露出する形の下地
   (上記「A の実装方針」5 の「cfg は ctx に残す」を絞った版)
-- **`refs` のネストは fall 復帰後に `layout` と対で再検討** — fall 復帰済み。上記「fall の復帰」の末尾参照
+- **`refs` のネストは fall 復帰後に `layout` と対で再検討** — 検討済み 2026-09-01、結論: flat 維持。
+  詳細は上記「fall の復帰」末尾
 
 ## 決定事項
 
