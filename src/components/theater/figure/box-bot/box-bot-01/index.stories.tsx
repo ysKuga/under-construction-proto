@@ -26,6 +26,32 @@ type Story = StoryObj<typeof StoryComponent>
 export const Default: Story = {}
 
 /**
+ * `canvasWidth` で表示領域(Canvas)の幅だけ広げる
+ *
+ * - 設置領域(赤枠)は正方形のまま。表示領域はその中心を基準に横へ逸脱して広がる
+ * - bot の見かけの大きさ・表示領域の高さは不変。左右に見える範囲だけ増える
+ * - 隣接要素と衝突しない文脈向けの opt-in(#108 の「表示領域 = 設置領域」原則の緩和)
+ */
+export const FullWidth: Story = {
+  args: {
+    canvasWidth: '100vw',
+  },
+  render: (args) => (
+    <div
+      style={{
+        alignItems: 'center',
+        display: 'flex',
+        height: '100vh',
+        justifyContent: 'center',
+        overflowX: 'clip',
+      }}
+    >
+      <StoryComponent {...args} />
+    </div>
+  ),
+}
+
+/**
  * `actionConfig` prop で jump の既定値を上書き
  *
  * - dispatch の 1 回上書き(`jump({...})`)ではなく props で既定を差し替える。\

@@ -333,6 +333,30 @@ get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復�
   `ARM_DOWN_ANGLE` 別定数。左は逆。復帰時にこの歪みを踏襲するか対称な形へ作り直すか要検討
   (box-bot-01 の静止時 arm 角は 2026-09-01 に samples 静止時と同じ `-0.5` / `0.5` へ合わせ済み)。
 
+## 表示領域の幅を独立させる (`canvasWidth`、実装済み 2026-09-01)
+
+トップページのヒーロー等、隣接要素と衝突しない文脈で「bot の大きさ・表示領域の高さは
+そのままに、Canvas の幅だけ画面いっぱいへ広げたい」要求。
+
+- three の `PerspectiveCamera.fov` は縦画角。幅だけ広げると aspect が横長になり、
+  横に見える範囲 (余白) が増えるだけで bot の見かけの大きさ・縦位置は不変。
+- prop `canvasWidth?: number | string` を samples box-bot-3d / box-bot-01 双方に追加。
+  省略時は従来どおり (正方形、`表示領域 = 設置領域`)。指定時は表示領域 (Canvas ラッパー)
+  の `width` のみ差し替え、`left: 50%` + `translateX(-50%)` で設置領域中心を基準に横へ広がる。
+- 設置領域 (Assembly、正方形) は不変。#108 の「表示領域 = 設置領域」原則を横方向で
+  意図的に緩める opt-in。`100vw` を渡す場合、横スクロール防止に祖先で `overflow-x` をクリップ。
+- 既知の制約: 透明な広い Canvas は DOM 上クリックを奪う (背後へ透過しない)。`interactive`
+  bot でヒーロー用途なら `interactive={false}` か許容。
+
+### Assembly 依存の見直し (未着手、theater 移行に伴う検討事項)
+
+- `Assembly` (`ui-container` + `ui-assembly`、`aspect-square` 固定の薄いラッパー。CSS 定義は無く
+  マーカー class のみ) は「ゲーム内要素との組み合わせ」のために導入されたが、`canvasWidth` の
+  ように設置領域と表示領域を分離したい要求と正方形固定が噛み合わない。
+- theater 配下の実装へ移行していく方針のもと、Assembly の使用をとりやめ、設置領域 (正方形) と
+  表示領域 (可変) を独立要素で表す形を検討する。box-bot-01 の local Assembly は box-bot-01 専用の
+  ため影響範囲は閉じている。今回は Assembly を残したまま `canvasWidth` を子 div 側で吸収した。
+
 ## 決定事項
 
 - 2026-08-27: 案2 (表示領域中心で回転 + 設置領域の相対位置アニメ) を採用。fall 完全転倒を維持。Canvas 固定サイズ。

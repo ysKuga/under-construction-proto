@@ -55,6 +55,30 @@ export const SlowRotate: Story = {
   },
 }
 
+/**
+ * canvasWidth で Canvas 幅だけ画面いっぱいに広げる
+ *
+ * - bot の見かけの大きさ・Canvas の高さは変えず、左右に見える範囲だけ拡張する
+ * - Canvas は設置領域(Assembly)の中心を基準に広がるため、設置領域を画面中央へ
+ *   置くと bot も画面中央に来る(トップページと同じ flex 中央寄せで再現)
+ * - `100vw` を渡すため、横スクロール防止に外側で `overflow-x: clip`
+ */
+export const FullWidth: Story = {
+  render: () => (
+    <div
+      style={{
+        alignItems: 'center',
+        display: 'flex',
+        height: '100vh',
+        justifyContent: 'center',
+        overflowX: 'clip',
+      }}
+    >
+      <StoryComponent canvasWidth="100vw" mode="3d" />
+    </div>
+  ),
+}
+
 /** style 経由でサイズ変更(枠線付き、96px 以下の縮小時の崩れ調査用) */
 export const Sizes: Story = {
   render: () => (

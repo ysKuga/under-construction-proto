@@ -5,6 +5,14 @@ import type { BoxBotModelProps } from './_components/box-bot-model/index.types'
 export interface BoxBot3DProps extends BoxBotModelProps, PropsWithChildren {
   /** Canvas の背景色 */
   background?: string
+  /**
+   * Canvas の幅。CSS 長さ or px 数値
+   *
+   * - 省略時は高さと同じ(正方形)。明示すると幅だけ広がる
+   * - 高さ・fov は変えないため bot の見かけの大きさは不変で、左右に見える範囲だけ増える
+   * - `100vw` 等を渡す場合、横スクロール防止のため祖先で `overflow-x` をクリップする
+   */
+  canvasWidth?: number | string
   /** ルート要素の className */
   className?: string
   /**

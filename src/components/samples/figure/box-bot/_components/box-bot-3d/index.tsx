@@ -107,6 +107,7 @@ const ORBIT_TARGET: Vec3 = [
 export default function BoxBot3D({
   autoRotate = true,
   background = 'transparent',
+  canvasWidth,
   children,
   className,
   fov = 64,
@@ -179,7 +180,8 @@ export default function BoxBot3D({
             userSelect: 'none',
             // ベンダープレフィックス付きのため CSSProperties 型に無く、下の as で吸収
             WebkitUserDrag: 'none',
-            width: heightPx,
+            // canvasWidth 未指定時は高さと同じ(正方形)。指定時は幅だけ広げる(中央基準は維持)
+            width: canvasWidth ?? heightPx,
           } as React.CSSProperties
         }
       >
