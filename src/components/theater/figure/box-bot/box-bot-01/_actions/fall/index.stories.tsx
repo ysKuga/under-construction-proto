@@ -58,6 +58,9 @@ const FALL_FACING_GRID = [
  *   横倒し時に足元が浮くぶんの下げ量(px)を実測する。全体共通の値を dispatch する
  * - armAngle スライダーで転倒時に腕を頭側へ引き寄せる角度(°、x 軸回転)を実測する。\
  *   静的な肩の開き(`cfg.arm.*Angle`)と合成されるため、肩の開きを変えたら再調整する
+ * - shadowVariant トグルで接地影の方式(contact / cast)を切替え、shadowLift スライダーで
+ *   転倒時に影を体へ寄せる量(world +y、進行度同期)を実測する。cast は受け皿 plane を、\
+ *   contact は影グループを持ち上げる。既定は contact / 0.5
  */
 export const Fall: Story = {
   parameters: {
@@ -70,6 +73,10 @@ export const Fall: Story = {
     const [shiftDistance, setShiftDistance] = React.useState(55)
     const [dropDistance, setDropDistance] = React.useState(25)
     const [armAngleDeg, setArmAngleDeg] = React.useState(-135)
+    const [shadowLift, setShadowLift] = React.useState(0.5)
+    const [shadowVariant, setShadowVariant] = React.useState<
+      'cast' | 'contact'
+    >('contact')
 
     const fallAll = () => {
       for (const target of targets) {
@@ -78,6 +85,7 @@ export const Fall: Story = {
             detail: {
               armAngle: (armAngleDeg * Math.PI) / 180,
               dropDistance,
+              shadowLift,
               shiftDistance,
             },
           }),
@@ -132,6 +140,29 @@ export const Fall: Story = {
               value={armAngleDeg}
             />
           </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            shadowLift {shadowLift.toFixed(1)}
+            <input
+              max={2}
+              min={0}
+              onChange={(e) => setShadowLift(Number(e.target.value))}
+              step={0.1}
+              type="range"
+              value={shadowLift}
+            />
+          </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            shadowVariant
+            <select
+              onChange={(e) =>
+                setShadowVariant(e.target.value as 'cast' | 'contact')
+              }
+              value={shadowVariant}
+            >
+              <option value="contact">contact</option>
+              <option value="cast">cast</option>
+            </select>
+          </label>
         </div>
         {/* 3x3。1 マス = bot 既定サイズ。左列が転倒で見切れないよう左に余白 */}
         <div
@@ -152,6 +183,7 @@ export const Fall: Story = {
                 eventTarget={targets[i]}
                 orbit={cell.orbit}
                 rotationY={FACE_CAMERA_YAW + (cell.deg * Math.PI) / 180}
+                shadowVariant={shadowVariant}
                 style={{ outline: '1px solid red' }}
               />
             </div>

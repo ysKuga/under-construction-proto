@@ -97,7 +97,13 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
   数学的には `(I−R(θ))·(体心→足)` の平行移動だが、手調整定数 + ease で近似 (厳密な足固定より jump との一貫性優先)。
 - 影の追従: ~~cast/contact shadow は接地面固定~~ → contact 影を **body 形状に紐づく固定楕円** (drei `Shadow`) へ
   差し替え、`facing` ぶん接地面内で回す。転倒で体が浮くぶんは `FallConfig.shadowLift` (world +y、進行度同期) で
-  影を体へ寄せる (体である程度覆われてよい)。ブランチ 108-box-bot-fall-shadow-grid。cast は未対応。
+  影を体へ寄せる (体である程度覆われてよい)。ブランチ 108-box-bot-fall-shadow-grid。
+  - ~~cast は未対応~~ → **対応済み** (2026-09-01、PR #129、ブランチ 108-box-bot-cast-shadow-fall)。
+    `CastShadow` に `liftRef` prop を追加し受け皿 plane を `<group ref={liftRef}>` で包む。`index.tsx` が
+    contact / cast どちらの variant にも同じ `shadowLiftRef` を渡す。`applyShadowLift` (既存) が
+    マウント中の影を持ち上げるため新規 host verb・ref なし。Fall story に `shadowVariant` トグル +
+    `shadowLift` スライダーを追加。cast は実投影のため追従効果は contact より控えめ。
+    詳細は `_pr/pr-129-box-bot-cast-shadow-fall/design.md`。
 
 ### フェーズ 1 の後続: 向き (facing) からの転倒方向算出 (実装済み 2026-08-30、ブランチ 108-box-bot-fall-facing-direction)
 
@@ -281,7 +287,8 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
 - **JSX pivot chain**: `rootRef` 内側に `translate(ground.y) → fallPivotRef → translate(-ground.y)` を挟む。
   腕は外側グループで静的 z 傾き、内側 `*ArmRef` グループを fall が x 軸で回す (z 傾きを clobber しない)
 - **`layout.ground.y`** を追加実装 (`deriveLayout` / `BoxBotLayout` / test)。`-body.h/2 - leg.h` = 脚下端
-- 未実施 (フェーズ1): 404 ページ `z-10` / `OrbitControls` target ずらしの撤去確認、影の追従
+- 404 ページ `z-10` / `OrbitControls` target ずらしの撤去確認 → 対応なしで確定 (2026-09-01)。
+  影の追従: contact 済み、cast も対応済み (PR #129)
 - **`refs` のネスト再検討** (検討済み 2026-09-01、結論: flat 維持): flat 5 個
   (`rootRef` / `yawRef` / `fallPivotRef` / `leftArmRef` / `rightArmRef`) のまま。
   - 消費は 2 箇所のみ (`index.tsx` の `<group ref>` bind / `index.hooks.ts` の module scope `write*` 配線)。
@@ -460,6 +467,11 @@ box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullW
   local `Assembly` コンポーネントから素の div (`cn('ui-container', 'relative', className)`) へ
   差し替え、内側 `ui-assembly` ラッパー廃止。DOM 構造のみ、サイズ / fov 算出は不変。
   `samples/figure/robot-01` は純 2D デモで正方形固定が適切なため対象外。
+- 2026-09-01: cast shadow の fall 追従を PR #129 で対応。`CastShadow` に `liftRef` prop を追加し、
+  `index.tsx` が contact / cast どちらの variant にも同じ `shadowLiftRef` を渡す。既存
+  `applyShadowLift` がマウント中の影を持ち上げるため新規 host verb・ref なし。Fall story に
+  `shadowVariant` トグル + `shadowLift` スライダーを追加。「詰めるパラメータ」節の「影の追従」は
+  contact / cast とも対応済みとなり、フェーズ1 の未実施項目は解消。
 
 ## 懸念・リスク
 
