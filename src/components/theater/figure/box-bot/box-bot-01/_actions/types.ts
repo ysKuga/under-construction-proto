@@ -116,6 +116,22 @@ export type BoxBotActionHost = {
    */
   applyArmLift: (lift: { left: number; right: number }) => void
   /**
+   * 左右の脚の足踏みオフセットを設定する(絶対値)
+   *
+   * - `left` / `right` は脚グループの付け根 base(`layout.leg.y`)からの `position.y` オフセット(world)。\
+   *   adapter が `leg.leftRef` / `leg.rightRef` の `position.y` へ `base + offset` で反映する
+   * - 0 で静止位置。marching が使う。walking(`rotation.x`)とは軸が別で共存できる
+   */
+  applyLegBob: (offsets: { left: number; right: number }) => void
+  /**
+   * 左右の脚の前後スイング角を設定する(絶対値)
+   *
+   * - `left` / `right` は付け根を支点にした x 軸回転(rad)。adapter が `leg.leftRef` /\
+   *   `leg.rightRef` の `rotation.x` へ反映する
+   * - 0 で直立。walking が使う。marching(`position.y`)とは軸が別で共存できる
+   */
+  applyLegSwing: (angles: { left: number; right: number }) => void
+  /**
    * 接地影を world +y へ持ち上げる(絶対値)
    *
    * - `y` は world 単位。adapter が影グループの `position.y` へ反映する
