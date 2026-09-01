@@ -16,7 +16,8 @@ box-bot-01 はゲーム内で actor の figure として使う本実装。既存
 
 ### 用語
 
-- 設置領域: 他要素との組み合わせのための領域。`Assembly` (`ui-container` + `ui-assembly`) の正方形。
+- 設置領域: 他要素との組み合わせのための正方形の領域。`ui-container` を付けた正方形 div
+  (box-bot-01 は local `Assembly`、samples box-bot-3d は素の div、PR #128 以降)。
 - 表示領域: アクションのために設置領域を逸脱させた領域。現状の `Canvas`。
 
 ### 現状の構造 (samples/figure/box-bot/_components/box-bot-3d)
@@ -412,14 +413,25 @@ box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullW
   下端が見切れる (target.y = -0.6 は fall 用の調整)。canvasHeight なら bot サイズ・
   fall のフレーミングを保ったまま上下の余白だけ増やせるため、これを採った。
 
-### Assembly 依存の見直し (未着手、theater 移行に伴う検討事項)
+### Assembly 依存の見直し (samples box-bot-3d は実装済み 2026-09-01、PR #128)
 
 - `Assembly` (`ui-container` + `ui-assembly`、`aspect-square` 固定の薄いラッパー。CSS 定義は無く
-  マーカー class のみ) は「ゲーム内要素との組み合わせ」のために導入されたが、`canvasWidth` の
-  ように設置領域と表示領域を分離したい要求と正方形固定が噛み合わない。
-- theater 配下の実装へ移行していく方針のもと、Assembly の使用をとりやめ、設置領域 (正方形) と
-  表示領域 (可変) を独立要素で表す形を検討する。box-bot-01 の local Assembly は box-bot-01 専用の
-  ため影響範囲は閉じている。今回は Assembly を残したまま `canvasWidth` を子 div 側で吸収した。
+  マーカー class のみ) は「ゲーム内要素との組み合わせ」のために導入されたが、`canvasWidth` /
+  `canvasHeight` のように設置領域と表示領域を分離したい要求と正方形固定が噛み合わない。
+- **方針の切り分け** (2026-09-01 ユーザー確認):
+  - **theater 配下 (box-bot-01)**: Assembly 依存を維持。ゲーム内要素として他 UI と組み合わせて
+    表示するため、正方形の設置領域を与える Assembly はむしろ有用。今回 `canvasWidth` /
+    `canvasHeight` は `Assembly` を残したまま子 div 側で吸収済み。
+  - **samples 配下**: デモ用途で Assembly 排除を検討していた対象。box-bot-3d は Canvas +
+    `canvasWidth` / `canvasHeight` を持ち、`aspect-square` 固定と噛み合わない。
+- **実装 (PR #128)**: `samples/figure/box-bot/_components/box-bot-3d/index.tsx` のルートを
+  `<Assembly>` から `<div className={cn('ui-container', 'relative', className)}>` へ差し替え、
+  内側 `ui-assembly` ラッパーを廃止。`style` の spread・`assemblySize` / `heightPx` /
+  `effectiveFov` / `verticalOffsetPx` の算出は不変、DOM 構造だけの差し替え。`ui-container`
+  マーカー class は残す。詳細は `_pr/pr-128-box-bot-drop-assembly/design.md`。
+- **対象外**: `samples/figure/robot-01` は純 2D の % パーツ配置デモで、正方形固定の Assembly が
+  そのまま適切 (Canvas / `canvasWidth` の分離要求なし)。`@/components/ad/molecules/assembly`
+  本体・他 prototypes の `ui-container` 使用も触らない。
 
 ## 決定事項
 
@@ -443,6 +455,11 @@ box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullW
   `ACTION_JUMP` を dispatch し jump の見た目を再利用 (共有 ref なし、jump 側の実行中ガードで重複を弾く)。
   spin/hover 状態との協調は作り込まず `readPosture()` gate のみ (最小案)、新規 host verb なし。
   これで「未実装 action の復帰」節の hopping まで全て実装済み。
+- 2026-09-01: Assembly 依存の見直しは **samples 配下のみ対象** (theater 配下 box-bot-01 は
+  Assembly 維持)。PR #128 で `samples/figure/box-bot/_components/box-bot-3d/index.tsx` のルートを
+  local `Assembly` コンポーネントから素の div (`cn('ui-container', 'relative', className)`) へ
+  差し替え、内側 `ui-assembly` ラッパー廃止。DOM 構造のみ、サイズ / fov 算出は不変。
+  `samples/figure/robot-01` は純 2D デモで正方形固定が適切なため対象外。
 
 ## 懸念・リスク
 
