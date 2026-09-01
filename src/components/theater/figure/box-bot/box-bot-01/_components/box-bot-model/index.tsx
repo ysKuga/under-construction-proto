@@ -48,6 +48,8 @@ function BoxBotModelInner(
   // detail に載り、use-click-bindings が clickBindings で action イベントへ中継する
   const onPointerDownBody = createClickEmitter('body')
   const onPointerDownHead = createClickEmitter('head')
+  const onPointerDownArmLeft = createClickEmitter('arm-left')
+  const onPointerDownArmRight = createClickEmitter('arm-right')
 
   return (
     // yawRef: y 軸回転を累積するグループ(spin / autoRotate 等が rotation.y を += する)。
@@ -99,6 +101,7 @@ function BoxBotModelInner(
                 <group ref={leftArmRef}>
                   <SketchBox
                     cfg={cfg}
+                    handlers={{ ...hover, onPointerDown: onPointerDownArmLeft }}
                     position={[0, -cfg.arm.leftLen / 2, 0]}
                     seed={cfg.seed + 3}
                     size={[cfg.arm.w, cfg.arm.leftLen, cfg.arm.d]}
@@ -112,6 +115,10 @@ function BoxBotModelInner(
                 <group ref={rightArmRef}>
                   <SketchBox
                     cfg={cfg}
+                    handlers={{
+                      ...hover,
+                      onPointerDown: onPointerDownArmRight,
+                    }}
                     position={[0, -cfg.arm.rightLen / 2, 0]}
                     seed={cfg.seed + 4}
                     size={[cfg.arm.w, cfg.arm.rightLen, cfg.arm.d]}

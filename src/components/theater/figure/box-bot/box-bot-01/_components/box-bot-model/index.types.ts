@@ -231,7 +231,7 @@ export type ClickElementDetail = {
 }
 
 /** クリック可能な bot 要素 */
-export type ClickTarget = 'body' | 'head'
+export type ClickTarget = 'arm-left' | 'arm-right' | 'body' | 'head'
 
 export type Handlers = {
   onClick?: (e: ThreeEvent<MouseEvent>) => void

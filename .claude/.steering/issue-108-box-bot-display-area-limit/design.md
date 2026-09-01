@@ -78,7 +78,9 @@ fall モーション = 姿勢回転 (Canvas 内) + 表示領域シフト (DOM) �
       `FallConfig` (既定 `-40` / `-70`)、Fall story にスライダー (PR #119 `ca20e74`)。
 - [x] get-up の逆補間 (回転 + shift の 0 への復帰)。`useFrame` は毎フレーム無条件適用へ
       (早期 return だと再レンダーで inline style が復元され中心へスナップ、PR #119 `15ffabf`)。
-- [ ] 404 ページの `z-10` 手当て・`OrbitControls` target ずらしが不要になることを確認。
+- [x] 404 ページの `z-10` 手当て・`OrbitControls` target ずらし → **対応なしで確定** (2026-09-01)。
+      `canvasHeight` + シルエット中心 pivot で見切れは解消済み。撤去は samples fall の
+      フレーミング (target.y = -0.6 は fall 用調整) へ波及するリスクの方が大きい。現状維持。
 
 不採用 (当初案から変更、2026-08-30):
 
@@ -313,9 +315,19 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
 `samples/figure/box-bot` にあり box-bot-01 に無い action。box-bot-01 側でレジストリ形式
 (`_actions/<name>/` descriptor) へ復帰させる。samples への移植ではない (両実装は別物として維持)。
 
-- **auto-rotate**: `autoRotate` 中、yaw を毎フレーム回転。追加 ref なし (`yawRef` 既存)。spin と yaw 相乗り
-- **arm-toggle**: 左右腕の上げ下げ toggle (`rotation.z`)。追加 ref なし (arm refs 既存、z 傾き / x 回転は
-  グループ分離済み)。fall と腕グループ共有
+- **auto-rotate**: ~~`autoRotate` 中、yaw を毎フレーム回転~~ — **実装済み** (2026-09-01、ブランチ
+  108-box-bot-arm-auto-rotate-actions)。registry action は props を読めないため prop 駆動でなく
+  **イベントトグル方式** (`ACTION_AUTO_ROTATE` 1 回の dispatch で on/off)。角速度は `config.speed`
+  (`actionConfig.autoRotate` / dispatch 引数で上書き)。`applyYawDelta` で spin と yaw 相乗り。
+  追加 ref なし・host 追加なし
+- **arm-toggle**: ~~左右腕の上げ下げ toggle (`rotation.z`)~~ — **実装済み** (同ブランチ)。単一
+  descriptor `armToggle` + `Arg { side: 'left' | 'right' | 'both' }` (既定 both)。dispatcher は
+  1 action = 1 メソッドのため側は引数で運ぶ。host に `applyArmLift({ left, right })` を追加
+  (内側腕グループの `rotation.z`、fall の `applyArmAngle` = `rotation.x` と軸が別で共存)。
+  現在角・`approach` 補間は action がローカル所有 (`leftZRef` / `rightZRef`)。**左右対称に作り直し**
+  (下記論点「arm config の非対称」の「対称な形へ作り直す」を採用。samples の `cfg.arm.rightAngle`
+  流用はしない)。arm クリック target (`arm-left` / `arm-right`) は追加したが `DEFAULT_CLICK_BINDINGS`
+  へは登録せず、既定では腕クリックは何も起こさない
 - **walking**: 歩行、脚 swing (`rotation.x`)。`leftLegRef` / `rightLegRef` + posture 判定を追加。fall 姿勢と排他
 - **marching**: 足踏み、脚 bob (`position.y`)。leg refs + posture 判定を追加。fall 姿勢と排他
 - **body-bobbing**: walking/marching 中の体上下。`walkingBobRef` + leg refs を追加。walking/marching が前提
@@ -329,9 +341,17 @@ get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復�
   toggle 無効」を判定する経路が無い → host に `readPosture()` を追加 (`readFacing` と同系の読み取り動詞)。
 - **leg ref 追加 = `refs` ネストの YAGNI 解除条件**: `leftLegRef` / `rightLegRef` を足す時点で arm / leg
   両方が左右対になる → 上記「refs のネスト再検討」の解除条件どおり `refs.arm.*` / `refs.leg.*` を一括ネスト。
-- **arm config の非対称**: samples は `cfg.arm.rightAngle` を arm-action の up 角度に流用し、静止時は
-  `ARM_DOWN_ANGLE` 別定数。左は逆。復帰時にこの歪みを踏襲するか対称な形へ作り直すか要検討
-  (box-bot-01 の静止時 arm 角は 2026-09-01 に samples 静止時と同じ `-0.5` / `0.5` へ合わせ済み)。
+- ~~**arm config の非対称**: samples は `cfg.arm.rightAngle` を arm-action の up 角度に流用~~ →
+  **決着** (2026-09-01)。arm-toggle は非対称を踏襲せず対称形で新規実装。`ArmToggleConfig`
+  = `{ upDelta, approachRate }` の 2 値のみ。目標角は左 `-upDelta` / 右 `+upDelta`、静止は 0
+  (静的な肩の開き `cfg.arm.*Angle` に足し込まれる)。`ARM_UP_ANGLE` / `ARM_DOWN_ANGLE` 相当の
+  別定数は持たない。
+
+### story 配置 (2026-09-01 決定)
+
+action ごとの挙動確認 story は `_actions/<name>/index.stories.tsx` (1 action = 1 フォルダ)。
+box-bot-01 の root `index.stories.tsx` は component レベル (Default / FullWidth / ConfigOverride) のみ。
+既存の Jump / Spin / Fall render story も root から各 action フォルダへ移設済み。
 
 ## 表示領域の幅を独立させる (`canvasWidth`、実装済み 2026-09-01)
 
@@ -394,6 +414,11 @@ get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復�
 - 2026-09-01: box-bot-01 を `src/components/theater/figure/box-bot/box-bot-01/` へ移設。samples とは別実装
   として恒久維持 (samples = デモ用、box-bot-01 = ゲーム内 actor の figure 本実装)。未実装 action は
   box-bot-01 側で復帰させる。
+- 2026-09-01: 404 ページの `z-10` / `OrbitControls` target ずらしは撤去せず現状維持 (対応なしで確定)。
+- 2026-09-01: auto-rotate / arm-toggle を復帰 (ブランチ 108-box-bot-arm-auto-rotate-actions)。
+  auto-rotate = イベントトグル方式、arm-toggle = 単一 descriptor + side 引数 + host `applyArmLift`、
+  左右対称で新規実装。残り 4 action (walking / marching / body-bobbing / hopping) は leg ref 追加・
+  `refs` ネスト refactor・`host.readPosture()` が絡むため後続 PR。
 
 ## 懸念・リスク
 
