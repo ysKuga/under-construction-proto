@@ -1,3 +1,4 @@
+import { armToggleAction } from './arm-toggle'
 import { autoRotateAction } from './auto-rotate'
 import { fallAction } from './fall'
 import { jumpAction } from './jump'
@@ -17,6 +18,7 @@ export const BOX_BOT_ACTIONS = [
   jumpAction,
   spinAction,
   autoRotateAction,
+  armToggleAction,
   fallAction,
 ] as const
 
