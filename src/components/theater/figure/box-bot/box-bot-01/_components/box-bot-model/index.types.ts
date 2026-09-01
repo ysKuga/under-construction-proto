@@ -230,6 +230,14 @@ export interface BoxBotRefs {
   /** 全体グループ。jump の squash(scale)対象。JSX で `<group ref>` にバインドする */
   rootRef: RefObject<Group | null>
   /**
+   * walking / marching 中に体全体を上下させるグループ
+   *
+   * - body-bobbing がここへ `position.y` を入れる。`fallPivotRef` の内側、全パーツを包む。\
+   *   jump の squash(`rootRef`)とは別グループなので jump の縦移動と衝突しない。\
+   *   JSX で `<group ref>` にバインドする
+   */
+  walkingBobRef: RefObject<Group | null>
+  /**
    * y 軸回転を増分で累積するグループ
    *
    * - `rotation.y` を `+=` で足す対象。spin / autoRotate 等 複数 action が相乗りする
@@ -261,7 +269,7 @@ export type Handlers = {
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
-  'arm' | 'fallPivotRef' | 'leg' | 'rootRef' | 'yawRef'
+  'arm' | 'fallPivotRef' | 'leg' | 'rootRef' | 'walkingBobRef' | 'yawRef'
 > {
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig

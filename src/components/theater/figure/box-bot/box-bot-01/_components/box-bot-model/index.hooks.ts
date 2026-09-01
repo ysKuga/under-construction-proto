@@ -122,6 +122,37 @@ const writeLegBob = (
   if (rightLegRef.current) rightLegRef.current.position.y = baseY + right
 }
 
+/** 左右の脚グループの現在の前後スイング角(`rotation.x`)を返す(body-bobbing 用) */
+const readLegSwing = (
+  leftLegRef: RefObject<Group | null>,
+  rightLegRef: RefObject<Group | null>,
+): { left: number; right: number } => ({
+  left: leftLegRef.current?.rotation.x ?? 0,
+  right: rightLegRef.current?.rotation.x ?? 0,
+})
+
+/**
+ * 左右の脚グループの現在の足踏みオフセット(`position.y` の base からの相対)を返す(body-bobbing 用)
+ *
+ * - `baseY`(脚の付け根 `layout.leg.y`)を引いた相対量
+ */
+const readLegBob = (
+  leftLegRef: RefObject<Group | null>,
+  rightLegRef: RefObject<Group | null>,
+  baseY: number,
+): { left: number; right: number } => ({
+  left: (leftLegRef.current?.position.y ?? baseY) - baseY,
+  right: (rightLegRef.current?.position.y ?? baseY) - baseY,
+})
+
+/** 体全体グループ(`walkingBobRef`)の上下オフセット(`position.y`)を `y` に設定する(body-bobbing) */
+const writeBodyBob = (
+  walkingBobRef: RefObject<Group | null>,
+  y: number,
+): void => {
+  if (walkingBobRef.current) walkingBobRef.current.position.y = y
+}
+
 /**
  * 現在の実効 facing(bot の向き)を rad で返す(fall の画面ずらし方向の基準)
  *
@@ -165,7 +196,7 @@ export function useBoxBotModel(
 
   const { actions } = useBoxBotActions()
 
-  const { arm, fallPivotRef, leg, postureRef, rootRef, yawRef } =
+  const { arm, fallPivotRef, leg, postureRef, rootRef, walkingBobRef, yawRef } =
     useBoxBotRefs()
 
   const eventTarget = useBoxBotEventTarget()
@@ -215,6 +246,7 @@ export function useBoxBotModel(
     applyArmAngle: (rad) => writeArmAngle(arm.leftRef, arm.rightRef, rad),
     applyArmLift: (lift) =>
       writeArmLift(arm.leftRef, arm.rightRef, lift.left, lift.right),
+    applyBodyBob: (y) => writeBodyBob(walkingBobRef, y),
     applyLegBob: (offsets) =>
       writeLegBob(
         leg.leftRef,
@@ -233,6 +265,8 @@ export function useBoxBotModel(
     eventTarget,
     interactive,
     readFacing: () => readFacing(yawRef, rotationY),
+    readLegBob: () => readLegBob(leg.leftRef, leg.rightRef, layout.leg.y),
+    readLegSwing: () => readLegSwing(leg.leftRef, leg.rightRef),
     readPosture: () => readPosture(postureRef),
     reportPosture: (phase) => writePosture(postureRef, phase),
   }
@@ -252,6 +286,7 @@ export function useBoxBotModel(
     onClick,
     rootRef,
     rotationY,
+    walkingBobRef,
     yawRef,
   }
 }

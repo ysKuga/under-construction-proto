@@ -85,6 +85,7 @@ export const BoxBotActionsProvider = ({
  *   変換の役割で分けており部位ではない
  * - ネスト: `arm.leftRef` `arm.rightRef`(fall の腕引き寄せ・arm-toggle の持ち上げ)/\
  *   `leg.leftRef` `leg.rightRef`(walking の swing・marching の bob)。左右対の部位でまとめる
+ * - `walkingBobRef`: body-bobbing が体を上下させるグループ(全パーツを包む)
  * - `postureRef`: 姿勢フェーズの共有値。fall が書き、walking / marching が読む
  * - 単発の進行度など アクション固有の ref は各アクション(`_actions/<name>/`)が自前で `useRef` する
  * - JSX と adapter の双方から参照される bot 構造の ref を Context で配布する(r3f-state ルール)
@@ -97,6 +98,7 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
   const rightArmRef = React.useRef<Group>(null)
   const leftLegRef = React.useRef<Group>(null)
   const rightLegRef = React.useRef<Group>(null)
+  const walkingBobRef = React.useRef<Group>(null)
   const postureRef = React.useRef(0)
 
   const refs = React.useMemo<BoxBotRefs>(
@@ -106,6 +108,7 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       leg: { leftRef: leftLegRef, rightRef: rightLegRef },
       postureRef,
       rootRef,
+      walkingBobRef,
       yawRef,
     }),
     [
@@ -114,6 +117,7 @@ export const BoxBotRefsProvider = ({ children }: PropsWithChildren) => {
       fallPivotRef,
       leftLegRef,
       rightLegRef,
+      walkingBobRef,
       postureRef,
       rootRef,
       yawRef,

@@ -41,6 +41,7 @@ function BoxBotModelInner(
     onClick,
     rootRef,
     rotationY,
+    walkingBobRef,
     yawRef,
   } = useBoxBotModel(props)
 
@@ -68,119 +69,126 @@ function BoxBotModelInner(
         <group position={[0, layout.center.y, 0]}>
           <group ref={fallPivotRef}>
             <group position={[0, -layout.center.y, 0]}>
-              <SketchBox
-                cfg={cfg}
-                handlers={{
-                  ...hover,
-                  onClick: (e) => {
-                    e.stopPropagation()
-                    onClick?.()
-                  },
-                  onPointerDown: onPointerDownBody,
-                }}
-                position={[0, 0, 0]}
-                seed={cfg.seed + 1}
-                size={[cfg.body.w, cfg.body.h, cfg.body.d]}
-              />
-              <SketchBox
-                cfg={cfg}
-                handlers={{
-                  ...hover,
-                  onClick: (e) => {
-                    e.stopPropagation()
-                    onClick?.()
-                  },
-                  onPointerDown: onPointerDownHead,
-                }}
-                position={[0, layout.head.y, 0]}
-                seed={cfg.seed + 2}
-                size={[cfg.head.w, cfg.head.h, cfg.head.d]}
-              />
+              {/* walkingBobRef: body-bobbing が walking / marching 中に体全体を上下させる。
+                  jump の squash(rootRef)より内側・fall の pivot より内側 */}
+              <group ref={walkingBobRef}>
+                <SketchBox
+                  cfg={cfg}
+                  handlers={{
+                    ...hover,
+                    onClick: (e) => {
+                      e.stopPropagation()
+                      onClick?.()
+                    },
+                    onPointerDown: onPointerDownBody,
+                  }}
+                  position={[0, 0, 0]}
+                  seed={cfg.seed + 1}
+                  size={[cfg.body.w, cfg.body.h, cfg.body.d]}
+                />
+                <SketchBox
+                  cfg={cfg}
+                  handlers={{
+                    ...hover,
+                    onClick: (e) => {
+                      e.stopPropagation()
+                      onClick?.()
+                    },
+                    onPointerDown: onPointerDownHead,
+                  }}
+                  position={[0, layout.head.y, 0]}
+                  seed={cfg.seed + 2}
+                  size={[cfg.head.w, cfg.head.h, cfg.head.d]}
+                />
 
-              {/* 腕。肩を支点に、*ArmRef グループ(肩の開きの外側)を fall が x 軸で前へ回し、
+                {/* 腕。肩を支点に、*ArmRef グループ(肩の開きの外側)を fall が x 軸で前へ回し、
               arm-toggle が z 軸で持ち上げる。内側グループが leftAngle / rightAngle の静的な
               肩の開き。fall の x 回転を開きの内側で行うと左右非対称に流れるため外側へ出す */}
-              <group
-                position={[-layout.shoulder.x, layout.shoulder.y, 0]}
-                ref={armLeftRef}
-              >
-                <group rotation={[0, 0, cfg.arm.leftAngle]}>
-                  <SketchBox
-                    cfg={cfg}
-                    handlers={{ ...hover, onPointerDown: onPointerDownArmLeft }}
-                    position={[0, -cfg.arm.leftLen / 2, 0]}
-                    seed={cfg.seed + 3}
-                    size={[cfg.arm.w, cfg.arm.leftLen, cfg.arm.d]}
-                  />
+                <group
+                  position={[-layout.shoulder.x, layout.shoulder.y, 0]}
+                  ref={armLeftRef}
+                >
+                  <group rotation={[0, 0, cfg.arm.leftAngle]}>
+                    <SketchBox
+                      cfg={cfg}
+                      handlers={{
+                        ...hover,
+                        onPointerDown: onPointerDownArmLeft,
+                      }}
+                      position={[0, -cfg.arm.leftLen / 2, 0]}
+                      seed={cfg.seed + 3}
+                      size={[cfg.arm.w, cfg.arm.leftLen, cfg.arm.d]}
+                    />
+                  </group>
                 </group>
-              </group>
-              <group
-                position={[layout.shoulder.x, layout.shoulder.y, 0]}
-                ref={armRightRef}
-              >
-                <group rotation={[0, 0, cfg.arm.rightAngle]}>
-                  <SketchBox
-                    cfg={cfg}
-                    handlers={{
-                      ...hover,
-                      onPointerDown: onPointerDownArmRight,
-                    }}
-                    position={[0, -cfg.arm.rightLen / 2, 0]}
-                    seed={cfg.seed + 4}
-                    size={[cfg.arm.w, cfg.arm.rightLen, cfg.arm.d]}
-                  />
+                <group
+                  position={[layout.shoulder.x, layout.shoulder.y, 0]}
+                  ref={armRightRef}
+                >
+                  <group rotation={[0, 0, cfg.arm.rightAngle]}>
+                    <SketchBox
+                      cfg={cfg}
+                      handlers={{
+                        ...hover,
+                        onPointerDown: onPointerDownArmRight,
+                      }}
+                      position={[0, -cfg.arm.rightLen / 2, 0]}
+                      seed={cfg.seed + 4}
+                      size={[cfg.arm.w, cfg.arm.rightLen, cfg.arm.d]}
+                    />
+                  </group>
                 </group>
-              </group>
 
-              {/* 脚。付け根グループを walking が rotation.x、marching が position.y で動かす。
+                {/* 脚。付け根グループを walking が rotation.x、marching が position.y で動かす。
                   静止時は layout.leg.y のまま */}
-              <group
-                position={[-layout.leg.x, layout.leg.y, 0]}
-                ref={legLeftRef}
-              >
-                <SketchBox
-                  cfg={cfg}
-                  position={[0, -cfg.leg.h / 2, 0]}
-                  seed={cfg.seed + 5}
-                  size={[cfg.leg.w, cfg.leg.h, cfg.leg.d]}
-                />
-              </group>
-              <group
-                position={[layout.leg.x, layout.leg.y, 0]}
-                ref={legRightRef}
-              >
-                <SketchBox
-                  cfg={cfg}
-                  position={[0, -cfg.leg.h / 2, 0]}
-                  seed={cfg.seed + 6}
-                  size={[cfg.leg.w, cfg.leg.h, cfg.leg.d]}
-                />
-              </group>
+                <group
+                  position={[-layout.leg.x, layout.leg.y, 0]}
+                  ref={legLeftRef}
+                >
+                  <SketchBox
+                    cfg={cfg}
+                    position={[0, -cfg.leg.h / 2, 0]}
+                    seed={cfg.seed + 5}
+                    size={[cfg.leg.w, cfg.leg.h, cfg.leg.d]}
+                  />
+                </group>
+                <group
+                  position={[layout.leg.x, layout.leg.y, 0]}
+                  ref={legRightRef}
+                >
+                  <SketchBox
+                    cfg={cfg}
+                    position={[0, -cfg.leg.h / 2, 0]}
+                    seed={cfg.seed + 6}
+                    size={[cfg.leg.w, cfg.leg.h, cfg.leg.d]}
+                  />
+                </group>
 
-              {/* 顔 */}
-              <Ink
-                cfg={cfg}
-                position={[
-                  -cfg.eye.offset,
-                  layout.head.y + 0.05,
-                  layout.head.front,
-                ]}
-                size={[cfg.eye.w, cfg.eye.h, cfg.eye.d]}
-              />
-              <Ink
-                cfg={cfg}
-                position={[
-                  cfg.eye.offset,
-                  layout.head.y + 0.05,
-                  layout.head.front,
-                ]}
-                size={[cfg.eye.w, cfg.eye.h, cfg.eye.d]}
-              />
-              <Ink
-                cfg={cfg}
-                position={[0, layout.head.y - 0.22, layout.head.front]}
-                size={[0.55, 0.055, 0.06]}
-              />
+                {/* 顔 */}
+                <Ink
+                  cfg={cfg}
+                  position={[
+                    -cfg.eye.offset,
+                    layout.head.y + 0.05,
+                    layout.head.front,
+                  ]}
+                  size={[cfg.eye.w, cfg.eye.h, cfg.eye.d]}
+                />
+                <Ink
+                  cfg={cfg}
+                  position={[
+                    cfg.eye.offset,
+                    layout.head.y + 0.05,
+                    layout.head.front,
+                  ]}
+                  size={[cfg.eye.w, cfg.eye.h, cfg.eye.d]}
+                />
+                <Ink
+                  cfg={cfg}
+                  position={[0, layout.head.y - 0.22, layout.head.front]}
+                  size={[0.55, 0.055, 0.06]}
+                />
+              </group>
             </group>
           </group>
         </group>
