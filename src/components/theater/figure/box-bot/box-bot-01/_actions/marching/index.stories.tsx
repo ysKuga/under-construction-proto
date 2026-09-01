@@ -79,7 +79,7 @@ export const Marching: Story = {
           actionConfig={{ marching: { bobHeight, cycleSec } }}
           eventTarget={eventTarget}
           shadowOpacity={0}
-          style={{ marginTop: 160, outline: '1px solid red' }}
+          style={{ marginLeft: 200, marginTop: 160, outline: '1px solid red' }}
         />
       </div>
     )
