@@ -56,9 +56,12 @@ export const SlowRotate: Story = {
 }
 
 /**
- * canvasWidth で Canvas 幅だけ画面いっぱいに広げる
+ * canvasWidth / canvasHeight で Canvas だけ広げる(bot の見かけは不変)
  *
- * - bot の見かけの大きさ・Canvas の高さは変えず、左右に見える範囲だけ拡張する
+ * - `canvasWidth="100vw"` で幅を画面いっぱいへ。左右に見える範囲だけ拡張する
+ * - `canvasHeight={640}` で高さを広げ、拡大(ズームイン)しても頭が Canvas 外へ
+ *   切れないようにする(トップページと同じ値)。fov を拡大率ぶん広げるため bot の
+ *   見かけの大きさは不変
  * - Canvas は設置領域(Assembly)の中心を基準に広がるため、設置領域を画面中央へ
  *   置くと bot も画面中央に来る(トップページと同じ flex 中央寄せで再現)
  * - `100vw` を渡すため、横スクロール防止に外側で `overflow-x: clip`
@@ -74,7 +77,7 @@ export const FullWidth: Story = {
         overflowX: 'clip',
       }}
     >
-      <StoryComponent canvasWidth="100vw" mode="3d" />
+      <StoryComponent canvasHeight={640} canvasWidth="100vw" mode="3d" />
     </div>
   ),
 }

@@ -34,6 +34,16 @@ export interface BoxBot3DProps
   /** Canvas の背景色 */
   background?: string
   /**
+   * 表示領域(Canvas ラッパー)の高さ。px 数値のみ
+   *
+   * - 省略時は設置領域と一致(正方形)。#108 の「表示領域 = 設置領域」原則の既定
+   * - 明示すると設置領域を縦へ逸脱して Canvas を広げる。縦画角(fov)は Canvas 高さに
+   *   依存しないため、拡大率ぶん fov を広げて bot の見かけの大きさ・位置は不変に保つ
+   * - CSS 文字列は実 px が不定で fov 補正できないため不可(`canvasWidth` と異なり数値限定)
+   * - 拡大表示でジャンプしても頭が Canvas 外へ切れないよう、縦の可動域を増やす用途
+   */
+  canvasHeight?: number
+  /**
    * 表示領域(Canvas ラッパー)の幅。CSS 長さ or px 数値
    *
    * - 省略時は設置領域と一致(正方形)。#108 の「表示領域 = 設置領域」原則の既定

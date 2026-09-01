@@ -6,6 +6,17 @@ export interface BoxBot3DProps extends BoxBotModelProps, PropsWithChildren {
   /** Canvas の背景色 */
   background?: string
   /**
+   * Canvas の高さ。px 数値のみ
+   *
+   * - 省略時は既定算出(`assemblySize / BODY_HEIGHT_RATIO`)。明示すると高さだけ広がる
+   * - fov は縦画角で Canvas 高さに依存しないため、そのままでは bot が大きく見える。\
+   *   拡大率ぶん fov を広げ、bot の見かけの大きさ・縦位置は不変に保つ
+   * - CSS 文字列(`%`/`vh` 等)は実 px が不定で fov 補正できないため不可(`canvasWidth` と異なり数値限定)
+   * - 用途: トップページで拡大(OrbitControls ズームイン)してジャンプしても\
+   *   頭が Canvas 外へ切れないよう、縦の可動域を増やす
+   */
+  canvasHeight?: number
+  /**
    * Canvas の幅。CSS 長さ or px 数値
    *
    * - 省略時は高さと同じ(正方形)。明示すると幅だけ広がる

@@ -106,6 +106,7 @@ export default function BoxBot3D({
   actionConfig,
   actions = BOX_BOT_ACTIONS,
   background = 'transparent',
+  canvasHeight,
   canvasWidth,
   children,
   className,
@@ -131,13 +132,20 @@ export default function BoxBot3D({
   const assemblySize =
     typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
   /**
+   * 表示領域(Canvas)の実ピクセル高さ
+   *
+   * - `canvasHeight` 省略時は設置領域と一致(`assemblySize`)。明示時はその値。\
+   *   fov 算出の基準も兼ねる(縦へ広げた分だけ画角を広げ、bot の見かけを不変に保つ)
+   */
+  const canvasHeightPx = canvasHeight ?? assemblySize
+  /**
    * カメラ視野角(度)
    *
-   * - 明示指定なければ assemblySize から自動算出し、Canvas サイズが変わっても\
+   * - 明示指定なければ canvasHeightPx から自動算出し、Canvas サイズが変わっても\
    *   bot の見かけの px サイズを一定に保つ(`VIEW_INVARIANT`)
    */
   const fov =
-    fovProp ?? (Math.atan(assemblySize / VIEW_INVARIANT) * 360) / Math.PI
+    fovProp ?? (Math.atan(canvasHeightPx / VIEW_INVARIANT) * 360) / Math.PI
   /**
    * lineWidth(screen-space px 固定)の縮小スケール
    *
@@ -166,11 +174,12 @@ export default function BoxBot3D({
     >
       {/* 表示領域(Canvas)ラッパー。設置領域(Assembly)は動かさず、jump が
           この div の top を書き換えて縦移動する(#108)。transform は中央寄せ専用に固定。
-          canvasWidth 指定時は設置領域を横へ逸脱して広がる(中央基準は維持) */}
+          canvasWidth / canvasHeight 指定時は設置領域を横 / 縦へ逸脱して広がる(中央基準は維持)。
+          canvasHeight は fov 側で見かけの大きさを補正済み */}
       <div
         ref={displayAreaRef}
         style={{
-          height: '100%',
+          height: canvasHeight ?? '100%',
           left: '50%',
           position: 'absolute',
           top: '50%',

@@ -107,6 +107,7 @@ const ORBIT_TARGET: Vec3 = [
 export default function BoxBot3D({
   autoRotate = true,
   background = 'transparent',
+  canvasHeight,
   canvasWidth,
   children,
   className,
@@ -133,6 +134,24 @@ export default function BoxBot3D({
   /** Canvas(fall/jump 等の可動域を含む実サイズ)の高さ(px)。Assembly サイズから逆算 */
   const heightPx = assemblySize / BODY_HEIGHT_RATIO
   /**
+   * Canvas の実描画高さ(px)
+   *
+   * - `canvasHeight` 省略時は `heightPx`(既定算出)。明示時はその値
+   */
+  const canvasHeightPx = canvasHeight ?? heightPx
+  /**
+   * fov 補正値(度)
+   *
+   * - fov は縦画角で Canvas 高さに依存しない。Canvas を縦へ広げた分だけ画角を広げ、\
+   *   bot の見かけの大きさ・縦位置を一定に保つ(表示範囲 = はみ出し許容量だけ増やす)
+   * - `canvasHeight` 省略時は `canvasHeightPx === heightPx` となり `fov` と一致(不変)
+   */
+  const effectiveFov =
+    (2 *
+      Math.atan(Math.tan((fov * Math.PI) / 360) * (canvasHeightPx / heightPx)) *
+      180) /
+    Math.PI
+  /**
    * lineWidth(screen-space px 固定)の縮小スケール
    *
    * - DEFAULT_HEIGHT より縮小した分だけ細くし、拡大時は太らせない
@@ -149,7 +168,7 @@ export default function BoxBot3D({
       style={{ ...style, height: assemblySize, width: assemblySize }}
     >
       <Canvas
-        camera={{ fov, position: CAMERA_POSITION }}
+        camera={{ fov: effectiveFov, position: CAMERA_POSITION }}
         dpr={CANVAS_DPR}
         // mousedown 中にポインタを動かすとブラウザがネイティブドラッグ操作(HTML5
         // Drag and Drop)を開始しようとし、canvas は draggable でないため
@@ -172,7 +191,9 @@ export default function BoxBot3D({
         style={
           {
             background,
-            height: heightPx,
+            // canvasHeight 未指定時は heightPx。指定時は縦へ広げる(中央基準は維持、
+            // effectiveFov で bot の見かけの大きさを補正済み)
+            height: canvasHeightPx,
             left: '50%',
             position: 'absolute',
             top: '50%',
