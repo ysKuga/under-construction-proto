@@ -22,28 +22,23 @@ walking (脚 swing) / marching (脚 bob) 中に体全体を上下させる body-
 - walking / marching の状態 (`activeRef`・脚の現在角/オフセット) は現状 action ローカルで、
   外の action からは不可視。body-bobbing が脚の状態を読む経路を host に足す必要がある。
 
-## 実装計画
+## 実装計画 (実装済み 2026-09-01)
 
 ### 1. `walkingBobRef` を共有 ref へ追加
 
-- [ ] `box-bot-model/index.types.ts` `BoxBotRefs` に `walkingBobRef: RefObject<Group | null>` (flat。
-      変換の役割であり部位でないため `rootRef` / `yawRef` / `fallPivotRef` と同じ扱い)。
+- [x] `box-bot-model/index.types.ts` `BoxBotRefs` に `walkingBobRef: RefObject<Group | null>` (flat)。
       `UseBoxBotModelReturn` の `Pick` にも追加
-- [ ] `box-bot-model/index.contexts.tsx` `BoxBotRefsProvider` に `useRef` + `useMemo`
-- [ ] `box-bot-model/index.hooks.ts` — destructure + 戻り値
-- [ ] `box-bot-model/index.tsx` — `<group ref={walkingBobRef}>` を bot 全体を包む位置へ挿入。
-      `<group position={[0, -layout.center.y, 0]}>` の子として全 `SketchBox` / `Ink` を内包する。
-      fall の前傾 (`fallPivotRef`) の内側、jump の squash (`rootRef`) の内側
+- [x] `box-bot-model/index.contexts.tsx` `BoxBotRefsProvider` に `useRef` + `useMemo`
+- [x] `box-bot-model/index.hooks.ts` — destructure + 戻り値
+- [x] `box-bot-model/index.tsx` — `<group ref={walkingBobRef}>` を `<group position={[0, -layout.center.y, 0]}>`
+      の子として全パーツを内包。fall の pivot の内側、jump の squash の内側
 
 ### 2. host verb 追加
 
-- [ ] `readLegSwing: () => { left: number; right: number }` — 脚グループの現在 `rotation.x`
-- [ ] `readLegBob: () => { left: number; right: number }` — 脚グループの現在 `position.y` の
-      base (`layout.leg.y`) からのオフセット
-- [ ] `applyBodyBob: (y: number) => void` — `walkingBobRef` の `position.y` へ (絶対値、0 で静止)
-- `_actions/types.ts` `BoxBotActionHost` へ 3 verb (JSDoc 付き)
-- `box-bot-model/index.hooks.ts` — module scope `readLegSwing` / `readLegBob` / `writeBodyBob`。
-  `readLegBob` は `layout.leg.y` を渡して減算した値を返す。`actionHost` へ配線
+- [x] `readLegSwing` / `readLegBob` (脚グループの現在 `rotation.x` / base からの `position.y` オフセット)
+- [x] `applyBodyBob` (`walkingBobRef` の `position.y` へ、絶対値)
+- [x] `_actions/types.ts` `BoxBotActionHost` へ 3 verb、`box-bot-model/index.hooks.ts` の
+      module scope `readLegSwing` / `readLegBob` / `writeBodyBob` + `actionHost` 配線
 
 ### 3. body-bobbing action (`_actions/body-bobbing/`)
 
@@ -74,17 +69,18 @@ walking (脚 swing) / marching (脚 bob) 中に体全体を上下させる body-
 
 ### 4. 登録
 
-- [ ] `_actions/index.ts` `BOX_BOT_ACTIONS` に `marchingAction` の後・`fallAction` の前へ
-      `bodyBobbingAction` (脚の値を読むので walking / marching の後で実行)
-- [ ] `DEFAULT_CLICK_BINDINGS` へは登録しない
+- [x] `_actions/index.ts` `BOX_BOT_ACTIONS` に `marchingAction` の後・`fallAction` の前へ
+      `bodyBobbingAction`
+- [x] `DEFAULT_CLICK_BINDINGS` へは登録しない
 - 無効化は `actions` prop から外す (registry 思想。config に `enabled` は持たせない)
 
-## 検証
+## 検証 (2026-09-01)
 
-- `check-types` / `lint` (oxlint + eslint) / `test`
-- Storybook 目視: Walk 中・March 中に体が上下、停止で 0 復帰、Fall との併用で破綻なし、
-  既存 walking / marching / jump / fall のリグレッションなし
-- 必要なら `scratch/verify.mjs` (固定名) で Playwright 確認、完了後削除
+- [x] `check-types` / `lint` (oxlint + eslint) / `test`
+- [x] Storybook 目視 (Playwright、大振幅 height=0.15 で確認):
+      Walk 中に体が上下 (walk-4 で最も高く walk-8 で低い)、March 中も同様、停止で 0 復帰、
+      Walk → Fall 併用で倒れ込み破綻なし。既存 walking / marching / fall のリグレッションなし
+- `walkingBobRef` を JSX へ 1 段挟んだが座標系 (fall pivot・jump squash) への影響なし
 
 ## 決定事項
 

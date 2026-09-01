@@ -336,7 +336,10 @@ fall (転倒 → 横倒しで静止 → 起き上がり) を 3 個目の consume
 - **基盤 refactor** (同 PR): `BoxBotRefs` を役割軸ネスト (`refs.arm.*` / `refs.leg.*`、`postureRef` 追加)、
   脚グループへ ref bind、`host.readPosture()` / `reportPosture()` (fall が `phaseRef` 遷移でミラー)、
   host verb `applyLegSwing` / `applyLegBob`
-- **body-bobbing**: walking/marching 中の体上下。`walkingBobRef` + leg refs を追加。walking/marching が前提。後続 PR
+- **body-bobbing**: ~~walking/marching 中の体上下~~ — **実装済み** (2026-09-01、PR #126、ブランチ
+  108-box-bot-body-bobbing)。`walkingBobRef` 追加 + host verb (`readLegSwing` / `readLegBob` /
+  `applyBodyBob`)。dispatch せず walking/marching に常時連動、無効化は `actions` から外す。
+  詳細は `_pr/pr-126-box-bot-body-bobbing/design.md`
 - **hopping**: 待機演出 (連続ジャンプ)。`hoppingRef` 等 + jump 見た目再利用。jump / spin / hover 状態と協調。後続 PR
 
 get-up は box-bot-01 では fall 内の逆補間で実装済み → 個別復帰不要。
