@@ -108,6 +108,14 @@ export type BoxBotActionHost = {
    */
   applyArmAngle: (rad: number) => void
   /**
+   * 左右の腕の持ち上げ角を個別に設定する(絶対値)
+   *
+   * - `left` / `right` は肩を支点にした z 軸回転(rad)。adapter が左右の腕グループの\
+   *   `rotation.z` へ反映する。静的な肩の開き(`cfg.arm.*Angle`)に足し込まれる
+   * - `applyArmAngle`(x 軸)とは軸が別で、同時に適用されても互いを打ち消さない
+   */
+  applyArmLift: (lift: { left: number; right: number }) => void
+  /**
    * 接地影を world +y へ持ち上げる(絶対値)
    *
    * - `y` は world 単位。adapter が影グループの `position.y` へ反映する

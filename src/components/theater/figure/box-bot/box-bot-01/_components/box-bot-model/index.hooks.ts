@@ -84,6 +84,17 @@ const writeArmAngle = (
   if (rightArmRef.current) rightArmRef.current.rotation.x = rad
 }
 
+/** 左右の腕グループの持ち上げ角(`rotation.z`)を個別に設定する(arm-toggle) */
+const writeArmLift = (
+  leftArmRef: RefObject<Group | null>,
+  rightArmRef: RefObject<Group | null>,
+  left: number,
+  right: number,
+): void => {
+  if (leftArmRef.current) leftArmRef.current.rotation.z = left
+  if (rightArmRef.current) rightArmRef.current.rotation.z = right
+}
+
 /**
  * 現在の実効 facing(bot の向き)を rad で返す(fall の画面ずらし方向の基準)
  *
@@ -164,6 +175,8 @@ export function useBoxBotModel(
   const actionHost: BoxBotActionBaseHost = {
     actionConfig,
     applyArmAngle: (rad) => writeArmAngle(leftArmRef, rightArmRef, rad),
+    applyArmLift: (lift) =>
+      writeArmLift(leftArmRef, rightArmRef, lift.left, lift.right),
     applyShadowLift: (y) => writeShadowLift(shadowLiftRef, y),
     applyShift: (offset) => writeShift(displayAreaRef, offset),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
