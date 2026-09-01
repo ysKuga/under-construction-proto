@@ -13,13 +13,13 @@ export const FALL_ANGLE = Math.PI / 2
 /**
  * 転倒中に腕を頭側へ引き寄せる角度の既定値 (rad、x 軸回転、`FallConfig.armAngle` の下地)
  *
- * - -180° = 肩を支点に腕を体へ畳む。倒れた体に沿って腕が寝るため、横倒しでの
- *   はみ出しが最小になる (samples の転倒姿勢に近い)
+ * - -135° = 肩を支点に腕を前方へ振り上げる。samples の転倒姿勢と同値。-180° まで畳むと
+ *   腕が背中側へ回り込んで倒れた体・地面へめり込むため、samples に合わせて -135° に留める
  * - 静的な肩の開き (`cfg.arm.leftAngle` / `rightAngle`) と合成される。肩の開きを
  *   変えたら Fall story の armAngle スライダーで再調整する
  * - 将来この動き自体を独立 action (軌道) にする際に見直す想定
  */
-export const FALL_ARM_ANGLE = -Math.PI
+export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
 
 /**
  * 転倒の見た目を合わせるための表示領域ずらし量 (px)

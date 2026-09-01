@@ -69,7 +69,7 @@ export const Fall: Story = {
     )
     const [shiftDistance, setShiftDistance] = React.useState(55)
     const [dropDistance, setDropDistance] = React.useState(25)
-    const [armAngleDeg, setArmAngleDeg] = React.useState(-180)
+    const [armAngleDeg, setArmAngleDeg] = React.useState(-135)
 
     const fallAll = () => {
       for (const target of targets) {
