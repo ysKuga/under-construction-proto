@@ -469,7 +469,7 @@ export const Fall: Story = {
         <StoryComponent
           eventTarget={eventTarget}
           mode="3d"
-          style={{ height: 300, marginLeft: 100, marginTop: 50 }}
+          style={{ height: 300, marginLeft: 300, marginTop: 50 }}
         />
       </div>
     )
