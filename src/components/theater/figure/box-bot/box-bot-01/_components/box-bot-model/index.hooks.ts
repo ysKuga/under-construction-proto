@@ -105,6 +105,15 @@ const readFacing = (
   rotationY: number,
 ): number => rotationY + (yawRef.current?.rotation.y ?? 0)
 
+/** 姿勢フェーズ(`postureRef`)を返す。0 = 直立、非 0 = 転倒/横倒し/起き上がり中 */
+const readPosture = (postureRef: RefObject<number>): number =>
+  postureRef.current
+
+/** 姿勢フェーズ(`postureRef`)を `phase` に設定する(fall が `phaseRef` の遷移で呼ぶ) */
+const writePosture = (postureRef: RefObject<number>, phase: number): void => {
+  postureRef.current = phase
+}
+
 /** BoxBotModel のロジック(設定マージ・ジオメトリ寸法・アクション実行) */
 export function useBoxBotModel(
   props: Omit<BoxBotModelProps, 'actions' | 'clickBindings' | 'eventTarget'>,
@@ -129,7 +138,8 @@ export function useBoxBotModel(
 
   const { actions } = useBoxBotActions()
 
-  const { arm, fallPivotRef, leg, rootRef, yawRef } = useBoxBotRefs()
+  const { arm, fallPivotRef, leg, postureRef, rootRef, yawRef } =
+    useBoxBotRefs()
 
   const eventTarget = useBoxBotEventTarget()
   const dispatch = useEventDispatcher(eventTarget)
@@ -184,6 +194,8 @@ export function useBoxBotModel(
     eventTarget,
     interactive,
     readFacing: () => readFacing(yawRef, rotationY),
+    readPosture: () => readPosture(postureRef),
+    reportPosture: (phase) => writePosture(postureRef, phase),
   }
 
   // Context 経由で注入されたアクションを実行。配列順 = useFrame 実行順。
