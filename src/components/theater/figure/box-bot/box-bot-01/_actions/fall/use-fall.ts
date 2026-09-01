@@ -10,7 +10,6 @@ import type { BoxBotActionContext } from '../types'
 import {
   ACTION_FALL,
   FALL_ANGLE,
-  FALL_ARM_ANGLE,
   FALL_DUR,
   type FallConfig,
   type FallOverride,
@@ -141,7 +140,7 @@ export const useFall = (host: FallHost): void => {
     // 直立(未転倒 / 復帰後)は何もしない。表示領域ずらしは jump が所有する
     if (phaseRef.current === 0) return
 
-    const { dropDistance, shadowLift, shiftDistance } =
+    const { armAngle, dropDistance, shadowLift, shiftDistance } =
       shiftConfigRef.current ?? config
     const dir = shiftDirRef.current
 
@@ -149,15 +148,15 @@ export const useFall = (host: FallHost): void => {
     let arm: number
     if (phaseRef.current === 2) {
       posture = 1
-      arm = FALL_ARM_ANGLE
+      arm = armAngle
     } else if (phaseRef.current === 1) {
       posture = ease(tRef.current / FALL_DUR)
-      arm = FALL_ARM_ANGLE
+      arm = armAngle
     } else {
       // phase 3: 起き上がり(前傾・腕とも p^2 で 0 へ)
       const p = tRef.current / GET_UP_DUR
       posture = 1 - p * p
-      arm = FALL_ARM_ANGLE * (1 - p * p)
+      arm = armAngle * (1 - p * p)
     }
 
     applyTiltAngle(FALL_ANGLE * posture)

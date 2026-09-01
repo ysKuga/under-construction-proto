@@ -11,13 +11,15 @@ export const GET_UP_DUR = 0.6
 export const FALL_ANGLE = Math.PI / 2
 
 /**
- * 転倒中に腕を頭の近くへ引き寄せる角度 (rad、x 軸回転)
+ * 転倒中に腕を頭側へ引き寄せる角度の既定値 (rad、x 軸回転、`FallConfig.armAngle` の下地)
  *
- * - fall 発火時に即座に切替える (経過時間による補間はしない)。頭をかばう動きを意図
- * - get-up は体の起き上がりと同じ進行度でこの角度から 0 (垂直) へ戻す
+ * - -180° = 肩を支点に腕を体へ畳む。倒れた体に沿って腕が寝るため、横倒しでの
+ *   はみ出しが最小になる (samples の転倒姿勢に近い)
+ * - 静的な肩の開き (`cfg.arm.leftAngle` / `rightAngle`) と合成される。肩の開きを
+ *   変えたら Fall story の armAngle スライダーで再調整する
  * - 将来この動き自体を独立 action (軌道) にする際に見直す想定
  */
-export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
+export const FALL_ARM_ANGLE = -Math.PI
 
 /**
  * 転倒の見た目を合わせるための表示領域ずらし量 (px)
@@ -28,6 +30,15 @@ export const FALL_ARM_ANGLE = (-3 * Math.PI) / 4
  * - 転倒進行度に同期してこの距離まで補間し、get-up で 0 へ戻す
  */
 export type FallConfig = {
+  /**
+   * 転倒中に腕を頭側へ引き寄せる角度 (rad、x 軸回転、実測要)
+   *
+   * - fall 発火時に即座にこの角度へ切替える (経過時間による補間はしない)。頭をかばう動き
+   * - get-up は体の起き上がりと同じ進行度でこの角度から 0 (垂直) へ戻す
+   * - 静的な肩の開き (`cfg.arm.leftAngle` / `rightAngle` の z 傾き) と合成されるため、
+   *   肩の開きを変えたらここも見直す
+   */
+  armAngle: number
   /**
    * facing 非依存で画面下へ下げる量 (px、実測要)
    *
@@ -64,6 +75,7 @@ export type FallOverride = Partial<FallConfig>
 
 /** `host.config`(fall)の既定値。`actionConfig.fall` で部分上書きできる */
 export const FALL_DEFAULTS: FallConfig = {
+  armAngle: FALL_ARM_ANGLE,
   dropDistance: 25,
   shadowLift: 0.5,
   shiftDistance: 55,
