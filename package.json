@@ -50,6 +50,7 @@
     "react-dom": "19.2.8",
     "react-error-boundary": "^4.1.2",
     "react-hook-form": "^7.85.0",
+    "rxjs": "^7.8.2",
     "tailwind-merge": "^2.6.1",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.185.1",
