@@ -1,9 +1,12 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { layoutDecorator } from '../layout.decorator'
+
 import Home from '.'
 
 const meta: Meta<typeof Home> = {
   component: Home,
+  decorators: [layoutDecorator],
 }
 
 export default meta
