@@ -19,3 +19,5 @@ package.json に導入したライブラリについての記述を格納する�
     コードフォーマット関連を格納
   - `pwa` \
     PWA(Service Worker・manifest)関連を格納
+  - `reactive` \
+    リアクティブ・非同期ストリーム関連を格納
