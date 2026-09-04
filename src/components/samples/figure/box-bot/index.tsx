@@ -2,7 +2,11 @@ import BoxBot2D from './_components/box-bot-2d'
 import BoxBot3D from './_components/box-bot-3d'
 import type { BoxBotProps } from './index.types'
 
-export { ACTION_SPIN, BODY_HEIGHT_RATIO } from './_components/box-bot-3d'
+export {
+  ACTION_SPIN,
+  BODY_HEIGHT_RATIO,
+  useBoxBotActionDispatcher,
+} from './_components/box-bot-3d'
 
 /**
  * BoxBot — 手描き風ボックスロボット
