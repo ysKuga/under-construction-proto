@@ -24,14 +24,15 @@ issue: #131
   - [x] proto-01 に story を持たせる
   - [x] `home/index.tsx` は採用中 prototype（proto-01）を描画するだけにする
   - [x] 命名は `proto-01`（`_prototypes/` 配下、連番）
-- [ ] Storybook で layout 反映
-  - [ ] `src/components/layouts/_base/` にベース layout を切り出す。`<html lang>`/`<body>`/`SerwistProvider` をここに閉じる。story は用意しない
-  - [ ] `src/components/pages/layout.tsx` を設置する。`AppProvider` + `<main>` を組む（`_base` は含めない）。`metadata` もここで持つ
-  - [ ] `src/app/layout.tsx` は `_base` で `pages/layout` をラップして構成する。`metadata` は `pages/layout` から re-export
-  - [ ] `src/components/layouts/` 配下を `pages/layout.tsx` の部品にする（`pages/layout.tsx` が骨格、`layouts/` が組み込むパーツ。依存方向は `pages/layout` → `layouts` の一方向）
-  - [ ] `src/components/pages/layout.decorator.tsx` を設置し、story から使う（`preview.tsx` へ直書きしない）。`pages/layout`（= `_base` なし）をそのまま使えるか、別途組むか判断
-  - [ ] `pages/layout` と `components/layouts` の各パーツにそれぞれ stories を用意する（`_base` は対象外）
-  - [ ] decorator を pages の story のみに適用するか、全 story に効かせるか判断
+- [x] Storybook で layout 反映（PR #134）
+  - [x] `src/components/layouts/_base/` にベース layout を切り出す。`<html lang>`/`<body>`/`SerwistProvider` をここに閉じる。story は用意しない
+  - [x] `src/components/pages/layout.tsx` を設置する。`AppProvider` + `<main>` を組む（`_base` は含めない）。`metadata` もここで持つ
+  - [x] `src/app/layout.tsx` は `_base` で `pages/layout` をラップして構成する。`metadata` は `pages/layout` から re-export
+  - [x] `src/components/pages/layout.decorator.tsx` を設置し、story から使う（`preview.tsx` へ直書きしない）。`pages/layout`（= `_base` なし）をそのまま decorator で使う
+  - [x] `pages/layout` と `components/layouts` の各パーツにそれぞれ stories を用意する（`_base` は対象外）
+  - [x] decorator は pages 相当の story（`home` / `not-found`）の meta のみに適用（全 story には効かせない）
+  - [x] README 反映（`components/pages/README.md` / `components/layouts/README.md` 新設 / `src/app/CLAUDE.md`）
+  - [ ] `_prototypes/proto-01` の story にも `layoutDecorator` を追加（#134 は origin/main 分岐のため proto-01 story 未対象。#134 マージ後に追随）
 - [ ] rxjs 適用
   - [ ] `jumpCount` 等の操作 state を Observable へ寄せ、しきい値超え判定の boolean のみ state 化（再レンダリング分離）
   - [ ] 「ジャンプした回数」を数えるか「クリック回数」を数えるかを確定（`ACTION_JUMP` 購読 vs `onClick`）
@@ -43,12 +44,13 @@ issue: #131
 - 2026-09-04: `docs/performance/` を新設。useState 使用可否の判断基準を枠組み化し、個別事例を分離
 - 2026-09-04: トップページ実装を `home/_prototypes/proto-01/` へ切り出し完了。`home/index.tsx` は採用 prototype の描画のみ。`_prototypes/` は `pages/_prototypes/` でなく `pages/home/_prototypes/`（home スコープに閉じる）
 - 2026-09-04: 着手順は rxjs 導入を先行実施済。残り 3 項目（`_prototypes` 化 / Storybook decorator / rxjs 適用）の順序は未確定
-- 2026-09-04: Storybook の layout 反映は `preview.tsx` へ直書きしない。`<html>`/`<body>`/`SerwistProvider` は `components/layouts/_base/` のベース layout へ分割し、`app/layout.tsx` で直接使う（`_base` で `pages/layout` をラップ）。`components/pages/layout.tsx` は `AppProvider` + `<main>` + `metadata`。`components/layouts/` 配下は `pages/layout` の部品（一方向依存）。story 用 `components/pages/layout.decorator.tsx` を設ける。stories は `pages/layout` と `components/layouts` パーツに用意（`_base` は story なし、`_layouts/` ディレクトリ案は取り下げ）
+- 2026-09-04: Storybook の layout 反映は `preview.tsx` へ直書きしない。`<html>`/`<body>`/`SerwistProvider` は `components/layouts/_base/` のベース layout へ分割し、`app/layout.tsx` で直接使う（`_base` で `pages/layout` をラップ）。`components/pages/layout.tsx` は `AppProvider` + `<main>` + `metadata`。story 用 `components/pages/layout.decorator.tsx` を設ける。stories は `pages/layout` と `components/layouts` パーツに用意（`_base` は story なし、`_layouts/` ディレクトリ案は取り下げ）
+- 2026-09-04: 実施完了（PR #134、origin/main 分岐、issue 紐づけなし）。`metadata` re-export は `next build` で title / manifest 反映を確認。decorator は全 story でなく `home` / `not-found` の meta のみに適用（既存 story へ `AppProvider` を乗せる副作用を回避）。README（`components/pages` / `components/layouts` 新設 / `src/app/CLAUDE.md`）へ反映
 
 ## 懸念・リスク
 
 - `_prototypes` 化は現状ページ 1 枚に階層を 1 段増やす。prototype が増えるまでは過剰になり得る
-- `preview.tsx` を全 story の decorator にすると、既存 story すべてに `AppProvider`（QueryClient 等）が乗る。副作用・パフォーマンスへの影響を確認する
-- `app/layout.tsx` は `metadata` を `pages/layout` から re-export する必要がある（Next は app 側ファイルの `metadata` を読む）。`export { metadata } from ...` で足りるか確認
-- `_base` に `SerwistProvider` を入れるため、`_base` を使うのは `app/layout.tsx` のみ。story・decorator 経路には `_base` が入らないので `SerwistProvider` の stub は不要
+- ~~`preview.tsx` を全 story の decorator にすると、既存 story すべてに `AppProvider` が乗る~~ → 解決: decorator は `home` / `not-found` の meta のみに適用
+- ~~`app/layout.tsx` の `metadata` re-export が Next で通るか~~ → 解決: `export { metadata } from ...` で `next build` OK（Next 16.3.1）
+- ~~`_base` の `SerwistProvider` stub 要否~~ → 解決: `_base` は `app/layout.tsx` のみ使用、story・decorator 経路に入らないため stub 不要
 - rxjs と React state の境界（どこまで Observable、どこから state）を都度判断する必要がある。`docs/performance/README.md` の基準に沿わせる
