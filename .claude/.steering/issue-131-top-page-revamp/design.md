@@ -32,11 +32,14 @@ issue: #131
   - [x] `pages/layout` と `components/layouts` の各パーツにそれぞれ stories を用意する（`_base` は対象外）
   - [x] decorator は pages 相当の story（`home` / `not-found`）の meta のみに適用（全 story には効かせない）
   - [x] README 反映（`components/pages/README.md` / `components/layouts/README.md` 新設 / `src/app/CLAUDE.md`）
-  - [ ] `_prototypes/proto-01` の story にも `layoutDecorator` を追加（#134 は origin/main 分岐のため proto-01 story 未対象。#134 マージ後に追随）
+  - ~~`_prototypes/proto-01` の story にも `layoutDecorator` を追加（#134 は origin/main 分岐のため proto-01 story 未対象。#134 マージ後に追随）~~
+    - proto-01 にはとりあえず不要 (ほかの proto には適用していく)
 - [ ] rxjs 適用
   - [ ] `jumpCount` 等の操作 state を Observable へ寄せ、しきい値超え判定の boolean のみ state 化（再レンダリング分離）
   - [ ] 「ジャンプした回数」を数えるか「クリック回数」を数えるかを確定（`ACTION_JUMP` 購読 vs `onClick`）
   - [ ] 長押し（押下 → 保持 → 解放）の検出 util を rxjs で作る（box-bot spin の press/release と接続できるか検討）
+  - [ ] 挙動（制御ロジック）とは別に、操作する UI 要素の検討を行う
+    - `_prototypes/` 配下、制御に関する実装（ロジック）と UI に関する実装をそれぞれディレクトリを切って作成する（アンダーバー付与不要）
 
 ## 決定事項
 
