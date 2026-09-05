@@ -40,6 +40,14 @@ issue: #131
   - [ ] 長押し（押下 → 保持 → 解放）の検出 util を rxjs で作る（box-bot spin の press/release と接続できるか検討）
   - [ ] 挙動（制御ロジック）とは別に、操作する UI 要素の検討を行う
     - `_prototypes/` 配下、制御に関する実装（ロジック）と UI に関する実装をそれぞれディレクトリを切って作成する（アンダーバー付与不要）
+    - UI 側ディレクトリ名は実装の特徴（配置形状等）を簡潔に反映する（例: 横一列配置 → `action-row/`）
+    - proto-02（`home/_prototypes/proto-02/`）で配置バリエーションを試作（詳細・状態は `ui/CLAUDE.md` および各 `ui/action-*/CLAUDE.md` 参照）
+      - `action-row`（横一列・常時表示）: 実装済
+      - `action-single`（先頭 1 件のみ）: 実装済
+      - `action-circle`（真円・画面座標）: 実装済
+      - `action-square`（四角形・画面座標）: 実装済
+      - `action-ring`（bot 足元、地面水平な円周・3D 配置）: 実装済だが未完成。`@react-three/drei` の `Html` で box-bot 本体の改修なしに 3D 投影を実現できた。ただし奥行きによる遮蔽（`occlude`）が効かず、リング背面のボタンが手前に浮いて見える課題が残る（box-bot がワイヤーフレーム/アウトライン描画でソリッドメッシュの深度判定に不向きな可能性）
+      - `direction-arrow`（歩く方向に矢印追随）: 未着手・保留。proto が使う box-bot（`components/samples/figure/box-bot`）には向き変更（spin 相当）action が無く「回転」自体が発生しない（`theater/figure/box-bot` 版にはある、別実装）。「歩く」も現状その場足踏みで位置移動を伴わない。「回転」の仕様（`autoRotate` の角度を指すか、将来のユーザー操作を指すか）が未確定
 
 ## 決定事項
 
