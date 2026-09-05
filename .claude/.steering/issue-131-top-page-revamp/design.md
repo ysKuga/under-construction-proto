@@ -46,6 +46,7 @@ issue: #131
       - `action-single`（先頭 1 件のみ）: 実装済
       - `action-circle`（真円・画面座標）: 実装済
       - `action-square`（四角形・画面座標）: 実装済
+      - `action-anchor`（各ボタンを対応する bot 部位のそばに配置・画面座標）: 実装済
       - `action-ring`（bot 足元、地面水平な円周・3D 配置）: 実装済だが未完成。`@react-three/drei` の `Html` で box-bot 本体の改修なしに 3D 投影を実現できた。ただし奥行きによる遮蔽（`occlude`）が効かず、リング背面のボタンが手前に浮いて見える課題が残る（box-bot がワイヤーフレーム/アウトライン描画でソリッドメッシュの深度判定に不向きな可能性）
       - `direction-arrow`（歩く方向に矢印追随）: 未着手・保留。proto が使う box-bot（`components/samples/figure/box-bot`）には向き変更（spin 相当）action が無く「回転」自体が発生しない（`theater/figure/box-bot` 版にはある、別実装）。「歩く」も現状その場足踏みで位置移動を伴わない。「回転」の仕様（`autoRotate` の角度を指すか、将来のユーザー操作を指すか）が未確定
 

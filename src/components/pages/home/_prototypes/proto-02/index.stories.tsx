@@ -26,3 +26,7 @@ export const Square: Story = {
 export const Ring: Story = {
   args: { actionLayout: 'ring' },
 }
+
+export const Anchor: Story = {
+  args: { actionLayout: 'anchor' },
+}

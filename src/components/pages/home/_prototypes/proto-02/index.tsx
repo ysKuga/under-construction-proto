@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/cn'
 
+import { ActionAnchor } from '../ui/action-anchor'
 import { ActionCircle } from '../ui/action-circle'
 import { ActionRing } from '../ui/action-ring'
 import { ActionRow } from '../ui/action-row'
@@ -23,7 +24,7 @@ const CANVAS_HEIGHT = 640
 
 export type Proto02Props = {
   /** 操作要素の配置パターン(既定: `row`) */
-  actionLayout?: 'circle' | 'ring' | 'row' | 'single' | 'square'
+  actionLayout?: 'anchor' | 'circle' | 'ring' | 'row' | 'single' | 'square'
 }
 
 /**
@@ -45,7 +46,10 @@ const Proto02 = ({ actionLayout = 'row' }: Proto02Props) => {
   /** ジャンプ回数がしきい値に達し、歩くボタンを出せるか */
   const walkUnlocked = jumpCount >= JUMPS_TO_UNLOCK_WALK
   /** bot を囲むオーバーレイ配置(circle/square)か。表示領域を circle/square と同サイズに揃える必要がある */
-  const isOverlayLayout = actionLayout === 'circle' || actionLayout === 'square'
+  const isOverlayLayout =
+    actionLayout === 'circle' ||
+    actionLayout === 'square' ||
+    actionLayout === 'anchor'
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -82,6 +86,7 @@ const Proto02 = ({ actionLayout = 'row' }: Proto02Props) => {
         </div>
         {actionLayout === 'circle' && <ActionCircle />}
         {actionLayout === 'square' && <ActionSquare />}
+        {actionLayout === 'anchor' && <ActionAnchor />}
       </div>
       {/* ボタン領域を常時確保する。条件マウントすると flex 再センタリングで
           BoxBot ラッパーが動き、内部の絶対配置 Canvas ごと bot が跳ねる(カクつき)。
