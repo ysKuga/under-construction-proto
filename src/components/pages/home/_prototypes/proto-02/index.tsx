@@ -9,11 +9,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/cn'
 
-import { ActionCircle } from './ui/action-circle'
-import { ActionRing } from './ui/action-ring'
-import { ActionRow } from './ui/action-row'
-import { ActionSingle } from './ui/action-single'
-import { ActionSquare } from './ui/action-square'
+import { ActionCircle } from '../ui/action-circle'
+import { ActionRing } from '../ui/action-ring'
+import { ActionRow } from '../ui/action-row'
+import { ActionSingle } from '../ui/action-single'
+import { ActionSquare } from '../ui/action-square'
 
 /** 歩くボタンを解放するまでに必要なジャンプ回数 */
 const JUMPS_TO_UNLOCK_WALK = 3
@@ -29,8 +29,8 @@ export type Proto02Props = {
 /**
  * Proto02 — トップページ試作(操作 UI 要素検討)
  *
- * - proto-01 の box-bot 操作を土台に、操作 UI 要素の配置バリエーション(`ui/action-*`)を検討する
- * - 追加した操作要素は挙動未接続の見た目のみ(`ui/CLAUDE.md` 参照)
+ * - proto-01 の box-bot 操作を土台に、操作 UI 要素の配置バリエーション(`_prototypes/ui/action-*`)を検討する
+ * - 追加した操作要素は挙動未接続の見た目のみ(`_prototypes/ui/CLAUDE.md` 参照)
  */
 const Proto02 = ({ actionLayout = 'row' }: Proto02Props) => {
   /** box-bot と共有し、walking action を発火する EventTarget */

@@ -41,7 +41,7 @@ issue: #131
   - [ ] 挙動（制御ロジック）とは別に、操作する UI 要素の検討を行う
     - `_prototypes/` 配下、制御に関する実装（ロジック）と UI に関する実装をそれぞれディレクトリを切って作成する（アンダーバー付与不要）
     - UI 側ディレクトリ名は実装の特徴（配置形状等）を簡潔に反映する（例: 横一列配置 → `action-row/`）
-    - proto-02（`home/_prototypes/proto-02/`）で配置バリエーションを試作（詳細・状態は `ui/CLAUDE.md` および各 `ui/action-*/CLAUDE.md` 参照）
+    - 配置バリエーションの実装は `home/_prototypes/ui/` に切り出し（呼び出し元は `home/_prototypes/proto-02/`）。詳細・状態は `ui/CLAUDE.md` および各 `ui/action-*/CLAUDE.md` 参照
       - `action-row`（横一列・常時表示）: 実装済
       - `action-single`（先頭 1 件のみ）: 実装済
       - `action-circle`（真円・画面座標）: 実装済

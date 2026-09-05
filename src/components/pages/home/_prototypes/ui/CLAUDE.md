@@ -1,6 +1,6 @@
-# ui/ (proto-02)
+# ui/
 
-操作 UI 要素、見た目・配置のみ検討する置き場。挙動(制御ロジック)は `control/` 側の役割、ここでは接続しない。
+操作 UI 要素、見た目・配置のみ検討する置き場。`_prototypes/` 配下、制御に関する実装(`control/` 側、未着手)と切り分ける。ここでは挙動(制御ロジック)を接続しない。
 
 ## 方針
 
@@ -20,4 +20,4 @@
 - `action-ring`: bot 足元、地面水平な円周に 3D 配置(実装済・要調整。奥行きの遮蔽が未解決)
 - `direction-arrow`: 歩く方向に矢印追随(未着手・保留。向き変更 action が box-bot 側に無い)
 
-`../index.tsx` の `actionLayout` prop(Storybook: `Default`/`Single`/`Circle`/`Square`/`Ring`)で切替表示する。
+現在の呼び出し元は `proto-02/index.tsx`。`actionLayout` prop(Storybook: `Default`/`Single`/`Circle`/`Square`/`Ring`)で切替表示する。

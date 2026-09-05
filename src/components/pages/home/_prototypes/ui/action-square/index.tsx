@@ -18,7 +18,7 @@ const EDGE_POSITIONS = [
  * ActionSquare — bot を囲う四角形の四辺にボタンを配置する配置パターン
  *
  * - 画面座標(screen space)上の四角形。親要素(`position: relative` かつ正方形)は呼び出し側\
- *   (`../../index.tsx`)が bot 表示領域と同サイズ・同位置で用意する(`../CLAUDE.md` 参照)
+ *   (例: `proto-02/index.tsx`)が bot 表示領域と同サイズ・同位置で用意する(`../CLAUDE.md` 参照)
  */
 export const ActionSquare = () => {
   return (
