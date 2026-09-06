@@ -16,6 +16,8 @@ import { ActionRow } from '../ui/action-row'
 import { ActionSingle } from '../ui/action-single'
 import { ActionSquare } from '../ui/action-square'
 
+import { GroundRing } from './_components/ground-ring'
+
 /** 歩くボタンを解放するまでに必要なジャンプ回数 */
 const JUMPS_TO_UNLOCK_WALK = 3
 
@@ -81,6 +83,7 @@ const Proto02 = ({ actionLayout = 'row' }: Proto02Props) => {
             mode="3d"
             onClick={() => setJumpCount((c) => c + 1)}
           >
+            <GroundRing />
             {actionLayout === 'ring' && <ActionRing />}
           </BoxBot>
         </div>
