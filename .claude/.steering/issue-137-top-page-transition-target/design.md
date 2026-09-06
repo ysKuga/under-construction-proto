@@ -68,9 +68,9 @@ issue: #137
 
 段階 1: ステージ（遠近適用）
 
-- [ ] stage-04 を土台に遠近表現を追加した試作
-- [ ] 遠近表現の方式確定（CSS 2D perspective / scale 補間 / stage 3D 化）
-- [ ] 奥行きに伴う z-index / 描画順の扱い
+- [x] stage-04 を土台に遠近表現を追加した試作 → `src/prototypes/stage/stage-05`（`_lib/perspective.ts` の `projectCell` へ投影を集約）
+- [x] 遠近表現の方式確定 → CSS 2D scale 補間（最奥行 `depthScale` 倍・最前行 等倍で線形補間、各行のセル高を奥から積み上げ）
+- [x] 奥行きに伴う z-index / 描画順の扱い → z-index 不使用。奥の行から描画する DOM 順で解決。複数 actor / 障害物の前後（row 昇順ソート）は段階 4
 
 段階 2: bot 配置
 
@@ -96,10 +96,11 @@ issue: #137
 - 2026-09-06: route 名 `/find-path` 確定。`proto-02` 枠でなく新 route（トップからの遷移先が要件のため）
 - 2026-09-06: ゲーム内容は経路プランニング制に確定（tick 実行前にプレイヤーが `planned-path` を組む方式）
 - 2026-09-06: 着手順を段階 1 ステージ → 段階 2 bot 配置 → 段階 3 time-control → 段階 4 ゲーム内容深堀 に確定
+- 2026-09-06: 遠近方式は CSS 2D scale 補間に確定（perspective/rotateX・three.js 3D 化は不採用）。試作は `stage-05` 新設、stage-04 から import
 
 ## 懸念・リスク
 
 - stage-04（画面座標 absolute）と box-bot（three.js Canvas）のレイヤ統合方式が未確定。`ui-three` の occlude 課題と同種の問題が出る可能性
 - time-control-03 の store 数が多い。ページ 1 枚に持ち込む際の Context ネスト規模
-- 遠近表現を CSS 2D で押し切るか 3D 化するかで実装コストが大きく変わる
+- 遠近を CSS 2D scale 補間で確定（stage-05）。床面の傾き表現・遠近に伴うクリック判定の歪み補正は未対応、段階 2 以降で box-bot（three.js Canvas）を重ねる際に再検討
 - 「ジャンプ → 歩く」（proto-01）は実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は未整理
