@@ -74,7 +74,7 @@ issue: #137
 
 段階 2: bot 配置
 
-- [ ] box-bot をステージ上に載せる
+- [ ] `src/components/samples/figure/box-bot` をステージ上に載せる（stage-05 の `Robot01` を box-bot へ差し替え。今後 actor は基本 box-bot）
 - [ ] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）
 
 段階 3: time-control 適用
@@ -97,6 +97,7 @@ issue: #137
 - 2026-09-06: ゲーム内容は経路プランニング制に確定（tick 実行前にプレイヤーが `planned-path` を組む方式）
 - 2026-09-06: 着手順を段階 1 ステージ → 段階 2 bot 配置 → 段階 3 time-control → 段階 4 ゲーム内容深堀 に確定
 - 2026-09-06: 遠近方式は CSS 2D scale 補間に確定（perspective/rotateX・three.js 3D 化は不採用）。試作は `stage-05` 新設、stage-04 から import
+- 2026-09-06: actor は box-bot を使用。以後このプロジェクトの操作キャラは基本 box-bot に統一（`Robot01` は stage-04 由来の暫定）
 
 ## 懸念・リスク
 
