@@ -4,12 +4,18 @@ three.js(r3f)使用コンポーネント置き場。`../ui/CLAUDE.md` の UI 要
 
 ## 方針
 
-- Canvas 内 3D 空間へ直接配置する要素(装飾メッシュ等)。`BoxBot` の `children` 経由で接続する
-- 画面座標ベースの `circle`/`square` 等(`../ui/` 配下)とは別枠。3D 空間内の world 座標で配置するもののみ対象
+- Canvas 内 3D 空間へ配置する要素(装飾メッシュ等)。world 座標で配置する
+- 画面座標ベースの `circle`/`square` 等(`../ui/` 配下)とは別枠
+- bot との接続方式は 2 通り。バリエーションごとに選ぶ
+  - **children 共有**: `BoxBot` の `children` へ渡す。bot と同じ Canvas・カメラを共有 → カメラ操作で bot と一体に動く
+  - **独立 Canvas**: 専用 `<Canvas>` を透過オーバーレイ。カメラを `BoxBot3D` に合わせる → bot の回転・カメラ操作と無関係に固定
 
 ## バリエーション一覧
 
-- `ground-ring`: bot 足元を囲む平面リングメッシュ、装飾用途(実装済・単独 story あり)
-- `tilt-ring`: `ground-ring` の傾き可変版。水平からの傾き・向きを props で調整、bot 姿勢に非追随(実装済・単独 story あり)
+- `ground-ring`: bot 足元を囲む平面リングメッシュ。独立 Canvas、bot 回転・カメラ操作で動かない(実装済・単独 story あり)
+- `tilt-ring`: `ground-ring` の傾き可変版。children 共有、カメラ操作で bot と一体に動く。水平からの傾き・向きを props で調整(実装済・単独 story あり)
 
-各バリエーションの `index.stories.tsx` は `../_story-decorators` の `withBotChildren` decorator 経由で利用(`BoxBot` の `children` として配置)。
+story の decorator:
+
+- children 共有型 → `../_story-decorators` の `withBotChildren`
+- 独立 Canvas 型 → `withBotLayered`

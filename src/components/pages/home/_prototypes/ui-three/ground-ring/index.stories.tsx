@@ -1,12 +1,12 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { withBotChildren } from '../../_story-decorators'
+import { withBotLayered } from '../../_story-decorators'
 
 import { GroundRing } from '.'
 
 const meta: Meta<typeof GroundRing> = {
   component: GroundRing,
-  decorators: [withBotChildren],
+  decorators: [withBotLayered],
 }
 
 export default meta
