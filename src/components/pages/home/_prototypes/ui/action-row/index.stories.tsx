@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { withBotStacked } from '../_story-decorators'
+import { withBotStacked } from '../../_story-decorators'
 
 import { ActionRow } from '.'
 

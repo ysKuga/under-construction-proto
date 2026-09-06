@@ -4,4 +4,4 @@ bot 表示領域と同サイズのオーバーレイコンテナ。画面座標(
 
 `children`(bot 本体)を中央配置、`overlay` prop へ渡した要素(`action-anchor` 等)を同サイズで重ねる。呼び出し側は `size`(bot 表示領域の一辺、px)を渡すのみで、コンテナのサイズ・中央配置は本コンポーネントが担う。
 
-現在 `action-anchor` のみ移行済。circle/square は `proto-02` 側に旧来の実装が残る(未移行)。
+各バリエーション自身の `index.stories.tsx` から利用(`../../_story-decorators` の `withBot` 経由)。`proto-02` 側は circle/square/anchor 全て旧来の実装のまま(削除予定のため未移行)。

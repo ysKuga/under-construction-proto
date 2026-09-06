@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { withBot } from '../_story-decorators'
+import { withBot } from '../../_story-decorators'
 
 import { ActionAnchor } from '.'
 

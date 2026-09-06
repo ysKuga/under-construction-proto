@@ -15,7 +15,7 @@ import { ActionRing } from '../ui/action-ring'
 import { ActionRow } from '../ui/action-row'
 import { ActionSingle } from '../ui/action-single'
 import { ActionSquare } from '../ui/action-square'
-import { GroundRing } from '../ui/three/ground-ring'
+import { GroundRing } from '../ui-three/ground-ring'
 
 /** 歩くボタンを解放するまでに必要なジャンプ回数 */
 const JUMPS_TO_UNLOCK_WALK = 3

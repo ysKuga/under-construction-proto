@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { withBotChildren } from '../_story-decorators'
+import { withBotChildren } from '../../_story-decorators'
 
 import { ActionRing } from '.'
 
