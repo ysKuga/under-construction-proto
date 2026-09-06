@@ -10,5 +10,6 @@ three.js(r3f)使用コンポーネント置き場。`../ui/CLAUDE.md` の UI 要
 ## バリエーション一覧
 
 - `ground-ring`: bot 足元を囲む平面リングメッシュ、装飾用途(実装済・単独 story あり)
+- `tilt-ring`: `ground-ring` の傾き可変版。水平からの傾き・向きを props で調整、bot 姿勢に非追随(実装済・単独 story あり)
 
 各バリエーションの `index.stories.tsx` は `../_story-decorators` の `withBotChildren` decorator 経由で利用(`BoxBot` の `children` として配置)。
