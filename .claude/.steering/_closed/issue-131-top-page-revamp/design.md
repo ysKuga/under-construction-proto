@@ -58,6 +58,7 @@ issue: #131
 - 2026-09-04: 着手順は rxjs 導入を先行実施済。残り 3 項目（`_prototypes` 化 / Storybook decorator / rxjs 適用）の順序は未確定
 - 2026-09-04: Storybook の layout 反映は `preview.tsx` へ直書きしない。`<html>`/`<body>`/`SerwistProvider` は `components/layouts/_base/` のベース layout へ分割し、`app/layout.tsx` で直接使う（`_base` で `pages/layout` をラップ）。`components/pages/layout.tsx` は `AppProvider` + `<main>` + `metadata`。story 用 `components/pages/layout.decorator.tsx` を設ける。stories は `pages/layout` と `components/layouts` パーツに用意（`_base` は story なし、`_layouts/` ディレクトリ案は取り下げ）
 - 2026-09-04: 実施完了（PR #134、origin/main 分岐、issue 紐づけなし）。`metadata` re-export は `next build` で title / manifest 反映を確認。decorator は全 story でなく `home` / `not-found` の meta のみに適用（既存 story へ `AppProvider` を乗せる副作用を回避）。README（`components/pages` / `components/layouts` 新設 / `src/app/CLAUDE.md`）へ反映
+- 2026-09-06: 操作 UI 要素の配置バリエーションを prototype として整備（PR #136、`_prototypes/ui/` + `_prototypes/ui-three/`）。`ground-ring`（独立 Canvas・bot 回転非追随）/ `tilt-ring`（children 共有・傾き可変）を追加。rxjs 適用（挙動と UI の分離・長押し util・`jumpCount` の Observable 化）は別途実施とし、本 steering は close
 
 ## 懸念・リスク
 
