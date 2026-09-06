@@ -32,11 +32,23 @@ issue: #131
   - [x] `pages/layout` と `components/layouts` の各パーツにそれぞれ stories を用意する（`_base` は対象外）
   - [x] decorator は pages 相当の story（`home` / `not-found`）の meta のみに適用（全 story には効かせない）
   - [x] README 反映（`components/pages/README.md` / `components/layouts/README.md` 新設 / `src/app/CLAUDE.md`）
-  - [ ] `_prototypes/proto-01` の story にも `layoutDecorator` を追加（#134 は origin/main 分岐のため proto-01 story 未対象。#134 マージ後に追随）
+  - ~~`_prototypes/proto-01` の story にも `layoutDecorator` を追加（#134 は origin/main 分岐のため proto-01 story 未対象。#134 マージ後に追随）~~
+    - proto-01 にはとりあえず不要 (ほかの proto には適用していく)
 - [ ] rxjs 適用
   - [ ] `jumpCount` 等の操作 state を Observable へ寄せ、しきい値超え判定の boolean のみ state 化（再レンダリング分離）
   - [ ] 「ジャンプした回数」を数えるか「クリック回数」を数えるかを確定（`ACTION_JUMP` 購読 vs `onClick`）
   - [ ] 長押し（押下 → 保持 → 解放）の検出 util を rxjs で作る（box-bot spin の press/release と接続できるか検討）
+  - [ ] 挙動（制御ロジック）とは別に、操作する UI 要素の検討を行う
+    - `_prototypes/` 配下、制御に関する実装（ロジック）と UI に関する実装をそれぞれディレクトリを切って作成する（アンダーバー付与不要）
+    - UI 側ディレクトリ名は実装の特徴（配置形状等）を簡潔に反映する（例: 横一列配置 → `action-row/`）
+    - 配置バリエーションの実装は `home/_prototypes/ui/` に切り出し（呼び出し元は `home/_prototypes/proto-02/`）。詳細・状態は `ui/CLAUDE.md` および各 `ui/action-*/CLAUDE.md` 参照
+      - `action-row`（横一列・常時表示）: 実装済
+      - `action-single`（先頭 1 件のみ）: 実装済
+      - `action-circle`（真円・画面座標）: 実装済
+      - `action-square`（四角形・画面座標）: 実装済
+      - `action-anchor`（各ボタンを対応する bot 部位のそばに配置・画面座標）: 実装済
+      - `action-ring`（bot 足元、地面水平な円周・3D 配置）: 実装済だが未完成。`@react-three/drei` の `Html` で box-bot 本体の改修なしに 3D 投影を実現できた。ただし奥行きによる遮蔽（`occlude`）が効かず、リング背面のボタンが手前に浮いて見える課題が残る（box-bot がワイヤーフレーム/アウトライン描画でソリッドメッシュの深度判定に不向きな可能性）
+      - `direction-arrow`（歩く方向に矢印追随）: 未着手・保留。proto が使う box-bot（`components/samples/figure/box-bot`）には向き変更（spin 相当）action が無く「回転」自体が発生しない（`theater/figure/box-bot` 版にはある、別実装）。「歩く」も現状その場足踏みで位置移動を伴わない。「回転」の仕様（`autoRotate` の角度を指すか、将来のユーザー操作を指すか）が未確定
 
 ## 決定事項
 
@@ -46,6 +58,7 @@ issue: #131
 - 2026-09-04: 着手順は rxjs 導入を先行実施済。残り 3 項目（`_prototypes` 化 / Storybook decorator / rxjs 適用）の順序は未確定
 - 2026-09-04: Storybook の layout 反映は `preview.tsx` へ直書きしない。`<html>`/`<body>`/`SerwistProvider` は `components/layouts/_base/` のベース layout へ分割し、`app/layout.tsx` で直接使う（`_base` で `pages/layout` をラップ）。`components/pages/layout.tsx` は `AppProvider` + `<main>` + `metadata`。story 用 `components/pages/layout.decorator.tsx` を設ける。stories は `pages/layout` と `components/layouts` パーツに用意（`_base` は story なし、`_layouts/` ディレクトリ案は取り下げ）
 - 2026-09-04: 実施完了（PR #134、origin/main 分岐、issue 紐づけなし）。`metadata` re-export は `next build` で title / manifest 反映を確認。decorator は全 story でなく `home` / `not-found` の meta のみに適用（既存 story へ `AppProvider` を乗せる副作用を回避）。README（`components/pages` / `components/layouts` 新設 / `src/app/CLAUDE.md`）へ反映
+- 2026-09-06: 操作 UI 要素の配置バリエーションを prototype として整備（PR #136、`_prototypes/ui/` + `_prototypes/ui-three/`）。`ground-ring`（独立 Canvas・bot 回転非追随）/ `tilt-ring`（children 共有・傾き可変）を追加。rxjs 適用（挙動と UI の分離・長押し util・`jumpCount` の Observable 化）は別途実施とし、本 steering は close
 
 ## 懸念・リスク
 
