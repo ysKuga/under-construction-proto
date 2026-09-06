@@ -30,13 +30,17 @@ export const withBotChildren: Decorator = (Story) => (
 )
 
 /**
- * Story を bot と同サイズの別レイヤーとして重ねる decorator。独立 Canvas 型(ground-ring 等)の確認に使う
+ * Story を bot の背面レイヤーとして重ねる decorator。独立 Canvas 型(ground-ring 等)の確認に使う
  *
  * - `withBotChildren` と違い Story を `BoxBot` の `children` へ渡さない。Story 自身が `<Canvas>` を持ち、\
  *   カメラを `BoxBot3D` に合わせて bot と同じ見えを再現する前提
+ * - Story を先に描画し bot を前面へ重ねる。bot 本体が Story(リング等)を遮る
  */
 export const withBotLayered: Decorator = (Story) => (
-  <BotOverlay overlay={<Story />} size={BOT_SIZE}>
-    <BoxBot canvasHeight={BOT_SIZE} mode="3d" />
-  </BotOverlay>
+  <div className="relative" style={{ height: BOT_SIZE, width: BOT_SIZE }}>
+    <Story />
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+      <BoxBot canvasHeight={BOT_SIZE} mode="3d" />
+    </div>
+  </div>
 )
