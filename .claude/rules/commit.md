@@ -12,9 +12,31 @@
 
 タイトルのみで不明瞭なもの、詳細記述する。詳細部分、markdown箇条書き(`-`)使用。
 
-タイトル形式: `type: 説明`(`feat:` `docs:` `test:` `chore:` 等
+タイトル形式: `type(scope): 説明`。scope 省略可。type 一覧 下記。
 
 - GitHub などの Issue 番号は lefthook で branch 参照で自動で付与される。
+
+## type
+
+[Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) 準拠。
+
+- `feat`: 機能追加
+- `fix`: バグ修正
+- `docs`: 文書のみ変更。README・`docs/`・steering `design.md` 等、内容の追加・更新
+- `refactor`: 挙動変えない内部改善(バグ修正・機能追加でない)
+- `test`: テスト追加・修正
+- `chore`: ビルド・ツール・依存・設定変更。内容変えないファイル移動/リネーム/削除(steering の `_pr/`・`_closed/` への `git mv` 等)含む
+- `build`: ビルドシステム・外部依存の変更
+- `ci`: CI 設定・スクリプト変更
+- `style`: 空白・整形等、コード意味変えない変更
+- `perf`: パフォーマンス改善
+
+破壊的変更: `type!:` またはフッター `BREAKING CHANGE:`。
+
+### docs と chore の境界
+
+- 文書の中身を書く/直す → `docs`(steering `design.md` の新規作成・追記含む)
+- 文書ファイルの移動・リネーム・close のみ(中身変更なし) → `chore`
 
 ## スコープ
 
