@@ -21,7 +21,7 @@ type ActorsLayerProps = {
  * - 右へ1マス、右端なら次行の左端へ折り返す
  * - 右下端であれば (0, 0) へ戻る
  */
-const getNextSequentialPosition = (
+export const getNextSequentialPosition = (
   current: GridPosition,
   gridSize: GridSize,
 ): GridPosition => {
