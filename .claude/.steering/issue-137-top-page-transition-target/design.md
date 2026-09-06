@@ -15,6 +15,18 @@ issue: #137
   - `src/components/pages/home/_prototypes/proto-01/index.tsx` = ジャンプ3回 →「歩く」ボタン解放の操作土台（EventTarget 共有 + `useBoxBotActionDispatcher`）
 - issue #131（トップページ改修）は close 済。積み残し: rxjs 適用（挙動と UI の分離 / 長押し util / `jumpCount` の Observable 化）
 
+## ゲーム内容
+
+経路プランニング制（キャラ操作 → ゴール）。
+
+- グリッドステージにスタート・ゴール配置
+- プレイヤーが移動先セルを順に指定 → `planned-path` store に積む
+- 「実行」で time-control tick に乗せて bot が 1 手ずつ歩く
+- 障害物 / 歩数制限 / 一方通行セルでパズル性（初期は最小、まず到達判定まで）
+- proto-01 の「ジャンプ 3 回 → 歩く解放」を実行前アンロックとして前段に組込み可
+- time-scale / progress-mode をそのまま早送り・巻戻し UI に流用
+- 新規実装は「ゴール到達判定」「経路積み UI」が中心。`planned-path` / `schedule-preview` / `path` store と stage-04 の `MoveIntent` は流用
+
 ## 基本構成案
 
 ### 1. ステージ
@@ -49,22 +61,45 @@ issue: #137
 
 ## 実装計画
 
-- [ ] 配置先確定（新 route か `home/_prototypes/proto-02` か）/ ルート名確定
-- [ ] ステージ: stage-04 を土台に遠近表現を追加した試作
-  - [ ] 遠近表現の方式確定（CSS 2D perspective / scale 補間 / stage 3D 化）
-  - [ ] 奥行きに伴う z-index / 描画順の扱い
-- [ ] bot 配置: box-bot をステージ上に載せる。grid 移動と three.js Canvas の重ね方
-- [ ] time-control 統合: time-control-03 の store 群をページ Context 構成へ束ねる
-  - [ ] bot の move / action を tick 管理へ接続
-- [ ] トップページからの遷移導線（`home/index.tsx` にリンク追加）
+前提:
+
+- [x] 配置先確定: 新 route `/find-path`（`src/app/find-path/page.tsx` → `src/components/pages/find-path/`。`src/app/CLAUDE.md` の re-export ルール踏襲、`components/pages/README.md`「使用構造」へ追記）
+- [ ] ページ枠の骨組み作成（`components/pages/find-path/` + トップからの遷移導線 `home/index.tsx` にリンク追加）
+
+段階 1: ステージ（遠近適用）
+
+- [ ] stage-04 を土台に遠近表現を追加した試作
+- [ ] 遠近表現の方式確定（CSS 2D perspective / scale 補間 / stage 3D 化）
+- [ ] 奥行きに伴う z-index / 描画順の扱い
+
+段階 2: bot 配置
+
+- [ ] box-bot をステージ上に載せる
+- [ ] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）
+
+段階 3: time-control 適用
+
+- [ ] time-control-03 の store 群をページ Context 構成へ束ねる
+- [ ] bot の move / action を tick 管理へ接続
+
+段階 4: ゲーム内容の深堀
+
+- [ ] スタート / ゴール配置、ゴール到達判定
+- [ ] 経路積み UI（セル指定 → `planned-path` へ push）
+- [ ] 「実行」で tick 進行 → bot が 1 手ずつ歩く配線
+- [ ] proto-01「ジャンプ → 歩く解放」を実行前アンロックとして前段に接続
+- [ ] 障害物 / 歩数制限 / 一方通行セル（パズル性、優先度低）
 
 ## 決定事項
 
 - 2026-09-06: issue #137 起票。トップページ改修（#131）の後続テーマとして分離
+- 2026-09-06: route 名 `/find-path` 確定。`proto-02` 枠でなく新 route（トップからの遷移先が要件のため）
+- 2026-09-06: ゲーム内容は経路プランニング制に確定（tick 実行前にプレイヤーが `planned-path` を組む方式）
+- 2026-09-06: 着手順を段階 1 ステージ → 段階 2 bot 配置 → 段階 3 time-control → 段階 4 ゲーム内容深堀 に確定
 
 ## 懸念・リスク
 
 - stage-04（画面座標 absolute）と box-bot（three.js Canvas）のレイヤ統合方式が未確定。`ui-three` の occlude 課題と同種の問題が出る可能性
 - time-control-03 の store 数が多い。ページ 1 枚に持ち込む際の Context ネスト規模
 - 遠近表現を CSS 2D で押し切るか 3D 化するかで実装コストが大きく変わる
-- 「ジャンプ → 歩く」（proto-01）と stage の grid 移動の操作系をどう統合するか未整理
+- 「ジャンプ → 歩く」（proto-01）は実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は未整理
