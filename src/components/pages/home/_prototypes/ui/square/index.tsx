@@ -15,12 +15,12 @@ const EDGE_POSITIONS = [
 ] as const
 
 /**
- * ActionSquare — bot を囲う四角形の四辺にボタンを配置する配置パターン
+ * Square — bot を囲う四角形の四辺にボタンを配置する配置パターン
  *
  * - 画面座標(screen space)上の四角形。親要素(`position: relative` かつ正方形)は\
  *   `../../_components/bot-overlay`(`BotOverlay`)が提供する(詳細は `../CLAUDE.md` 参照)
  */
-export const ActionSquare = () => {
+export const Square = () => {
   return (
     <div className="relative size-full">
       {EDGE_POSITIONS.map((pos, i) => (

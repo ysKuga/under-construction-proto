@@ -1,4 +1,4 @@
-# action-square
+# square
 
 bot 囲む四角形、四辺中央へボタン配置。画面座標(screen space)ベース、3D 投影計算なし。
 

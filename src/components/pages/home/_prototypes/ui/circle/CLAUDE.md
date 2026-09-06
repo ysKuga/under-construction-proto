@@ -1,4 +1,4 @@
-# action-circle
+# circle
 
 bot 囲む真円、外周へ等間隔配置。画面座標(screen space)ベース、3D 投影計算なし。
 

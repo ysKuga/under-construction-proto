@@ -10,5 +10,5 @@
 
 ## 実現アプローチ案(未検証、着手時の起点用メモ)
 
-- `action-ring` で実証済みの `Html`(`@react-three/drei`)を使い、矢印自体を box-bot の `children` として Canvas 内に配置、`spinRef` 相当の向きに追随させる案。box-bot 本体の改修が不要な可能性がある
+- `ring` で実証済みの `Html`(`@react-three/drei`)を使い、矢印自体を box-bot の `children` として Canvas 内に配置、`spinRef` 相当の向きに追随させる案。box-bot 本体の改修が不要な可能性がある
 - 別案: box-bot 本体(`box-bot-3d`)へ向き(facing)を Canvas 外へ伝える新規 prop を追加し、Canvas 外 DOM の矢印を `useFrame` で直接更新する(`theater/figure/box-bot` の jump が `displayAreaRef.top` を書き換える前例の応用)。box-bot 本体の改修を伴う

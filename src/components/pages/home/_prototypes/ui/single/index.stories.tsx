@@ -2,14 +2,14 @@ import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { withBotStacked } from '../../_story-decorators'
 
-import { ActionSingle } from '.'
+import { Single } from '.'
 
-const meta: Meta<typeof ActionSingle> = {
-  component: ActionSingle,
+const meta: Meta<typeof Single> = {
+  component: Single,
   decorators: [withBotStacked],
 }
 
 export default meta
-type Story = StoryObj<typeof ActionSingle>
+type Story = StoryObj<typeof Single>
 
 export const Default: Story = {}

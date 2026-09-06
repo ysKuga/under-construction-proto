@@ -1,7 +1,7 @@
 import { PropsWithChildren, ReactNode } from 'react'
 
 type BotOverlayProps = PropsWithChildren<{
-  /** bot に重ねて表示する要素(action-anchor 等の操作ボタン群) */
+  /** bot に重ねて表示する要素(anchor 等の操作ボタン群) */
   overlay: ReactNode
   /** bot 表示領域の一辺(px) */
   size: number

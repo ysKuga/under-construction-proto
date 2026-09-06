@@ -1,4 +1,4 @@
-# action-anchor
+# anchor
 
 各ボタン、対応する bot 部位のそば(左腕→左腕横、転倒→頭上、足踏み→脚元 等)へ配置。画面座標(screen space)ベース、3D 投影計算なし。
 

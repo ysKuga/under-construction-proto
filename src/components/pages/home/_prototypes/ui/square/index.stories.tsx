@@ -2,14 +2,14 @@ import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { withBot } from '../../_story-decorators'
 
-import { ActionCircle } from '.'
+import { Square } from '.'
 
-const meta: Meta<typeof ActionCircle> = {
-  component: ActionCircle,
+const meta: Meta<typeof Square> = {
+  component: Square,
   decorators: [withBot],
 }
 
 export default meta
-type Story = StoryObj<typeof ActionCircle>
+type Story = StoryObj<typeof Square>
 
 export const Default: Story = {}

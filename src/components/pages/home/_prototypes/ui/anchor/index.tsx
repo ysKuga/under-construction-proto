@@ -17,12 +17,12 @@ const ANCHOR_POSITIONS = [
 ] as const
 
 /**
- * ActionAnchor — 各操作ボタンを対応する bot の部位のそばに配置する配置パターン
+ * Anchor — 各操作ボタンを対応する bot の部位のそばに配置する配置パターン
  *
  * - 画面座標(screen space)上の配置。3D 空間内の投影計算は行わない(`../CLAUDE.md` 参照)
  * - 親要素(`position: relative` かつ正方形)は `../../_components/bot-overlay`(`BotOverlay`)が提供する
  */
-export const ActionAnchor = () => {
+export const Anchor = () => {
   return (
     <div className="relative size-full">
       {ACTION_LABELS.map((label, i) => (

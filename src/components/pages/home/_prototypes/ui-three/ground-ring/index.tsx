@@ -2,7 +2,7 @@
 
 import * as THREE from 'three'
 
-/** リング外周半径(world 単位)。action-ring の RING_RADIUS と同じ目視調整値 */
+/** リング外周半径(world 単位)。ui/ring の RING_RADIUS と同じ目視調整値 */
 const OUTER_RADIUS = 2.4
 
 /** リング内周半径(world 単位)。外周よりやや小さく、細い輪状にする */

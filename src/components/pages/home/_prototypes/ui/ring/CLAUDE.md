@@ -1,6 +1,6 @@
-# action-ring
+# ring
 
-bot 足元、地面に水平な円周へボタン配置。3D 空間内配置(`@react-three/drei` の `Html`)、action-circle(画面座標)と別実装。
+bot 足元、地面に水平な円周へボタン配置。3D 空間内配置(`@react-three/drei` の `Html`)、circle(画面座標)と別実装。
 
 `index.stories.tsx` は `../../_story-decorators` の `withBotChildren` decorator 経由で利用(`BoxBot` の `children` として配置)。
 

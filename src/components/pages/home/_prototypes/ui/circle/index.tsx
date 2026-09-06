@@ -6,13 +6,13 @@ import { ACTION_LABELS } from '../_constants/action-labels'
 const RADIUS_RATIO = 0.55
 
 /**
- * ActionCircle — bot を囲む真円の外周にボタンを配置する配置パターン
+ * Circle — bot を囲む真円の外周にボタンを配置する配置パターン
  *
  * - 画面座標(screen space)上の真円。3D 空間内の投影計算は行わない(`../CLAUDE.md` 参照)
  * - `ACTION_LABELS` を等間隔の角度で親要素(`position: relative` かつ正方形)の外周へ配置する。\
  *   親要素は `../../_components/bot-overlay`(`BotOverlay`)が提供する(詳細は `../CLAUDE.md` 参照)
  */
-export const ActionCircle = () => {
+export const Circle = () => {
   return (
     <div className="relative size-full">
       {ACTION_LABELS.map((label, i) => {
