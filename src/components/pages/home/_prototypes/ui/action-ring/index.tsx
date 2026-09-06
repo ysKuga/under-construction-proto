@@ -15,7 +15,7 @@ const RING_Y = -1.42
 /**
  * ActionRing — bot の足元、地面に水平なリング上にボタンを配置する配置パターン
  *
- * - r3f Canvas 内でのみ使用可能。`BoxBot` の `children` として渡す(呼び出し側の例: `proto-02/index.tsx`)
+ * - r3f Canvas 内でのみ使用可能。`BoxBot` の `children` として渡す(呼び出し側の例: `index.stories.tsx`)
  * - `@react-three/drei` の `Html` で 3D 座標→スクリーン座標の投影を行う。box-bot 本体の改修は不要\
  *   (`children` が Canvas 内へそのまま展開される前提を利用、`../CLAUDE.md` 参照)
  * - カメラが正面よりやや見下ろす角度のため、リングは遠近法で潰れた楕円に見える(意図した見た目)

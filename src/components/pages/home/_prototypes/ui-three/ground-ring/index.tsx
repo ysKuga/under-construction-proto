@@ -14,7 +14,7 @@ const RING_Y = -1.42
 /**
  * GroundRing — bot 足元を囲む平面リングメッシュ
  *
- * - r3f Canvas 内でのみ使用可能。`BoxBot` の `children` として渡す(呼び出し側の例: `proto-02/index.tsx`)
+ * - r3f Canvas 内でのみ使用可能。`BoxBot` の `children` として渡す(呼び出し側の例: `index.stories.tsx`)
  * - 地面と水平にするため x 軸周りに -90度回転する
  */
 export const GroundRing = () => {

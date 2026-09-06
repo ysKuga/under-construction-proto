@@ -4,7 +4,7 @@
 
 ## 構成
 
-- `proto-01`/`proto-02`: 試作(実装積み上げ順、`proto-02` は削除予定・変更しない)
+- `proto-01`: 試作(box-bot 操作の土台)
 - `ui/`: 操作 UI 要素の配置バリエーション検討(画面座標ベース)。詳細は `ui/CLAUDE.md` 参照
 - `ui-three/`: 3D 空間内(three.js/r3f)装飾要素の配置バリエーション検討。詳細は `ui-three/CLAUDE.md` 参照
 - `_components/`: `ui/`・`ui-three/` 共通の実装置き場

@@ -5,7 +5,7 @@
 ## 保留理由
 
 - 現状「歩く」(`walkingToggle`)、脚 swing + bodyBobbing のその場足踏みのみ。位置移動・向き変更を伴わない
-- bot の向き変更、`autoRotate`(`rotateSpeed` 指定時のみ `spinRef.rotation.y` を継続加算)のみ存在。ユーザー操作でトリガーする向き転換 action(spin 相当)は samples 版 box-bot(`components/samples/figure/box-bot`、proto-02 使用中のもの)に無い(`theater/figure/box-bot` 版には spin action あり、別実装)
+- bot の向き変更、`autoRotate`(`rotateSpeed` 指定時のみ `spinRef.rotation.y` を継続加算)のみ存在。ユーザー操作でトリガーする向き転換 action(spin 相当)は samples 版 box-bot(`components/samples/figure/box-bot`、`ui/`・`ui-three/` の各 story で使用中のもの)に無い(`theater/figure/box-bot` 版には spin action あり、別実装)
 - 「回転」の意味(仕様)が未確定。`autoRotate` の角度を矢印に反映する話か、将来実装するユーザー操作としての方向転換を指すか、要判断
 
 ## 実現アプローチ案(未検証、着手時の起点用メモ)

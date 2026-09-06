@@ -20,8 +20,7 @@ const ANCHOR_POSITIONS = [
  * ActionAnchor — 各操作ボタンを対応する bot の部位のそばに配置する配置パターン
  *
  * - 画面座標(screen space)上の配置。3D 空間内の投影計算は行わない(`../CLAUDE.md` 参照)
- * - 親要素(`position: relative` かつ正方形)は呼び出し側(例: `proto-02/index.tsx`)が\
- *   bot 表示領域と同サイズ・同位置で用意する
+ * - 親要素(`position: relative` かつ正方形)は `../../_components/bot-overlay`(`BotOverlay`)が提供する
  */
 export const ActionAnchor = () => {
   return (

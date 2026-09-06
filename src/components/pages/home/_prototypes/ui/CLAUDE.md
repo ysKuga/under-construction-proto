@@ -23,4 +23,4 @@
 - `action-ring`: bot 足元、地面水平な円周に 3D 配置(実装済・単独 story あり。要調整、奥行きの遮蔽が未解決)
 - `direction-arrow`: 歩く方向に矢印追随(未着手・保留。向き変更 action が box-bot 側に無い)
 
-`proto-02/index.tsx` は各バリエーションの旧来の呼び出し元(削除予定、変更しない)。`actionLayout` prop(Storybook: `Default`/`Single`/`Circle`/`Square`/`Anchor`/`Ring`/`GroundRing`)で切替表示するが、ここでの新規実装・統合は行わない。各バリエーションの正とする確認手段は自身の `index.stories.tsx`。
+各バリエーションの正とする確認手段は自身の `index.stories.tsx`。

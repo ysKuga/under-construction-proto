@@ -10,7 +10,7 @@ const RADIUS_RATIO = 0.55
  *
  * - 画面座標(screen space)上の真円。3D 空間内の投影計算は行わない(`../CLAUDE.md` 参照)
  * - `ACTION_LABELS` を等間隔の角度で親要素(`position: relative` かつ正方形)の外周へ配置する。\
- *   親要素は呼び出し側(例: `proto-02/index.tsx`)が bot 表示領域と同サイズ・同位置で用意する
+ *   親要素は `../../_components/bot-overlay`(`BotOverlay`)が提供する(詳細は `../CLAUDE.md` 参照)
  */
 export const ActionCircle = () => {
   return (
