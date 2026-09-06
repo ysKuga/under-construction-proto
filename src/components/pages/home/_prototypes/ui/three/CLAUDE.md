@@ -9,4 +9,6 @@ three.js(r3f)使用コンポーネント置き場。`../CLAUDE.md` の UI 要素
 
 ## バリエーション一覧
 
-- `ground-ring`: bot 足元を囲む平面リングメッシュ、装飾用途(実装済)
+- `ground-ring`: bot 足元を囲む平面リングメッシュ、装飾用途(実装済・単独 story あり)
+
+各バリエーションの `index.stories.tsx` は `../_story-decorators` の `withBotChildren` decorator 経由で利用(`BoxBot` の `children` として配置)。
