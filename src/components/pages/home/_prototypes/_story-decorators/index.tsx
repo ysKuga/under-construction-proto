@@ -28,3 +28,15 @@ export const withBotChildren: Decorator = (Story) => (
     <Story />
   </BoxBot>
 )
+
+/**
+ * Story を bot と同サイズの別レイヤーとして重ねる decorator。独立 Canvas 型(ground-ring 等)の確認に使う
+ *
+ * - `withBotChildren` と違い Story を `BoxBot` の `children` へ渡さない。Story 自身が `<Canvas>` を持ち、\
+ *   カメラを `BoxBot3D` に合わせて bot と同じ見えを再現する前提
+ */
+export const withBotLayered: Decorator = (Story) => (
+  <BotOverlay overlay={<Story />} size={BOT_SIZE}>
+    <BoxBot canvasHeight={BOT_SIZE} mode="3d" />
+  </BotOverlay>
+)
