@@ -15,8 +15,7 @@ import { ActionRing } from '../ui/action-ring'
 import { ActionRow } from '../ui/action-row'
 import { ActionSingle } from '../ui/action-single'
 import { ActionSquare } from '../ui/action-square'
-
-import { GroundRing } from './_components/ground-ring'
+import { GroundRing } from '../ui/three/ground-ring'
 
 /** 歩くボタンを解放するまでに必要なジャンプ回数 */
 const JUMPS_TO_UNLOCK_WALK = 3
@@ -26,7 +25,8 @@ const CANVAS_HEIGHT = 640
 
 export type Proto02Props = {
   /** 操作要素の配置パターン(既定: `row`) */
-  actionLayout?: 'anchor' | 'circle' | 'ring' | 'row' | 'single' | 'square'
+  actionLayout?:
+    'anchor' | 'circle' | 'ground-ring' | 'ring' | 'row' | 'single' | 'square'
 }
 
 /**
@@ -83,7 +83,7 @@ const Proto02 = ({ actionLayout = 'row' }: Proto02Props) => {
             mode="3d"
             onClick={() => setJumpCount((c) => c + 1)}
           >
-            <GroundRing />
+            {actionLayout === 'ground-ring' && <GroundRing />}
             {actionLayout === 'ring' && <ActionRing />}
           </BoxBot>
         </div>

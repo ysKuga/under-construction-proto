@@ -27,6 +27,10 @@ export const Ring: Story = {
   args: { actionLayout: 'ring' },
 }
 
+export const GroundRing: Story = {
+  args: { actionLayout: 'ground-ring' },
+}
+
 export const Anchor: Story = {
   args: { actionLayout: 'anchor' },
 }
