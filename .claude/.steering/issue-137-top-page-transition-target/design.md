@@ -68,13 +68,13 @@ issue: #137
 
 段階 1: ステージ（遠近適用）
 
-- [x] stage-04 を土台に遠近表現を追加した試作 → `src/prototypes/stage/stage-05`（`_lib/perspective.ts` の `projectCell` へ投影を集約）
+- [x] stage-04 を土台に遠近表現を追加した試作 → `src/prototypes/stage/stage-05`（`_lib/perspective.ts` の `projectCell` へ投影を集約。GeoLayer のみ搭載、actor 表示は段階 2 へ持ち越し）
 - [x] 遠近表現の方式確定 → CSS 2D scale 補間（最奥行 `depthScale` 倍・最前行 等倍で線形補間、各行のセル高を奥から積み上げ）
 - [x] 奥行きに伴う z-index / 描画順の扱い → z-index 不使用。奥の行から描画する DOM 順で解決。複数 actor / 障害物の前後（row 昇順ソート）は段階 4
 
 段階 2: bot 配置
 
-- [ ] `src/components/samples/figure/box-bot` をステージ上に載せる（stage-05 の `Robot01` を box-bot へ差し替え。今後 actor は基本 box-bot）
+- [ ] `src/components/samples/figure/box-bot` を stage-05 に actor として新規搭載（`projectCell` で位置・大きさを反映。stage-04 の click/keyboard 移動配線もここで持ち込む。今後 actor は基本 box-bot）
 - [ ] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）
 
 段階 3: time-control 適用
@@ -97,7 +97,8 @@ issue: #137
 - 2026-09-06: ゲーム内容は経路プランニング制に確定（tick 実行前にプレイヤーが `planned-path` を組む方式）
 - 2026-09-06: 着手順を段階 1 ステージ → 段階 2 bot 配置 → 段階 3 time-control → 段階 4 ゲーム内容深堀 に確定
 - 2026-09-06: 遠近方式は CSS 2D scale 補間に確定（perspective/rotateX・three.js 3D 化は不採用）。試作は `stage-05` 新設、stage-04 から import
-- 2026-09-06: actor は box-bot を使用。以後このプロジェクトの操作キャラは基本 box-bot に統一（`Robot01` は stage-04 由来の暫定）
+- 2026-09-06: actor は box-bot を使用。以後このプロジェクトの操作キャラは基本 box-bot に統一（stage-01〜04 の `Robot01` は旧世代の暫定）
+- 2026-09-06: stage-05 は現時点で actor 未搭載。段階 2 で box-bot を新規搭載する（`Robot01` は持ち込まない）
 
 ## 懸念・リスク
 
