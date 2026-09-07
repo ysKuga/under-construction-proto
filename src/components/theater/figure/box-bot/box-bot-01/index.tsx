@@ -14,23 +14,13 @@ import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
 /**
- * 設置領域(Assembly)のデフォルトの一辺(px)
+ * Assembly(設置領域)= Canvas(表示領域)のデフォルトの一辺(px)
  *
- * - `style.height` が数値でない場合のフォールバック
- * - 設置領域はレイアウト上の占有枠。bot の見た目(表示領域)より一回り小さく取る
+ * - 表示領域を設置領域と一致させる方針(#108)。`style.height` が数値でない場合のフォールバック
+ * - bot を少しだけ囲うサイズ。余白は最小限にする
  * - lineWidth の縮小スケール算出の基準値も兼ねる
  */
 const DEFAULT_HEIGHT = 234
-
-/**
- * 表示領域(Canvas)/ 設置領域(Assembly)の比
- *
- * - 1 より大きくして、bot の見た目が設置領域からわずかにはみ出すようにする(#108 の
- *   「表示領域 = 設置領域」を「表示領域 ≳ 設置領域」へ緩和)
- * - 隣接 actor を並べると Canvas 同士がこの比のぶん重なる。透明部のクリック奪取・
- *   描画順は載せる側で対処する
- */
-const DISPLAY_RATIO = 1.18
 
 /**
  * bot の見かけを較正した基準の組(Canvas 一辺 px / fov 度)
@@ -49,10 +39,10 @@ const VIEW_INVARIANT =
   REFERENCE_HEIGHT / Math.tan((REFERENCE_FOV * Math.PI) / 360)
 
 /**
- * 基準画角(度)
+ * 設置領域 = 表示領域のときの基準画角(度)
  *
- * - `canvasHeight` 未指定(overscan=1)のときこの値。fov は角度なので Canvas の px
- *   サイズに依らず bot は表示領域の一定割合を占める → 設置領域サイズに比例して拡大縮小する
+ * - 設置領域が DEFAULT_HEIGHT で bot がちょうど収まる fov。overscan=1 のときこの値になる
+ * - 設置領域サイズを変えても overscan=1 なら fov 一定 → bot は設置領域に比例して拡大縮小する
  */
 const BASE_FOV = (Math.atan(DEFAULT_HEIGHT / VIEW_INVARIANT) * 360) / Math.PI
 
@@ -141,36 +131,29 @@ export default function BoxBot3D({
   /** 既定 + prop 上書きをマージした要素クリック対応表(Context へ注入) */
   const resolvedClickBindings = { ...DEFAULT_CLICK_BINDINGS, ...clickBindings }
   /**
-   * 設置領域(Assembly)の一辺(px)= レイアウト上の占有枠
+   * Assembly(設置領域)= Canvas(表示領域)の一辺(px)
    *
-   * - `style.height` が数値でなければ DEFAULT_HEIGHT
+   * - 表示領域を設置領域と一致させる(#108)。`style.height` が数値でなければ DEFAULT_HEIGHT
    */
   const assemblySize =
     typeof style?.height === 'number' ? style.height : DEFAULT_HEIGHT
   /**
-   * 表示領域(Canvas)の基準一辺(px)
-   *
-   * - 設置領域を `DISPLAY_RATIO` ぶん上回る。bot はこの枠内に収まり、設置領域からは
-   *   わずかにはみ出す
-   */
-  const displaySize = assemblySize * DISPLAY_RATIO
-  /**
    * 表示領域(Canvas)の実ピクセル高さ
    *
-   * - `canvasHeight` 省略時は `displaySize`。明示時はその値
+   * - `canvasHeight` 省略時は設置領域と一致(`assemblySize`)。明示時はその値
    */
-  const canvasHeightPx = canvasHeight ?? displaySize
+  const canvasHeightPx = canvasHeight ?? assemblySize
   /**
-   * 表示領域を基準サイズから更に縦へ逸脱させた率(1 = 逸脱なし)
+   * 表示領域が設置領域を縦へ逸脱した率(1 = 逸脱なし)
    *
    * - `canvasHeight` で表示領域だけ広げたぶんは fov を広げて余白にする(bot の見かけ不変)
    */
-  const heightOverscan = canvasHeightPx / displaySize
+  const heightOverscan = canvasHeightPx / assemblySize
   /**
    * カメラ視野角(度)
    *
-   * - 明示指定なければ `BASE_FOV` を overscan ぶん広げた値。overscan=1(`canvasHeight`\
-   *   未指定)なら `BASE_FOV` 固定 → bot は設置領域サイズに比例して拡大縮小する
+   * - 明示指定なければ `BASE_FOV` を overscan ぶん広げた値。overscan=1(表示領域 =\
+   *   設置領域)なら `BASE_FOV` 固定 → bot は設置領域サイズに比例して拡大縮小する
    */
   const fov =
     fovProp ??
@@ -206,18 +189,17 @@ export default function BoxBot3D({
     >
       {/* 表示領域(Canvas)ラッパー。設置領域(Assembly)は動かさず、jump が
           この div の top を書き換えて縦移動する(#108)。transform は中央寄せ専用に固定。
-          既定サイズは displaySize(設置領域 * DISPLAY_RATIO)で、設置領域から一回りはみ出す。
-          canvasWidth / canvasHeight 指定時はさらに横 / 縦へ広がる(中央基準は維持)。
+          canvasWidth / canvasHeight 指定時は設置領域を横 / 縦へ逸脱して広がる(中央基準は維持)。
           canvasHeight は fov 側で見かけの大きさを補正済み */}
       <div
         ref={displayAreaRef}
         style={{
-          height: canvasHeight ?? displaySize,
+          height: canvasHeight ?? '100%',
           left: '50%',
           position: 'absolute',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          width: canvasWidth ?? displaySize,
+          width: canvasWidth ?? '100%',
         }}
       >
         <Canvas
