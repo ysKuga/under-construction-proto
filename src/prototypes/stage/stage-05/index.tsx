@@ -1,5 +1,9 @@
 import { CSSProperties } from 'react'
 
+import { ActorPositionProvider } from '../stage-04/_contexts/actor-position-context'
+
+import { ActorsLayer } from './_components/actors-layer'
+import { GeoLayer } from './_components/geo-layer'
 import { usePerspectiveControl } from './_hooks/use-perspective-control'
 
 type Stage05Props = {
@@ -21,7 +25,9 @@ type Stage05Props = {
  * - 等間隔の正方形グリッドを `perspective` 空間で寝かせ、遠近は透視変換に任せる
  * - 傾き (rotateX) は `usePerspectiveControl` が ref 経由で `--floor-tilt` を書換える。
  *   スライダー操作でセル群は再レンダリングされない
- * - 子要素も同じ 3D 空間に乗るため、この上に載せる actor は段階 2 で逆 rotateX が要る
+ * - actor (box-bot) は `ActorsLayer` が floor の子として載せ、逆 rotateX で直立させる
+ * - actor の position は `ActorPositionProvider` (stage-04) が一元管理し、
+ *   cell クリック / actor クリック / キーボードはいずれも移動企図 dispatch のみ行う
  */
 export const Stage05 = (props: Stage05Props) => {
   const { cols, initialTiltDeg, perspectivePx, rows, size } = props
@@ -46,40 +52,39 @@ export const Stage05 = (props: Stage05Props) => {
     gridTemplateColumns: `repeat(${cols}, 1fr)`,
     gridTemplateRows: `repeat(${rows}, 1fr)`,
     height: '100%',
+    // ActorsLayer の box-bot を絶対配置する基準
+    position: 'relative',
     transform: 'rotateX(var(--floor-tilt))',
     transformOrigin: 'center bottom',
+    // 子 (ActorsLayer) を同じ 3D 空間へ置き、逆 rotateX が正しく相殺されるようにする
+    transformStyle: 'preserve-3d',
     transition: 'transform 150ms',
     width: '100%',
   } as CSSProperties
 
   return (
-    <div>
-      <div style={sceneStyle}>
-        <div ref={floorRef} style={floorStyle}>
-          {Array.from({ length: cols * rows }).map((_, index) => (
-            <div
-              key={index}
-              style={{
-                backgroundColor: '#f1f5f9',
-                border: '1px solid #cbd5e1',
-              }}
-            />
-          ))}
+    <ActorPositionProvider gridSize={{ cols, rows }}>
+      <div>
+        <div style={sceneStyle}>
+          <div ref={floorRef} style={floorStyle}>
+            <GeoLayer />
+            <ActorsLayer cellSize={size / cols} />
+          </div>
         </div>
+        <label>
+          tilt{' '}
+          <input
+            defaultValue={initialTiltDeg}
+            max={85}
+            min={0}
+            onChange={(event) => {
+              setTilt(Number(event.target.value))
+            }}
+            step={1}
+            type="range"
+          />
+        </label>
       </div>
-      <label>
-        tilt{' '}
-        <input
-          defaultValue={initialTiltDeg}
-          max={85}
-          min={0}
-          onChange={(event) => {
-            setTilt(Number(event.target.value))
-          }}
-          step={1}
-          type="range"
-        />
-      </label>
-    </div>
+    </ActorPositionProvider>
   )
 }
