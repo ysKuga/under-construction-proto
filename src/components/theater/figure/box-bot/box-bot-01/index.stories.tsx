@@ -63,3 +63,56 @@ export const ConfigOverride: Story = {
     actionConfig: { jump: { durSec: 0.8, liftPx: 260 } },
   },
 }
+
+type SizingArgs = {
+  /** style.height/width に渡す px(設置領域 = 表示領域のサイズ) */
+  size: number
+}
+
+/** Sizing の基準セル一辺(px) */
+const SIZING_CELL = 96
+
+/**
+ * size(style.height)を可変にして、設置領域(= 表示領域)と基準セルの関係を見る
+ *
+ * - #108 で表示領域 = 設置領域。赤 outline(= 設置領域)がそのまま Canvas の外周で、
+ *   samples 版のように Canvas が一回り大きくならない
+ * - ただし fov 自動算出は bot の見かけ px を一定に保つ較正(≈ DEFAULT_HEIGHT 234)。
+ *   size をそれより小さくすると bot は縮小せず Canvas にクリップされる。
+ *   小さいセルへ載せる用途では明示 `fov` か別の縮小手段が要る(box-bot-01 の
+ *   「拡大縮小の禁止」方針。README 参照)
+ * - `orbit={false}` / `actions={[]}` で静止。灰マス = 96px の基準セル
+ */
+export const Sizing: StoryObj<SizingArgs> = {
+  args: {
+    size: SIZING_CELL,
+  },
+  argTypes: {
+    size: { control: { max: 320, min: 32, step: 8, type: 'range' } },
+  },
+  render: (args) => (
+    <div style={{ padding: 160 }}>
+      <div
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          height: SIZING_CELL,
+          justifyContent: 'center',
+          outline: '1px solid #cbd5e1',
+          width: SIZING_CELL,
+        }}
+      >
+        <StoryComponent
+          actions={[]}
+          orbit={false}
+          shadowOpacity={0}
+          style={{
+            height: args.size,
+            outline: '1px solid red',
+            width: args.size,
+          }}
+        />
+      </div>
+    </div>
+  ),
+}
