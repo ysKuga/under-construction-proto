@@ -21,7 +21,7 @@ CSS `perspective` + `rotateX` で床面を台形にした遠近ステージ。st
 段階 2 で `_components/actors-layer` として `@/components/theater/figure/box-bot` の `BoxBot01`（ゲーム内 actor 用）を搭載。samples 版はデモ用見本のため使わない。
 
 - floor（grid）に `transform-style: preserve-3d` を付け、`BoxBot01` を floor の子として絶対配置する。
-- box-bot-01 は設置領域（= `style.height` = `cellSize`）を占有枠とし、表示領域（Canvas）は設置領域 * `DISPLAY_RATIO`（1.18）。bot は設置領域からわずかにはみ出す。bot は Canvas 中央へ較正済み。samples 版のような 2 倍 Canvas・中心ずれ・大幅な透明部クリック奪取が起きないため、`FOOTPRINT_RATIO` / `canvasCenterOffset` の実測補正と設置領域ラッパー div は不要。
+- box-bot-01 は表示領域 = 設置領域（#108）で Canvas が `style.height` = `cellSize` と一致し、bot も Canvas 中央へ較正済み。samples 版のような一回り大きい Canvas・中心ずれ・透明部のクリック奪取が起きないため、`FOOTPRINT_RATIO` / `canvasCenterOffset` の実測補正と設置領域ラッパー div は不要。
 - 床の `rotateX` を打ち消す逆回転 `rotateX(calc(-1 * var(--floor-tilt)))` を掛け、傾いた床の上で直立させる。`--floor-tilt` は CSS 変数継承で floor から降ってくるため、傾きスライダー操作で actor も React 再レンダリングなしで追従する。
 - `orbit={false}` / `actions={[]}`（jump / spin を無効化）。`translate(-50%, -53%)`（実測）で足元をセル中央付近へ寄せる。
 - position 管理と移動企図配線は stage-04 の資産を再利用（`src/prototypes/CLAUDE.md` の「若い番号から import 可」）。
