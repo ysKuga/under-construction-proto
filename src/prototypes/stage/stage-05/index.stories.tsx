@@ -13,7 +13,7 @@ const cols = 5
 const rows = 5
 const size = 400
 /** actor の一辺 px。マスサイズ (size / cols = 80) とは独立に指定する */
-const botSize = 96
+const botSize = 56
 
 export const Primary: Story = {
   args: {
