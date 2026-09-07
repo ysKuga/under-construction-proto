@@ -16,8 +16,21 @@ CSS `perspective` + `rotateX` で床面を台形にした遠近ステージ。st
 - 値は 0〜85deg にクランプ。90 近傍は床が消えるため。
 - `transition: transform 150ms` で傾き変更を補間。
 
+## actor (box-bot)
+
+段階 2 で `_components/actors-layer` として box-bot を搭載。
+
+- floor（grid）に `transform-style: preserve-3d` を付け、box-bot を floor の子として絶対配置する。
+- box-bot 側には床の `rotateX` を打ち消す逆回転 `rotateX(calc(-1 * var(--floor-tilt)))` を掛け、傾いた床の上で直立させる。`--floor-tilt` は CSS 変数継承で floor から降ってくるため、傾きスライダー操作で actor も React 再レンダリングなしで追従する。
+- `mode="3d"` / `orbit={false}` / `autoRotate={false}`。設置領域はセル一辺 px。足元がセル中央付近に来るよう `translate(-50%, -62%)`（実測値）で上へ寄せる。
+- position 管理と移動企図配線は stage-04 の資産を再利用（`src/prototypes/CLAUDE.md` の「若い番号から import 可」）。
+  - `stage-04/_contexts/actor-position-context`（`ActorPositionProvider` / `useActorControl` / `useActorPosition`）と `stage-04/_hooks/use-keyboard-move` を import。座標計算を含まないためコピー不要。
+  - 座標系が異なる layer（`geo-layer` / `actors-layer`）は grid + % 前提で新規作成。
+- 配線 3 系統: セルクリック（cell-click）/ box-bot の頭・胴クリックで次セルへ順送り（actor-click）/ 矢印キー・WASD（keyboard）。
+
 ## 未対応 / 段階 2 以降
 
-- actor 未搭載。box-bot を載せる際、床と同じ 3D 空間に乗るため逆 `rotateX` で立て直す必要がある（`ui-three` の occlude 課題と同種）。
-- セルのクリック企図（stage-04 の `MoveIntent`）は未接続。actor 搭載時に戻す。
+- 複数 actor / 障害物の前後関係（z 順）。box-bot の Canvas は透明部分もクリックを奪う（`ui-three` の occlude 課題と同種）ため、複数体を重ねる場合は `interactive={false}` 等の対処が要る。
+- 遠近に伴うセルのクリック判定の歪み。奥のセルほど当たり判定が小さくなる。
+- 奥行きセルでの actor 設置位置の微妙なズレ（`translate` の Y は中間セル基準で調整済み、最奥行は浮き気味）。
 - `perspectivePx` / `perspectiveOrigin` は props 固定。pan / zoom（カメラ相当）の ref 制御は未着手。
