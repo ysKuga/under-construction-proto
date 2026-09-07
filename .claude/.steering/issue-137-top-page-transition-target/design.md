@@ -75,10 +75,10 @@ issue: #137
 
 段階 2: bot 配置
 
-- [ ] `src/components/samples/figure/box-bot` を stage-05 に actor として新規搭載（今後 actor は基本 box-bot）
-  - [ ] 床と同じ 3D 空間に乗るため逆 `rotateX` で立て直す。セル座標 → 画面位置の対応付け
-  - [ ] stage-04 の click / keyboard 移動配線（`MoveIntent`）を持ち込む
-- [ ] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）
+- [x] `src/components/samples/figure/box-bot` を stage-05 に actor として新規搭載（今後 actor は基本 box-bot）
+  - [x] 床と同じ 3D 空間に乗るため逆 `rotateX` で立て直す。セル座標 → 画面位置の対応付け（floor に `preserve-3d`、box-bot を子として絶対配置 + 逆 `rotateX(calc(-1 * var(--floor-tilt)))`、位置は % 補間）
+  - [x] stage-04 の click / keyboard 移動配線（`MoveIntent`）を持ち込む（context / keyboard hook は stage-04 から import 共有、layer は grid 座標系用に新規）
+- [ ] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）— actor 1 体では未顕在化。複数 actor / 障害物の z 順は段階 2 以降として stage-05 README に残す
 
 段階 3: time-control 適用
 
@@ -104,6 +104,7 @@ issue: #137
 - 2026-09-06: stage-05 は現時点で actor 未搭載。段階 2 で box-bot を新規搭載する（`Robot01` は持ち込まない）
 - 2026-09-07: 遠近方式を CSS `perspective` + `rotateX`（床面台形化）へ転換。scale 補間（`_lib/perspective.ts`）は破棄し stage-05 を差し替え。three.js 3D 化は引き続き不採用
 - 2026-09-07: 傾きは ref 経由で制御（`--floor-tilt` を style 直接書換え）。再レンダリング回避が目的。制御対象は当面 tilt のみ（pan/zoom は将来）
+- 2026-09-07: stage-05 に box-bot を actor 搭載（段階 2）。floor に `preserve-3d`、box-bot を floor の子として絶対配置し逆 `rotateX` で直立。`--floor-tilt` の CSS 変数継承で傾き変更に再レンダリングなしで追従。position 管理・keyboard 移動は stage-04 から import 共有、grid 座標系依存の `geo-layer` / `actors-layer` は新規作成
 
 ## 懸念・リスク
 
