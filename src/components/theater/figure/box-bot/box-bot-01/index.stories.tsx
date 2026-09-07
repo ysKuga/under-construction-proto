@@ -64,53 +64,42 @@ export const ConfigOverride: Story = {
   },
 }
 
-type SizingArgs = {
-  /** style.height/width に渡す px(設置領域 = 表示領域のサイズ) */
-  size: number
-}
-
-/** Sizing の基準セル一辺(px) */
-const SIZING_CELL = 96
+/** 大中小のサイズ(style.height/width の px)。大 = DEFAULT_HEIGHT の較正サイズ */
+const SIZE_VARIANTS = [
+  { label: '小', size: 88 },
+  { label: '中', size: 144 },
+  { label: '大', size: 234 },
+] as const
 
 /**
- * size(style.height)を可変にして、設置領域(= 表示領域)と基準セルの関係を見る
+ * `style.height` の大中小バリエーション
  *
  * - #108 で表示領域 = 設置領域。赤 outline(= 設置領域)がそのまま Canvas の外周で、
  *   samples 版のように Canvas が一回り大きくならない
- * - overscan=1(表示領域 = 設置領域)では fov 固定のため、size を変えると bot も
- *   それに比例して拡大縮小する。小さいセルへも `style.height` だけで載る
- * - `orbit={false}` / `actions={[]}` で静止。灰マス = 96px の基準セル
+ * - overscan=1(表示領域 = 設置領域)では fov 固定のため、size に比例して bot も
+ *   拡大縮小する。小さいセルへも `style.height` だけで載る
+ * - `orbit={false}` / `actions={[]}` で静止
  */
-export const Sizing: StoryObj<SizingArgs> = {
-  args: {
-    size: SIZING_CELL,
-  },
-  argTypes: {
-    size: { control: { max: 320, min: 32, step: 8, type: 'range' } },
-  },
-  render: (args) => (
-    <div style={{ padding: 160 }}>
-      <div
-        style={{
-          alignItems: 'center',
-          display: 'flex',
-          height: SIZING_CELL,
-          justifyContent: 'center',
-          outline: '1px solid #cbd5e1',
-          width: SIZING_CELL,
-        }}
-      >
-        <StoryComponent
-          actions={[]}
-          orbit={false}
-          shadowOpacity={0}
-          style={{
-            height: args.size,
-            outline: '1px solid red',
-            width: args.size,
-          }}
-        />
-      </div>
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ alignItems: 'flex-end', display: 'flex', gap: 24 }}>
+      {SIZE_VARIANTS.map(({ label, size }) => (
+        <figure key={label} style={{ margin: 0 }}>
+          <StoryComponent
+            actions={[]}
+            orbit={false}
+            shadowOpacity={0}
+            style={{
+              height: size,
+              outline: '1px solid red',
+              width: size,
+            }}
+          />
+          <figcaption style={{ fontSize: 12, textAlign: 'center' }}>
+            {label} ({size}px)
+          </figcaption>
+        </figure>
+      ))}
     </div>
   ),
 }
