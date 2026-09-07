@@ -68,13 +68,16 @@ issue: #137
 
 段階 1: ステージ（遠近適用）
 
-- [x] stage-04 を土台に遠近表現を追加した試作 → `src/prototypes/stage/stage-05`（`_lib/perspective.ts` の `projectCell` へ投影を集約。GeoLayer のみ搭載、actor 表示は段階 2 へ持ち越し）
-- [x] 遠近表現の方式確定 → CSS 2D scale 補間（最奥行 `depthScale` 倍・最前行 等倍で線形補間、各行のセル高を奥から積み上げ）
-- [x] 奥行きに伴う z-index / 描画順の扱い → z-index 不使用。奥の行から描画する DOM 順で解決。複数 actor / 障害物の前後（row 昇順ソート）は段階 4
+- [x] 遠近ステージ試作 → `src/prototypes/stage/stage-05`（actor 未搭載、傾きスライダー付き）
+- [x] 遠近表現の方式確定 → CSS `perspective` + `rotateX` で床面を台形化（当初の CSS 2D scale 補間は不採用へ転換）
+- [x] 傾き制御を ref 経由に → `usePerspectiveControl` が `floorRef` から `--floor-tilt` を直接書換え。スライダー操作でセル群は再レンダリングされない
+- [x] 奥行きに伴う z-index / 描画順の扱い → 透視変換に一任、z-index 不使用。複数 actor / 障害物の前後（DOM 順 or 逆 rotateX）は段階 2 以降
 
 段階 2: bot 配置
 
-- [ ] `src/components/samples/figure/box-bot` を stage-05 に actor として新規搭載（`projectCell` で位置・大きさを反映。stage-04 の click/keyboard 移動配線もここで持ち込む。今後 actor は基本 box-bot）
+- [ ] `src/components/samples/figure/box-bot` を stage-05 に actor として新規搭載（今後 actor は基本 box-bot）
+  - [ ] 床と同じ 3D 空間に乗るため逆 `rotateX` で立て直す。セル座標 → 画面位置の対応付け
+  - [ ] stage-04 の click / keyboard 移動配線（`MoveIntent`）を持ち込む
 - [ ] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）
 
 段階 3: time-control 適用
@@ -96,13 +99,15 @@ issue: #137
 - 2026-09-06: route 名 `/find-path` 確定。`proto-02` 枠でなく新 route（トップからの遷移先が要件のため）
 - 2026-09-06: ゲーム内容は経路プランニング制に確定（tick 実行前にプレイヤーが `planned-path` を組む方式）
 - 2026-09-06: 着手順を段階 1 ステージ → 段階 2 bot 配置 → 段階 3 time-control → 段階 4 ゲーム内容深堀 に確定
-- 2026-09-06: 遠近方式は CSS 2D scale 補間に確定（perspective/rotateX・three.js 3D 化は不採用）。試作は `stage-05` 新設、stage-04 から import
+- 2026-09-06: 遠近方式は CSS 2D scale 補間で暫定着手。試作は `stage-05` 新設
 - 2026-09-06: actor は box-bot を使用。以後このプロジェクトの操作キャラは基本 box-bot に統一（stage-01〜04 の `Robot01` は旧世代の暫定）
 - 2026-09-06: stage-05 は現時点で actor 未搭載。段階 2 で box-bot を新規搭載する（`Robot01` は持ち込まない）
+- 2026-09-07: 遠近方式を CSS `perspective` + `rotateX`（床面台形化）へ転換。scale 補間（`_lib/perspective.ts`）は破棄し stage-05 を差し替え。three.js 3D 化は引き続き不採用
+- 2026-09-07: 傾きは ref 経由で制御（`--floor-tilt` を style 直接書換え）。再レンダリング回避が目的。制御対象は当面 tilt のみ（pan/zoom は将来）
 
 ## 懸念・リスク
 
 - stage-04（画面座標 absolute）と box-bot（three.js Canvas）のレイヤ統合方式が未確定。`ui-three` の occlude 課題と同種の問題が出る可能性
 - time-control-03 の store 数が多い。ページ 1 枚に持ち込む際の Context ネスト規模
-- 遠近を CSS 2D scale 補間で確定（stage-05）。床面の傾き表現・遠近に伴うクリック判定の歪み補正は未対応、段階 2 以降で box-bot（three.js Canvas）を重ねる際に再検討
+- 遠近は CSS `perspective` + `rotateX` で確定（stage-05）。actor / three.js Canvas は床と同じ 3D 空間に乗るため逆 `rotateX` 立て直しが要る。遠近に伴うセルのクリック判定の歪み補正も未対応、段階 2 で box-bot を載せる際に再検討
 - 「ジャンプ → 歩く」（proto-01）は実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は未整理
