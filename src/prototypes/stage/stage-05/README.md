@@ -22,8 +22,9 @@ CSS `perspective` + `rotateX` で床面を台形にした遠近ステージ。st
 
 - floor（grid）に `transform-style: preserve-3d` を付け、box-bot を floor の子として絶対配置する。
 - box-bot 側には床の `rotateX` を打ち消す逆回転 `rotateX(calc(-1 * var(--floor-tilt)))` を掛け、傾いた床の上で直立させる。`--floor-tilt` は CSS 変数継承で floor から降ってくるため、傾きスライダー操作で actor も React 再レンダリングなしで追従する。
-- `mode="3d"` / `orbit={false}` / `autoRotate={false}`。設置領域の div（`cellSize * FOOTPRINT_RATIO`、`FOOTPRINT_RATIO = 0.7`）を grid セルへ絶対配置し、その中央へ box-bot を置く。box-bot の `style.height` はシルエット + 余白 + 影を含み見た目より一回り大きいため、設置領域を bot 表示より少し小さく取り、bot はわずかに枠からはみ出す。
-- 足元がセル中央に来るよう、設置領域の中央をセル中央から `-0.12 * cellSize`（実測値）上へずらす。
+- `mode="3d"` / `orbit={false}` / `autoRotate={false}`。設置領域の div（`cellSize * FOOTPRINT_RATIO`、`FOOTPRINT_RATIO = 0.7`）を grid セルの中央へ絶対配置し、その中央へ box-bot を置く。box-bot の `style.height` はシルエット + 余白 + 影を含み見た目より一回り大きいため、設置領域を bot 表示より少し小さく取り、bot はわずかに枠からはみ出す。
+- box-bot-3d の内部 Canvas は設置領域より大きく中心もずれ、逆 `rotateX` + perspective 投影でさらにずれる。box-bot 側の `translate` に実測補正（`canvasCenterOffsetX/Y`、tilt=55 で合わせ込み）を足し、bot 描画を設置領域中央へ寄せる。
+- tilt を大きく振ると補正がずれる（tilt 依存の位置ズレとして下記に既知課題化）。
 - position 管理と移動企図配線は stage-04 の資産を再利用（`src/prototypes/CLAUDE.md` の「若い番号から import 可」）。
   - `stage-04/_contexts/actor-position-context`（`ActorPositionProvider` / `useActorControl` / `useActorPosition`）と `stage-04/_hooks/use-keyboard-move` を import。座標計算を含まないためコピー不要。
   - 座標系が異なる layer（`geo-layer` / `actors-layer`）は grid + % 前提で新規作成。

@@ -78,17 +78,22 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
   const footprintSize = cellSize * FOOTPRINT_RATIO
 
   /**
-   * 設置領域: セル中央への絶対配置 + 床の rotateX を相殺する逆回転
+   * box-bot 描画 (Canvas) の中心を設置領域中心へ寄せる補正 (px、rotateX 前空間)
    *
-   * - 枠の中央をセル中央から少し上へずらし、内側 box-bot の足元がセル中央に来るよう合わせる
-   *   (`-0.12 * cellSize` は box-bot の設置領域内での足元位置に対する実測補正)
+   * - box-bot-3d の内部 Canvas は設置領域 (root) より大きく中心もずれる。
+   *   さらに逆 rotateX + perspective 投影で見かけのずれが変わる
+   * - 係数は tilt=55 (Primary story) での実測合わせ。厳密な解析式ではない
    */
+  const canvasCenterOffsetX = cellSize * 0.4
+  const canvasCenterOffsetY = cellSize * 0.236
+
+  /** 設置領域: セル中央への絶対配置 + 床の rotateX を相殺する逆回転 */
   const footprintStyle: CSSProperties = {
     height: footprintSize,
     left: `${((actorPosition.col + 0.5) / gridSize.cols) * 100}%`,
     position: 'absolute',
     top: `${((actorPosition.row + 0.5) / gridSize.rows) * 100}%`,
-    transform: `translate(-50%, calc(-50% - ${0.12 * cellSize}px)) rotateX(calc(-1 * var(--floor-tilt)))`,
+    transform: 'translate(-50%, -50%) rotateX(calc(-1 * var(--floor-tilt)))',
     transformOrigin: 'center bottom',
     transition: 'left 150ms, top 150ms, transform 150ms',
     width: footprintSize,
@@ -106,7 +111,7 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
           left: '50%',
           position: 'absolute',
           top: '50%',
-          transform: 'translate(-50%, -50%)',
+          transform: `translate(calc(-50% + ${canvasCenterOffsetX}px), calc(-50% + ${canvasCenterOffsetY}px))`,
           width: cellSize,
         }}
       />
