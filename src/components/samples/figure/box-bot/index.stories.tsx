@@ -97,6 +97,56 @@ export const Sizes: Story = {
   ),
 }
 
+type SizingArgs = {
+  /** style.height/width に渡す px(設置領域 = Assembly のサイズ) */
+  size: number
+}
+
+/** Sizing の基準セル一辺(px) */
+const SIZING_CELL = 96
+
+/**
+ * size を可変にして、設置領域(style.height)と bot 実表示・基準セルの関係を見る
+ *
+ * - `mode="3d"` / `orbit={false}` / `autoRotate={false}` で静止。stage 上の actor と同条件
+ * - 赤 outline = 設置領域(Assembly)。灰マス = 96px の基準セル
+ * - box-bot は設置領域の中心へ本体が来るよう内部調整するが、Canvas(可動域込み)は\
+ *   設置領域より一回り大きい。size を小さくするほど Canvas もセルに近づく
+ */
+export const Sizing: StoryObj<SizingArgs> = {
+  args: {
+    size: SIZING_CELL,
+  },
+  argTypes: {
+    size: { control: { max: 400, min: 32, step: 8, type: 'range' } },
+  },
+  render: (args) => (
+    <div style={{ padding: 200 }}>
+      <div
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          height: SIZING_CELL,
+          justifyContent: 'center',
+          outline: '1px solid #cbd5e1',
+          width: SIZING_CELL,
+        }}
+      >
+        <StoryComponent
+          autoRotate={false}
+          mode="3d"
+          orbit={false}
+          style={{
+            height: args.size,
+            outline: '1px solid red',
+            width: args.size,
+          }}
+        />
+      </div>
+    </div>
+  ),
+}
+
 /** 升目表示との組み合わせ */
 export const Grid: Story = {
   render: () => {
