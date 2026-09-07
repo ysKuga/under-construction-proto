@@ -46,6 +46,16 @@ const VIEW_INVARIANT =
  */
 const BASE_FOV = (Math.atan(DEFAULT_HEIGHT / VIEW_INVARIANT) * 360) / Math.PI
 
+/**
+ * r3f の Canvas 実測を transform 非依存にする resize オプション
+ *
+ * - 既定は `getBoundingClientRect()` 実測。祖先に `rotateX` + perspective があると
+ *   縮んだ rect を測り、canvas が設置領域より小さくなる(奥ほど顕著)
+ * - `offsetSize` で `offsetWidth` / `offsetHeight`(レイアウト寸法、transform 非依存)
+ *   を使わせ、傾いた床の上でも canvas を設置領域と一致させる
+ */
+const CANVAS_RESIZE = { offsetSize: true } as const
+
 /** カメラ位置(world) */
 export const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
 
@@ -218,6 +228,9 @@ export default function BoxBot3D({
           // 禁止カーソル等の視覚効果は draggable=false でも残ることがあるが、\
           // 見た目のみで実害は無いため許容する
           onDragStart={(e) => e.preventDefault()}
+          // 実測を offsetWidth/Height(transform 非依存)にし、傾いた床の上でも
+          // canvas を設置領域と一致させる
+          resize={CANVAS_RESIZE}
           // shadows={true} は内部で PCFSoftShadowMap をデフォルト設定するが、
           // three 0.185 で PCFSoftShadowMap は非推奨化され PCFShadowMap へ
           // 強制フォールバックされる(警告発生・見た目は変化なし)。
