@@ -1,28 +1,23 @@
 # Stage05
 
-stage-04 を土台に、CSS 2D の scale 補間で遠近表現を追加。
-
-## 流用と差分
-
-- `ActorPositionProvider` / `MoveIntentEvent` / `resolveMoveIntent` は stage-04 から import してそのまま利用。
-- 差し替えは「グリッド座標 → 画面座標」の投影のみ。`_lib/perspective.ts` の `projectCell` へ集約。
-- `GeoLayer` は投影関数を参照する形で stage-05 側に再実装（sibling import は避け、`_lib` を一方向参照）。
-- actor 表示（`ActorsLayer` / `useKeyboardMove` 相当）は現時点で未搭載。find-path 段階 2 で box-bot を載せる。
+CSS `perspective` + `rotateX` で床面を台形にした遠近ステージ。stage-04 の scale 補間案は不採用。
 
 ## 遠近モデル
 
-- 最奥行 (row 0) を `depthScale` 倍、最前行 (row rows-1) を等倍として線形補間。
-- 各行は水平中央揃え。縦は各行のセル高を奥から積み上げ、隙間なくタイル状に並べる（奥ほど行が薄くなる）。
-- `height` は描画領域の箱の高さのみに使用。積み上げ結果が `height` に満たなくても下側が余るだけ。
-- `ProjectedCell.scale` は現在行の縮尺。段階 2 で actor（box-bot）の大きさ追従に使う。
+- 外枠に `perspective` / `perspectiveOrigin` を置き、内側の等間隔グリッド (`display: grid`) を `rotateX` で寝かせる。
+- 遠近はブラウザの透視変換に一任。行ごとの座標計算は不要。
+- セルは実際に奥へ変形する（scale 補間案のように矩形のまま縮小するのではない）。
 
-## z-index / 描画順
+## 傾きの ref 制御
 
-- 奥の行から順に描画し、手前のセルを DOM 上で後勝ちにする。z-index は使わない。
-- actor（段階 2 で追加）は `GeoLayer` の後に置き、地形より前面に出す（stage-04 踏襲）。
-- 複数 actor / 障害物どうしの前後関係（row 昇順ソート）は未対応。find-path 段階 4 で扱う。
+- 傾き (`rotateX` の角度) は `_hooks/use-perspective-control.ts` の `usePerspectiveControl` が管理。
+- `floorRef` 経由で床要素の `--floor-tilt` カスタムプロパティを直接書換える。React state を持たない。
+- スライダー操作で `cols * rows` のセル群は再レンダリングされない（`console.log('render: Stage05')` で確認可）。
+- 値は 0〜85deg にクランプ。90 近傍は床が消えるため。
+- `transition: transform 150ms` で傾き変更を補間。
 
-## 未対応
+## 未対応 / 段階 2 以降
 
-- `perspective` / `rotateX` による本格的な床面の傾き表現は不採用（実装コスト・three.js 合成の都合）。
-- 遠近に伴うクリック判定の歪み補正なし（各セルは投影後の矩形ボタンをそのまま使用）。
+- actor 未搭載。box-bot を載せる際、床と同じ 3D 空間に乗るため逆 `rotateX` で立て直す必要がある（`ui-three` の occlude 課題と同種）。
+- セルのクリック企図（stage-04 の `MoveIntent`）は未接続。actor 搭載時に戻す。
+- `perspectivePx` / `perspectiveOrigin` は props 固定。pan / zoom（カメラ相当）の ref 制御は未着手。

@@ -1,45 +1,85 @@
-import { cn } from '@/utils/cn'
+import { CSSProperties } from 'react'
 
-import { ActorPositionProvider } from '../stage-04/_contexts/actor-position-context'
-
-import { GeoLayer } from './_components/geo-layer'
-import { PerspectiveViewport } from './_lib/perspective'
+import { usePerspectiveControl } from './_hooks/use-perspective-control'
 
 type Stage05Props = {
   /** 列数 */
   cols: number
-  /** 最奥行のセル倍率 (最前行を 1 とした相対値、0-1) */
-  depthScale: number
-  /** 描画領域の高さ (px) */
-  height: number
+  /** rotateX の初期角度 (deg) */
+  initialTiltDeg: number
+  /** perspective 視点距離 (px)。小さいほど遠近が強い */
+  perspectivePx: number
   /** 行数 */
   rows: number
-  /** 描画領域の幅 (px) */
-  width: number
+  /** 描画領域の一辺 (px) */
+  size: number
 }
 
 /**
- * 舞台 (stage) — CSS 2D scale 補間で遠近を付けた版
+ * 舞台 (stage) — CSS perspective + rotateX で床面を台形にした版
  *
- * - stage-04 の ActorPositionProvider / MoveIntent を流用（GeoLayer のセルクリック企図用）
- * - 位置→画面座標の投影のみ `_lib/perspective` の projectCell へ差し替える
- * - 奥行きに伴う前後関係は「奥の行から描画」の DOM 順で解決し、z-index は使わない
- * - actor 表示は未搭載。段階 2 で box-bot を載せる
+ * - 等間隔の正方形グリッドを `perspective` 空間で寝かせ、遠近は透視変換に任せる
+ * - 傾き (rotateX) は `usePerspectiveControl` が ref 経由で `--floor-tilt` を書換える。
+ *   スライダー操作でセル群は再レンダリングされない
+ * - 子要素も同じ 3D 空間に乗るため、この上に載せる actor は段階 2 で逆 rotateX が要る
  */
 export const Stage05 = (props: Stage05Props) => {
-  const { cols, depthScale, height, rows, width } = props
+  const { cols, initialTiltDeg, perspectivePx, rows, size } = props
 
-  /** 遠近投影のレイアウト指定 */
-  const viewport: PerspectiveViewport = { depthScale, height, width }
+  const { floorRef, setTilt } = usePerspectiveControl()
+
+  console.log('render: Stage05')
+
+  /** 透視の視点距離を持つ外枠のスタイル */
+  const sceneStyle: CSSProperties = {
+    height: size,
+    perspective: `${perspectivePx}px`,
+    perspectiveOrigin: 'center 30%',
+    width: size,
+  }
+
+  /** rotateX で寝かせたグリッド本体のスタイル (傾きは --floor-tilt 経由) */
+  const floorStyle = {
+    '--floor-tilt': `${initialTiltDeg}deg`,
+    display: 'grid',
+    gap: 2,
+    gridTemplateColumns: `repeat(${cols}, 1fr)`,
+    gridTemplateRows: `repeat(${rows}, 1fr)`,
+    height: '100%',
+    transform: 'rotateX(var(--floor-tilt))',
+    transformOrigin: 'center bottom',
+    transition: 'transform 150ms',
+    width: '100%',
+  } as CSSProperties
 
   return (
-    <ActorPositionProvider gridSize={{ cols, rows }}>
-      <div
-        className={cn('ui-container ui-stage', 'relative')}
-        style={{ height, width }}
-      >
-        <GeoLayer viewport={viewport} />
+    <div>
+      <div style={sceneStyle}>
+        <div ref={floorRef} style={floorStyle}>
+          {Array.from({ length: cols * rows }).map((_, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+              }}
+            />
+          ))}
+        </div>
       </div>
-    </ActorPositionProvider>
+      <label>
+        tilt{' '}
+        <input
+          defaultValue={initialTiltDeg}
+          max={85}
+          min={0}
+          onChange={(event) => {
+            setTilt(Number(event.target.value))
+          }}
+          step={1}
+          type="range"
+        />
+      </label>
+    </div>
   )
 }

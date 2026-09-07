@@ -11,36 +11,34 @@ type Story = StoryObj<typeof StoryComponent>
 
 const cols = 5
 const rows = 5
-const width = 500
-const height = 420
-const depthScale = 0.45
+const size = 400
 
 export const Primary: Story = {
   args: {
     cols,
-    depthScale,
-    height,
+    initialTiltDeg: 55,
+    perspectivePx: 600,
     rows,
-    width,
+    size,
+  },
+}
+
+export const StrongTilt: Story = {
+  args: {
+    cols,
+    initialTiltDeg: 68,
+    perspectivePx: 400,
+    rows,
+    size,
   },
 }
 
 export const NonSquareGrid: Story = {
   args: {
     cols: 4,
-    depthScale,
-    height: 560,
+    initialTiltDeg: 55,
+    perspectivePx: 600,
     rows: 7,
-    width,
-  },
-}
-
-export const StrongDepth: Story = {
-  args: {
-    cols,
-    depthScale: 0.25,
-    height,
-    rows,
-    width,
+    size,
   },
 }
