@@ -111,4 +111,5 @@ issue: #137
 - stage-04（画面座標 absolute）と box-bot（three.js Canvas）のレイヤ統合方式が未確定。`ui-three` の occlude 課題と同種の問題が出る可能性
 - time-control-03 の store 数が多い。ページ 1 枚に持ち込む際の Context ネスト規模
 - 遠近は CSS `perspective` + `rotateX` で確定（stage-05）。actor / three.js Canvas は床と同じ 3D 空間に乗るため逆 `rotateX` 立て直しが要る。遠近に伴うセルのクリック判定の歪み補正も未対応、段階 2 で box-bot を載せる際に再検討
+- 段階 2 で box-bot 搭載済。残課題（stage-05 README「未対応」に詳細）: (1) 複数 actor の z 順 / occlude、(2) セルのクリック判定歪み、(3) tilt 依存の actor 位置ズレ（`translate` 固定値のため tilt max でマス左上へ外れる。`--floor-tilt` を使った `calc` 補正が要る）
 - 「ジャンプ → 歩く」（proto-01）は実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は未整理

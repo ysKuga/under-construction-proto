@@ -32,5 +32,6 @@ CSS `perspective` + `rotateX` で床面を台形にした遠近ステージ。st
 
 - 複数 actor / 障害物の前後関係（z 順）。box-bot の Canvas は透明部分もクリックを奪う（`ui-three` の occlude 課題と同種）ため、複数体を重ねる場合は `interactive={false}` 等の対処が要る。
 - 遠近に伴うセルのクリック判定の歪み。奥のセルほど当たり判定が小さくなる。
+- **tilt 依存の actor 位置ズレ**。`translate(-50%, -62%)` が固定値のため、tilt が大きいほど box-bot がマス中心から外れる。tilt max（85deg）ではマスの左上へ大きく外れる。tilt が小さい〜中程度では許容範囲。逆 `rotateX` の弧が tilt に比例して伸び、billboard の足元アンカーが本来のセル位置から乖離するのが原因。`--floor-tilt` を使った `calc` での translate 補正が必要（再レンダリング回避方針を保つため JS state 化は避ける）。
 - 奥行きセルでの actor 設置位置の微妙なズレ（`translate` の Y は中間セル基準で調整済み、最奥行は浮き気味）。
 - `perspectivePx` / `perspectiveOrigin` は props 固定。pan / zoom（カメラ相当）の ref 制御は未着手。
