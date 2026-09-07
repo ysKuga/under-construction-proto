@@ -71,6 +71,9 @@ const cellStyle = (
  * - 移動は stage-04 の企図配線を流用: actor クリックで順送り / キーボードで方向移動
  * - `actions={[]}` で jump / spin を無効化し、クリックは順送りのみに使う
  * - stage-04 と違い key での再マウントはしない。left/top の transition でセル間を滑らせる
+ * - 操作 actor 以外に、動作確認用の静的 bot を配置する:
+ *   - 中央セル: 同一マスへ 2 体を斜めにずらして重ね、occlude / 前後関係を見る
+ *   - 四隅: 遠近・接地の確認。上段 (row 0) は tilt の位置ズレ確認のためグリッド外縁へ寄せる
  */
 export const ActorsLayer = (props: ActorsLayerProps) => {
   const { botSize } = props
@@ -87,12 +90,59 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
     })
   }
 
+  /** 中央セル: 同一マスに 2 体を重ねる確認用 */
+  const stackCol = Math.floor(gridSize.cols / 2)
+  const stackRow = Math.floor(gridSize.rows / 2)
+
   return (
-    <BoxBot01
-      actions={[]}
-      onClick={handleClick}
-      orbit={false}
-      style={cellStyle(actorPosition.col, actorPosition.row, gridSize, botSize)}
-    />
+    <>
+      <BoxBot01
+        actions={[]}
+        onClick={handleClick}
+        orbit={false}
+        style={cellStyle(
+          actorPosition.col,
+          actorPosition.row,
+          gridSize,
+          botSize,
+        )}
+      />
+      {/* 同一マスに 2 体。斜め (右下 / 左上) にずらして重なりを見る */}
+      {[-0.28, 0.28].map((d) => (
+        <BoxBot01
+          actions={[]}
+          interactive={false}
+          key={d}
+          orbit={false}
+          style={{
+            ...cellStyle(stackCol, stackRow, gridSize, botSize),
+            transform: `translate(calc(-50% + ${d * botSize}px), calc(-53% + ${d * botSize}px)) rotateX(calc(-1 * var(--floor-tilt)))`,
+          }}
+        />
+      ))}
+      {/* 四隅の静的 bot。上段 2 体は tilt 位置ズレ確認のためグリッド外縁ぎりぎりへ */}
+      {[
+        { col: 0, edge: true, row: 0 },
+        { col: gridSize.cols - 1, edge: true, row: 0 },
+        { col: 0, edge: false, row: gridSize.rows - 1 },
+        { col: gridSize.cols - 1, edge: false, row: gridSize.rows - 1 },
+      ].map(({ col, edge, row }) => (
+        <BoxBot01
+          actions={[]}
+          interactive={false}
+          key={`${col}-${row}`}
+          orbit={false}
+          style={
+            edge
+              ? {
+                  ...cellStyle(col, row, gridSize, botSize),
+                  left: col === 0 ? '0%' : '100%',
+                  top: '0%',
+                }
+              : cellStyle(col, row, gridSize, botSize)
+          }
+        />
+      ))}
+    </>
   )
 }
