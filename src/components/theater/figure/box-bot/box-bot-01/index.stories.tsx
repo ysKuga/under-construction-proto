@@ -66,6 +66,7 @@ export const ConfigOverride: Story = {
 
 /** 大中小のサイズ(style.height/width の px)。大 = DEFAULT_HEIGHT の較正サイズ */
 const SIZE_VARIANTS = [
+  { label: '極小', size: 44 },
   { label: '小', size: 88 },
   { label: '中', size: 144 },
   { label: '大', size: 234 },
