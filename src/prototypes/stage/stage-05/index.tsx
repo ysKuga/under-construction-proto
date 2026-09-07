@@ -7,6 +7,8 @@ import { GeoLayer } from './_components/geo-layer'
 import { usePerspectiveControl } from './_hooks/use-perspective-control'
 
 type Stage05Props = {
+  /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
+  botSize: number
   /** 列数 */
   cols: number
   /** rotateX の初期角度 (deg) */
@@ -30,7 +32,7 @@ type Stage05Props = {
  *   cell クリック / actor クリック / キーボードはいずれも移動企図 dispatch のみ行う
  */
 export const Stage05 = (props: Stage05Props) => {
-  const { cols, initialTiltDeg, perspectivePx, rows, size } = props
+  const { botSize, cols, initialTiltDeg, perspectivePx, rows, size } = props
 
   const { floorRef, setTilt } = usePerspectiveControl()
 
@@ -68,7 +70,7 @@ export const Stage05 = (props: Stage05Props) => {
         <div style={sceneStyle}>
           <div ref={floorRef} style={floorStyle}>
             <GeoLayer />
-            <ActorsLayer cellSize={size / cols} />
+            <ActorsLayer botSize={botSize} />
           </div>
         </div>
         <label>

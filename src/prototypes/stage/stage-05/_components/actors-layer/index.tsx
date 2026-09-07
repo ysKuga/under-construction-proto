@@ -11,8 +11,13 @@ import {
 import { useKeyboardMove } from '../../../stage-04/_hooks/use-keyboard-move'
 
 type ActorsLayerProps = {
-  /** セル一辺の px。box-bot-01 の設置領域 (= 表示領域 = Canvas) に渡す */
-  cellSize: number
+  /**
+   * actor (box-bot-01) の一辺 px
+   *
+   * - box-bot-01 の設置領域 (= 表示領域 = Canvas) に渡す
+   * - マスのサイズとは独立。グリッドが変わっても bot の見た目は据え置く
+   */
+  botSize: number
 }
 
 /**
@@ -42,7 +47,7 @@ const getNextSequentialPosition = (
  * actor 表示
  *
  * - theater の box-bot-01 を floor(grid) の子としてセル中央へ絶対配置する
- * - box-bot-01 は表示領域 = 設置領域 (#108) のため Canvas は cellSize と一致し、
+ * - box-bot-01 は表示領域 = 設置領域 (#108) のため Canvas は botSize と一致（マスとは独立）。
  *   samples 版のような一回り大きい Canvas / 透明部のクリック奪取は起きない
  * - 床の rotateX を打ち消す逆 rotateX を掛け、傾いた床の上で bot を直立させる
  *   (`--floor-tilt` は floor から CSS 変数継承。傾き変更は再レンダリング不要)
@@ -51,7 +56,7 @@ const getNextSequentialPosition = (
  * - stage-04 と違い key での再マウントはしない。left/top の transition でセル間を滑らせる
  */
 export const ActorsLayer = (props: ActorsLayerProps) => {
-  const { cellSize } = props
+  const { botSize } = props
 
   const { dispatchMoveIntent, gridSize } = useActorControl()
   const actorPosition = useActorPosition()
@@ -71,14 +76,14 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
    * - translate Y の -53% は bot の足元をセル中央付近へ寄せる実測補正
    */
   const actorStyle: CSSProperties = {
-    height: cellSize,
+    height: botSize,
     left: `${((actorPosition.col + 0.5) / gridSize.cols) * 100}%`,
     position: 'absolute',
     top: `${((actorPosition.row + 0.5) / gridSize.rows) * 100}%`,
     transform: 'translate(-50%, -53%) rotateX(calc(-1 * var(--floor-tilt)))',
     transformOrigin: 'center bottom',
     transition: 'left 150ms, top 150ms, transform 150ms',
-    width: cellSize,
+    width: botSize,
   }
 
   return (

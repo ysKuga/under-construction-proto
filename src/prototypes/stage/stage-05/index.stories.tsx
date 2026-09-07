@@ -12,9 +12,12 @@ type Story = StoryObj<typeof StoryComponent>
 const cols = 5
 const rows = 5
 const size = 400
+/** actor の一辺 px。マスサイズ (size / cols = 80) とは独立に指定する */
+const botSize = 96
 
 export const Primary: Story = {
   args: {
+    botSize,
     cols,
     initialTiltDeg: 55,
     perspectivePx: 600,
@@ -25,6 +28,7 @@ export const Primary: Story = {
 
 export const StrongTilt: Story = {
   args: {
+    botSize,
     cols,
     initialTiltDeg: 68,
     perspectivePx: 400,
@@ -35,6 +39,7 @@ export const StrongTilt: Story = {
 
 export const NonSquareGrid: Story = {
   args: {
+    botSize,
     cols: 4,
     initialTiltDeg: 55,
     perspectivePx: 600,
