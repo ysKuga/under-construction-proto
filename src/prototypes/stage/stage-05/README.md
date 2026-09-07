@@ -16,24 +16,23 @@ CSS `perspective` + `rotateX` で床面を台形にした遠近ステージ。st
 - 値は 0〜85deg にクランプ。90 近傍は床が消えるため。
 - `transition: transform 150ms` で傾き変更を補間。
 
-## actor (box-bot)
+## actor (box-bot-01)
 
-段階 2 で `_components/actors-layer` として box-bot を搭載。
+段階 2 で `_components/actors-layer` として `@/components/theater/figure/box-bot` の `BoxBot01`（ゲーム内 actor 用）を搭載。samples 版はデモ用見本のため使わない。
 
-- floor（grid）に `transform-style: preserve-3d` を付け、box-bot を floor の子として絶対配置する。
-- box-bot 側には床の `rotateX` を打ち消す逆回転 `rotateX(calc(-1 * var(--floor-tilt)))` を掛け、傾いた床の上で直立させる。`--floor-tilt` は CSS 変数継承で floor から降ってくるため、傾きスライダー操作で actor も React 再レンダリングなしで追従する。
-- `mode="3d"` / `orbit={false}` / `autoRotate={false}`。設置領域の div（`cellSize * FOOTPRINT_RATIO`、`FOOTPRINT_RATIO = 0.7`）を grid セルの中央へ絶対配置し、その中央へ box-bot を置く。box-bot の `style.height` はシルエット + 余白 + 影を含み見た目より一回り大きいため、設置領域を bot 表示より少し小さく取り、bot はわずかに枠からはみ出す。
-- box-bot-3d の内部 Canvas は設置領域より大きく中心もずれ、逆 `rotateX` + perspective 投影でさらにずれる。box-bot 側の `translate` に実測補正（`canvasCenterOffsetX/Y`、tilt=55 で合わせ込み）を足し、bot 描画を設置領域中央へ寄せる。
-- tilt を大きく振ると補正がずれる（tilt 依存の位置ズレとして下記に既知課題化）。
+- floor（grid）に `transform-style: preserve-3d` を付け、`BoxBot01` を floor の子として絶対配置する。
+- box-bot-01 は表示領域 = 設置領域（#108）で Canvas が `style.height` = `cellSize` と一致し、bot も Canvas 中央へ較正済み。samples 版のような一回り大きい Canvas・中心ずれ・透明部のクリック奪取が起きないため、`FOOTPRINT_RATIO` / `canvasCenterOffset` の実測補正と設置領域ラッパー div は不要。
+- 床の `rotateX` を打ち消す逆回転 `rotateX(calc(-1 * var(--floor-tilt)))` を掛け、傾いた床の上で直立させる。`--floor-tilt` は CSS 変数継承で floor から降ってくるため、傾きスライダー操作で actor も React 再レンダリングなしで追従する。
+- `orbit={false}` / `actions={[]}`（jump / spin を無効化）。`translate(-50%, -53%)`（実測）で足元をセル中央付近へ寄せる。
 - position 管理と移動企図配線は stage-04 の資産を再利用（`src/prototypes/CLAUDE.md` の「若い番号から import 可」）。
   - `stage-04/_contexts/actor-position-context`（`ActorPositionProvider` / `useActorControl` / `useActorPosition`）と `stage-04/_hooks/use-keyboard-move` を import。座標計算を含まないためコピー不要。
   - 座標系が異なる layer（`geo-layer` / `actors-layer`）は grid + % 前提で新規作成。
-- 配線 3 系統: セルクリック（cell-click）/ box-bot の頭・胴クリックで次セルへ順送り（actor-click）/ 矢印キー・WASD（keyboard）。
+- 配線 3 系統: セルクリック（cell-click）/ actor クリックで次セルへ順送り（actor-click、`onClick`）/ 矢印キー・WASD（keyboard）。
 
 ## 未対応 / 段階 2 以降
 
-- 複数 actor / 障害物の前後関係（z 順）。box-bot の Canvas は透明部分もクリックを奪う（`ui-three` の occlude 課題と同種）ため、複数体を重ねる場合は `interactive={false}` 等の対処が要る。
+- 複数 actor / 障害物の前後関係（z 順）。box-bot-01 の Canvas は `cellSize` に収まるため単体では occlude 問題は出にくいが、複数体を重ねる場合は透明部のクリック奪取・描画順の対処が要る。
 - 遠近に伴うセルのクリック判定の歪み。奥のセルほど当たり判定が小さくなる。
-- **tilt 依存の actor 位置ズレ**。`translate(-50%, -62%)` が固定値のため、tilt が大きいほど box-bot がマス中心から外れる。tilt max（85deg）ではマスの左上へ大きく外れる。tilt が小さい〜中程度では許容範囲。逆 `rotateX` の弧が tilt に比例して伸び、billboard の足元アンカーが本来のセル位置から乖離するのが原因。`--floor-tilt` を使った `calc` での translate 補正が必要（再レンダリング回避方針を保つため JS state 化は避ける）。
+- **tilt 依存の actor 位置ズレ**。`translate(-50%, -53%)` が固定値のため、tilt が大きいほど box-bot がマス中心から外れる。tilt max（85deg）ではマスの左上へ大きく外れる。tilt が小さい〜中程度では許容範囲。逆 `rotateX` の弧が tilt に比例して伸び、billboard の足元アンカーが本来のセル位置から乖離するのが原因。`--floor-tilt` を使った `calc` での translate 補正が必要（再レンダリング回避方針を保つため JS state 化は避ける）。
 - 奥行きセルでの actor 設置位置の微妙なズレ（`translate` の Y は中間セル基準で調整済み、最奥行は浮き気味）。
 - `perspectivePx` / `perspectiveOrigin` は props 固定。pan / zoom（カメラ相当）の ref 制御は未着手。
