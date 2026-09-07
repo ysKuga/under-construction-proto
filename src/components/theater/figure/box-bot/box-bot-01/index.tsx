@@ -23,22 +23,28 @@ import type { BoxBot3DProps, Vec3 } from './index.types'
 const DEFAULT_HEIGHT = 234
 
 /**
- * bot の見かけの px サイズを較正した基準の組(Canvas 一辺 px / fov 度)
+ * bot の見かけを較正した基準の組(Canvas 一辺 px / fov 度)
  *
- * - この Canvas サイズ・fov のとき bot(影なし)がちょうど収まる。ここを基準に、\
- *   任意の Canvas サイズでも bot の画面上の大きさが一定になるよう fov を自動算出する
+ * - この Canvas サイズ・fov のとき bot(影なし)がちょうど収まる
  */
 const REFERENCE_HEIGHT = 480
 const REFERENCE_FOV = 64
 
 /**
- * bot の見かけの大きさを Canvas サイズに依らず一定に保つための不変量
+ * `assemblySize / tan(fov/2)` の基準値
  *
- * - `assemblySize / tan(fov/2)` を一定にすると、Canvas を縮めても bot の画面上の\
- *   px 高さが変わらない(カメラ位置は動かさず fov だけ絞る)
+ * - 表示領域が設置領域を逸脱した率(overscan)に応じて fov を広げる計算の分母に使う
  */
 const VIEW_INVARIANT =
   REFERENCE_HEIGHT / Math.tan((REFERENCE_FOV * Math.PI) / 360)
+
+/**
+ * 設置領域 = 表示領域のときの基準画角(度)
+ *
+ * - 設置領域が DEFAULT_HEIGHT で bot がちょうど収まる fov。overscan=1 のときこの値になる
+ * - 設置領域サイズを変えても overscan=1 なら fov 一定 → bot は設置領域に比例して拡大縮小する
+ */
+const BASE_FOV = (Math.atan(DEFAULT_HEIGHT / VIEW_INVARIANT) * 360) / Math.PI
 
 /** カメラ位置(world) */
 export const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
@@ -134,18 +140,27 @@ export default function BoxBot3D({
   /**
    * 表示領域(Canvas)の実ピクセル高さ
    *
-   * - `canvasHeight` 省略時は設置領域と一致(`assemblySize`)。明示時はその値。\
-   *   fov 算出の基準も兼ねる(縦へ広げた分だけ画角を広げ、bot の見かけを不変に保つ)
+   * - `canvasHeight` 省略時は設置領域と一致(`assemblySize`)。明示時はその値
    */
   const canvasHeightPx = canvasHeight ?? assemblySize
   /**
+   * 表示領域が設置領域を縦へ逸脱した率(1 = 逸脱なし)
+   *
+   * - `canvasHeight` で表示領域だけ広げたぶんは fov を広げて余白にする(bot の見かけ不変)
+   */
+  const heightOverscan = canvasHeightPx / assemblySize
+  /**
    * カメラ視野角(度)
    *
-   * - 明示指定なければ canvasHeightPx から自動算出し、Canvas サイズが変わっても\
-   *   bot の見かけの px サイズを一定に保つ(`VIEW_INVARIANT`)
+   * - 明示指定なければ `BASE_FOV` を overscan ぶん広げた値。overscan=1(表示領域 =\
+   *   設置領域)なら `BASE_FOV` 固定 → bot は設置領域サイズに比例して拡大縮小する
    */
   const fov =
-    fovProp ?? (Math.atan(canvasHeightPx / VIEW_INVARIANT) * 360) / Math.PI
+    fovProp ??
+    (2 *
+      Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) * heightOverscan) *
+      180) /
+      Math.PI
   /**
    * lineWidth(screen-space px 固定)の縮小スケール
    *

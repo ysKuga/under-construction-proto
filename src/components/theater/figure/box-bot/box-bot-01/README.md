@@ -2,6 +2,13 @@
 
 手描き風ボックスロボットの 3D figure。表示領域を設置領域に一致させ (#108)、ゲーム内で actor のレンダリング要素として使うことを想定する。
 
+## サイズ
+
+- `style.height`(= 設置領域 = 表示領域 = Canvas の一辺 px)で拡大縮小する。
+- fov は基準画角を overscan(表示領域 / 設置領域)ぶん広げた値。`canvasHeight` / `canvasWidth` を指定しない限り overscan=1 で fov 固定 → bot は `style.height` に比例して素直に拡大縮小する(samples 版のような Canvas の一回り拡大はなし)。
+- `canvasHeight` を明示すると設置領域を縦へ逸脱して Canvas を広げ、逸脱ぶんは余白として fov で吸収する(bot の見かけは不変。トップページのヒーロー用途)。
+- サイズ挙動の確認は `index.stories.tsx` の `Sizing` story。
+
 ## 構成
 
 ```text

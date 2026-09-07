@@ -77,10 +77,8 @@ const SIZING_CELL = 96
  *
  * - #108 で表示領域 = 設置領域。赤 outline(= 設置領域)がそのまま Canvas の外周で、
  *   samples 版のように Canvas が一回り大きくならない
- * - ただし fov 自動算出は bot の見かけ px を一定に保つ較正(≈ DEFAULT_HEIGHT 234)。
- *   size をそれより小さくすると bot は縮小せず Canvas にクリップされる。
- *   小さいセルへ載せる用途では明示 `fov` か別の縮小手段が要る(box-bot-01 の
- *   「拡大縮小の禁止」方針。README 参照)
+ * - overscan=1(表示領域 = 設置領域)では fov 固定のため、size を変えると bot も
+ *   それに比例して拡大縮小する。小さいセルへも `style.height` だけで載る
  * - `orbit={false}` / `actions={[]}` で静止。灰マス = 96px の基準セル
  */
 export const Sizing: StoryObj<SizingArgs> = {
