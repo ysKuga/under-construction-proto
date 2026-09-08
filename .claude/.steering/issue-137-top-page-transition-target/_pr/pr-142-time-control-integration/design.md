@@ -39,10 +39,47 @@ stage-05 / find-path 試作へ time-control-03 の tick 管理を統合する。
 
 ### 1. store 群の持ち込み単位
 
-- `TimeControl03Providers` を丸ごと import するか、必要 store だけ抜粋して find-path 用 Provider を組むか
-- `_components` は流用せず store / `_events` / `_computed` のみ載せる想定
-- 7 store のうち find-path で不要なもの（async-sample は既に除外済、actor-settings / 複数 actor 前提の intent の扱い）を確定
-- Context ネスト規模（親 design.md 懸念）
+#### 前提: 2 つの座標系・MoveIntent が別物
+
+| 観点 | stage-04/05 `ActorPositionProvider` | time-control-03 |
+| --- | --- | --- |
+| 座標 | `GridPosition {col,row}` 整数・clamp あり | `Position {x,y}` 自由座標・制限なし |
+| MoveIntent | `{source, target}`（source = actor-click / cell-click / keyboard） | `{actorId, target}` |
+| 反映 | `resolveMoveIntent` で clamp → 即 `setState` | `generateMovePath` で距離刻み経路生成 → path / planned-path 書込 → position store が tick 消化 |
+| actor 数 | 単一（Provider 1 個 = 1 actor、id なし） | 複数（全 state が `xxxById: Record<ActorId, _>`） |
+
+find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複数 actor。モデルが根本的に違う。
+
+#### 7 store の find-path 要否
+
+- **game-clock** — 要。`timeScale`（早送り / ポーズ）・`commonGameTimeMs`（tick 時刻）・`eventLog` / `getHistory`（履歴）。座標系非依存、ほぼそのまま流用可
+- **planned-path** — 要。経路積み UI の対象そのもの。ただし現状 `setPlannedPath` は丸ごと差し替え → find-path は「セルを 1 つずつ push」主体なので `appendPlannedStep` 相当の action 追加が要る
+- **path** — 要。実行時の「残り経路」。planned-path のコピーを積み position store が 1 step ずつ消化
+- **position** — tick 消化ロジック（`applyNextStep` / auto の `continueAuto` timeScale accumulator / `dispatchAction`=manual 1 手 / `dispatchActions`=batch）は移植価値大。ただし `positionById` が state → 段階 3 の再レンダリング回避の主対象。**ここを ref / r3f `useFrame` 反映へ改造必須**（検討事項 2 と一体）
+- **actor** — `{speed, tickRate}`。`tickRate`（tick 間隔）は要。`speed` は連続座標の `stepDistance = speed * tickMs` 用 → セル単位の find-path では不要。tickRate だけで足りる
+- **actor-settings** — `progressMode`（auto / manual）は「実行 = 最後まで自動」vs「1 手ずつ」に流用可。`fixedPathSteps` / `isFixedPathSteps` は planned-path の長さがそのまま step 数の find-path では不要。All 系 action（複数 actor 一括）も不要
+- **intent** — `dispatchMoveIntent` が `generateMovePath`（距離ベース刻み）で経路生成。find-path は planned-path が既にセル列 → 経路生成そのものが不要。**この store は使わない**。代わりに「セルクリック → planned-path へ push」の別 action（stage-04 の MoveIntent 系に近い形）
+
+依存: position ← actor / actor-settings / path / game-clock、intent ← それら + planned-path / position。intent を外せば position は 4 store 依存で残る。
+
+#### 持ち込み方式の選択肢
+
+- **A: `TimeControl03Providers` 丸ごと流用**（7 store + computed + events、`_components` のみ自前）
+  - ○ 最速、prototype の若バージョン import 許容方針に沿う
+  - × intent（距離ベース経路生成）・複数 actor 前提の All 系・fixedPathSteps 等 find-path 不要機能を抱える。position の再レンダリング問題も丸ごと持ち込み → 結局改造が要る
+- **B: find-path 用 Provider を新規に組む**（必要 store 抜粋 + position 作り直し + intent 差し替え）
+  - ○ セル単位・単一 bot のモデルに合う。再レンダリング方針を最初から織り込める
+  - × 工数大。stage-06 新設とセットになりやすい（検討事項 4）
+- **C: 中間** — game-clock / planned-path / path / actor / actor-settings は tc-03 から import 流用、position と intent だけ find-path 用に差し替え
+
+#### 結論（暫定）: C を軸
+
+- game-clock / planned-path / path は座標系非依存（`Position {x,y}` に `x=col, y=row` でセル座標を載せれば store 改変なしで流用可）→ そのまま import
+- position・intent は find-path のセル単位モデル + 再レンダリング回避で作り直しが妥当 → 差し替え
+- actor / actor-settings は「tickRate だけ」「progressMode だけ」の縮小利用 → import 流用で一部 action のみ使うか、find-path 用に薄く作り直すか要判断
+- planned-path に `appendPlannedStep`（末尾 push）と `popPlannedStep`（取り消し）相当を足す
+- 座標系ブリッジ: tc 側 store を使うなら `{x: col, y: row}` で載せるのが素直（store 無改変）。stage-05 の `GridPosition` との相互変換は薄い helper 1 個で
+- `_components`（action-bar / schedule-preview 等）は流用せず find-path 用に自前。`_computed` は要否を検討事項 3 で確認
 
 ### 2. position を state から ref へ
 
@@ -62,14 +99,15 @@ stage-05 / find-path 試作へ time-control-03 の tick 管理を統合する。
 - 段階 1・2 と同様 prototype 空間で進める
 - time-control 統合で構造が大きく変わるなら stage-06 新設を検討（stage-05 は actor 即時移動版として残す）
 
-### 5. issue の扱い
+### 5. issue の扱い（決定済）
 
-- issue #137 は CLOSED。段階 3 の実装コミット前に reopen するか新 issue 起票するかをユーザーへ確認（`.claude/rules/issue-linking.md`）
+- issue #137 を reopen。ブランチ `137-time-control-integration`、PR #142
 
 ## 実装計画（検討後に確定）
 
-- [ ] 検討事項 1〜4 を詰めて方式決定、この design.md へ追記
-- [ ] store 群の持ち込み（find-path 用 Provider or time-control-03 Providers 流用）
+- [x] 検討事項 1（store 持ち込み単位）を詰める → 結論（暫定）C: game-clock / planned-path / path は import 流用、position / intent は差し替え
+- [ ] 検討事項 2〜4 を詰めて方式確定
+- [ ] store 群の持ち込み（C 方式: 抜粋 import + position / intent 差し替え）
 - [ ] position の ref 化（再レンダリング回避、Context 配布）
 - [ ] tick ↔ bot move の配線
 - [ ] find-path 試作へ反映、Storybook で確認
@@ -81,6 +119,6 @@ stage-05 / find-path 試作へ time-control-03 の tick 管理を統合する。
 
 ## 懸念・リスク
 
-- time-control-03 の store 数が多い。find-path の単一 bot / planned-path 積み要件に対し過剰な可能性 → 抜粋 Provider の是非
+- ~~time-control-03 の store 数が多い。find-path 要件に対し過剰~~ → 検討事項 1 で C 方式（抜粋 import + position / intent 差し替え）へ整理。intent は不使用、actor / actor-settings は縮小利用
 - position の ref 化で stage-04 由来の `ActorPositionProvider` / keyboard hook 共有が崩れる。stage-04 側へ影響を出さない切り出し方
 - 「ジャンプ → 歩く解放」（proto-01）を実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は段階 4 で未整理のまま
