@@ -81,44 +81,96 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - 座標系ブリッジ: tc 側 store を使うなら `{x: col, y: row}` で載せるのが素直（store 無改変）。stage-05 の `GridPosition` との相互変換は薄い helper 1 個で
 - `_components`（action-bar / schedule-preview 等）は流用せず find-path 用に自前。`_computed` は要否を検討事項 3 で確認
 
-### 2. position を state から ref へ
+### 2. position を state から ref へ（結論: ref-based Provider へ置換）
 
-- `ActorPositionProvider`（stage-04）依存を切るか置換するか
-- box-bot-01 は r3f Canvas → `useFrame` 内で `.current` 反映（`.claude/rules/react/r3f-state.md`、box-bot-model の `BoxBotRefsProvider` / `useBoxBotRefs` 例）
-- 複数消費者（cell クリック / keyboard / tick move）から同一 ref 参照 → Context 配布
-- tick ごとの目標セル → 補間移動 or 即時ワープ（初期は即時で可）
+#### 重要な前提
 
-### 3. tick 接続
+`BoxBot01` は自前で `<Canvas>`（r3f ルート）を持つが、**グリッド上の bot 位置は three.js 内部ではなく外側 DOM ラッパーの CSS `left` / `top`**（stage-05 `actors-layer` の `cellStyle`）。box-bot-01 自身の `useFrame` アクション（jump 等）も `displayAreaRef.current.style.top` を書換える DOM 操作。
 
-- time-control-03 の `game-clock` tick へ bot move を乗せる配線ポイント
-- `_events/_event-listeners` のどれを流用するか（dispatch-target / set-fixed-path-steps 等）
-- time-scale / progress-mode を早送り・巻戻し UI へ流用（親 design.md ゲーム内容）
+→ グリッド位置の ref 化に r3f `useFrame` は不要。`usePerspectiveControl` が `--floor-tilt` を書換えるのと同じ要領で、**bot ラッパー DOM の `left` / `top`（%）を直接書換える**。セル間の補間は既存の CSS `transition: left/top 150ms` が担う。滑らか補間（useFrame ベース）は将来。
 
-### 4. stage-05 を拡張するか stage-06 新設か
+#### 設計
 
-- 段階 1・2 と同様 prototype 空間で進める
-- time-control 統合で構造が大きく変わるなら stage-06 新設を検討（stage-05 は actor 即時移動版として残す）
+- `ActorPositionProvider`（stage-04, `useState`）は使わず、**ref ベースの新 Provider `actor-node-registry` へ置換**。stage-04 は無改変（stage-05 が引き続き使う）
+- Provider が公開する API:
+  - `registerActorNode(id, el)` — bot ラッパー DOM を id で登録（`ref` コールバック）
+  - `moveActor(id, target)` — 登録ノードの `style.left/top` を clamp 済み % で直接書込み。`setState` なし → 再レンダリングなし
+  - `getActorPosition(id)` — ref 保持の現在セルを返す（read。初期配置・keyboard の相対移動が参照）
+  - `gridSize`
+- cell クリック / keyboard / actor クリック順送り / tick move すべて `moveActor` を呼ぶ
+- 複数 actor: `Map<id, HTMLElement>` + `Map<id, GridPosition>` の registry（`.claude/rules/react/r3f-state.md`「複数消費者 → Context 配布」＝ box-bot-model の `BoxBotRefsProvider` パターン）
+- Provider value は `useMemo` で固定（state を持たないため Provider 自体が再レンダリングしない）
+- keyboard hook は stage-06 用に新規（stage-04 版は `useActorPosition` を購読して再レンダリングするため流用不可）。registry の `getActorPosition`（ref read）→ `moveActor` で組む
+- bot ラッパー: `BoxBot01` は `ref` 非対応 → 位置決め用の `<div>` で 1 枚くるみ、その div に `cellStyle`（absolute + 逆 rotateX + transition）と `ref` を付ける（#108 の Canvas サイズ論点とは無関係、単なる配置 div）
+
+### 3. tick 接続（結論: position 相当の tick ループを移植、`_computed` / `_events` は段階 3 では見送り）
+
+- **`game-clock` 自体は tick ドライバを持たない** — `advanceTickMs` 付きで event を log するだけ。tc-03 の実ドライバは **position store の `startAutoIfNeeded` → `continueAuto`（`setTimeout` ループ、`timeScale` を都度読む fixed-step accumulator）**
+- 「tick 接続」＝ この `continueAuto` ループを find-path 用 position 差し替えへ移植する。ループが呼ぶ `applyNextStep` の 3 処理: (a) `game-clock` へ log、(b) `path` を pop、(c) position 反映。**find-path では (c) が `moveActor(id, cell)`（ref 経由、再レンダリングなし）**
+- 「実行」ボタン: `dispatchAction`（manual = 1 tick）/ `dispatchActions`（auto = 最後まで）を **store から直呼び**。EventTarget 経由（proto-01 パターン）は段階 4 のアンロック配線とまとめて検討
+- `_computed`: `stageTransform`（全 actor bounding box fit）と `progressMode` 代表値のみ。find-path MVP は stage 固定・単一 bot なので **不要**。段階 4 以降で必要になれば追加
+- `_events/_event-listeners`: 段階 3 では見送り。「実行」は store 直呼び
+- time-scale スライダー → `game-clock.setTimeScale`（そのまま流用）
+
+### 4. stage-05 拡張 vs stage-06 新設（結論: stage-06 新設）
+
+- position の ref 化＝`ActorPositionProvider`（stage-04）置換。`actors-layer` / `geo-layer` の配線も変わる。差分が大きい
+- stage-05 は「即時移動 + 遠近」の参照実装として残す
+- **stage-06 = 遠近（stage-05 の `usePerspectiveControl` を import 流用、`floorStyle` / scene 構成はコピー）+ ref position + tick**
+- プロジェクトの stage-01〜05 ＝各バージョンというパターンに沿う
+- find-path proto-01 のマウント先を stage-05 → stage-06 へ差し替え（PR-D）
 
 ### 5. issue の扱い（決定済）
 
 - issue #137 を reopen。ブランチ `137-time-control-integration`、PR #142
 
-## 実装計画（検討後に確定）
+## PR 分割案
 
-- [x] 検討事項 1（store 持ち込み単位）を詰める → 結論（暫定）C: game-clock / planned-path / path は import 流用、position / intent は差し替え
-- [ ] 検討事項 2〜4 を詰めて方式確定
-- [ ] store 群の持ち込み（C 方式: 抜粋 import + position / intent 差し替え）
-- [ ] position の ref 化（再レンダリング回避、Context 配布）
-- [ ] tick ↔ bot move の配線
-- [ ] find-path 試作へ反映、Storybook で確認
+段階 3 を 1 PR にせず分割する。各 PR は #137 紐づけ、ブランチ `137-xxx`。
+
+- **PR #142（このブランチ）**: 設計のみ（design.md / 確認ポイント.md）。実装なし。先行マージ可
+- **PR-A `137-stage-06-ref-position`**: stage-06 スキャフォールド + ref position
+  - `src/prototypes/stage/stage-06/` 新設。遠近は stage-05 から流用
+  - `_contexts/actor-node-registry/`（ref ベース Provider）新規
+  - `_hooks/use-keyboard-move.ts`（registry 版）新規
+  - `_components/geo-layer` / `actors-layer` を registry 版で
+  - tick なし。cell クリック / keyboard / actor クリックで即 `moveActor`
+  - `console.log('render: ...')` マーカーで「移動時に再レンダリングなし」を Storybook 確認
+- **PR-B `137-find-path-time-control-stores`**: time-control store 持ち込み（C 方式）
+  - `game-clock` / `planned-path` / `path` を tc-03 から import する find-path 用 Provider
+  - `planned-path` へ `appendPlannedStep` / `popPlannedStep` 追加（tc-03 側 store 拡張 or find-path 用 wrapper、要判断）
+  - tick は走らせない。store 配線と型のみ
+- **PR-C `137-find-path-tick-execution`**: tick ドライバ移植 + 「実行」
+  - `continueAuto` 相当を find-path 用 position へ移植、(c) を `moveActor` へ
+  - 「実行」ボタンで planned-path → path → tick 進行 → bot が 1 手ずつ
+  - time-scale スライダー
+- **PR-D `137-find-path-stage-06-switch`**: find-path proto を stage-06 へ切替
+  - proto-01 のマウント先変更、Storybook 確認
+
+## 実装計画
+
+- [x] 検討事項 1（store 持ち込み単位）→ 結論（暫定）C: game-clock / planned-path / path は import 流用、position / intent は差し替え
+- [x] 検討事項 2（position の ref 化）→ ref ベース Provider `actor-node-registry` へ置換。DOM `left/top` 直書き、useFrame 不要
+- [x] 検討事項 3（tick 接続）→ position の `continueAuto` ループを移植、(c) を `moveActor` へ。`_computed` / `_events` は段階 3 見送り
+- [x] 検討事項 4（stage 拡張 vs 新設）→ stage-06 新設
+- [ ] PR-A: stage-06 スキャフォールド + ref position
+- [ ] PR-B: time-control store 持ち込み（C 方式）
+- [ ] PR-C: tick ドライバ移植 + 「実行」
+- [ ] PR-D: find-path proto を stage-06 へ切替
 - [x] 空 PR 先行作成 (#142) → 番号確保 → 本ディレクトリを `_pr/pr-142-time-control-integration/` へ配置
 
 ## 決定事項
 
 - 2026-09-08: 段階 3 は着手確定として検討段階 (`YYYYMMDD-slug`) を挟まず、空 PR #142 先行作成 → `_pr/pr-142-time-control-integration/` で起票（`.claude/rules/steering.md` issue 直結配下サブ作業の着手確定パス）。issue #137 を reopen
+- 2026-09-08: 段階 3 を PR-A〜D の 4 本に分割（stage-06 スキャフォールド / store 持ち込み / tick 実行 / proto 切替）
+- 2026-09-08: position の ref 化は r3f `useFrame` でなく **bot ラッパー DOM の `left/top` 直書き**で行う（グリッド位置は three.js 内部でなく CSS のため）。`usePerspectiveControl` の `--floor-tilt` 直書きと同方式
+- 2026-09-08: stage-06 を新設。stage-05 は即時移動版の参照として残す。stage-06 は遠近を stage-05 から流用し ref position + tick を載せる
+- 2026-09-08: `_computed` / `_events`（tc-03）は段階 3 では持ち込まない。「実行」は store 直呼び
 
 ## 懸念・リスク
 
-- ~~time-control-03 の store 数が多い。find-path 要件に対し過剰~~ → 検討事項 1 で C 方式（抜粋 import + position / intent 差し替え）へ整理。intent は不使用、actor / actor-settings は縮小利用
-- position の ref 化で stage-04 由来の `ActorPositionProvider` / keyboard hook 共有が崩れる。stage-04 側へ影響を出さない切り出し方
+- ~~time-control-03 の store 数が多い。find-path 要件に対し過剰~~ → 検討事項 1 で C 方式へ整理。intent は不使用、actor / actor-settings は縮小利用
+- ~~position の ref 化で stage-04 の `ActorPositionProvider` / keyboard hook 共有が崩れる~~ → stage-06 新設で stage-04/05 は無改変。stage-06 用の registry Provider / keyboard hook を新規作成
+- `moveActor` が DOM `left/top` を直書きする一方、`actors-layer` の初期 `cellStyle` も React inline style で `left/top` を持つ。stage-06 が何かの拍子に再レンダリングすると初期値へ戻る（`usePerspectiveControl` の `--floor-tilt` と同じ既知の割り切り。stage-06 は state を持たせない設計で回避）
+- `planned-path` への `appendPlannedStep` 追加を tc-03 側 store に入れるか find-path 側 wrapper に閉じるか未決（PR-B で判断）
 - 「ジャンプ → 歩く解放」（proto-01）を実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は段階 4 で未整理のまま
