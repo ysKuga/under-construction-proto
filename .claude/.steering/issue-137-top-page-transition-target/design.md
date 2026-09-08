@@ -64,7 +64,7 @@ issue: #137
 前提:
 
 - [x] 配置先確定: 新 route `/find-path`（`src/app/find-path/page.tsx` → `src/components/pages/find-path/`。`src/app/CLAUDE.md` の re-export ルール踏襲、`components/pages/README.md`「使用構造」へ追記）
-- [ ] ページ枠の骨組み作成（`components/pages/find-path/` + トップからの遷移導線 `home/index.tsx` にリンク追加）
+- [x] ページ枠の試作作成 → `src/components/pages/find-path/_prototypes/proto-01/`（`prototypes/stage/stage-05` をページ枠へマウント）。route `/find-path` / page 実装・トップからの遷移導線は段階 3 以降へ先送り（先に time-control 込みで組んでから page 化する方針）
 
 段階 1: ステージ（遠近適用）
 
@@ -112,6 +112,7 @@ issue: #137
 - 2026-09-07: **ゲーム操作（actor 移動等）で React 再レンダリングを基本的に起こさない方針**。傾き制御を ref 経由にしたのと同じ狙い。現状 `actors-layer` は position が state のため actor 移動で再レンダリングし、同居する静的 bot も巻き込む。段階 3（time-control / tick）で position・move を ref / r3f `useFrame` ベースへ寄せる際に合わせて解消する
 - 2026-09-07: 同一マスに複数 bot 表示可（box-bot-01 を複数配置、位置を translate でずらす）
 - 2026-09-07: **tilt 依存の actor 位置ズレは解決**。原因の主因は Canvas < 設置領域のずれ（`resize={{ offsetSize: true }}` で解消）。残る `translate(-50%, -53%)` 固定値ぶんは許容範囲。stage-05 の上段（奥行 row 0）静的 bot をグリッド外縁へ寄せ tilt 全域で検証済み
+- 2026-09-08: ページ枠は route/page を先に作らず試作 `src/components/pages/find-path/_prototypes/proto-01/` として先行（`prototypes/stage/stage-05` をマウントするだけ）。段階 1・2 を prototype 空間で進めたのと同じ流れ。`/find-path` route・page 実装・トップからの遷移導線は、段階 3（time-control 適用）まで組んでから page 化するタイミングで行う
 
 ## 懸念・リスク
 
