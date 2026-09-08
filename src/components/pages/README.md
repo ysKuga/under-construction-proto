@@ -8,6 +8,8 @@
   - `home/`
   - トップページ
   - `home/_prototypes/` — トップページの試作。採用中のものを `home/index.tsx` が描画する
+- `find-path/` — 遷移先ページ (issue #137)。route / page 実装は未着手
+  - `find-path/_prototypes/` — 試作。現状 `proto-01` が `prototypes/stage/stage-05` をページ枠へマウント
 - `/_not-found`
   - `not-found/`
   - 404 ページ
