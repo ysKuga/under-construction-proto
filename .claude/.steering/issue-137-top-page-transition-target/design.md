@@ -42,8 +42,8 @@ issue: #137
 
 ### 2. 操作キャラクター (bot)
 
-- 既存: `src/components/samples/figure/box-bot`
-  - walking action あり
+- 使用: `src/components/theater/figure/box-bot` の `BoxBot01`（ゲーム内 actor 用、表示領域 = 設置領域 #108）。`samples/figure/box-bot` はデモ用見本のため不使用
+  - walking action は box-bot-01 では未実装（samples 側にあり、レジストリ形式で復帰予定）
   - 向き変更（spin 相当）なし・「歩く」はその場足踏みで位置移動を伴わない
 - proto-01 の EventTarget 共有パターンを流用
 - stage-04 の grid 移動と box-bot の three.js Canvas をどう重ねるか要検討
@@ -75,10 +75,10 @@ issue: #137
 
 段階 2: bot 配置
 
-- [ ] `src/components/samples/figure/box-bot` を stage-05 に actor として新規搭載（今後 actor は基本 box-bot）
-  - [ ] 床と同じ 3D 空間に乗るため逆 `rotateX` で立て直す。セル座標 → 画面位置の対応付け
-  - [ ] stage-04 の click / keyboard 移動配線（`MoveIntent`）を持ち込む
-- [ ] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）
+- [x] `theater/figure/box-bot` の `BoxBot01` を stage-05 に actor として新規搭載（samples 版は不使用。当初 samples で搭載 → box-bot-01 へ差し替え）
+  - [x] 床と同じ 3D 空間に乗るため逆 `rotateX` で立て直す。セル座標 → 画面位置の対応付け（floor に `preserve-3d`、box-bot を子として絶対配置 + 逆 `rotateX(calc(-1 * var(--floor-tilt)))`、位置は % 補間）
+  - [x] stage-04 の click / keyboard 移動配線（`MoveIntent`）を持ち込む（context / keyboard hook は stage-04 から import 共有、layer は grid 座標系用に新規）
+- [x] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）— box-bot-01 は表示領域 = 設置領域で Canvas が `cellSize` に収まり、単体では occlude 未顕在化。複数 actor / 障害物の z 順は段階 2 以降として stage-05 README に残す
 
 段階 3: time-control 適用
 
@@ -104,10 +104,20 @@ issue: #137
 - 2026-09-06: stage-05 は現時点で actor 未搭載。段階 2 で box-bot を新規搭載する（`Robot01` は持ち込まない）
 - 2026-09-07: 遠近方式を CSS `perspective` + `rotateX`（床面台形化）へ転換。scale 補間（`_lib/perspective.ts`）は破棄し stage-05 を差し替え。three.js 3D 化は引き続き不採用
 - 2026-09-07: 傾きは ref 経由で制御（`--floor-tilt` を style 直接書換え）。再レンダリング回避が目的。制御対象は当面 tilt のみ（pan/zoom は将来）
+- 2026-09-07: stage-05 に box-bot を actor 搭載（段階 2）。floor に `preserve-3d`、box-bot を floor の子として絶対配置し逆 `rotateX` で直立。`--floor-tilt` の CSS 変数継承で傾き変更に再レンダリングなしで追従。position 管理・keyboard 移動は stage-04 から import 共有、grid 座標系依存の `geo-layer` / `actors-layer` は新規作成
+- 2026-09-07: actor は `theater/figure/box-bot` の `BoxBot01`（ゲーム内 actor 用）に確定。`samples/figure/box-bot` はデモ用見本のため不使用。当初 samples で搭載していたが差し替え。box-bot-01 は表示領域 = 設置領域（#108）で Canvas が `cellSize` に収まり、samples 版で必要だった `FOOTPRINT_RATIO` / `canvasCenterOffset` の実測補正を全廃
+- 2026-09-07: box-bot-01 の fov 自動算出を overscan（表示領域 / 設置領域）基準へ変更し、`style.height` で bot を素直に拡大縮小できるようにした（従来は `DEFAULT_HEIGHT` 未満でクリップ）。`canvasHeight` 明示時（overscan > 1）の見え方は不変
+- 2026-09-07: box-bot-01 の 表示領域 = 設置領域（#108）は維持する（`DISPLAY_RATIO` で表示領域を大きくする案は「設置領域と表示領域のずれ」を嫌い破棄）。stage-05 では actor サイズを `botSize` prop で指定し、マスのサイズ（`size / cols`）とは独立させる（マスと bot 関連サイズは合わせない）
+- 2026-09-07: 傾いた床の上で r3f Canvas が設置領域より小さくなる問題（既定の `getBoundingClientRect` 実測が perspective で縮む）を、box-bot-01 の `<Canvas resize={{ offsetSize: true }}>` で解消（`offsetWidth/Height` = レイアウト寸法で実測）
+- 2026-09-07: **ゲーム操作（actor 移動等）で React 再レンダリングを基本的に起こさない方針**。傾き制御を ref 経由にしたのと同じ狙い。現状 `actors-layer` は position が state のため actor 移動で再レンダリングし、同居する静的 bot も巻き込む。段階 3（time-control / tick）で position・move を ref / r3f `useFrame` ベースへ寄せる際に合わせて解消する
+- 2026-09-07: 同一マスに複数 bot 表示可（box-bot-01 を複数配置、位置を translate でずらす）
+- 2026-09-07: **tilt 依存の actor 位置ズレは解決**。原因の主因は Canvas < 設置領域のずれ（`resize={{ offsetSize: true }}` で解消）。残る `translate(-50%, -53%)` 固定値ぶんは許容範囲。stage-05 の上段（奥行 row 0）静的 bot をグリッド外縁へ寄せ tilt 全域で検証済み
 
 ## 懸念・リスク
 
-- stage-04（画面座標 absolute）と box-bot（three.js Canvas）のレイヤ統合方式が未確定。`ui-three` の occlude 課題と同種の問題が出る可能性
+- ~~stage-04（画面座標 absolute）と box-bot（three.js Canvas）のレイヤ統合方式が未確定~~ → box-bot-01（表示領域 = 設置領域）採用で解消。Canvas が `cellSize` に収まり、samples 版の一回り大きい Canvas 起因の occlude / クリック奪取は単体では出ない
 - time-control-03 の store 数が多い。ページ 1 枚に持ち込む際の Context ネスト規模
-- 遠近は CSS `perspective` + `rotateX` で確定（stage-05）。actor / three.js Canvas は床と同じ 3D 空間に乗るため逆 `rotateX` 立て直しが要る。遠近に伴うセルのクリック判定の歪み補正も未対応、段階 2 で box-bot を載せる際に再検討
+- 遠近は CSS `perspective` + `rotateX` で確定（stage-05）。actor は逆 `rotateX` 立て直し済み。遠近に伴うセルのクリック判定の歪み補正のみ未対応
+- 段階 2 で box-bot 搭載済。残課題（stage-05 README「未対応」に詳細）: (1) 複数 actor の z 順 / occlude、(2) 遠近に伴うセルのクリック判定歪み。tilt 位置ズレは解決（`resize={{ offsetSize: true }}`）
+- **ゲーム操作で React 再レンダリングを起こさない方針**（上記決定事項）。actor 移動が state 更新のため未達。段階 3 で position/move を ref ベースへ寄せる際に対応
 - 「ジャンプ → 歩く」（proto-01）は実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は未整理

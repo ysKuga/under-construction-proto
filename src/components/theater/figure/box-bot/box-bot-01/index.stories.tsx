@@ -63,3 +63,44 @@ export const ConfigOverride: Story = {
     actionConfig: { jump: { durSec: 0.8, liftPx: 260 } },
   },
 }
+
+/** 大中小のサイズ(style.height/width の px)。大 = DEFAULT_HEIGHT の較正サイズ */
+const SIZE_VARIANTS = [
+  { label: '極小', size: 44 },
+  { label: '小', size: 88 },
+  { label: '中', size: 144 },
+  { label: '大', size: 234 },
+] as const
+
+/**
+ * `style.height` の大中小バリエーション
+ *
+ * - #108 で表示領域 = 設置領域。赤 outline(= 設置領域)がそのまま Canvas の外周で、
+ *   samples 版のように Canvas が一回り大きくならない
+ * - overscan=1(表示領域 = 設置領域)では fov 固定のため、size に比例して bot も
+ *   拡大縮小する。小さいセルへも `style.height` だけで載る
+ * - `orbit={false}` / `actions={[]}` で静止
+ */
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ alignItems: 'flex-end', display: 'flex', gap: 24 }}>
+      {SIZE_VARIANTS.map(({ label, size }) => (
+        <figure key={label} style={{ margin: 0 }}>
+          <StoryComponent
+            actions={[]}
+            orbit={false}
+            shadowOpacity={0}
+            style={{
+              height: size,
+              outline: '1px solid red',
+              width: size,
+            }}
+          />
+          <figcaption style={{ fontSize: 12, textAlign: 'center' }}>
+            {label} ({size}px)
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  ),
+}
