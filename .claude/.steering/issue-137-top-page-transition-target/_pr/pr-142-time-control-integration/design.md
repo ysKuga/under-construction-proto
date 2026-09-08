@@ -128,7 +128,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 
 段階 3 を 1 PR にせず分割する。各 PR は #137 紐づけ、ブランチ `137-xxx`。
 
-- **PR #142（このブランチ）**: 設計のみ（design.md / 確認ポイント.md）。実装なし。先行マージ可
+- **PR #142（このブランチ）**: 設計のみ（design.md / review-points.md）。実装なし。先行マージ可
 - **PR-A `137-stage-06-ref-position`（PR #143, draft・作成済）**: stage-06 スキャフォールド + ref position
   - `src/prototypes/stage/stage-06/` 新設。遠近は stage-05 から流用
   - `_contexts/actor-node-registry/`（ref ベース Provider）新規

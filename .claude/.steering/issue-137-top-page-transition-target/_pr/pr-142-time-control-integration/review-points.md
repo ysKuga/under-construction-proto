@@ -46,6 +46,6 @@ NG だった場合（移動で再レンダリングされる / bot が動かな�
 
 ## 5. 作成済ブランチ / PR
 
-- `137-time-control-integration` → PR #142（設計。この design.md / 確認ポイント.md）
+- `137-time-control-integration` → PR #142（設計。この design.md / review-points.md）
 - `137-stage-06-ref-position` → PR #143 draft（stage-06 スキャフォールド + ref position）
 - issue #137 は reopen 済
