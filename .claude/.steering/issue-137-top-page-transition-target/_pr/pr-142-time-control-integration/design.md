@@ -142,8 +142,9 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
   - tick は走らせない。store 配線と型のみ
 - **PR-C `137-find-path-tick-execution`**: tick ドライバ移植 + 「実行」
   - `continueAuto` 相当を find-path 用 position へ移植、(c) を `moveActor` へ
+  - **移植と同時に rxjs 化する**（`timer` + `withLatestFrom(timeScale$)` + `scan` + `takeWhile`）。検討は `.claude/.steering/issue-131-rxjs-adoption/design.md` 候補 A 参照。r3f `useFrame`（実時間）と tick（論理時間）の境界を明記する
   - 「実行」ボタンで planned-path → path → tick 進行 → bot が 1 手ずつ
-  - time-scale スライダー
+  - time-scale スライダー（`timeScale` を `BehaviorSubject` 化）
 - **PR-D `137-find-path-stage-06-switch`**: find-path proto を stage-06 へ切替
   - proto-01 のマウント先変更、Storybook 確認
 
@@ -166,6 +167,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - 2026-09-08: position の ref 化は r3f `useFrame` でなく **bot ラッパー DOM の `left/top` 直書き**で行う（グリッド位置は three.js 内部でなく CSS のため）。`usePerspectiveControl` の `--floor-tilt` 直書きと同方式
 - 2026-09-08: stage-06 を新設。stage-05 は即時移動版の参照として残す。stage-06 は遠近を stage-05 から流用し ref position + tick を載せる
 - 2026-09-08: `_computed` / `_events`（tc-03）は段階 3 では持ち込まない。「実行」は store 直呼び
+- 2026-09-09: PR-C の tick ドライバ移植は rxjs 化とセットで行う（`continueAuto` → `timer` + operator 合成）。rxjs 適用の全体検討は `.claude/.steering/issue-131-rxjs-adoption/design.md`（issue #131 reopen）
 
 ## 懸念・リスク
 
