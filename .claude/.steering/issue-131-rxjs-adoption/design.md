@@ -103,7 +103,7 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
   - `walkUnlocked`（`_hooks/use-walk-unlock.ts` → `useState` 1 回）→ 歩くボタンの `opacity` / `translate` を className で制御。checkbox 化で state 撤廃可
   - `walking`（`index.hooks.ts` の `useState`）→ ボタンラベル `歩く` ↔ `止まる` の出し分け。同上
 - 論点: `hidden` 属性 + `~` 兄弟セレクタの DOM 構成（対象を checkbox の後ろに置く必要）、`display:none` にすると内部の r3f Canvas がアンマウント相当になる点（`visibility` / `opacity` を使うか要検討）、アクセシビリティ（操作用でない checkbox は `aria-hidden` / ラベルなし）
-- 汎用化: `src/hooks/` に「boolean を hidden checkbox へ橋渡しする」薄い hook（`useCssBooleanCell` 相当）を切るか、proto-01 ローカルに留めるかは着手時に判断
+- 汎用化: `src/hooks/` に「boolean を hidden checkbox へ橋渡しする」薄い hook（`useCssToggle` 相当）を切るか、proto-01 ローカルに留めるかは着手時に判断
 
 ### G. 「歩く / 止まる」の切替で再レンダリングを回避（候補 F の適用）
 
@@ -132,11 +132,11 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
   - C の util を使う場合はここで接続
 - **PR: 表示制御（歩くボタンの解放）を hidden checkbox + CSS 化（候補 F）** `131-css-boolean-cell`
   - proto-01 の `walkUnlocked` の className 制御を tailwind `peer` + `peer-checked:` の CSS へ移す
-  - boolean → `checkbox.checked` 直書きの橋渡しは `src/hooks/` へ汎用 hook（`useCssBooleanCell` 相当）で切り出す
+  - boolean → `checkbox.checked` 直書きの橋渡しは `src/hooks/` へ汎用 hook（`useCssToggle` 相当）で切り出す
   - 表示切替は `opacity` / `visibility` 維持（現状の 300ms トランジションを残す）。`display:none` は使わない（アニメーション消失・Canvas 影響回避）
   - `walking`（歩く / 止まる ラベル）は本 PR では触らない。候補 G で対応
 - **PR: 「歩く / 止まる」切替（歩くの制御）の再レンダリング回避（候補 G）** `131-walking-toggle-css`
-  - F マージ後に着手。F の `useCssBooleanCell` を `walking` へ適用する
+  - F マージ後に着手。F の `useCssToggle` を `walking` へ適用する
   - `walking` state を撤廃し、ラベル `歩く` / `止まる` の出し分けを checkbox へ（名前付き `peer/...` で解放用 peer と分ける）。切替時に `walkingToggle()` dispatch + `checkbox.checked` を ref 反転
   - box-bot 側の `ACTION_WALKING_START` / `STOP` 冪等化（姿勢ガードずれの厳密化）はスコープ広め、必要なら別 PR
 - 候補 A は #137 段階 3 PR-C 内。候補 D / E は将来
@@ -158,7 +158,7 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - 2026-09-09: C（PR #145）/ B（PR #146）マージ済。#131 積み残しの主要 3 項目消化
 - 2026-09-09: 後続課題 F（表示 / 非表示を hidden checkbox + CSS へ）/ G（歩く・止まる切替の再レンダリング回避）を追加。どちらも React state を撤廃し切替の再レンダリングをなくすのが目的。F は非 rxjs 技法
 - 2026-09-09: F と G は別 PR とし F → G の順で対応（ユーザー指示。G は F と同 PR にしない）。F は `walkUnlocked` の表示制御のみ、G は `walking` の切替制御のみを扱う
-- 2026-09-09: F の橋渡しは `src/hooks/` の汎用 hook（`useCssBooleanCell` 相当）へ切り出す。表示切替は `opacity` / `visibility` 維持（`display:none` 不使用）
+- 2026-09-09: F の橋渡しは `src/hooks/` の汎用 hook（`useCssToggle` 相当）へ切り出す。表示切替は `opacity` / `visibility` 維持（`display:none` 不使用）
 
 ## 懸念・リスク
 

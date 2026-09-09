@@ -12,8 +12,8 @@ issue #131 後続課題 F。proto-01 の「歩く」ボタン解放（`walkUnloc
 
 ## スコープ
 
-- `src/hooks/use-css-boolean-cell.ts`（+ `__tests__/`）: boolean を hidden `<input type="checkbox">` の `checked` へ ref 直書きで橋渡しする汎用 hook
-- `proto-01/_hooks/use-walk-unlock.ts`: しきい値到達で `setWalkUnlocked(true)` でなく cell の `set(true)` を呼ぶ
+- `src/hooks/use-css-toggle.ts`（+ `__tests__/`）: boolean を hidden `<input type="checkbox">` の `checked` へ ref 直書きで橋渡しする汎用 hook
+- `proto-01/_hooks/use-walk-unlock.ts`: しきい値到達で `setWalkUnlocked(true)` でなく toggle の `set(true)` を呼ぶ
 - `proto-01/index.hooks.ts` / `index.types.ts`: `walkUnlocked: boolean` を撤廃、`walkUnlockedRef`（`RefObject<HTMLInputElement>`）を公開
 - `proto-01/index.tsx`: hidden checkbox を描画、ボタンの表示切替を className の `walkUnlocked ? ... : ...` から tailwind `peer` / `peer-checked:` へ
 
@@ -24,11 +24,11 @@ issue #131 後続課題 F。proto-01 の「歩く」ボタン解放（`walkUnloc
 
 ## 設計
 
-### `useCssBooleanCell`
+### `useCssToggle`
 
 ```ts
 /**
- * boolean を hidden checkbox の checked へ橋渡しする CSS state セル
+ * boolean を hidden checkbox の checked へ橋渡しする CSS トグル
  *
  * - 返す checkboxRef を hidden な <input type="checkbox"> へ付け、CSS 側は
  *   tailwind の peer / peer-checked: で表示を定義する
@@ -36,7 +36,7 @@ issue #131 後続課題 F。proto-01 の「歩く」ボタン解放（`walkUnloc
  *   持たないため、切替で再レンダリングされない
  * - Observable の subscribe や event ハンドラから set を呼ぶ用途
  */
-export const useCssBooleanCell = (): UseCssBooleanCellReturn => {
+export const useCssToggle = (): UseCssToggleReturn => {
   const checkboxRef = useRef<HTMLInputElement>(null)
 
   const set = useCallback((next: boolean) => {
@@ -86,7 +86,7 @@ export const useCssBooleanCell = (): UseCssBooleanCellReturn => {
 
 ## テスト
 
-### `use-css-boolean-cell.test.ts`（`src/hooks/__tests__/`）
+### `use-css-toggle.test.ts`（`src/hooks/__tests__/`）
 
 - `set(true)` / `set(false)` で `checkboxRef.current.checked` が変わる
 - `toggle()` で反転する
@@ -94,21 +94,21 @@ export const useCssBooleanCell = (): UseCssBooleanCellReturn => {
 
 ### `use-walk-unlock.test.ts`（改修）
 
-- 戻り値の `walkUnlocked` を廃止 → cell の `set` を渡す形へ。しきい値到達で `set(true)` が呼ばれる
+- 戻り値の `walkUnlocked` を廃止 → toggle の `set` を渡す形へ。しきい値到達で `set(true)` が呼ばれる
 - しきい値未満では呼ばれない
 - アンマウントで購読解除（既存踏襲）
 
 ## 実装計画
 
-- [x] `src/hooks/use-css-boolean-cell.ts` + 型 + テスト
-- [x] `use-walk-unlock.ts` を cell 接続へ改修 + テスト更新
+- [x] `src/hooks/use-css-toggle.ts` + 型 + テスト
+- [x] `use-walk-unlock.ts` を toggle 接続へ改修 + テスト更新
 - [x] `index.hooks.ts` / `index.types.ts` / `index.tsx` を checkbox + `peer-checked:` へ
 - [x] test / lint / tsc パス確認
 - [ ] 親 [../../design.md](../../design.md) の候補 F をチェック（マージ時）
 
 ## 決定事項
 
-- 2026-09-09: 橋渡しは `src/hooks/use-css-boolean-cell.ts` の汎用 hook。proto-01 ローカルにしない
+- 2026-09-09: 橋渡しは `src/hooks/use-css-toggle.ts` の汎用 hook。proto-01 ローカルにしない
 - 2026-09-09: 表示切替は `opacity` / `visibility` 維持（`display:none` 不使用）
 - 2026-09-09: `walking` は本 PR 対象外（候補 G）
 
