@@ -105,16 +105,17 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - 論点: `hidden` 属性 + `~` 兄弟セレクタの DOM 構成（対象を checkbox の後ろに置く必要）、`display:none` にすると内部の r3f Canvas がアンマウント相当になる点（`visibility` / `opacity` を使うか要検討）、アクセシビリティ（操作用でない checkbox は `aria-hidden` / ラベルなし）
 - 汎用化: `src/hooks/` に「boolean を hidden checkbox へ橋渡しする」薄い hook（`useCssBooleanCell` 相当）を切るか、proto-01 ローカルに留めるかは着手時に判断
 
-### G. 「歩く / 止まる」の連打防止（rxjs throttle / exhaustMap、候補 D 近縁）
+### G. 「歩く / 止まる」の切替で再レンダリングを回避（候補 F の適用）
 
-- 課題: `index.hooks.ts` の `toggleWalking` = `walkingToggle()`（event 発行）+ `setWalking((v) => !v)`。連打すると
-  - box-bot 側 `useWalkingAction` の `toggleAction` が `walkingRef.current = !walkingRef.current` を event ごとに反転 → 姿勢ガード（`postureRef !== 0`）で一部 event が捨てられると React の `walking` state と `walkingRef` がずれる
-  - 開始 / 停止の `approach`（加減速）演出が細かい toggle でガタつく
-- 対応案（組み合わせ）:
-  1. **event 経由へ寄せる**: 「歩く」も jump と同様 event target 経由に統一。box-bot 側に `ACTION_WALKING_START` / `ACTION_WALKING_STOP`（冪等）を足し、`ACTION_WALKING_TOGGLE` の反転をやめる。連打しても START の再送は no-op
-  2. **連打を rxjs で間引く**: `click$.pipe(throttleTime(Xms))` または `exhaustMap`（遷移アニメ中のクリックを無視）。`walking$` を event / クリックから導出し、boolean を候補 F の checkbox へ流す（`setWalking` 撤廃）
-  3. `walking` state を proto-01 から撤廃し、`walking$`（Observable）を単一の真実にする
-- box-bot 側の変更（START / STOP 定数追加）を伴うか、proto-01 内に閉じるかで PR 規模が変わる。まず proto-01 内（throttle + F の checkbox）で閉じ、START / STOP 化は別途を推奨
+- 課題: `index.hooks.ts` の `toggleWalking` = `walkingToggle()`（event 発行）+ `setWalking((v) => !v)`。歩く / 止まるのたびに `walking` state が変わり Proto01 が再レンダリングされる。walking action 自体は既に event target 経由（`useBoxBotActionDispatcher`）で、React 側の `walking` state はボタンラベル `歩く` ↔ `止まる` の出し分けにしか使っていない
+- 対応:
+  - `walking` state（`useState`）を撤廃する
+  - ラベルの出し分けは候補 F の checkbox で行う（`input:checked ~ .btn` で `歩く` / `止まる` の span を切替）
+  - 切替時に `walkingToggle()` を dispatch しつつ `checkbox.checked` を ref で反転（`setState` なし → 再レンダリングなし）
+  - walking の「現在値」は box-bot 側の `walkingRef`（+ dispatch 履歴）と checkbox が持つ。proto-01 は React state を持たない
+- 論点:
+  - box-bot 側は姿勢ガード（`useWalkingAction` の `postureRef !== 0` で toggle 無視）があるため、倒れている間にボタンを押すと checkbox と `walkingRef` がずれる。現状も `walking` state で同じずれがある。厳密化するなら box-bot 側に `ACTION_WALKING_START` / `STOP`（冪等）を足して状態を問い合わせられる形にする案があるが、スコープが広いので別途
+  - 実質、候補 F を `walking` にも適用するだけ。F と同じ PR で対応可能
 
 ## PR 分割
 
@@ -133,10 +134,10 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
   - proto-01 の `walkUnlocked` / `walking` の className 制御を `input:checked ~ .target` の CSS へ移す
   - boolean → `checkbox.checked` 直書きの橋渡し（ref、必要なら `src/hooks/` へ汎用 hook）
   - `display:none` と r3f Canvas の関係、`visibility` / `opacity` の選択、a11y を着手時に確定
-- **PR: 「歩く / 止まる」連打防止（候補 G）** `131-walking-toggle-guard`
-  - まず proto-01 内で `throttleTime` / `exhaustMap` + 候補 F の checkbox（`setWalking` 撤廃）
-  - box-bot 側の `ACTION_WALKING_START` / `STOP` 化はスコープが広いため別 PR とするか判断
-  - F と G は密結合（G が F の checkbox を使う）。F を先行 or 同 PR に含める
+- **PR: 「歩く / 止まる」切替の再レンダリング回避（候補 G）** `131-walking-toggle-css`
+  - `walking` state を撤廃し、ラベル `歩く` / `止まる` の出し分けを候補 F の checkbox へ。切替時に `walkingToggle()` dispatch + `checkbox.checked` を ref 反転
+  - 実質 F を `walking` へ適用するだけ。**F と同じ PR に含めてよい**
+  - box-bot 側の `ACTION_WALKING_START` / `STOP` 冪等化（姿勢ガードずれの厳密化）はスコープ広め、必要なら別 PR
 - 候補 A は #137 段階 3 PR-C 内。候補 D / E は将来
 
 ## 実装計画
@@ -145,7 +146,7 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - [x] PR: 長押し util（候補 C） — PR #145（`_pr/pr-145-rxjs-long-press-util/`）マージ済。`src/lib/rxjs/long-press.ts` の `createLongPressStream`
 - [x] PR: proto-01 jumpCount の Observable 化 + 挙動 / UI 分離（候補 B） — PR #146（`_pr/pr-146-rxjs-proto01-jump-count/`）マージ済。`_hooks/use-walk-unlock.ts` で `ACTION_JUMP` 購読 → boolean のみ state 化、proto-01 を hooks 構成へ分割
 - [ ] PR: 表示 / 非表示の hidden checkbox + CSS 化（候補 F）
-- [ ] PR: 「歩く / 止まる」連打防止（候補 G）
+- [ ] PR: 「歩く / 止まる」切替の再レンダリング回避（候補 G。F と同 PR 可）
 
 ## 決定事項
 
@@ -154,7 +155,7 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - 2026-09-09: 「ジャンプ回数 vs クリック回数」は `ACTION_JUMP` 購読（`fromEvent(eventTarget, ACTION_JUMP)`）に確定
 - 2026-09-09: 対応は追記（この PR）と実装（C / B の個別 PR）を分ける
 - 2026-09-09: C（PR #145）/ B（PR #146）マージ済。#131 積み残しの主要 3 項目消化
-- 2026-09-09: 後続課題 F（表示 / 非表示を hidden checkbox + CSS へ、再レンダリング回避）/ G（歩く・止まるの連打防止、event 経由化 + throttle）を追加。F は非 rxjs 技法だが同じ再レンダリング回避目的、G は候補 D 近縁。F → G の順（G が F の checkbox を使う）
+- 2026-09-09: 後続課題 F（表示 / 非表示を hidden checkbox + CSS へ）/ G（歩く・止まる切替の再レンダリング回避）を追加。どちらも React state を撤廃し切替の再レンダリングをなくすのが目的。F は非 rxjs 技法。G は実質 F を `walking` へ適用するだけで F と同 PR 可
 
 ## 懸念・リスク
 
@@ -163,4 +164,4 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - 長押し util の配置（`src/hooks/` か `src/lib` か、EventTarget 版 / pointer 版の分割）は着手時に既存構成と照合して確定
 - proto-01 は `samples/figure/box-bot` 依存。actor 版への差し替えは別軸、本 PR 群では触らない
 - 候補 F: `display:none` は子孫の r3f Canvas をレイアウトから外す（レンダリング停止・再表示でリセット相当）。歩くボタン程度なら問題ないが、Canvas を含む要素へ使う場合は `visibility` / `opacity` を選ぶ
-- 候補 G: box-bot 側を `ACTION_WALKING_START` / `STOP` へ変えると samples box-bot の他利用箇所（stories 等）に波及。まず proto-01 内の throttle で閉じ、定数追加は影響調査後
+- 候補 G: 姿勢ガード（倒れている間の toggle 無視）で checkbox と `walkingRef` がずれうる（現状の `walking` state でも同様）。厳密化には box-bot 側 `ACTION_WALKING_START` / `STOP` 冪等化が要るが、samples box-bot の他利用箇所（stories 等）へ波及するため影響調査後・別 PR
