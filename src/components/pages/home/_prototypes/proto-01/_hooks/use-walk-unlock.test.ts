@@ -13,31 +13,34 @@ const dispatchJump = (target: EventTarget) => {
 
 test('しきい値未満のジャンプでは解放されない', () => {
   const eventTarget = new EventTarget()
-  const { result } = renderHook(() => useWalkUnlock(eventTarget))
-
-  expect(result.current.walkUnlocked).toBe(false)
+  const setUnlocked = vi.fn<(next: boolean) => void>()
+  renderHook(() => useWalkUnlock(eventTarget, setUnlocked))
 
   dispatchJump(eventTarget)
   dispatchJump(eventTarget)
 
-  expect(result.current.walkUnlocked).toBe(false)
+  expect(setUnlocked).not.toHaveBeenCalled()
 })
 
-test('しきい値(3 回)到達で解放される', () => {
+test('しきい値(3 回)到達で setUnlocked(true) を 1 回呼ぶ', () => {
   const eventTarget = new EventTarget()
-  const { result } = renderHook(() => useWalkUnlock(eventTarget))
+  const setUnlocked = vi.fn<(next: boolean) => void>()
+  renderHook(() => useWalkUnlock(eventTarget, setUnlocked))
 
   dispatchJump(eventTarget)
   dispatchJump(eventTarget)
   dispatchJump(eventTarget)
+  dispatchJump(eventTarget)
 
-  expect(result.current.walkUnlocked).toBe(true)
+  expect(setUnlocked).toHaveBeenCalledExactlyOnceWith(true)
 })
 
 test('アンマウントで購読を解除する', () => {
   const eventTarget = new EventTarget()
   const removeEventListener = vi.spyOn(eventTarget, 'removeEventListener')
-  const { unmount } = renderHook(() => useWalkUnlock(eventTarget))
+  const { unmount } = renderHook(() =>
+    useWalkUnlock(eventTarget, vi.fn<(next: boolean) => void>()),
+  )
 
   unmount()
 

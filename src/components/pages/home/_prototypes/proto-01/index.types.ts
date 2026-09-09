@@ -1,3 +1,5 @@
+import type { RefObject } from 'react'
+
 /**
  * useProto01 の戻り値
  */
@@ -8,6 +10,6 @@ export type UseProto01Return = {
   toggleWalking: () => void
   /** 歩行中か */
   walking: boolean
-  /** ジャンプ回数がしきい値に達し、歩くボタンを出せるか */
-  walkUnlocked: boolean
+  /** 歩くボタン解放を表す hidden checkbox の ref（解放で checked を直書き） */
+  walkUnlockedRef: RefObject<HTMLInputElement | null>
 }
