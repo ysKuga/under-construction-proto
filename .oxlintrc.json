@@ -14,7 +14,11 @@
     "correctness": "error"
   },
   "rules": {
-    "nextjs/no-img-element": "off"
+    "nextjs/no-img-element": "off",
+    "vitest/expect-expect": [
+      "error",
+      { "assertFunctionNames": ["expect", "expectObservable"] }
+    ]
   },
   "env": {
     "builtin": true
