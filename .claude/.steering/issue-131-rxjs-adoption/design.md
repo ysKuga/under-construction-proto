@@ -130,13 +130,14 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
   - `jump$ = fromEvent(eventTarget, ACTION_JUMP)` → `unlocked$` → boolean のみ state 化
   - 挙動（Observable 合成）と操作 UI を別ディレクトリへ分離（#131 積み残しの「挙動と UI の分離」）
   - C の util を使う場合はここで接続
-- **PR: 表示 / 非表示の hidden checkbox + CSS 化（候補 F）** `131-css-boolean-cell`
-  - proto-01 の `walkUnlocked` / `walking` の className 制御を `input:checked ~ .target` の CSS へ移す
-  - boolean → `checkbox.checked` 直書きの橋渡し（ref、必要なら `src/hooks/` へ汎用 hook）
-  - `display:none` と r3f Canvas の関係、`visibility` / `opacity` の選択、a11y を着手時に確定
-- **PR: 「歩く / 止まる」切替の再レンダリング回避（候補 G）** `131-walking-toggle-css`
-  - `walking` state を撤廃し、ラベル `歩く` / `止まる` の出し分けを候補 F の checkbox へ。切替時に `walkingToggle()` dispatch + `checkbox.checked` を ref 反転
-  - 実質 F を `walking` へ適用するだけ。**F と同じ PR に含めてよい**
+- **PR: 表示制御（歩くボタンの解放）を hidden checkbox + CSS 化（候補 F）** `131-css-boolean-cell`
+  - proto-01 の `walkUnlocked` の className 制御を tailwind `peer` + `peer-checked:` の CSS へ移す
+  - boolean → `checkbox.checked` 直書きの橋渡しは `src/hooks/` へ汎用 hook（`useCssBooleanCell` 相当）で切り出す
+  - 表示切替は `opacity` / `visibility` 維持（現状の 300ms トランジションを残す）。`display:none` は使わない（アニメーション消失・Canvas 影響回避）
+  - `walking`（歩く / 止まる ラベル）は本 PR では触らない。候補 G で対応
+- **PR: 「歩く / 止まる」切替（歩くの制御）の再レンダリング回避（候補 G）** `131-walking-toggle-css`
+  - F マージ後に着手。F の `useCssBooleanCell` を `walking` へ適用する
+  - `walking` state を撤廃し、ラベル `歩く` / `止まる` の出し分けを checkbox へ（名前付き `peer/...` で解放用 peer と分ける）。切替時に `walkingToggle()` dispatch + `checkbox.checked` を ref 反転
   - box-bot 側の `ACTION_WALKING_START` / `STOP` 冪等化（姿勢ガードずれの厳密化）はスコープ広め、必要なら別 PR
 - 候補 A は #137 段階 3 PR-C 内。候補 D / E は将来
 
@@ -145,8 +146,8 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - [ ] この PR: design.md 追記（本ファイル + #137 段階 3 design.md へリンク）
 - [x] PR: 長押し util（候補 C） — PR #145（`_pr/pr-145-rxjs-long-press-util/`）マージ済。`src/lib/rxjs/long-press.ts` の `createLongPressStream`
 - [x] PR: proto-01 jumpCount の Observable 化 + 挙動 / UI 分離（候補 B） — PR #146（`_pr/pr-146-rxjs-proto01-jump-count/`）マージ済。`_hooks/use-walk-unlock.ts` で `ACTION_JUMP` 購読 → boolean のみ state 化、proto-01 を hooks 構成へ分割
-- [ ] PR: 表示 / 非表示の hidden checkbox + CSS 化（候補 F）
-- [ ] PR: 「歩く / 止まる」切替の再レンダリング回避（候補 G。F と同 PR 可）
+- [ ] PR: 表示制御（歩くボタン解放）の hidden checkbox + CSS 化（候補 F）
+- [ ] PR: 「歩く / 止まる」切替の再レンダリング回避（候補 G。F マージ後）
 
 ## 決定事項
 
@@ -155,7 +156,9 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - 2026-09-09: 「ジャンプ回数 vs クリック回数」は `ACTION_JUMP` 購読（`fromEvent(eventTarget, ACTION_JUMP)`）に確定
 - 2026-09-09: 対応は追記（この PR）と実装（C / B の個別 PR）を分ける
 - 2026-09-09: C（PR #145）/ B（PR #146）マージ済。#131 積み残しの主要 3 項目消化
-- 2026-09-09: 後続課題 F（表示 / 非表示を hidden checkbox + CSS へ）/ G（歩く・止まる切替の再レンダリング回避）を追加。どちらも React state を撤廃し切替の再レンダリングをなくすのが目的。F は非 rxjs 技法。G は実質 F を `walking` へ適用するだけで F と同 PR 可
+- 2026-09-09: 後続課題 F（表示 / 非表示を hidden checkbox + CSS へ）/ G（歩く・止まる切替の再レンダリング回避）を追加。どちらも React state を撤廃し切替の再レンダリングをなくすのが目的。F は非 rxjs 技法
+- 2026-09-09: F と G は別 PR とし F → G の順で対応（ユーザー指示。G は F と同 PR にしない）。F は `walkUnlocked` の表示制御のみ、G は `walking` の切替制御のみを扱う
+- 2026-09-09: F の橋渡しは `src/hooks/` の汎用 hook（`useCssBooleanCell` 相当）へ切り出す。表示切替は `opacity` / `visibility` 維持（`display:none` 不使用）
 
 ## 懸念・リスク
 
