@@ -1,16 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-
-import {
-  BoxBot,
-  useBoxBotActionDispatcher,
-} from '@/components/samples/figure/box-bot'
+import { BoxBot } from '@/components/samples/figure/box-bot'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/cn'
 
-/** 歩くボタンを解放するまでに必要なジャンプ回数 */
-const JUMPS_TO_UNLOCK_WALK = 3
+import { useProto01 } from './index.hooks'
 
 /**
  * Proto01 — トップページ試作
@@ -18,17 +12,7 @@ const JUMPS_TO_UNLOCK_WALK = 3
  * - box-bot を body/head クリックで 3 回ジャンプさせると「歩く」ボタンが出る
  */
 const Proto01 = () => {
-  /** box-bot と共有し、walking action を発火する EventTarget */
-  const [eventTarget] = useState(() => new EventTarget())
-  const { walkingToggle } = useBoxBotActionDispatcher(eventTarget)
-
-  /** body/head クリックによるジャンプ回数 */
-  const [jumpCount, setJumpCount] = useState(0)
-  /** 歩行中か */
-  const [walking, setWalking] = useState(false)
-
-  /** ジャンプ回数がしきい値に達し、歩くボタンを出せるか */
-  const walkUnlocked = jumpCount >= JUMPS_TO_UNLOCK_WALK
+  const { eventTarget, toggleWalking, walking, walkUnlocked } = useProto01()
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -42,7 +26,6 @@ const Proto01 = () => {
         canvasHeight={640}
         eventTarget={eventTarget}
         mode="3d"
-        onClick={() => setJumpCount((c) => c + 1)}
       />
       {/* ボタン領域を常時確保する。条件マウントすると flex 再センタリングで
           BoxBot ラッパーが動き、内部の絶対配置 Canvas ごと bot が跳ねる(カクつき)。
@@ -55,10 +38,7 @@ const Proto01 = () => {
               ? 'translate-y-0 opacity-100'
               : 'pointer-events-none translate-y-3 opacity-0',
           )}
-          onClick={() => {
-            void walkingToggle()
-            setWalking((v) => !v)
-          }}
+          onClick={toggleWalking}
           type="button"
           variant="outline"
         >

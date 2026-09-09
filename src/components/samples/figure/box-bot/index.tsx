@@ -3,6 +3,7 @@ import BoxBot3D from './_components/box-bot-3d'
 import type { BoxBotProps } from './index.types'
 
 export {
+  ACTION_JUMP,
   ACTION_SPIN,
   BODY_HEIGHT_RATIO,
   useBoxBotActionDispatcher,
