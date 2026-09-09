@@ -109,7 +109,7 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 ## 実装計画
 
 - [ ] この PR: design.md 追記（本ファイル + #137 段階 3 design.md へリンク）
-- [ ] PR: 長押し util（候補 C）
+- [x] PR: 長押し util（候補 C） — PR #145（`_pr/pr-145-rxjs-long-press-util/`）。`src/lib/rxjs/long-press.ts` の `createLongPressStream` を実装、レビュー待ち
 - [ ] PR: proto-01 jumpCount の Observable 化 + 挙動 / UI 分離（候補 B）
 
 ## 決定事項
