@@ -11,7 +11,10 @@ import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
-export { ACTION_SPIN } from './_components/box-bot-model/index.constants'
+export {
+  ACTION_JUMP,
+  ACTION_SPIN,
+} from './_components/box-bot-model/index.constants'
 export { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-bot-action-dispatcher'
 
 /**
