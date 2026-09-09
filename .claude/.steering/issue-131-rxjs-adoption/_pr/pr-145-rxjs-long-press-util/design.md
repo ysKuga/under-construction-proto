@@ -21,7 +21,7 @@ issue: #131 / PR: #145 / branch: `131-rxjs-long-press-util`
 - 既存 `src/lib/react-query.ts` の「ライブラリ名で関連実装をまとめる」パターンをサブディレクトリ化して踏襲。`src/` 直下の命名規則（レイヤ/機能名）を崩さない
 - 将来 React hook 版が必要になったら `src/hooks/use-long-press/` に置き、`@/lib/rxjs/long-press` を利用する形にする
 
-```
+```text
 src/lib/rxjs/
   long-press.ts       # createLongPressStream + 型
   long-press.test.ts  # TestScheduler marble テスト
@@ -99,10 +99,10 @@ rxjs `TestScheduler` の marble テストで以下を検証する。
 
 ## 実装計画
 
-- [ ] `src/lib/rxjs/long-press.test.ts`（marble テスト先行）
-- [ ] `src/lib/rxjs/long-press.ts`（`createLongPressStream` + 型）
-- [ ] `pnpm test` パス確認
-- [ ] 親 [../../design.md](../../design.md) の実装計画「PR: 長押し util（候補 C）」をチェック
+- [x] `src/lib/rxjs/long-press.test.ts`（marble テスト先行）
+- [x] `src/lib/rxjs/long-press.ts`（`createLongPressStream` + 型）
+- [x] テストパス確認（`npx vitest run src/lib/rxjs/long-press.test.ts`）
+- [x] 親 [../../design.md](../../design.md) の実装計画「PR: 長押し util（候補 C）」をチェック
 
 ## 決定事項
 
