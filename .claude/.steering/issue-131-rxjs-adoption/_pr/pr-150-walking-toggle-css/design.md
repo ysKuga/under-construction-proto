@@ -68,12 +68,12 @@ const toggleWalking = () => {
 
 ## 実装計画
 
-- [ ] `index.hooks.ts`: `walking` state 撤廃、`walkingRef` + `toggleAttribute`
-- [ ] `index.types.ts`: `walking` → `walkingRef`
-- [ ] `index.tsx`: `group` + `data-walking` + ラベル 2 span
-- [ ] lint / tsc パス確認
+- [x] `index.hooks.ts`: `walking` state 撤廃、`walkingRef` + `toggleAttribute`
+- [x] `index.types.ts`: `walking` → `walkingRef`
+- [x] `index.tsx`: `group` + `data-walking` + ラベル 2 span
+- [x] lint / tsc パス確認
 - [ ] F マージ後、base を main へ付け替え
-- [ ] 親 [../../design.md](../../design.md) の候補 G をチェック
+- [ ] 親 [../../design.md](../../design.md) の候補 G をチェック（マージ時）
 
 ## 決定事項
 
