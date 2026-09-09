@@ -100,11 +100,11 @@ export const useCssBooleanCell = (): UseCssBooleanCellReturn => {
 
 ## 実装計画
 
-- [ ] `src/hooks/use-css-boolean-cell.ts` + 型 + テスト
-- [ ] `use-walk-unlock.ts` を cell 接続へ改修 + テスト更新
-- [ ] `index.hooks.ts` / `index.types.ts` / `index.tsx` を checkbox + `peer-checked:` へ
-- [ ] test / lint / tsc パス確認
-- [ ] 親 [../../design.md](../../design.md) の候補 F をチェック
+- [x] `src/hooks/use-css-boolean-cell.ts` + 型 + テスト
+- [x] `use-walk-unlock.ts` を cell 接続へ改修 + テスト更新
+- [x] `index.hooks.ts` / `index.types.ts` / `index.tsx` を checkbox + `peer-checked:` へ
+- [x] test / lint / tsc パス確認
+- [ ] 親 [../../design.md](../../design.md) の候補 F をチェック（マージ時）
 
 ## 決定事項
 
