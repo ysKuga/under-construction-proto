@@ -21,3 +21,5 @@ package.json に導入したライブラリについての記述を格納する�
     PWA(Service Worker・manifest)関連を格納
   - `reactive` \
     リアクティブ・非同期ストリーム関連を格納
+  - `styling` \
+    スタイリング(CSS-in-JS 等)関連を格納

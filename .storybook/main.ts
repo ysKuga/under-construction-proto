@@ -1,4 +1,7 @@
-module.exports = {
+import type { StorybookConfig } from '@storybook/nextjs-vite'
+import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
+
+const config: StorybookConfig = {
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-docs',
@@ -11,4 +14,12 @@ module.exports = {
   typescript: {
     reactDocgen: 'react-docgen-typescript',
   },
+
+  viteFinal(viteConfig) {
+    viteConfig.plugins = viteConfig.plugins ?? []
+    viteConfig.plugins.push(vanillaExtractPlugin())
+    return viteConfig
+  },
 }
+
+export default config

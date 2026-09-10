@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { useBoxBotActionDispatcher } from '@/components/samples/figure/box-bot'
+import { useCssToggle } from '@/hooks/use-css-toggle'
 
 import { useWalkUnlock } from './_hooks/use-walk-unlock'
 import type { UseProto01Return } from './index.types'
@@ -9,14 +10,16 @@ import type { UseProto01Return } from './index.types'
  * Proto01 の挙動
  *
  * - box-bot と共有する EventTarget を生成する
- * - `ACTION_JUMP` 起点の解放判定（`useWalkUnlock`）と walking action の発火をまとめる
+ * - `ACTION_JUMP` 起点の解放判定（`useWalkUnlock`）を hidden checkbox の CSS トグルへ流す
+ * - walking action の発火をまとめる
  */
 export const useProto01 = (): UseProto01Return => {
   /** box-bot と共有し、walking action を発火する EventTarget */
   const [eventTarget] = useState(() => new EventTarget())
   const { walkingToggle } = useBoxBotActionDispatcher(eventTarget)
 
-  const { walkUnlocked } = useWalkUnlock(eventTarget)
+  const walkUnlock = useCssToggle()
+  useWalkUnlock(eventTarget, walkUnlock.set)
 
   const [walking, setWalking] = useState(false)
 
@@ -25,5 +28,10 @@ export const useProto01 = (): UseProto01Return => {
     setWalking((v) => !v)
   }
 
-  return { eventTarget, toggleWalking, walking, walkUnlocked }
+  return {
+    eventTarget,
+    toggleWalking,
+    walking,
+    walkUnlock,
+  }
 }

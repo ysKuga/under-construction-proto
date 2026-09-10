@@ -1,3 +1,5 @@
+import { UseCssToggleReturn } from '@/hooks/use-css-toggle'
+
 /**
  * useProto01 の戻り値
  */
@@ -8,6 +10,6 @@ export type UseProto01Return = {
   toggleWalking: () => void
   /** 歩行中か */
   walking: boolean
-  /** ジャンプ回数がしきい値に達し、歩くボタンを出せるか */
-  walkUnlocked: boolean
+  /** 歩くボタン表示制御関連 */
+  walkUnlock: UseCssToggleReturn
 }
