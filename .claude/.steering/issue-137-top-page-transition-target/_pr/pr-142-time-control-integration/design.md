@@ -143,13 +143,17 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
   - **配置先確定**: find-path proto 配下 `src/components/pages/find-path/_prototypes/proto-01/_contexts/find-path-stores/`。stage-06 は grid + 遠近 + actor 位置 ref に専念し、time-control 合流はページ試作側で持つ（stage prototype から time-control-03 を import しない）
   - **append/pop 確定**: find-path 側 wrapper hook `_hooks/use-planned-path-steps.ts`。tc-03 の planned-path store は無改変 import（`usePlannedPathStoreApi` 経由で `getPlannedPath` + `setPlannedPath` を組み合わせ）。セル座標は `Position` へ `{x: col, y: row}` で載せ、`GridPosition` 相互変換は薄い helper
   - PR-D で proto のマウント先を stage-05 → stage-06 に切替えるまで、本 PR の Provider は stage-05 マウントの proto-01 を包むだけ（stage 側は store 未使用）
+**着手順を D → C に入れ替え**（2026-09-10）。PR-C の tick ドライバは `path` / `game-clock` store（proto 側 `FindPathStoresProvider` 配下）と `moveActor`（stage-06 `actor-node-registry`）の両方を読むため proto 側に置くしかなく、proto が stage-06 をマウント済みであることが前提。stage-06 は time-control-03 を import しない方針のため tick を stage-06 内には置けない。
+
+- **PR-D `137-find-path-stage-06-switch`**: find-path proto を stage-06 へ切替（先行）
+  - proto-01 のマウント先を `Stage05` → `Stage06`（props シグネチャ同一）
+  - 即時移動・移動で再レンダリングなしを Storybook 確認
 - **PR-C `137-find-path-tick-execution`**: tick ドライバ移植 + 「実行」
-  - `continueAuto` 相当を find-path 用 position へ移植、(c) を `moveActor` へ
+  - `continueAuto` 相当を find-path 用 position へ移植、(c) を stage-06 の `moveActor` へ。tick ドライバは proto 側（`_hooks/`）に置く
   - **移植と同時に rxjs 化する**（`timer` + `withLatestFrom(timeScale$)` + `scan` + `takeWhile`）。検討は `.claude/.steering/issue-131-rxjs-adoption/design.md` 候補 A 参照。r3f `useFrame`（実時間）と tick（論理時間）の境界を明記する
+  - 「実行」ボタン・time-scale スライダーは find-path proto の `_components/` に自前（stage-06 は store 非依存のまま）
   - 「実行」ボタンで planned-path → path → tick 進行 → bot が 1 手ずつ
   - time-scale スライダー（`timeScale` を `BehaviorSubject` 化）
-- **PR-D `137-find-path-stage-06-switch`**: find-path proto を stage-06 へ切替
-  - proto-01 のマウント先変更、Storybook 確認
 
 ## 実装計画
 
@@ -158,9 +162,9 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - [x] 検討事項 3（tick 接続）→ position の `continueAuto` ループを移植、(c) を `moveActor` へ。`_computed` / `_events` は段階 3 見送り
 - [x] 検討事項 4（stage 拡張 vs 新設）→ stage-06 新設
 - [x] PR-A: stage-06 スキャフォールド + ref position（PR #143 マージ済。`src/prototypes/stage/stage-06/`、`_contexts/actor-node-registry/`）
-- [~] PR-B: time-control store 持ち込み（C 方式）— PR #151 作成、レビュー待ち。`FindPathStoresProvider`（proto 配下）+ `usePlannedPathSteps` wrapper hook
+- [x] PR-B: time-control store 持ち込み（C 方式）— PR #151 マージ済。`FindPathStoresProvider`（proto 配下）+ `usePlannedPathSteps` wrapper hook
+- [~] PR-D: find-path proto を stage-06 へ切替 — PR #152 作成、レビュー待ち（D → C に順序入れ替え）
 - [ ] PR-C: tick ドライバ移植 + 「実行」
-- [ ] PR-D: find-path proto を stage-06 へ切替
 - [x] 空 PR 先行作成 (#142) → 番号確保 → 本ディレクトリを `_pr/pr-142-time-control-integration/` へ配置
 
 ## 決定事項
@@ -172,6 +176,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - 2026-09-08: `_computed` / `_events`（tc-03）は段階 3 では持ち込まない。「実行」は store 直呼び
 - 2026-09-09: PR-C の tick ドライバ移植は rxjs 化とセットで行う（`continueAuto` → `timer` + operator 合成）。rxjs 適用の全体検討は `.claude/.steering/issue-131-rxjs-adoption/design.md`（issue #131 reopen）
 - 2026-09-10: PR-B の store Provider 配置先を find-path proto 配下（`_contexts/find-path-stores/`）に確定。stage-06 は time-control-03 を import しない（stage / time-control の合流はページ試作側）。`appendPlannedStep` / `popPlannedStep` は find-path 側 wrapper hook（`_hooks/use-planned-path-steps.ts`）で実装し、tc-03 の planned-path store は無改変 import
+- 2026-09-10: PR-B マージ済（PR #151）。着手順を D → C に入れ替え。PR-C の tick ドライバは proto 側の store（`path` / `game-clock`）と stage-06 の `moveActor` の両 Context 配下に置く必要があり、proto が stage-06 をマウント済みなのが前提。よって PR-D（マウント切替、即時移動のまま）を先行させる
 
 ## 懸念・リスク
 
