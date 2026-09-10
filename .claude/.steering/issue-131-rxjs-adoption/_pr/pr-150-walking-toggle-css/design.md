@@ -72,8 +72,8 @@ const toggleWalking = () => {
 - [x] `index.types.ts`: `walking` → `walkingRef`
 - [x] `index.tsx`: `group` + `data-walking` + ラベル 2 span
 - [x] lint / tsc パス確認
-- [ ] F マージ後、base を main へ付け替え
-- [ ] 親 [../../design.md](../../design.md) の候補 G をチェック（マージ時）
+- [x] F マージ後、base を main へ付け替え
+- [x] 親 [../../design.md](../../design.md) の候補 G をチェック（マージ時）
 
 ## 決定事項
 
