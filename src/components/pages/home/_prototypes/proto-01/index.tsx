@@ -12,13 +12,7 @@ import { useProto01 } from './index.hooks'
  * - box-bot を body/head クリックで 3 回ジャンプさせると「歩く」ボタンが出る
  */
 const Proto01 = () => {
-  const {
-    eventTarget,
-    toggleWalking,
-    walkButtonClassName,
-    walking,
-    walkUnlockedCheckbox,
-  } = useProto01()
+  const { eventTarget, toggleWalking, walking, walkUnlock } = useProto01()
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -40,11 +34,11 @@ const Proto01 = () => {
         {/* 解放フラグを持つ hidden checkbox(useCssToggle が生成)。解放時に
             checked を直書きし(React state なし)、表示切替は vanilla-extract の
             兄弟セレクターで行う */}
-        {walkUnlockedCheckbox}
+        {walkUnlock.checkbox}
         <Button
           className={cn(
             // 表示制御(表示/非表示)は hook、以下は遷移の演出のみ
-            walkButtonClassName,
+            walkUnlock.toggledClassName,
             'transition-all duration-300 ease-out',
           )}
           onClick={toggleWalking}

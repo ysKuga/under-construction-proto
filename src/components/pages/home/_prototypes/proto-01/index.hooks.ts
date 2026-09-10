@@ -18,8 +18,8 @@ export const useProto01 = (): UseProto01Return => {
   const [eventTarget] = useState(() => new EventTarget())
   const { walkingToggle } = useBoxBotActionDispatcher(eventTarget)
 
-  const { checkbox, set, toggledClassName } = useCssToggle()
-  useWalkUnlock(eventTarget, set)
+  const walkUnlock = useCssToggle()
+  useWalkUnlock(eventTarget, walkUnlock.set)
 
   const [walking, setWalking] = useState(false)
 
@@ -31,8 +31,7 @@ export const useProto01 = (): UseProto01Return => {
   return {
     eventTarget,
     toggleWalking,
-    walkButtonClassName: toggledClassName,
     walking,
-    walkUnlockedCheckbox: checkbox,
+    walkUnlock,
   }
 }
