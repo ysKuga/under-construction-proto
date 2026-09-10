@@ -163,7 +163,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - [x] 検討事項 4（stage 拡張 vs 新設）→ stage-06 新設
 - [x] PR-A: stage-06 スキャフォールド + ref position（PR #143 マージ済。`src/prototypes/stage/stage-06/`、`_contexts/actor-node-registry/`）
 - [x] PR-B: time-control store 持ち込み（C 方式）— PR #151 マージ済。`FindPathStoresProvider`（proto 配下）+ `usePlannedPathSteps` wrapper hook
-- [~] PR-D: find-path proto を stage-06 へ切替 — 着手（D → C に順序入れ替え）
+- [~] PR-D: find-path proto を stage-06 へ切替 — PR #152 作成、レビュー待ち（D → C に順序入れ替え）
 - [ ] PR-C: tick ドライバ移植 + 「実行」
 - [x] 空 PR 先行作成 (#142) → 番号確保 → 本ディレクトリを `_pr/pr-142-time-control-integration/` へ配置
 
