@@ -159,6 +159,8 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 - 2026-09-09: 後続課題 F（表示 / 非表示を hidden checkbox + CSS へ）/ G（歩く・止まる切替の再レンダリング回避）を追加。どちらも React state を撤廃し切替の再レンダリングをなくすのが目的。F は非 rxjs 技法
 - 2026-09-09: F と G は別 PR とし F → G の順で対応（ユーザー指示。G は F と同 PR にしない）。F は `walkUnlocked` の表示制御のみ、G は `walking` の切替制御のみを扱う
 - 2026-09-09: F の橋渡しは `src/hooks/` の汎用 hook（`useCssToggle` 相当）へ切り出す。表示切替は `opacity` / `visibility` 維持（`display:none` 不使用）
+- 2026-09-09: F（PR #149）/ G（PR #150）マージ済
+- 2026-09-10: 実装計画 全項目消化（C #145 / B #146 / F #149 / G #150、docs #144/#147/#148）。候補 A は #137 段階 3 PR-C 内で対応、候補 D / E は将来別テーマ。本 steering を `_closed/` へ close
 
 ## 懸念・リスク
 
