@@ -154,7 +154,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - [x] 検討事項 2（position の ref 化）→ ref ベース Provider `actor-node-registry` へ置換。DOM `left/top` 直書き、useFrame 不要
 - [x] 検討事項 3（tick 接続）→ position の `continueAuto` ループを移植、(c) を `moveActor` へ。`_computed` / `_events` は段階 3 見送り
 - [x] 検討事項 4（stage 拡張 vs 新設）→ stage-06 新設
-- [~] PR-A: stage-06 スキャフォールド + ref position（PR #143 draft・実装済、Storybook 確認待ち）
+- [x] PR-A: stage-06 スキャフォールド + ref position（PR #143 マージ済。`src/prototypes/stage/stage-06/`、`_contexts/actor-node-registry/`）
 - [ ] PR-B: time-control store 持ち込み（C 方式）
 - [ ] PR-C: tick ドライバ移植 + 「実行」
 - [ ] PR-D: find-path proto を stage-06 へ切替

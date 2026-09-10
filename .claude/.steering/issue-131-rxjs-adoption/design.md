@@ -143,7 +143,7 @@ issue: #131（rxjs 適用のため reopen。元テーマの実装は `_closed/is
 
 ## 実装計画
 
-- [ ] この PR: design.md 追記（本ファイル + #137 段階 3 design.md へリンク）
+- [x] この PR: design.md 追記（本ファイル + #137 段階 3 design.md へリンク） — PR #144 / #147 / #148 マージ済
 - [x] PR: 長押し util（候補 C） — PR #145（`_pr/pr-145-rxjs-long-press-util/`）マージ済。`src/lib/rxjs/long-press.ts` の `createLongPressStream`
 - [x] PR: proto-01 jumpCount の Observable 化 + 挙動 / UI 分離（候補 B） — PR #146（`_pr/pr-146-rxjs-proto01-jump-count/`）マージ済。`_hooks/use-walk-unlock.ts` で `ACTION_JUMP` 購読 → boolean のみ state 化、proto-01 を hooks 構成へ分割
 - [x] PR: 表示制御（歩くボタン解放）の hidden checkbox + CSS 化（候補 F） — PR #149 マージ済
