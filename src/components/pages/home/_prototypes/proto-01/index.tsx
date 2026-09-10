@@ -12,7 +12,13 @@ import { useProto01 } from './index.hooks'
  * - box-bot を body/head クリックで 3 回ジャンプさせると「歩く」ボタンが出る
  */
 const Proto01 = () => {
-  const { eventTarget, toggleWalking, walking, walkUnlockedRef } = useProto01()
+  const {
+    eventTarget,
+    toggleWalking,
+    walkButtonClassName,
+    walking,
+    walkUnlockedCheckbox,
+  } = useProto01()
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -31,20 +37,15 @@ const Proto01 = () => {
           BoxBot ラッパーが動き、内部の絶対配置 Canvas ごと bot が跳ねる(カクつき)。
           Canvas(設置領域より大きい)が被るため z-index を明示 */}
       <div className="relative z-10 flex h-9 items-center">
-        {/* 解放フラグを持つ hidden checkbox。解放時に walkUnlockedRef 経由で
-            checked を直書きし(React state なし)、表示切替は peer-checked: で行う */}
-        <input
-          aria-hidden
-          className="peer hidden"
-          readOnly
-          ref={walkUnlockedRef}
-          tabIndex={-1}
-          type="checkbox"
-        />
+        {/* 解放フラグを持つ hidden checkbox(useCssToggle が生成)。解放時に
+            checked を直書きし(React state なし)、表示切替は vanilla-extract の
+            兄弟セレクターで行う */}
+        {walkUnlockedCheckbox}
         <Button
           className={cn(
-            'pointer-events-none translate-y-3 opacity-0 transition-all duration-300 ease-out',
-            'peer-checked:pointer-events-auto peer-checked:translate-y-0 peer-checked:opacity-100',
+            // 表示制御(表示/非表示)は hook、以下は遷移の演出のみ
+            walkButtonClassName,
+            'transition-all duration-300 ease-out',
           )}
           onClick={toggleWalking}
           type="button"
