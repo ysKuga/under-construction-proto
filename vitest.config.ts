@@ -1,12 +1,13 @@
 /// <reference types="vitest" />
 
+import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
 import viteTsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   base: './',
-  plugins: [react(), viteTsconfigPaths()],
+  plugins: [vanillaExtractPlugin(), react(), viteTsconfigPaths()],
   test: {
     coverage: {
       include: ['src/**'],
