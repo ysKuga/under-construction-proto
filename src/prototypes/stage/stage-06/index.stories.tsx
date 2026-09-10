@@ -1,9 +1,21 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
+import { ActorNodeRegistryProvider } from './_contexts/actor-node-registry'
+
 import { Stage06 as StoryComponent } from '.'
 
 const meta: Meta<typeof StoryComponent> = {
   component: StoryComponent,
+  // provider は Stage06 の外側に置く構成（PR-C）。story では decorator で巻く
+  decorators: [
+    (Story, ctx) => (
+      <ActorNodeRegistryProvider
+        gridSize={{ cols: ctx.args.cols ?? 5, rows: ctx.args.rows ?? 5 }}
+      >
+        <Story />
+      </ActorNodeRegistryProvider>
+    ),
+  ],
 }
 
 export default meta
