@@ -12,7 +12,7 @@ import { useProto01 } from './index.hooks'
  * - box-bot を body/head クリックで 3 回ジャンプさせると「歩く」ボタンが出る
  */
 const Proto01 = () => {
-  const { eventTarget, toggleWalking, walking, walkUnlock } = useProto01()
+  const { eventTarget, toggleWalking, walkingRef, walkUnlock } = useProto01()
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -30,7 +30,10 @@ const Proto01 = () => {
       {/* ボタン領域を常時確保する。条件マウントすると flex 再センタリングで
           BoxBot ラッパーが動き、内部の絶対配置 Canvas ごと bot が跳ねる(カクつき)。
           Canvas(設置領域より大きい)が被るため z-index を明示 */}
-      <div className="relative z-10 flex h-9 items-center">
+      <div
+        className="group relative z-10 flex h-9 items-center"
+        ref={walkingRef}
+      >
         {/* 解放フラグを持つ hidden checkbox(useCssToggle が生成)。解放時に
             checked を直書きし(React state なし)、表示切替は vanilla-extract の
             兄弟セレクターで行う */}
@@ -45,7 +48,9 @@ const Proto01 = () => {
           type="button"
           variant="outline"
         >
-          {walking ? '止まる' : '歩く'}
+          {/* 歩く/止まる は両方描画し、wrapper の data-walking で切替(再レンダリングなし) */}
+          <span className="group-data-[walking]:hidden">歩く</span>
+          <span className="hidden group-data-[walking]:inline">止まる</span>
         </Button>
       </div>
     </div>
