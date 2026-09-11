@@ -1,27 +1,33 @@
 'use client'
 
-import { CSSProperties } from 'react'
+import { CSSProperties, PropsWithChildren } from 'react'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
 
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
-import { ActorNodeRegistryProvider } from './_contexts/actor-node-registry'
 
-type Stage06Props = {
+type Stage06Props = PropsWithChildren<{
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
   /** 列数 */
   cols: number
   /** rotateX の初期角度 (deg) */
   initialTiltDeg: number
+  /**
+   * セルクリックで actor を即移動させるか（未指定は `true`）
+   *
+   * - `false` にすると `GeoLayer` のセルは非対話になる。クリックを別レイヤー\
+   *   （`children` で注入する find-path の予定経路レイヤー等）へ委ねるとき使う
+   */
+  interactive?: boolean
   /** perspective 視点距離 (px)。小さいほど遠近が強い */
   perspectivePx: number
   /** 行数 */
   rows: number
   /** 描画領域の一辺 (px) */
   size: number
-}
+}>
 
 /**
  * 舞台 (stage) — 遠近 + actor 位置の ref 化版
@@ -31,10 +37,23 @@ type Stage06Props = {
  * - actor の位置は `ActorNodeRegistryProvider` が bot ラッパー DOM の `left/top` を
  *   直書きして反映する。stage-05 の `ActorPositionProvider` (useState) と違い、
  *   移動でセル群も actor も再レンダリングされない
- * - 段階 3 (time-control) の tick 接続はこの ref 基盤の上に載せる
+ * - `ActorNodeRegistryProvider` は本コンポーネントの外側（呼び出し側）に置く。
+ *   time-control の tick ドライバなど、grid の外にある機能から `moveActor` を
+ *   共有するため（find-path 試作 PR-C）。stories は decorator で provider を巻く
+ * - `children` は floor(grid) の子として同じ 3D 空間へ描画される。傾いた
+ *   グリッドへ独自レイヤー（find-path の予定経路セル等）を重ねるための slot
  */
 export const Stage06 = (props: Stage06Props) => {
-  const { botSize, cols, initialTiltDeg, perspectivePx, rows, size } = props
+  const {
+    botSize,
+    children,
+    cols,
+    initialTiltDeg,
+    interactive = true,
+    perspectivePx,
+    rows,
+    size,
+  } = props
 
   const { floorRef, setTilt } = usePerspectiveControl()
 
@@ -67,28 +86,27 @@ export const Stage06 = (props: Stage06Props) => {
   } as CSSProperties
 
   return (
-    <ActorNodeRegistryProvider gridSize={{ cols, rows }}>
-      <div>
-        <div style={sceneStyle}>
-          <div ref={floorRef} style={floorStyle}>
-            <GeoLayer />
-            <ActorsLayer botSize={botSize} />
-          </div>
+    <div>
+      <div style={sceneStyle}>
+        <div ref={floorRef} style={floorStyle}>
+          <GeoLayer interactive={interactive} />
+          <ActorsLayer botSize={botSize} />
+          {children}
         </div>
-        <label>
-          tilt{' '}
-          <input
-            defaultValue={initialTiltDeg}
-            max={85}
-            min={0}
-            onChange={(event) => {
-              setTilt(Number(event.target.value))
-            }}
-            step={1}
-            type="range"
-          />
-        </label>
       </div>
-    </ActorNodeRegistryProvider>
+      <label>
+        tilt{' '}
+        <input
+          defaultValue={initialTiltDeg}
+          max={85}
+          min={0}
+          onChange={(event) => {
+            setTilt(Number(event.target.value))
+          }}
+          step={1}
+          type="range"
+        />
+      </label>
+    </div>
   )
 }

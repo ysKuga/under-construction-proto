@@ -80,16 +80,16 @@ issue: #137
   - [x] stage-04 の click / keyboard 移動配線（`MoveIntent`）を持ち込む（context / keyboard hook は stage-04 から import 共有、layer は grid 座標系用に新規）
 - [x] grid 移動と three.js Canvas の重ね方（`ui-three` の occlude 課題を踏まえる）— box-bot-01 は表示領域 = 設置領域で Canvas が `cellSize` に収まり、単体では occlude 未顕在化。複数 actor / 障害物の z 順は段階 2 以降として stage-05 README に残す
 
-段階 3: time-control 適用
+段階 3: time-control 適用（詳細は [pr-142-time-control-integration/design.md](_pr/pr-142-time-control-integration/design.md)）
 
-- [ ] time-control-03 の store 群をページ Context 構成へ束ねる
-- [ ] bot の move / action を tick 管理へ接続
+- [x] time-control-03 の store 群をページ Context 構成へ束ねる（`FindPathStoresProvider`。game-clock / path / planned-path は無改変 import、position / intent は stage-06 `actor-node-registry` へ差し替え）
+- [x] bot の move / action を tick 管理へ接続（`useFindPathTick`。PR-A #143 / PR-B #151 / PR-D #152 / PR-C #153）
 
 段階 4: ゲーム内容の深堀
 
 - [ ] スタート / ゴール配置、ゴール到達判定
-- [ ] 経路積み UI（セル指定 → `planned-path` へ push）
-- [ ] 「実行」で tick 進行 → bot が 1 手ずつ歩く配線
+- [x] 経路積み UI（セル指定 → `planned-path` へ push）— 段階 3 PR-C で前倒し実装（`PlannedPathLayer`）
+- [x] 「実行」で tick 進行 → bot が 1 手ずつ歩く配線 — 段階 3 PR-C で前倒し実装（`ActionBar` + `useFindPathTick`）
 - [ ] proto-01「ジャンプ → 歩く解放」を実行前アンロックとして前段に接続
 - [ ] 障害物 / 歩数制限 / 一方通行セル（パズル性、優先度低）
 
