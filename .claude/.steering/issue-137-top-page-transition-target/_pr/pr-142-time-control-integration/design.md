@@ -166,7 +166,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - [x] PR-A: stage-06 スキャフォールド + ref position（PR #143 マージ済。`src/prototypes/stage/stage-06/`、`_contexts/actor-node-registry/`）
 - [x] PR-B: time-control store 持ち込み（C 方式）— PR #151 マージ済。`FindPathStoresProvider`（proto 配下）+ `usePlannedPathSteps` wrapper hook
 - [x] PR-D: find-path proto を stage-06 へ切替 — PR #152 マージ済（D → C に順序入れ替え）
-- [~] PR-C: tick ドライバ移植 + 「実行」 — PR #153 draft 作成、実装中。gap 1（provider 持ち上げ）/ gap 2（専用 interaction layer + `interactive` prop + children slot）確定
+- [x] PR-C: tick ドライバ移植 + 「実行」 — PR #153。rxjs 版 `useFindPathTick` + `ActionBar`（実行 / 1 手戻す / 速度）+ `PlannedPathLayer`（予定経路積み込み）実装済、Storybook（proto-01 / stage-06 単体）で動作・再レンダリングなしを確認済
 - [x] 空 PR 先行作成 (#142) → 番号確保 → 本ディレクトリを `_pr/pr-142-time-control-integration/` へ配置
 
 ## 決定事項
@@ -180,6 +180,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - 2026-09-10: PR-B の store Provider 配置先を find-path proto 配下（`_contexts/find-path-stores/`）に確定。stage-06 は time-control-03 を import しない（stage / time-control の合流はページ試作側）。`appendPlannedStep` / `popPlannedStep` は find-path 側 wrapper hook（`_hooks/use-planned-path-steps.ts`）で実装し、tc-03 の planned-path store は無改変 import
 - 2026-09-10: PR-B マージ済（PR #151）。着手順を D → C に入れ替え。PR-C の tick ドライバは proto 側の store（`path` / `game-clock`）と stage-06 の `moveActor` の両 Context 配下に置く必要があり、proto が stage-06 をマウント済みなのが前提。よって PR-D（マウント切替、即時移動のまま）を先行させる
 - 2026-09-10: PR-D マージ済（PR #152）。PR-C 着手にあたり stage-06 / proto 境界の 2 gap を判断（ユーザー確認）。gap 1 = `ActorNodeRegistryProvider` を `Stage06` から proto へ持ち上げ（`Stage06` は consumer 化、stories は decorator で provider を巻く）。gap 2 = find-path 専用 interaction layer を proto `_components/planned-path-layer/` に新設し、`Stage06` に `interactive?: boolean` + children slot を追加（`GeoLayer` の即時移動を無効化し、専用層を tilt グリッドへ注入）。どちらも stage-06 は time-control-03 非依存を維持
+- 2026-09-11: PR-C 実装完了。tc-03 の path / game-clock context に `usePlannedPathStoreApi` と同形の `useStoreApi` を追加（store 無改変、ラッパー export のみ）。`useFindPathTick`（`timer` + `withLatestFrom(timeScale$)` + `scan` + `mergeMap(range)` + `takeWhile`）・`ActionBar`・`PlannedPathLayer` を実装。`actor` store（tickRate）は持ち込まず `TICK_MS` を proto 定数に固定（actor-settings 同様、最小構成の判断は今回見送り、必要になれば後続で追加）。Storybook 実機確認（Playwright）で「予定経路 3 セル積み → 実行 → 1 tick ごとに 1 セルずつ消化 → 枯渇で停止」「移動・timeScale 変更で再レンダリングなし」「stage-06 単体 story（decorator 経由 provider）でも即時移動が機能」を確認。段階 3（PR-A/B/C/D）完了
 
 ## 懸念・リスク
 
@@ -188,3 +189,4 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
 - `moveActor` が DOM `left/top` を直書きする一方、`actors-layer` の初期 `cellStyle` も React inline style で `left/top` を持つ。stage-06 が何かの拍子に再レンダリングすると初期値へ戻る（`usePerspectiveControl` の `--floor-tilt` と同じ既知の割り切り。stage-06 は state を持たせない設計で回避）
 - ~~`planned-path` への `appendPlannedStep` 追加を tc-03 側 store に入れるか find-path 側 wrapper に閉じるか未決（PR-B で判断）~~ → find-path 側 wrapper hook に確定（2026-09-10）。tc-03 store は無改変
 - 「ジャンプ → 歩く解放」（proto-01）を実行前アンロックとして前段に置く方針だが、grid 移動の操作系との配線は段階 4 で未整理のまま
+- `useFindPathTick` の `REALTIME_STEP_MS`(10ms) 刻み accumulator は、メインスレッドが重い（r3f 描画負荷等）と `setInterval` の発火間隔が伸び、tick 消化が実時間に対して遅れる（Storybook + headless Chromium の検証で確認。ロジック自体は正しく、負荷が収まれば蓄積分を消化して追従する）。tc-03 `continueAuto` も同じ割り切り。実機で顕著なら accumulator を実時間差分ベース（`Date.now()` 差分）に変える改善が後続候補
