@@ -150,6 +150,22 @@ test('ゴールセルに到達すると reachedGoal が true になる', () => {
   expect(result.current.tick.reachedGoal).toBe(true)
 })
 
+test('経路を歩き切ると予定経路がクリアされる', () => {
+  const { result } = renderTick()
+
+  seedPlanned(result, [
+    { col: 1, row: 0 },
+    { col: 2, row: 0 },
+  ])
+
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS * 2))
+
+  expect(
+    result.current.plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID),
+  ).toEqual([])
+})
+
 test('再度「実行」すると reachedGoal がリセットされる', () => {
   const { result } = renderTick()
 

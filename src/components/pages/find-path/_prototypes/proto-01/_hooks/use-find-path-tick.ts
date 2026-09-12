@@ -25,6 +25,7 @@ type UseFindPathTickReturn = {
    *
    * - 走行中に再度呼ぶと現在のループを止めて新しい予定経路で開始する
    * - 予定経路が空なら何もしない
+   * - 経路を歩き切ったら予定経路をクリアする
    */
   execute: () => void
   /** bot が `GOAL_POSITION` に到達済みか */
@@ -99,10 +100,15 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
     path.getState().setPath(PLAYER_ACTOR_ID, rest)
     moveActor(PLAYER_ACTOR_ID, { col: next.x, row: next.y })
 
+    if (rest.length === 0) {
+      // 歩き切ったら予定経路をクリアする（次の企図まで「実行」は disabled）
+      plannedPath.getState().setPlannedPath(PLAYER_ACTOR_ID, [])
+    }
+
     if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {
       setReachedGoal(true)
     }
-  }, [gameClock, path, moveActor])
+  }, [gameClock, path, plannedPath, moveActor])
 
   const execute = useCallback(() => {
     const planned = plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID)
@@ -111,7 +117,7 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       return
     }
 
-    // 予定経路を実行用の残り経路へコピー（planned-path 自体は表示用に残す）
+    // 予定経路を実行用の残り経路へコピー（planned-path 自体は歩き切るまで表示用に残す）
     path.getState().setPath(PLAYER_ACTOR_ID, planned)
     setReachedGoal(false)
 
