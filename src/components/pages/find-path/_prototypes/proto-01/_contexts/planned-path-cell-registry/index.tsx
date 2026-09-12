@@ -35,6 +35,13 @@ type PlannedPathCellRegistryValue = {
    */
   registerCellNode: (cell: Cell, el: HTMLElement | null) => void
   /**
+   * 登録済みの全セルを再表示する
+   *
+   * - 予定経路の一括クリア（歩き切り・実行完了）時に呼ぶ。`resetCell` と同じ理由で\
+   *   `setPlannedPath([])` の再レンダリングだけでは fadeOutCell 済みセルが戻らない
+   */
+  resetAllCells: () => void
+  /**
    * `fadeOutCell` で消したセルを再表示する
    *
    * - セルを再選択（`appendStep`）した際に呼ぶ。React の style diffing は\
@@ -53,8 +60,10 @@ const PlannedPathCellRegistryContext =
  * - `useState` を持たず、フェードアウトしても配下は再レンダリングしない
  *   (`ActorNodeRegistryProvider` と同じ狙い)
  * - 予定経路自体(表示するセル一覧)は `usePlannedPathStore` の React state のまま。\
- *   ここは到達済みセルの opacity のみを直書きする。`PlannedPathLayer` が\
- *   再レンダリングされれば(1 手戻す・実行完了によるクリア等)通常どおり作り直される
+ *   ここは到達済みセルの opacity のみを直書きする。React の style diffing は\
+ *   直書きした DOM の実値でなく前回渡した props を見るため、`PlannedPathLayer` の\
+ *   再レンダリングだけでは opacity: 0 が戻らない（`resetCell` / `resetAllCells` で\
+ *   明示的に戻す）
  */
 export const PlannedPathCellRegistryProvider = (props: PropsWithChildren) => {
   const { children } = props
@@ -81,9 +90,15 @@ export const PlannedPathCellRegistryProvider = (props: PropsWithChildren) => {
     nodesRef.current.get(cellKey(cell))?.style.setProperty('opacity', '1')
   }, [])
 
+  const resetAllCells = useCallback(() => {
+    nodesRef.current.forEach((node) => {
+      node.style.setProperty('opacity', '1')
+    })
+  }, [])
+
   const value = useMemo(
-    () => ({ fadeOutCell, registerCellNode, resetCell }),
-    [fadeOutCell, registerCellNode, resetCell],
+    () => ({ fadeOutCell, registerCellNode, resetAllCells, resetCell }),
+    [fadeOutCell, registerCellNode, resetAllCells, resetCell],
   )
 
   return (

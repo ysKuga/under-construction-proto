@@ -26,7 +26,8 @@ type UseFindPathTickReturn = {
    *
    * - 走行中に再度呼ぶと現在のループを止めて新しい予定経路で開始する
    * - 予定経路が空なら何もしない
-   * - 途中セルは到達ごとに 1 つずつフェードアウトし、歩き切ったら予定経路をクリアする
+   * - 途中セルは到達ごとに 1 つずつフェードアウトし、歩き切ったら予定経路を\
+   *   クリアする（セルの見た目も明示的にリセットする）
    */
   execute: () => void
   /** bot が `GOAL_POSITION` に到達済みか */
@@ -51,7 +52,7 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
   const { moveActor } = useActorNodeRegistry()
-  const { fadeOutCell } = usePlannedPathCellRegistry()
+  const { fadeOutCell, resetAllCells } = usePlannedPathCellRegistry()
 
   const [reachedGoal, setReachedGoal] = useState(false)
 
@@ -103,8 +104,10 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
     moveActor(PLAYER_ACTOR_ID, { col: next.x, row: next.y })
 
     if (rest.length === 0) {
-      // 歩き切ったら予定経路をクリアする（次の企図まで「実行」は disabled）
+      // 歩き切ったら予定経路をクリアする（次の企図まで「実行」は disabled）。
+      // fadeOutCell 済みセルは resetAllCells で明示的に戻す（resetCell と同じ理由）
       plannedPath.getState().setPlannedPath(PLAYER_ACTOR_ID, [])
+      resetAllCells()
     } else {
       // 途中セルは進行に応じて 1 つずつフェードアウトする（再レンダリングなし）
       fadeOutCell({ col: next.x, row: next.y })
@@ -113,7 +116,7 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
     if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {
       setReachedGoal(true)
     }
-  }, [gameClock, path, plannedPath, fadeOutCell, moveActor])
+  }, [gameClock, path, plannedPath, fadeOutCell, resetAllCells, moveActor])
 
   const execute = useCallback(() => {
     const planned = plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID)
