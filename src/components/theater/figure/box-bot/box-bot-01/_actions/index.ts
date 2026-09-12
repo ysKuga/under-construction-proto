@@ -9,6 +9,7 @@ import { spinAction } from './spin'
 import { walkingAction } from './walking'
 
 export * from './define-action'
+export { ACTION_JUMP, jumpAction } from './jump'
 export * from './types'
 
 /**
