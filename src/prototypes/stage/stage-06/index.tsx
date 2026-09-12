@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties, PropsWithChildren } from 'react'
+import { ComponentProps, CSSProperties, PropsWithChildren } from 'react'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
 
@@ -8,6 +8,18 @@ import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
 
 type Stage06Props = PropsWithChildren<{
+  /**
+   * player bot が実行する action 一覧
+   *
+   * - 省略時は `[]`(jump / spin 無効化)。`ActorsLayer` へそのまま渡す
+   */
+  actorActions?: ComponentProps<typeof ActorsLayer>['actions']
+  /**
+   * player bot と共有する EventTarget
+   *
+   * - 省略時は box-bot-01 が instance 固有のものを内部生成する
+   */
+  actorEventTarget?: EventTarget
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
   /** 列数 */
@@ -42,9 +54,14 @@ type Stage06Props = PropsWithChildren<{
  *   共有するため（find-path 試作 PR-C）。stories は decorator で provider を巻く
  * - `children` は floor(grid) の子として同じ 3D 空間へ描画される。傾いた
  *   グリッドへ独自レイヤー（find-path の予定経路セル等）を重ねるための slot
+ * - DOM 順: `GeoLayer` → `children` → `ActorsLayer`。bot（player / 静的）を
+ *   最前面にし、bot と同じセルに `children` 側のクリック領域があっても bot 本体の
+ *   クリックが奪われないようにする（bot が乗るセルはその分クリック不可になる）
  */
 export const Stage06 = (props: Stage06Props) => {
   const {
+    actorActions,
+    actorEventTarget,
     botSize,
     children,
     cols,
@@ -90,8 +107,13 @@ export const Stage06 = (props: Stage06Props) => {
       <div style={sceneStyle}>
         <div ref={floorRef} style={floorStyle}>
           <GeoLayer interactive={interactive} />
-          <ActorsLayer botSize={botSize} />
           {children}
+          <ActorsLayer
+            actions={actorActions}
+            botSize={botSize}
+            eventTarget={actorEventTarget}
+            interactive={interactive}
+          />
         </div>
       </div>
       <label>
