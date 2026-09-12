@@ -11,7 +11,7 @@ import { useGameClockStoreApi } from '@/prototypes/time-control/time-control-03/
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
-import { TICK_MS } from '../constants'
+import { GOAL_POSITION, TICK_MS } from '../constants'
 
 import { useFindPathTick } from './use-find-path-tick'
 
@@ -135,4 +135,30 @@ test('予定経路が空なら execute しても何もしない', () => {
 
   expect(cellOf(result)).toEqual({ col: 0, row: 0 })
   expect(result.current.gameClock.getState().eventLog).toHaveLength(0)
+})
+
+test('ゴールセルに到達すると reachedGoal が true になる', () => {
+  const { result } = renderTick()
+
+  seedPlanned(result, [{ col: 1, row: 0 }, GOAL_POSITION])
+
+  act(() => result.current.tick.execute())
+  expect(result.current.tick.reachedGoal).toBe(false)
+
+  act(() => vi.advanceTimersByTime(TICK_MS * 2))
+  expect(cellOf(result)).toEqual(GOAL_POSITION)
+  expect(result.current.tick.reachedGoal).toBe(true)
+})
+
+test('再度「実行」すると reachedGoal がリセットされる', () => {
+  const { result } = renderTick()
+
+  seedPlanned(result, [GOAL_POSITION])
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS))
+  expect(result.current.tick.reachedGoal).toBe(true)
+
+  seedPlanned(result, [{ col: 1, row: 0 }])
+  act(() => result.current.tick.execute())
+  expect(result.current.tick.reachedGoal).toBe(false)
 })
