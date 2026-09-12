@@ -13,7 +13,7 @@ import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
  *   非制御。tick ドライバ側が store を購読して反映する
  */
 export const ActionBar = () => {
-  const { execute } = useFindPathTick()
+  const { execute, reachedGoal } = useFindPathTick()
   const { popStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const setTimeScale = useGameClockStore((state) => state.setTimeScale)
 
@@ -38,6 +38,7 @@ export const ActionBar = () => {
           type="range"
         />
       </label>
+      {reachedGoal && <span>🎉 ゴール到達</span>}
     </div>
   )
 }

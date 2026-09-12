@@ -4,6 +4,7 @@ import { Stage06 } from '@/prototypes/stage/stage-06'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 
 import { ActionBar } from './_components/action-bar'
+import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import { PlannedPathLayer } from './_components/planned-path-layer'
 import { FindPathStoresProvider } from './_contexts/find-path-stores'
 
@@ -18,7 +19,9 @@ const GRID = { cols: 5, rows: 5 } as const
  *   ボタン（`ActionBar`）が `moveActor` を Stage06 と同じ Context から読めるようにするため
  * - `FindPathStoresProvider` で time-control-03 の game-clock / path / planned-path を配線
  * - `Stage06` は `interactive={false}`。セルクリックは `PlannedPathLayer`（予定経路の
- *   積み込み）へ委ね、「実行」で tick 進行 → bot が 1 手ずつ歩く
+ *   積み込み）へ委ね、「実行」で tick 進行 → bot が 1 手ずつ歩く。`GoalMarkerLayer` は
+ *   ゴールセル表示のみの非対話層
+ * - ゴール到達判定は `useFindPathTick`（`ActionBar` 経由で使用）が tick 消化のたびに行う
  * - route (`/find-path`) / page 実装は未着手。確認は Storybook で行う
  */
 const FindPathProto01 = () => {
@@ -38,6 +41,7 @@ const FindPathProto01 = () => {
             rows={GRID.rows}
             size={400}
           >
+            <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
             <PlannedPathLayer cols={GRID.cols} rows={GRID.rows} />
           </Stage06>
           <ActionBar />
