@@ -34,6 +34,14 @@ type PlannedPathCellRegistryValue = {
    * - JSX の `ref` コールバックから呼ぶ。unmount 時は el=null で解除
    */
   registerCellNode: (cell: Cell, el: HTMLElement | null) => void
+  /**
+   * `fadeOutCell` で消したセルを再表示する
+   *
+   * - セルを再選択（`appendStep`）した際に呼ぶ。React の style diffing は\
+   *   直書きした DOM の実値でなく前回渡した props（`opacity: 1` のまま変化なし）を\
+   *   見るため、再レンダリングだけでは opacity: 0 が戻らない
+   */
+  resetCell: (cell: Cell) => void
 }
 
 const PlannedPathCellRegistryContext =
@@ -69,9 +77,13 @@ export const PlannedPathCellRegistryProvider = (props: PropsWithChildren) => {
     nodesRef.current.get(cellKey(cell))?.style.setProperty('opacity', '0')
   }, [])
 
+  const resetCell = useCallback((cell: Cell) => {
+    nodesRef.current.get(cellKey(cell))?.style.setProperty('opacity', '1')
+  }, [])
+
   const value = useMemo(
-    () => ({ fadeOutCell, registerCellNode }),
-    [fadeOutCell, registerCellNode],
+    () => ({ fadeOutCell, registerCellNode, resetCell }),
+    [fadeOutCell, registerCellNode, resetCell],
   )
 
   return (

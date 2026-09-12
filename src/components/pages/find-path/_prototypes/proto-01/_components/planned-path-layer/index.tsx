@@ -38,14 +38,14 @@ const cellStyle = (order: number | undefined): CSSProperties => ({
  * - planned-path store のみ購読。bot の移動（path / position）では再レンダリングしない
  * - 各セルの DOM を `PlannedPathCellRegistryProvider` へ登録する。到達済みセルの
  *   フェードアウト（`useFindPathTick`）はここを経由して opacity を直書きする\
- *   （再レンダリングなし）。再レンダリングが起きれば（1 手戻す・実行完了時の\
- *   クリア等）`cellStyle` の `opacity: 1` で通常どおり作り直される
+ *   （再レンダリングなし）。DOM 直書きは React の style diffing に乗らないため、\
+ *   フェードアウト済みセルを再選択した際は `onClick` で `resetCell` を明示的に呼ぶ
  */
 export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
   const { cols, rows } = props
 
   const { appendStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
-  const { registerCellNode } = usePlannedPathCellRegistry()
+  const { registerCellNode, resetCell } = usePlannedPathCellRegistry()
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
@@ -76,6 +76,9 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
               aria-label={`予定経路へ ${col}-${row} を追加`}
               key={`${row}-${col}`}
               onClick={() => {
+                // 到達済みで fadeOutCell 済みのセルを再選択した場合に備え、
+                // 見た目（opacity）も明示的に戻す（DOM 直書きは再レンダリングで戻らない）
+                resetCell({ col, row })
                 appendStep({ col, row })
               }}
               ref={(el) => registerCellNode({ col, row }, el)}
