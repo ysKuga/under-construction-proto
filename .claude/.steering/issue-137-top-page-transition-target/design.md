@@ -135,6 +135,8 @@ issue: #137
 - 2026-09-12: 予定経路が一括で消える見た目が唐突との指摘を受け、途中セルは到達ごとに 1 つずつフェードアウトするよう変更。新設 `PlannedPathCellRegistryProvider`（`ActorNodeRegistryProvider` と同型）がセル DOM を ref 登録し、`useFindPathTick` が到達時に `style.opacity` を直書きする（React state を経由しないため再レンダリングなし）。最後の 1 歩（歩き切り）は既存どおり `setPlannedPath([])` の一括クリアのまま変更していない
 - 2026-09-12: フェードアウト済みセルの再選択バグを修正。DOM 直書きは React の style diffing に乗らず、再レンダリング後も前回 props（`opacity: 1`、変化なし判定）との比較でスキップされ opacity: 0 のまま残っていた。`PlannedPathCellRegistryProvider` に `resetCell` を追加し `PlannedPathLayer` の `onClick` で明示的に呼んで解消
 - 2026-09-12: 同一根本原因（style diffing スキップ）が「実行」完了時の一括クリアでも発生していたバグを修正。fadeOutCell 済みセルは `setPlannedPath([])` の再レンダリングだけでは opacity: 0 のまま残る（重複選択の有無に関わらず発生。中間セルが常に該当）。`PlannedPathCellRegistryProvider` に `resetAllCells` を追加し、`useFindPathTick` の歩き切り分岐で明示的に呼んで解消
+- 2026-09-12: 同一セルを経路上で複数回通る場合（例: 1→2→1→2 の往復）に、初回通過時点でフェードアウトし、後続の再訪問前でも見えないままになるバグを修正。`useFindPathTick` の `applyNextStep` で「経路上にまだ同じセルが残っているか」を判定し、残っていればフェードアウトを見送る（最後の訪問まで選択済みの見た目を保つ）
+- 2026-09-12: 走行中（tick 進行中）に `PlannedPathLayer` でセルを追加でき、追加した指定が実行中の残り経路（path store）に反映されず「消化されない指定」になる不具合を修正。`useFindPathTick` に `isRunning` を追加、`ActionBar`/`PlannedPathLayer` へ配布し走行中は「実行」「1 手戻す」・セル選択を全て disabled にする。配布のため `useFindPathTick` の呼び出し元を `ActionBar` から親（`FindPathProto01` 内の新設 `FindPathContent`）へ移した
 
 ## 懸念・リスク
 
