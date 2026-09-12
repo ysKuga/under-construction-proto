@@ -134,6 +134,7 @@ issue: #137
 - 2026-09-12: 経路未選択時の「実行」「1 手戻す」disabled 化（`usePlannedPathStore` で予定経路の有無を購読）と、「実行」完了時の予定経路クリア（`useFindPathTick` の `applyNextStep` で最後の 1 歩消化時に反映。即時性のため tick ループの `complete` 依存はやめた）を実施。bot の進行方向転換・歩行モーション・実行中ノンストップ移動（介入時のみ停止）は検討事項として実装計画へ追加（具体設計は未着手）
 - 2026-09-12: 予定経路が一括で消える見た目が唐突との指摘を受け、途中セルは到達ごとに 1 つずつフェードアウトするよう変更。新設 `PlannedPathCellRegistryProvider`（`ActorNodeRegistryProvider` と同型）がセル DOM を ref 登録し、`useFindPathTick` が到達時に `style.opacity` を直書きする（React state を経由しないため再レンダリングなし）。最後の 1 歩（歩き切り）は既存どおり `setPlannedPath([])` の一括クリアのまま変更していない
 - 2026-09-12: フェードアウト済みセルの再選択バグを修正。DOM 直書きは React の style diffing に乗らず、再レンダリング後も前回 props（`opacity: 1`、変化なし判定）との比較でスキップされ opacity: 0 のまま残っていた。`PlannedPathCellRegistryProvider` に `resetCell` を追加し `PlannedPathLayer` の `onClick` で明示的に呼んで解消
+- 2026-09-12: 同一根本原因（style diffing スキップ）が「実行」完了時の一括クリアでも発生していたバグを修正。fadeOutCell 済みセルは `setPlannedPath([])` の再レンダリングだけでは opacity: 0 のまま残る（重複選択の有無に関わらず発生。中間セルが常に該当）。`PlannedPathCellRegistryProvider` に `resetAllCells` を追加し、`useFindPathTick` の歩き切り分岐で明示的に呼んで解消
 
 ## 懸念・リスク
 
