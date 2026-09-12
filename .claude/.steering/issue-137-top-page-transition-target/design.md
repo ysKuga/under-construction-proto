@@ -90,7 +90,7 @@ issue: #137
 - [x] スタート / ゴール配置、ゴール到達判定 — PR-E
 - [x] 経路積み UI（セル指定 → `planned-path` へ push）— 段階 3 PR-C で前倒し実装（`PlannedPathLayer`）
 - [x] 「実行」で tick 進行 → bot が 1 手ずつ歩く配線 — 段階 3 PR-C で前倒し実装（`ActionBar` + `useFindPathTick`）
-- [ ] proto-01「ジャンプ → 歩く解放」を実行前アンロックとして前段に接続
+- [x] proto-01「ジャンプ → 歩く解放」を実行前アンロックとして前段に接続 — PR-F
 - [ ] 障害物 / 歩数制限 / 一方通行セル（パズル性、優先度低）
 
 ## 決定事項
