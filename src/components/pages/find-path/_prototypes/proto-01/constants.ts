@@ -13,3 +13,11 @@ export const TICK_MS = 400
  *   `REALTIME_STEP_MS` と同値
  */
 export const REALTIME_STEP_MS = 10
+
+/**
+ * ゴールセル
+ *
+ * - stage-06 の隅 (0,0) / (cols-1,rows-1) は動作確認用の静的 bot 表示に占有されて
+ *   おりクリックが吸われるため避ける（`ActorsLayer` の `staticCells`）
+ */
+export const GOAL_POSITION = { col: 3, row: 3 } as const

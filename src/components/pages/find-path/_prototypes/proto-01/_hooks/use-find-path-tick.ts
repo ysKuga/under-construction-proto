@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BehaviorSubject,
   mergeMap,
@@ -17,7 +17,7 @@ import { usePathStoreApi } from '@/prototypes/time-control/time-control-03/_stor
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
-import { REALTIME_STEP_MS, TICK_MS } from '../constants'
+import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
 type UseFindPathTickReturn = {
   /**
@@ -27,6 +27,8 @@ type UseFindPathTickReturn = {
    * - 予定経路が空なら何もしない
    */
   execute: () => void
+  /** bot が `GOAL_POSITION` に到達済みか */
+  reachedGoal: boolean
 }
 
 /**
@@ -39,12 +41,16 @@ type UseFindPathTickReturn = {
  *   `actors-layer` の CSS `transition` が担う
  * - 1 tick の処理: game-clock へ log → path を pop → `moveActor`（DOM 直書き、
  *   再レンダリングなし）
+ * - 到達後の bot 移動（`moveActor`）自体は再レンダリングを起こさないが、`reachedGoal`
+ *   はクリア表示のための単発 state。ゴール到達は tick 進行中に高々 1 回しか起きない
  */
 export const useFindPathTick = (): UseFindPathTickReturn => {
   const gameClock = useGameClockStoreApi()
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
   const { moveActor } = useActorNodeRegistry()
+
+  const [reachedGoal, setReachedGoal] = useState(false)
 
   /** 走行中の tick ループ */
   const subscriptionRef = useRef<null | Subscription>(null)
@@ -92,6 +98,10 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
     )
     path.getState().setPath(PLAYER_ACTOR_ID, rest)
     moveActor(PLAYER_ACTOR_ID, { col: next.x, row: next.y })
+
+    if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {
+      setReachedGoal(true)
+    }
   }, [gameClock, path, moveActor])
 
   const execute = useCallback(() => {
@@ -103,6 +113,7 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
 
     // 予定経路を実行用の残り経路へコピー（planned-path 自体は表示用に残す）
     path.getState().setPath(PLAYER_ACTOR_ID, planned)
+    setReachedGoal(false)
 
     subscriptionRef.current?.unsubscribe()
 
@@ -131,5 +142,5 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       .subscribe({ next: applyNextStep })
   }, [applyNextStep, path, plannedPath, timeScale$])
 
-  return { execute }
+  return { execute, reachedGoal }
 }
