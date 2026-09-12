@@ -11,6 +11,7 @@ import { useGameClockStoreApi } from '@/prototypes/time-control/time-control-03/
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
+import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
 import { GOAL_POSITION, TICK_MS } from '../constants'
 
 import { useFindPathTick } from './use-find-path-tick'
@@ -21,7 +22,11 @@ const wrapper = ({ children }: PropsWithChildren) =>
   createElement(
     FindPathStoresProvider,
     null,
-    createElement(ActorNodeRegistryProvider, { gridSize: GRID }, children),
+    createElement(
+      ActorNodeRegistryProvider,
+      { gridSize: GRID },
+      createElement(PlannedPathCellRegistryProvider, null, children),
+    ),
   )
 
 /** hook 本体 + 検証に使う store / registry API を同じ Provider 下で取得する */
