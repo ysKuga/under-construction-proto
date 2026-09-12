@@ -35,15 +35,21 @@ find-path の残タスク（ゴール到達判定、proto-01 のジャンプ→�
 
 ## 実装計画
 
-- [ ] PR-E: スタート / ゴール配置 + ゴール到達判定
+- [x] PR-E: スタート / ゴール配置 + ゴール到達判定
 - [ ] PR-F: ジャンプ → 歩く解放を実行前アンロックとして接続
 
 ## 決定事項
 
 - 2026-09-11: 段階 3 完了（PR-A #143 / PR-B #151 / PR-D #152 / PR-C #153、全マージ済）を受け段階 4 着手。空 PR #154 先行作成 → 本ディレクトリへ配置（段階 3 と同じ着手確定パス）
 - 2026-09-11: 段階 4 を PR-E（ゴール到達判定）/ PR-F（アンロック接続）の 2 本に分割。着手順 E → F
+- 2026-09-12: PR-E 実装完了。トリガ位置は tick ドライバ側（`useFindPathTick` の `applyNextStep`）に確定。`moveActor` 呼出し直後に `next` 座標を `GOAL_POSITION` と比較し、一致したら `reachedGoal` state を true にする。`execute()` 呼出し時にリセット（再実行でクリア表示をクリア）
+  - **ゴール座標は隅を避けて `{col: 3, row: 3}` に確定**（GRID 5x5）。当初 `{col: 4, row: 4}`（右下隅）で試したところ、`ActorsLayer` の動作確認用静的 bot（`staticCells` = `(0,0)` / `(cols-1,rows-1)`）と同一セルになり、静的 bot の Canvas がクリックを吸ってしまい `PlannedPathLayer` のセルクリックが効かないバグを Storybook + Playwright 実機確認で発見。隅 2 マスは静的 bot 占有のため今後ゲーム内配置（ゴール・スタート等）から除外する
+  - ゴール表示は `_components/goal-marker-layer/`（`PlannedPathLayer` と同型の絶対配置オーバーレイ、`pointerEvents: none` の非対話層）を新設し `GOAL_POSITION` セルに 🚩 表示。`Stage06` の children として `PlannedPathLayer` より下（DOM順で先）に重ね、クリックは `PlannedPathLayer` へ通す
+  - 到達表示は `ActionBar` に `reachedGoal` を渡し「🎉 ゴール到達」を条件表示（`useFindPathTick` を呼ぶ箇所が `ActionBar` のみのため、hook の呼出し元をここに一本化）
+  - 実機確認（Storybook + Playwright headless Chromium）: 旗表示 → 予定経路をゴールまで積む → 実行 → tick 消化後にクリア表示、を確認。単体テスト（`use-find-path-tick.test.ts`）にも到達 / リセットのケースを追加
 
 ## 懸念・リスク
 
-- ゴール到達判定のトリガ位置（`moveActor` 呼出し側 or tick ドライバ側）は PR-E 着手時に要検討
+- ~~ゴール到達判定のトリガ位置（`moveActor` 呼出し側 or tick ドライバ側）は PR-E 着手時に要検討~~ → tick ドライバ側（`applyNextStep`）に確定
 - アンロック接続（PR-F）は proto-01 の EventTarget パターンを find-path proto へどう持ち込むか（そのまま流用 / find-path 用に作り直すか）は PR-F 着手時に要検討
+- 複数 actor 導入時（障害物 NPC 等、将来）は隅 2 マス以外にも占有セルが増えうる。ゲーム内オブジェクト配置は `ActorsLayer` の静的表示と衝突しないか都度確認が要る

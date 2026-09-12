@@ -87,7 +87,7 @@ issue: #137
 
 段階 4: ゲーム内容の深堀（詳細は [pr-154-find-path-stage4-game-content/design.md](_pr/pr-154-find-path-stage4-game-content/design.md)）
 
-- [ ] スタート / ゴール配置、ゴール到達判定
+- [x] スタート / ゴール配置、ゴール到達判定 — PR-E
 - [x] 経路積み UI（セル指定 → `planned-path` へ push）— 段階 3 PR-C で前倒し実装（`PlannedPathLayer`）
 - [x] 「実行」で tick 進行 → bot が 1 手ずつ歩く配線 — 段階 3 PR-C で前倒し実装（`ActionBar` + `useFindPathTick`）
 - [ ] proto-01「ジャンプ → 歩く解放」を実行前アンロックとして前段に接続
