@@ -1,5 +1,7 @@
 'use client'
 
+import { ComponentProps } from 'react'
+
 import { Stage06 } from '@/prototypes/stage/stage-06'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 
@@ -28,12 +30,19 @@ const GRID = { cols: 5, rows: 5 } as const
  *   `useFindPathTick`（到達セルフェードアウト）双方から読めるよう `Stage06` の外側に置く
  * - route (`/find-path`) / page 実装は未着手。確認は Storybook で行う
  */
-const FindPathProto01 = () => {
+type FindPathProto01Props = {
+  /** `PlannedPathLayer` の番号表示方式（比較試作、既定は `PlannedPathLayer` に委ねる） */
+  plannedPathVariant?: ComponentProps<typeof PlannedPathLayer>['variant']
+}
+
+const FindPathProto01 = (props: FindPathProto01Props) => {
+  const { plannedPathVariant } = props
+
   return (
     <FindPathStoresProvider>
       <ActorNodeRegistryProvider gridSize={GRID}>
         <PlannedPathCellRegistryProvider>
-          <FindPathContent />
+          <FindPathContent plannedPathVariant={plannedPathVariant} />
         </PlannedPathCellRegistryProvider>
       </ActorNodeRegistryProvider>
     </FindPathStoresProvider>
@@ -48,7 +57,9 @@ const FindPathProto01 = () => {
  *   追加した指定は実行用の残り経路（path store）へ反映されず「消化されない指定」に
  *   なってしまうため
  */
-const FindPathContent = () => {
+const FindPathContent = (props: FindPathProto01Props) => {
+  const { plannedPathVariant } = props
+
   const { execute, isRunning, reachedGoal } = useFindPathTick()
 
   return (
@@ -70,6 +81,7 @@ const FindPathContent = () => {
           cols={GRID.cols}
           isRunning={isRunning}
           rows={GRID.rows}
+          variant={plannedPathVariant}
         />
       </Stage06>
       <ActionBar
