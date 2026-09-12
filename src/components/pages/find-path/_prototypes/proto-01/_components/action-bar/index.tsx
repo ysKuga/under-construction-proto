@@ -1,30 +1,67 @@
+import { useState } from 'react'
+
+import {
+  jumpAction,
+  useBoxBotActionDispatcher,
+} from '@/components/theater/figure/box-bot'
+import { Button } from '@/components/ui/button'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStore } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 
 import { useFindPathTick } from '../../_hooks/use-find-path-tick'
+import { useJumpUnlock } from '../../_hooks/use-jump-unlock'
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
+
+type ActionBarProps = {
+  /** player bot と共有する EventTarget（jump の発火 / `useJumpUnlock` の購読に使う） */
+  eventTarget: EventTarget
+}
 
 /**
  * find-path の操作バー
  *
- * - 「実行」: 予定経路を残り経路へコピーし tick 進行を開始する（`useFindPathTick`）
+ * - 「ジャンプ」: player bot に jump action を発火する（`useBoxBotActionDispatcher`）。
+ *   box-bot 本体クリックにしないのは、傾いた床上の 3D 空間で bot と
+ *   `PlannedPathLayer` のクリック領域が奥行きにより競合するため（実機確認で確認済み）
+ * - 「実行」: 予定経路を残り経路へコピーし tick 進行を開始する（`useFindPathTick`）。
+ *   ジャンプ 3 回（`useJumpUnlock`）で解放するまで disabled。解放後は「ジャンプ」を隠す。
+ *   disabled 中は理由をホバー時ツールチップで示す（disabled 要素自体は hover を検知
+ *   できないため、ラップする div で hover を拾い `group-hover` で表示する）
  * - 「1 手戻す」: 予定経路の末尾を取り消す
  * - 速度スライダー: `timeScale` を game-clock store へ書き込む（0 でポーズ）。
  *   非制御。tick ドライバ側が store を購読して反映する
  */
-export const ActionBar = () => {
+export const ActionBar = (props: ActionBarProps) => {
+  const { eventTarget } = props
+
   const { execute, reachedGoal } = useFindPathTick()
   const { popStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const setTimeScale = useGameClockStore((state) => state.setTimeScale)
+  const { jump } = useBoxBotActionDispatcher(eventTarget, [jumpAction])
+
+  const [executeUnlocked, setExecuteUnlocked] = useState(false)
+  useJumpUnlock(eventTarget, setExecuteUnlocked)
 
   return (
     <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
-      <button onClick={execute} type="button">
-        実行
-      </button>
-      <button onClick={popStep} type="button">
+      {!executeUnlocked && (
+        <Button onClick={() => void jump()} type="button" variant="outline">
+          ジャンプ
+        </Button>
+      )}
+      <div className="group relative">
+        <Button disabled={!executeUnlocked} onClick={execute} type="button">
+          実行
+        </Button>
+        {!executeUnlocked && (
+          <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-popover px-2 py-1 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+            ジャンプ 3 回で「実行」解放
+          </span>
+        )}
+      </div>
+      <Button onClick={popStep} type="button" variant="outline">
         1 手戻す
-      </button>
+      </Button>
       <label>
         速度{' '}
         <input

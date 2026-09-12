@@ -5,10 +5,16 @@ import { Canvas } from '@react-three/fiber'
 import * as React from 'react'
 import type { Group } from 'three'
 
-import { BOX_BOT_ACTIONS, DEFAULT_CLICK_BINDINGS } from './_actions'
+import {
+  ACTION_JUMP,
+  BOX_BOT_ACTIONS,
+  DEFAULT_CLICK_BINDINGS,
+  jumpAction,
+} from './_actions'
 import { Assembly } from './_components/assembly'
 import { BoxBotModel } from './_components/box-bot-model'
 import { DEFAULTS } from './_components/box-bot-model/index.constants'
+import { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-bot-action-dispatcher'
 import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
 import type { BoxBot3DProps, Vec3 } from './index.types'
@@ -99,6 +105,15 @@ const ORBIT_MIN_DISTANCE = 3.5
  * - fall 時の下部見切れ対策は #108 フェーズ1 で別途
  */
 export const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
+
+/**
+ * jump action・そのイベント名・dispatcher の再 export
+ *
+ * - 外部から `eventTarget` を共有して jump を購読/発火する用途(find-path proto の
+ *   実行前アンロック等)向け。`actions` prop に `[jumpAction]` を渡し jump のみ有効化できる
+ * - `useBoxBotActionDispatcher(eventTarget, [jumpAction])` で jump を外部から発火できる
+ */
+export { ACTION_JUMP, jumpAction, useBoxBotActionDispatcher }
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
