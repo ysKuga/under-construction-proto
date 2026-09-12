@@ -30,6 +30,14 @@ type UseFindPathTickReturn = {
    *   クリアする（セルの見た目も明示的にリセットする）
    */
   execute: () => void
+  /**
+   * tick ループが走行中か
+   *
+   * - 走行中は予定経路の編集（セル選択・1 手戻す）を止めるためのフラグ。
+   *   編集しても実行中の残り経路（path store）には反映されず「消化されない
+   *   指定」になってしまうため
+   */
+  isRunning: boolean
   /** bot が `GOAL_POSITION` に到達済みか */
   reachedGoal: boolean
 }
@@ -55,6 +63,7 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
   const { fadeOutCell, resetAllCells } = usePlannedPathCellRegistry()
 
   const [reachedGoal, setReachedGoal] = useState(false)
+  const [isRunning, setIsRunning] = useState(false)
 
   /** 走行中の tick ループ */
   const subscriptionRef = useRef<null | Subscription>(null)
@@ -108,8 +117,10 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       // fadeOutCell 済みセルは resetAllCells で明示的に戻す（resetCell と同じ理由）
       plannedPath.getState().setPlannedPath(PLAYER_ACTOR_ID, [])
       resetAllCells()
-    } else {
-      // 途中セルは進行に応じて 1 つずつフェードアウトする（再レンダリングなし）
+      setIsRunning(false)
+    } else if (!rest.some((step) => step.x === next.x && step.y === next.y)) {
+      // 同じセルを経路上でまだ後で再訪問する場合はフェードアウトしない
+      // （最後の訪問まで「選択済み」の見た目を保つ）
       fadeOutCell({ col: next.x, row: next.y })
     }
 
@@ -128,6 +139,7 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
     // 予定経路を実行用の残り経路へコピー（planned-path 自体は歩き切るまで表示用に残す）
     path.getState().setPath(PLAYER_ACTOR_ID, planned)
     setReachedGoal(false)
+    setIsRunning(true)
 
     subscriptionRef.current?.unsubscribe()
 
@@ -156,5 +168,5 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       .subscribe({ next: applyNextStep })
   }, [applyNextStep, path, plannedPath, timeScale$])
 
-  return { execute, reachedGoal }
+  return { execute, isRunning, reachedGoal }
 }

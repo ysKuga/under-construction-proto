@@ -132,6 +132,19 @@ test('timeScale=0 の間は進まない（ポーズ）', () => {
   expect(cellOf(result)).toEqual({ col: 1, row: 0 })
 })
 
+test('走行中は isRunning が true になり、歩き切ると false に戻る', () => {
+  const { result } = renderTick()
+
+  seedPlanned(result, [{ col: 1, row: 0 }])
+  expect(result.current.tick.isRunning).toBe(false)
+
+  act(() => result.current.tick.execute())
+  expect(result.current.tick.isRunning).toBe(true)
+
+  act(() => vi.advanceTimersByTime(TICK_MS))
+  expect(result.current.tick.isRunning).toBe(false)
+})
+
 test('予定経路が空なら execute しても何もしない', () => {
   const { result } = renderTick()
 

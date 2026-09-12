@@ -9,6 +9,13 @@ import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 type PlannedPathLayerProps = {
   /** 列数 */
   cols: number
+  /**
+   * tick 走行中か
+   *
+   * - 走行中はセル選択（`appendStep`）を無効化する。走行中に追加した指定は
+   *   実行用の残り経路（path store）へ反映されず「消化されない指定」になるため
+   */
+  isRunning: boolean
   /** 行数 */
   rows: number
 }
@@ -35,6 +42,7 @@ const cellStyle = (order: number | undefined): CSSProperties => ({
  * - `Stage06` の floor(grid) へ children として重ねる絶対配置オーバーレイ。
  *   セルクリックで予定経路の末尾へその座標を push する
  * - 予定経路に含まれるセルには積んだ順番（1 始まり）を表示する
+ * - tick 走行中（`isRunning`）はセル選択を disabled にする
  * - planned-path store のみ購読。bot の移動（path / position）では再レンダリングしない
  * - 各セルの DOM を `PlannedPathCellRegistryProvider` へ登録する。到達済みセルの
  *   フェードアウト（`useFindPathTick`）はここを経由して opacity を直書きする\
@@ -42,7 +50,7 @@ const cellStyle = (order: number | undefined): CSSProperties => ({
  *   フェードアウト済みセルを再選択した際は `onClick` で `resetCell` を明示的に呼ぶ
  */
 export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
-  const { cols, rows } = props
+  const { cols, isRunning, rows } = props
 
   const { appendStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const { registerCellNode, resetCell } = usePlannedPathCellRegistry()
@@ -74,6 +82,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
           return (
             <button
               aria-label={`予定経路へ ${col}-${row} を追加`}
+              disabled={isRunning}
               key={`${row}-${col}`}
               onClick={() => {
                 // 到達済みで fadeOutCell 済みのセルを再選択した場合に備え、

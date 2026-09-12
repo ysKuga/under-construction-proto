@@ -8,6 +8,7 @@ import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import { PlannedPathLayer } from './_components/planned-path-layer'
 import { FindPathStoresProvider } from './_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from './_contexts/planned-path-cell-registry'
+import { useFindPathTick } from './_hooks/use-find-path-tick'
 
 /** グリッド形状（provider の gridSize と Stage06 の cols/rows で共有する） */
 const GRID = { cols: 5, rows: 5 } as const
@@ -24,8 +25,7 @@ const GRID = { cols: 5, rows: 5 } as const
  *   ゴールセル表示のみの非対話層
  * - ゴール到達判定は `useFindPathTick`（`ActionBar` 経由で使用）が tick 消化のたびに行う
  * - `PlannedPathCellRegistryProvider` は `PlannedPathLayer`（セル DOM 登録）と
- *   `ActionBar`（`useFindPathTick` の到達セルフェードアウト）双方から読めるよう
- *   `Stage06` の外側に置く
+ *   `useFindPathTick`（到達セルフェードアウト）双方から読めるよう `Stage06` の外側に置く
  * - route (`/find-path`) / page 実装は未着手。確認は Storybook で行う
  */
 const FindPathProto01 = () => {
@@ -33,27 +33,51 @@ const FindPathProto01 = () => {
     <FindPathStoresProvider>
       <ActorNodeRegistryProvider gridSize={GRID}>
         <PlannedPathCellRegistryProvider>
-          <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-              Find Path
-            </h1>
-            <Stage06
-              botSize={56}
-              cols={GRID.cols}
-              initialTiltDeg={55}
-              interactive={false}
-              perspectivePx={600}
-              rows={GRID.rows}
-              size={400}
-            >
-              <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
-              <PlannedPathLayer cols={GRID.cols} rows={GRID.rows} />
-            </Stage06>
-            <ActionBar />
-          </div>
+          <FindPathContent />
         </PlannedPathCellRegistryProvider>
       </ActorNodeRegistryProvider>
     </FindPathStoresProvider>
+  )
+}
+
+/**
+ * `useFindPathTick` を Provider 群の内側で呼び、`ActionBar` と `PlannedPathLayer`
+ * 双方へ props で配布する
+ *
+ * - `isRunning`: tick 走行中は `PlannedPathLayer` のセル選択を止める。走行中に
+ *   追加した指定は実行用の残り経路（path store）へ反映されず「消化されない指定」に
+ *   なってしまうため
+ */
+const FindPathContent = () => {
+  const { execute, isRunning, reachedGoal } = useFindPathTick()
+
+  return (
+    <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
+      <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+        Find Path
+      </h1>
+      <Stage06
+        botSize={56}
+        cols={GRID.cols}
+        initialTiltDeg={55}
+        interactive={false}
+        perspectivePx={600}
+        rows={GRID.rows}
+        size={400}
+      >
+        <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
+        <PlannedPathLayer
+          cols={GRID.cols}
+          isRunning={isRunning}
+          rows={GRID.rows}
+        />
+      </Stage06>
+      <ActionBar
+        execute={execute}
+        isRunning={isRunning}
+        reachedGoal={reachedGoal}
+      />
+    </div>
   )
 }
 
