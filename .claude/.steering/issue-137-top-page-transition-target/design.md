@@ -150,4 +150,4 @@ issue: #137
 - 段階 5「戻る」のインセンティブ設計（ギミック・退避行動等）は具体案が未確立。今後の検討課題
 - 段階 5 到達済みマスのみ表示にする場合、ゴール（旗マーカー）や現在地の可視性とのバランスは未検討
 - 段階 5 経路選択を隣接マスのみに制限する場合の境界処理・視覚化（点線表示等）の具体的な実装方式は未検討
-- React DevTools Profiler で「実行完了時の一括クリア（`setPlannedPath([])` と `setIsRunning(false)` が同一 tick 内で発生）で、通常は無関係なはずの子要素が再レンダリング対象に巻き込まれる」挙動を確認。zustand 経由の state 更新と React `useState` 更新が別タイミングでコミットされ 2 段階レンダリングになっている可能性を仮説として持つが、実害（パフォーマンス影響）は未確認。後日調査・対応とする。どのコミットから発生するようになったかの bisect は別途実施し結果をここへ追記する
+- React DevTools Profiler で「実行完了時、通常は無関係なはずの子要素（`Stage06`/`ActorsLayer` 等）が再レンダリング対象に巻き込まれる」挙動を確認。bisect の結果、原因は 76ed2fe（`isRunning` 導入、`useFindPathTick` の呼び出し元を `ActionBar` から親 `FindPathContent` へ移したコミット）と特定（`console.log` での実測で確認。当初立てていた「zustand state 更新と React useState 更新が 2 段階レンダリングになっている」仮説は誤りで、`setPlannedPath([])` と `setIsRunning(false)` は同一バッチで 1 回のレンダリングにまとまっていた）。`FindPathContent` が `isRunning` を保持しているため、実行開始・完了のたびに配下ツリー全体（`Stage06` 含む）が再レンダリングされる。**ゲーム操作で React 再レンダリングを起こさない方針**（前述の決定事項）に反するが、`ActorsLayer` 自体は position を ref 管理しているため実害は限定的と見られる。`isRunning` を Context 化するなど再レンダリング範囲を絞る対応は後日検討
