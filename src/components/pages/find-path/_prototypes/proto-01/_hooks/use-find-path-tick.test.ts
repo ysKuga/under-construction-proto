@@ -11,6 +11,7 @@ import { useGameClockStoreApi } from '@/prototypes/time-control/time-control-03/
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
+import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
 import { GOAL_POSITION, TICK_MS } from '../constants'
 
 import { useFindPathTick } from './use-find-path-tick'
@@ -21,7 +22,11 @@ const wrapper = ({ children }: PropsWithChildren) =>
   createElement(
     FindPathStoresProvider,
     null,
-    createElement(ActorNodeRegistryProvider, { gridSize: GRID }, children),
+    createElement(
+      ActorNodeRegistryProvider,
+      { gridSize: GRID },
+      createElement(PlannedPathCellRegistryProvider, null, children),
+    ),
   )
 
 /** hook 本体 + 検証に使う store / registry API を同じ Provider 下で取得する */
@@ -127,6 +132,19 @@ test('timeScale=0 の間は進まない（ポーズ）', () => {
   expect(cellOf(result)).toEqual({ col: 1, row: 0 })
 })
 
+test('走行中は isRunning が true になり、歩き切ると false に戻る', () => {
+  const { result } = renderTick()
+
+  seedPlanned(result, [{ col: 1, row: 0 }])
+  expect(result.current.tick.isRunning).toBe(false)
+
+  act(() => result.current.tick.execute())
+  expect(result.current.tick.isRunning).toBe(true)
+
+  act(() => vi.advanceTimersByTime(TICK_MS))
+  expect(result.current.tick.isRunning).toBe(false)
+})
+
 test('予定経路が空なら execute しても何もしない', () => {
   const { result } = renderTick()
 
@@ -148,6 +166,22 @@ test('ゴールセルに到達すると reachedGoal が true になる', () => {
   act(() => vi.advanceTimersByTime(TICK_MS * 2))
   expect(cellOf(result)).toEqual(GOAL_POSITION)
   expect(result.current.tick.reachedGoal).toBe(true)
+})
+
+test('経路を歩き切ると予定経路がクリアされる', () => {
+  const { result } = renderTick()
+
+  seedPlanned(result, [
+    { col: 1, row: 0 },
+    { col: 2, row: 0 },
+  ])
+
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS * 2))
+
+  expect(
+    result.current.plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID),
+  ).toEqual([])
 })
 
 test('再度「実行」すると reachedGoal がリセットされる', () => {

@@ -95,12 +95,19 @@ issue: #137
 
 段階 5: ゲーム性強化（2026-09-12 `game-evaluation` スキルによる評価結果を受けて着手）
 
-- [ ] ジャンプ 3 回アンロックの撤去。経路プランニングと無関係な前置き操作のため
-- [ ] stage-06 の操作対象外（静的表示のみ）の bot を削除
+- [x] ジャンプ 3 回アンロックの撤去。経路プランニングと無関係な前置き操作のため
+- [x] stage-06 の操作対象外（静的表示のみ）の bot を削除
+- [x] 経路未選択時は「実行」「1 手戻す」を disabled に
+- [x] 「実行」完了（経路を歩き切った）時に予定経路をリセット
+- [x] 予定経路の途中セルは到達ごとに 1 つずつフェードアウトする（`PlannedPathCellRegistryProvider` で DOM 直書き、再レンダリングなし）
+- [x] 同一マスを複数回選択した場合の番号表示。`PlannedPathCellRegistryProvider` をセル単位から order（経路上の通し番号）単位へ変更し、出現ごとに個別フェードアウト可能に。表示は `PlannedPathLayer` の `variant` で 2 パターン比較試作（`list`＝カンマ列挙+ellipsis・既定 / `stacked`＝要素を重ねて最若番号を手前に表示。Storybook 'Stacked Variant' story）。最終的には経路選択時に同一マスの重複選択自体を禁止する方針だが、段階 5 の別項目（隣接マス制限）と合わせて後日対応
 - [ ] 経路選択を隣接マスのみに制限。選択可能マスは点線等の見た目に変更し選択可能な状態を明示する
 - [ ] 到達済みマスのみ「表示」する（他マスは黒塗り or 非表示、表現方法は検討）。現状はゴール含め全マスが常時可視
 - [ ] 「1 手戻す」（計画上の消費取消）と「戻る」（到達済みマスへ消費を伴い異動する行動）を別枠の操作として分離検討。「戻る」は一見メリットのない行動のため、ギミックによるインセンティブ付与・退避行動としての活用など仕組みの導入を検討
 - [ ] 障害物 / 歩数制限 / 一方通行セル（段階 4 から継続。「挑戦」「工夫」実現の中心方針）
+- [ ] （検討）bot を進行方向へ向ける
+- [ ] （検討）進行時に歩くモーションを再生する
+- [ ] （検討）「実行」中は停止を挟まず歩く速度を維持する。途中の操作介入があった時点で停止する
 
 ## 決定事項
 
@@ -124,6 +131,14 @@ issue: #137
 - 2026-09-08: ページ枠は route/page を先に作らず試作 `src/components/pages/find-path/_prototypes/proto-01/` として先行（`prototypes/stage/stage-05` をマウントするだけ）。段階 1・2 を prototype 空間で進めたのと同じ流れ。`/find-path` route・page 実装・トップからの遷移導線は、段階 3（time-control 適用）まで組んでから page 化するタイミングで行う
 - 2026-09-12: route/page 化を一旦取りやめ。page 実装は `_prototypes` を参照しない方針に変更（試作コードをそのまま正式実装として使い回さない）。route/page 化より先にゲーム性の検討・強化（段階 5）を優先する
 - 2026-09-12: `game-evaluation` スキルで段階 1〜4 実装を評価。「おもしろみ」10 要素いずれにも該当なし（挑戦・工夫は失敗条件が無いため機能していない）、「ジャンプ 3 回 → 実行アンロック」は経路プランニングと無関係な操作という指摘を受け、段階 5（ゲーム性強化）を実装計画へ追加
+- 2026-09-12: 段階 5 着手。ジャンプ 3 回アンロック撤去（`ActionBar` から「ジャンプ」ボタン・`useJumpUnlock`・関連 `eventTarget` 配線を削除、「実行」は常時有効）と、stage-06 `ActorsLayer` の動作確認用静的 bot（隅 2 体）削除を実施。`GOAL_POSITION`（隅回避の理由が静的 bot 占有だった）のコメントも合わせて整理
+- 2026-09-12: 経路未選択時の「実行」「1 手戻す」disabled 化（`usePlannedPathStore` で予定経路の有無を購読）と、「実行」完了時の予定経路クリア（`useFindPathTick` の `applyNextStep` で最後の 1 歩消化時に反映。即時性のため tick ループの `complete` 依存はやめた）を実施。bot の進行方向転換・歩行モーション・実行中ノンストップ移動（介入時のみ停止）は検討事項として実装計画へ追加（具体設計は未着手）
+- 2026-09-12: 予定経路が一括で消える見た目が唐突との指摘を受け、途中セルは到達ごとに 1 つずつフェードアウトするよう変更。新設 `PlannedPathCellRegistryProvider`（`ActorNodeRegistryProvider` と同型）がセル DOM を ref 登録し、`useFindPathTick` が到達時に `style.opacity` を直書きする（React state を経由しないため再レンダリングなし）。最後の 1 歩（歩き切り）は既存どおり `setPlannedPath([])` の一括クリアのまま変更していない
+- 2026-09-12: フェードアウト済みセルの再選択バグを修正。DOM 直書きは React の style diffing に乗らず、再レンダリング後も前回 props（`opacity: 1`、変化なし判定）との比較でスキップされ opacity: 0 のまま残っていた。`PlannedPathCellRegistryProvider` に `resetCell` を追加し `PlannedPathLayer` の `onClick` で明示的に呼んで解消
+- 2026-09-12: 同一根本原因（style diffing スキップ）が「実行」完了時の一括クリアでも発生していたバグを修正。fadeOutCell 済みセルは `setPlannedPath([])` の再レンダリングだけでは opacity: 0 のまま残る（重複選択の有無に関わらず発生。中間セルが常に該当）。`PlannedPathCellRegistryProvider` に `resetAllCells` を追加し、`useFindPathTick` の歩き切り分岐で明示的に呼んで解消
+- 2026-09-12: 同一セルを経路上で複数回通る場合（例: 1→2→1→2 の往復）に、初回通過時点でフェードアウトし、後続の再訪問前でも見えないままになるバグを修正。`useFindPathTick` の `applyNextStep` で「経路上にまだ同じセルが残っているか」を判定し、残っていればフェードアウトを見送る（最後の訪問まで選択済みの見た目を保つ）
+- 2026-09-12: 走行中（tick 進行中）に `PlannedPathLayer` でセルを追加でき、追加した指定が実行中の残り経路（path store）に反映されず「消化されない指定」になる不具合を修正。`useFindPathTick` に `isRunning` を追加、`ActionBar`/`PlannedPathLayer` へ配布し走行中は「実行」「1 手戻す」・セル選択を全て disabled にする。配布のため `useFindPathTick` の呼び出し元を `ActionBar` から親（`FindPathProto01` 内の新設 `FindPathContent`）へ移した
+- 2026-09-12: 同一セルを複数回選択した際「最終的な番号のまま更新されない」問題（例: 1→2→1→2→1→2 で A=5,B=6 のまま tick1〜4 中も変化しない）を報告受け調査。原因はセル単位の `orderByCell`（`Map<string,number>`）が同一セルの複数出現を1つの番号でしか表現できず、`fadeOutCell` もセル単位の判定に頼っていたこと。`PlannedPathCellRegistryProvider` を order（経路上の通し番号、1 始まりでつねに一意）単位へ再設計し解消。あわせて表示方式を `PlannedPathLayer` の `variant` で 2 パターン比較試作（詳細は実装計画へ）
 
 ## 懸念・リスク
 
@@ -135,3 +150,4 @@ issue: #137
 - 段階 5「戻る」のインセンティブ設計（ギミック・退避行動等）は具体案が未確立。今後の検討課題
 - 段階 5 到達済みマスのみ表示にする場合、ゴール（旗マーカー）や現在地の可視性とのバランスは未検討
 - 段階 5 経路選択を隣接マスのみに制限する場合の境界処理・視覚化（点線表示等）の具体的な実装方式は未検討
+- React DevTools Profiler で「実行完了時、通常は無関係なはずの子要素（`Stage06`/`ActorsLayer` 等）が再レンダリング対象に巻き込まれる」挙動を確認。bisect の結果、原因は 76ed2fe（`isRunning` 導入、`useFindPathTick` の呼び出し元を `ActionBar` から親 `FindPathContent` へ移したコミット）と特定（`console.log` での実測で確認。当初立てていた「zustand state 更新と React useState 更新が 2 段階レンダリングになっている」仮説は誤りで、`setPlannedPath([])` と `setIsRunning(false)` は同一バッチで 1 回のレンダリングにまとまっていた）。`FindPathContent` が `isRunning` を保持しているため、実行開始・完了のたびに配下ツリー全体（`Stage06` 含む）が再レンダリングされる。**ゲーム操作で React 再レンダリングを起こさない方針**（前述の決定事項）に反するが、`ActorsLayer` 自体は position を ref 管理しているため実害は限定的と見られる。`isRunning` を Context 化するなど再レンダリング範囲を絞る対応は後日検討

@@ -17,6 +17,7 @@ import { usePathStoreApi } from '@/prototypes/time-control/time-control-03/_stor
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
+import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
 type UseFindPathTickReturn = {
@@ -25,8 +26,18 @@ type UseFindPathTickReturn = {
    *
    * - 走行中に再度呼ぶと現在のループを止めて新しい予定経路で開始する
    * - 予定経路が空なら何もしない
+   * - 途中の番号は到達ごとに 1 つずつフェードアウトし、歩き切ったら予定経路を\
+   *   クリアする（番号の見た目も明示的にリセットする）
    */
   execute: () => void
+  /**
+   * tick ループが走行中か
+   *
+   * - 走行中は予定経路の編集（セル選択・1 手戻す）を止めるためのフラグ。
+   *   編集しても実行中の残り経路（path store）には反映されず「消化されない
+   *   指定」になってしまうため
+   */
+  isRunning: boolean
   /** bot が `GOAL_POSITION` に到達済みか */
   reachedGoal: boolean
 }
@@ -49,11 +60,16 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
   const { moveActor } = useActorNodeRegistry()
+  const { fadeOutStep, resetAllSteps } = usePlannedPathCellRegistry()
 
   const [reachedGoal, setReachedGoal] = useState(false)
+  const [isRunning, setIsRunning] = useState(false)
 
   /** 走行中の tick ループ */
   const subscriptionRef = useRef<null | Subscription>(null)
+
+  /** 消化済み tick 数。`execute` 開始時に 0 へ戻す。+1 が消化したセルの `order` と一致する */
+  const consumedCountRef = useRef(0)
 
   /**
    * timeScale の現在値を rx ストリームへ供給する橋渡し
@@ -88,6 +104,11 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       return
     }
 
+    consumedCountRef.current += 1
+    // 経路は常に先頭から順に消化されるため、消化済み数がそのまま
+    // plannedPath 上の order（1 始まり）と一致する
+    const order = consumedCountRef.current
+
     gameClock.getState().logEvent<ActionLogEntry>(
       {
         actorId: PLAYER_ACTOR_ID,
@@ -99,10 +120,21 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
     path.getState().setPath(PLAYER_ACTOR_ID, rest)
     moveActor(PLAYER_ACTOR_ID, { col: next.x, row: next.y })
 
+    if (rest.length === 0) {
+      // 歩き切ったら予定経路をクリアする（次の企図まで「実行」は disabled）。
+      // fadeOutStep 済みの番号は resetAllSteps で明示的に戻す
+      plannedPath.getState().setPlannedPath(PLAYER_ACTOR_ID, [])
+      resetAllSteps()
+      setIsRunning(false)
+    } else {
+      // 番号単位でフェードアウトする（同じセルの他の出現には影響しない）
+      fadeOutStep(order)
+    }
+
     if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {
       setReachedGoal(true)
     }
-  }, [gameClock, path, moveActor])
+  }, [gameClock, path, plannedPath, fadeOutStep, resetAllSteps, moveActor])
 
   const execute = useCallback(() => {
     const planned = plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID)
@@ -111,9 +143,11 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       return
     }
 
-    // 予定経路を実行用の残り経路へコピー（planned-path 自体は表示用に残す）
+    // 予定経路を実行用の残り経路へコピー（planned-path 自体は歩き切るまで表示用に残す）
     path.getState().setPath(PLAYER_ACTOR_ID, planned)
     setReachedGoal(false)
+    setIsRunning(true)
+    consumedCountRef.current = 0
 
     subscriptionRef.current?.unsubscribe()
 
@@ -142,5 +176,5 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       .subscribe({ next: applyNextStep })
   }, [applyNextStep, path, plannedPath, timeScale$])
 
-  return { execute, reachedGoal }
+  return { execute, isRunning, reachedGoal }
 }
