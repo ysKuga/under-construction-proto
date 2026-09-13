@@ -70,7 +70,8 @@ const stepStyle: CSSProperties = {
 /**
  * 番号 1 つぶんのスタイル（stacked variant）
  *
- * - セル全体を覆う正方形をわずかにずらして重ね、若い番号ほど手前（`zIndex` 大）にする
+ * - セル全体を隙間なく覆う正方形を重ね、若い番号ほど手前（`zIndex` 大）にする。
+ *   ずらさず完全に重ねる（下の要素は最前面の要素に隠れて見えない）
  * - 到達時にフェードアウトすると下の要素が露出する
  */
 const stackedStepStyle = (index: number, count: number): CSSProperties => ({
@@ -81,7 +82,6 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
   display: 'flex',
   inset: 0,
   justifyContent: 'center',
-  margin: index * 3,
   opacity: 1,
   position: 'absolute',
   transition: 'opacity 300ms',
