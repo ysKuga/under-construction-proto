@@ -127,15 +127,21 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       resetAllSteps()
       setIsRunning(false)
     } else {
-      // 同じセルが経路上でまだ後に残っていれば、その番号を最前面（stacked
-      // variant では不透明）へ昇格させる。残っていなければ通常のフェードアウトのみ
+      // 同じセルが経路上でまだ後に残っていれば、その番号を最前面へ昇格させる。
+      // 残っていなければ通常のフェードアウトのみ
+      const remainingOccurrences = rest.filter(
+        (step) => step.x === next.x && step.y === next.y,
+      ).length
       const nextIndexInRest = rest.findIndex(
         (step) => step.x === next.x && step.y === next.y,
       )
       const promoteOrder =
         nextIndexInRest === -1 ? undefined : order + 1 + nextIndexInRest
+      // 昇格後の重なりが残り 1 枚（＝もうこれ以降同じセルは出てこない）なら
+      // 半透明に戻す。2 枚以上残っていれば不透明のまま
+      const promoteAsLast = remainingOccurrences === 1
 
-      fadeOutStep(order, promoteOrder)
+      fadeOutStep(order, promoteOrder, promoteAsLast)
     }
 
     if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {

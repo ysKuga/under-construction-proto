@@ -15,11 +15,17 @@ type PlannedPathCellRegistryValue = {
    *
    * - `style.opacity` を直書きするのみ。React state を持たないため、\
    *   この呼出で購読側は再レンダリングされない
-   * - `promoteOrder` を渡すと、同時にその番号を最前面スタイル（不透明）へ\
-   *   切り替える（`variant: 'stacked'` のときのみ有効。同じセルを複数回通る\
-   *   経路で、1 枚消化して次の番号が見た目上の最前面になるタイミングに使う）
+   * - `promoteOrder` を渡すと、同時にその番号を最前面スタイルへ切り替える\
+   *   （`variant: 'stacked'` のときのみ有効。同じセルを複数回通る経路で、\
+   *   1 枚消化して次の番号が見た目上の最前面になるタイミングに使う）。\
+   *   `promoteAsLast` が true なら「重なりが残り 1 枚になった」印として\
+   *   半透明、false なら不透明にする
    */
-  fadeOutStep: (order: number, promoteOrder?: number) => void
+  fadeOutStep: (
+    order: number,
+    promoteOrder?: number,
+    promoteAsLast?: boolean,
+  ) => void
   /**
    * 予定経路上の 1 手（`order`）の DOM を登録する
    *
@@ -86,13 +92,17 @@ export const PlannedPathCellRegistryProvider = (
   )
 
   const fadeOutStep = useCallback(
-    (order: number, promoteOrder?: number) => {
+    (order: number, promoteOrder?: number, promoteAsLast?: boolean) => {
       nodesRef.current.get(order)?.style.setProperty('opacity', '0')
 
       if (variant === 'stacked' && promoteOrder !== undefined) {
+        const background = promoteAsLast
+          ? 'rgba(56, 189, 248, 0.55)'
+          : 'rgba(56, 189, 248, 1)'
+
         nodesRef.current
           .get(promoteOrder)
-          ?.style.setProperty('background', 'rgba(56, 189, 248, 1)')
+          ?.style.setProperty('background', background)
       }
     },
     [variant],
