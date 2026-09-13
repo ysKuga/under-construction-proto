@@ -141,6 +141,7 @@ issue: #137
 - 2026-09-12: 同一セルを複数回選択した際「最終的な番号のまま更新されない」問題（例: 1→2→1→2→1→2 で A=5,B=6 のまま tick1〜4 中も変化しない）を報告受け調査。原因はセル単位の `orderByCell`（`Map<string,number>`）が同一セルの複数出現を1つの番号でしか表現できず、`fadeOutCell` もセル単位の判定に頼っていたこと。`PlannedPathCellRegistryProvider` を order（経路上の通し番号、1 始まりでつねに一意）単位へ再設計し解消。あわせて表示方式を `PlannedPathLayer` の `variant` で 2 パターン比較試作（詳細は実装計画へ）
 - 2026-09-14: `stacked` variant の見た目を調整。(1) ずらし表示（margin）をやめ完全に重ねる（下の要素の端が見えていたのを解消）、(2) 重なり枚数が 2 以上のときだけ最前面を不透明にする（1 枚のみは通常どおり半透明）、(3) 消化ごとに次の番号を最前面へ動的に昇格（`PlannedPathCellRegistryProvider` の `fadeOutStep` に `promoteOrder`/`promoteAsLast` を追加、`variant: 'stacked'` のみ有効）、(4) 昇格後の重なりが残り 1 枚になったら半透明に戻す
 - 2026-09-14: 重複選択自体を禁止する方式（最終方針）を `PlannedPathLayer` の `allowDuplicateSelection` prop として試作。false のとき選択済みセルのクリックを無視する。Storybook 'No Duplicate Selection' story で比較確認できるようにした
+- 2026-09-14: `list` variant で「数字だけ消えてセルの背景・枠線が選択中のまま残る」不具合を修正。`list` variant のセル背景・枠線は `hasOrders`（React state）に基づく静的な値で、番号個別の `fadeOutStep`（DOM 直書き）とは独立していたため。セルの最後の番号が消化されたタイミングで `fadeOutCell` を新設して呼び、セル（`button`）自体の背景・枠線も DOM 直書きで transparent に戻すようにした（`PlannedPathCellRegistryProvider` に `registerCellNode`/`fadeOutCell` を追加、`variant: 'stacked'` は元々セル自体が透明なため no-op）
 
 ## 懸念・リスク
 
