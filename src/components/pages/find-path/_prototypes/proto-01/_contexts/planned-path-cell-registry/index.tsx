@@ -9,7 +9,27 @@ import {
   useRef,
 } from 'react'
 
+/** グリッド上のセル座標 (0-indexed) */
+type Cell = {
+  /** 列 */
+  col: number
+  /** 行 */
+  row: number
+}
+
+/** セルキー ("col,row") を組み立てる */
+const cellKey = (cell: Cell): string => `${cell.col},${cell.row}`
+
 type PlannedPathCellRegistryValue = {
+  /**
+   * セル（`Cell`）の背景・枠線を「未選択」の見た目へ戻す（`variant: 'list'` のみ有効）
+   *
+   * - `list` variant のセル背景・枠線は React state（`hasOrders`）ベースの\
+   *   静的な値のため、`fadeOutStep` で番号が消えてもセル自体は選択中の見た目の\
+   *   まま残る。そのセルの最後の番号が消化されたタイミングで呼び、DOM 直書きで\
+   *   `transparent` へ戻す
+   */
+  fadeOutCell: (cell: Cell) => void
   /**
    * 予定経路上の 1 手（`order`）を CSS transition でフェードアウトする
    *
@@ -26,6 +46,12 @@ type PlannedPathCellRegistryValue = {
     promoteOrder?: number,
     promoteAsLast?: boolean,
   ) => void
+  /**
+   * セル（`Cell`）全体の DOM を登録する（`variant: 'list'` の背景・枠線用）
+   *
+   * - JSX の `ref` コールバックから呼ぶ。unmount 時は el=null で解除
+   */
+  registerCellNode: (cell: Cell, el: HTMLElement | null) => void
   /**
    * 予定経路上の 1 手（`order`）の DOM を登録する
    *
@@ -77,6 +103,7 @@ export const PlannedPathCellRegistryProvider = (
   const { children, variant = 'list' } = props
 
   const nodesRef = useRef(new Map<number, HTMLElement>())
+  const cellNodesRef = useRef(new Map<string, HTMLElement>())
 
   const registerStepNode = useCallback(
     (order: number, el: HTMLElement | null) => {
@@ -89,6 +116,32 @@ export const PlannedPathCellRegistryProvider = (
       nodesRef.current.set(order, el)
     },
     [],
+  )
+
+  const registerCellNode = useCallback((cell: Cell, el: HTMLElement | null) => {
+    const key = cellKey(cell)
+
+    if (el === null) {
+      cellNodesRef.current.delete(key)
+
+      return
+    }
+
+    cellNodesRef.current.set(key, el)
+  }, [])
+
+  const fadeOutCell = useCallback(
+    (cell: Cell) => {
+      if (variant !== 'list') {
+        return
+      }
+
+      const node = cellNodesRef.current.get(cellKey(cell))
+
+      node?.style.setProperty('background', 'transparent')
+      node?.style.setProperty('border', '1px solid transparent')
+    },
+    [variant],
   )
 
   const fadeOutStep = useCallback(
@@ -112,11 +165,27 @@ export const PlannedPathCellRegistryProvider = (
     nodesRef.current.forEach((node) => {
       node.style.setProperty('opacity', '1')
     })
+    cellNodesRef.current.forEach((node) => {
+      node.style.removeProperty('background')
+      node.style.removeProperty('border')
+    })
   }, [])
 
   const value = useMemo(
-    () => ({ fadeOutStep, registerStepNode, resetAllSteps }),
-    [fadeOutStep, registerStepNode, resetAllSteps],
+    () => ({
+      fadeOutCell,
+      fadeOutStep,
+      registerCellNode,
+      registerStepNode,
+      resetAllSteps,
+    }),
+    [
+      fadeOutCell,
+      fadeOutStep,
+      registerCellNode,
+      registerStepNode,
+      resetAllSteps,
+    ],
   )
 
   return (

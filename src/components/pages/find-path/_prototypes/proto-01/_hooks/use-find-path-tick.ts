@@ -60,7 +60,8 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
   const { moveActor } = useActorNodeRegistry()
-  const { fadeOutStep, resetAllSteps } = usePlannedPathCellRegistry()
+  const { fadeOutCell, fadeOutStep, resetAllSteps } =
+    usePlannedPathCellRegistry()
 
   const [reachedGoal, setReachedGoal] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
@@ -142,12 +143,25 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       const promoteAsLast = remainingOccurrences === 1
 
       fadeOutStep(order, promoteOrder, promoteAsLast)
+
+      if (remainingOccurrences === 0) {
+        // このセルの最後の番号だった（list variant のセル背景・枠線も戻す）
+        fadeOutCell({ col: next.x, row: next.y })
+      }
     }
 
     if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {
       setReachedGoal(true)
     }
-  }, [gameClock, path, plannedPath, fadeOutStep, resetAllSteps, moveActor])
+  }, [
+    gameClock,
+    path,
+    plannedPath,
+    fadeOutCell,
+    fadeOutStep,
+    resetAllSteps,
+    moveActor,
+  ])
 
   const execute = useCallback(() => {
     const planned = plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID)

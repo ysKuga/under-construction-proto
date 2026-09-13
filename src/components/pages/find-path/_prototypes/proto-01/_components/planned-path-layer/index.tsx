@@ -35,7 +35,13 @@ type PlannedPathLayerProps = {
   variant?: 'list' | 'stacked'
 }
 
-/** セル1マスのベーススタイル（枠・カーソル等。番号表示部分は別途重ねる） */
+/**
+ * セル1マスのベーススタイル（枠・カーソル等。番号表示部分は別途重ねる）
+ *
+ * - `list` variant の背景・枠線は、そのセルの最後の番号が消化された時点で\
+ *   `PlannedPathCellRegistryProvider.fadeOutCell` が DOM 直書きで transparent に\
+ *   戻す（`transition` で滑らかに消える）
+ */
 const cellStyle = (
   hasOrders: boolean,
   variant: 'list' | 'stacked',
@@ -57,6 +63,7 @@ const cellStyle = (
   justifyContent: 'center',
   padding: 0,
   position: 'relative',
+  transition: 'background 300ms, border-color 300ms',
 })
 
 /** 番号一覧のラベル（list variant）。収まらない分は ellipsis で省略する */
@@ -125,7 +132,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
   } = props
 
   const { appendStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
-  const { registerStepNode } = usePlannedPathCellRegistry()
+  const { registerCellNode, registerStepNode } = usePlannedPathCellRegistry()
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
@@ -165,6 +172,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
 
                 appendStep({ col, row })
               }}
+              ref={(el) => registerCellNode({ col, row }, el)}
               style={cellStyle(orders.length > 0, variant)}
               type="button"
             >
