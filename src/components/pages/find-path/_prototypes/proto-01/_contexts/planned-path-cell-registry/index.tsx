@@ -15,8 +15,11 @@ type PlannedPathCellRegistryValue = {
    *
    * - `style.opacity` を直書きするのみ。React state を持たないため、\
    *   この呼出で購読側は再レンダリングされない
+   * - `promoteOrder` を渡すと、同時にその番号を最前面スタイル（不透明）へ\
+   *   切り替える（`variant: 'stacked'` のときのみ有効。同じセルを複数回通る\
+   *   経路で、1 枚消化して次の番号が見た目上の最前面になるタイミングに使う）
    */
-  fadeOutStep: (order: number) => void
+  fadeOutStep: (order: number, promoteOrder?: number) => void
   /**
    * 予定経路上の 1 手（`order`）の DOM を登録する
    *
@@ -40,6 +43,17 @@ type PlannedPathCellRegistryValue = {
 const PlannedPathCellRegistryContext =
   createContext<null | PlannedPathCellRegistryValue>(null)
 
+type PlannedPathCellRegistryProviderProps = PropsWithChildren<{
+  /**
+   * 番号表示方式（`PlannedPathLayer` の `variant` と同じ値を渡す）
+   *
+   * - `'stacked'` のときのみ `fadeOutStep` の `promoteOrder` を有効にする。\
+   *   `'list'` の DOM には background 指定がなく無意味な操作になるため\
+   *   明示的に no-op にする
+   */
+  variant?: 'list' | 'stacked'
+}>
+
 /**
  * 予定経路の各 step（経路上の出現ごと、1 始まりの通し番号）の DOM を ref で保持し、
  * 到達済み step のフェードアウトを DOM 直書きで反映する Provider
@@ -51,8 +65,10 @@ const PlannedPathCellRegistryContext =
  * - キーはセル座標でなく `order`（経路上の通し番号）。同じセルを複数回通る経路でも\
  *   出現ごとに個別にフェードアウトできる
  */
-export const PlannedPathCellRegistryProvider = (props: PropsWithChildren) => {
-  const { children } = props
+export const PlannedPathCellRegistryProvider = (
+  props: PlannedPathCellRegistryProviderProps,
+) => {
+  const { children, variant = 'list' } = props
 
   const nodesRef = useRef(new Map<number, HTMLElement>())
 
@@ -69,9 +85,18 @@ export const PlannedPathCellRegistryProvider = (props: PropsWithChildren) => {
     [],
   )
 
-  const fadeOutStep = useCallback((order: number) => {
-    nodesRef.current.get(order)?.style.setProperty('opacity', '0')
-  }, [])
+  const fadeOutStep = useCallback(
+    (order: number, promoteOrder?: number) => {
+      nodesRef.current.get(order)?.style.setProperty('opacity', '0')
+
+      if (variant === 'stacked' && promoteOrder !== undefined) {
+        nodesRef.current
+          .get(promoteOrder)
+          ?.style.setProperty('background', 'rgba(56, 189, 248, 1)')
+      }
+    },
+    [variant],
+  )
 
   const resetAllSteps = useCallback(() => {
     nodesRef.current.forEach((node) => {

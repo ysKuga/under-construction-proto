@@ -127,8 +127,15 @@ export const useFindPathTick = (): UseFindPathTickReturn => {
       resetAllSteps()
       setIsRunning(false)
     } else {
-      // 番号単位でフェードアウトする（同じセルの他の出現には影響しない）
-      fadeOutStep(order)
+      // 同じセルが経路上でまだ後に残っていれば、その番号を最前面（stacked
+      // variant では不透明）へ昇格させる。残っていなければ通常のフェードアウトのみ
+      const nextIndexInRest = rest.findIndex(
+        (step) => step.x === next.x && step.y === next.y,
+      )
+      const promoteOrder =
+        nextIndexInRest === -1 ? undefined : order + 1 + nextIndexInRest
+
+      fadeOutStep(order, promoteOrder)
     }
 
     if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {

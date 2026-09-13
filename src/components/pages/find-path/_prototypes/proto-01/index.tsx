@@ -41,7 +41,7 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
   return (
     <FindPathStoresProvider>
       <ActorNodeRegistryProvider gridSize={GRID}>
-        <PlannedPathCellRegistryProvider>
+        <PlannedPathCellRegistryProvider variant={plannedPathVariant}>
           <FindPathContent plannedPathVariant={plannedPathVariant} />
         </PlannedPathCellRegistryProvider>
       </ActorNodeRegistryProvider>
