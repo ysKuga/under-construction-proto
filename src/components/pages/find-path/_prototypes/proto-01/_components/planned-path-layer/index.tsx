@@ -72,13 +72,16 @@ const stepStyle: CSSProperties = {
  *
  * - セル全体を隙間なく覆う正方形を重ね、若い番号ほど手前（`zIndex` 大）にする。
  *   ずらさず完全に重ねる（下の要素は最前面の要素に隠れて見えない）
- * - 最前面（`index === 0`）だけ不透明にする。他は隠れて見えないため半透明のまま
+ * - 重なっている（`count > 1`）ときだけ最前面（`index === 0`）を不透明にする。
+ *   1 枚のみのときは通常どおり半透明。他（隠れている要素）も半透明のまま
  * - 到達時にフェードアウトすると下の要素が露出する
  */
 const stackedStepStyle = (index: number, count: number): CSSProperties => ({
   alignItems: 'center',
   background:
-    index === 0 ? 'rgba(56, 189, 248, 1)' : 'rgba(56, 189, 248, 0.55)',
+    index === 0 && count > 1
+      ? 'rgba(56, 189, 248, 1)'
+      : 'rgba(56, 189, 248, 0.55)',
   border: '1px solid #0284c7',
   borderRadius: 2,
   display: 'flex',
