@@ -7,6 +7,13 @@ import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-re
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 
 type PlannedPathLayerProps = {
+  /**
+   * 選択済みセルへの重複選択を許可するか（比較試作、既定 true）
+   *
+   * - false のとき、既に選択済み（`orders.length > 0`）のセルのクリックを無視する。
+   *   最終的にはこちらを既定にする方針（段階 5 の隣接マス制限と合わせて検討）
+   */
+  allowDuplicateSelection?: boolean
   /** 列数 */
   cols: number
   /**
@@ -99,7 +106,8 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  * - `Stage06` の floor(grid) へ children として重ねる絶対配置オーバーレイ。
  *   セルクリックで予定経路の末尾へその座標を push する
  * - 予定経路に含まれるセルには積んだ順番（1 始まり）を表示する。同じセルを複数回
- *   選択した場合の表示は `variant` で切り替える（list = 列挙 / stacked = 重ねる）
+ *   選択した場合の表示は `variant` で切り替える（list = 列挙 / stacked = 重ねる）。
+ *   `allowDuplicateSelection=false` なら重複選択自体を無効化する
  * - tick 走行中（`isRunning`）はセル選択を disabled にする
  * - planned-path store のみ購読。bot の移動（path / position）では再レンダリングしない
  * - 番号（`order`）ごとに個別の DOM を `PlannedPathCellRegistryProvider` へ登録する。
@@ -108,7 +116,13 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  *   ため、フェードアウト済み番号の巻き戻し（旧 `resetCell`）は不要
  */
 export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
-  const { cols, isRunning, rows, variant = 'list' } = props
+  const {
+    allowDuplicateSelection = true,
+    cols,
+    isRunning,
+    rows,
+    variant = 'list',
+  } = props
 
   const { appendStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const { registerStepNode } = usePlannedPathCellRegistry()
@@ -144,7 +158,13 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
               aria-label={`予定経路へ ${col}-${row} を追加`}
               disabled={isRunning}
               key={`${row}-${col}`}
-              onClick={() => appendStep({ col, row })}
+              onClick={() => {
+                if (!allowDuplicateSelection && orders.length > 0) {
+                  return
+                }
+
+                appendStep({ col, row })
+              }}
               style={cellStyle(orders.length > 0, variant)}
               type="button"
             >

@@ -31,18 +31,29 @@ const GRID = { cols: 5, rows: 5 } as const
  * - route (`/find-path`) / page 実装は未着手。確認は Storybook で行う
  */
 type FindPathProto01Props = {
+  /**
+   * `PlannedPathLayer` の重複選択許可（比較試作、既定は `PlannedPathLayer` に委ねる）
+   */
+  plannedPathAllowDuplicateSelection?: ComponentProps<
+    typeof PlannedPathLayer
+  >['allowDuplicateSelection']
   /** `PlannedPathLayer` の番号表示方式（比較試作、既定は `PlannedPathLayer` に委ねる） */
   plannedPathVariant?: ComponentProps<typeof PlannedPathLayer>['variant']
 }
 
 const FindPathProto01 = (props: FindPathProto01Props) => {
-  const { plannedPathVariant } = props
+  const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
 
   return (
     <FindPathStoresProvider>
       <ActorNodeRegistryProvider gridSize={GRID}>
         <PlannedPathCellRegistryProvider variant={plannedPathVariant}>
-          <FindPathContent plannedPathVariant={plannedPathVariant} />
+          <FindPathContent
+            plannedPathAllowDuplicateSelection={
+              plannedPathAllowDuplicateSelection
+            }
+            plannedPathVariant={plannedPathVariant}
+          />
         </PlannedPathCellRegistryProvider>
       </ActorNodeRegistryProvider>
     </FindPathStoresProvider>
@@ -58,7 +69,7 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  *   なってしまうため
  */
 const FindPathContent = (props: FindPathProto01Props) => {
-  const { plannedPathVariant } = props
+  const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
 
   const { execute, isRunning, reachedGoal } = useFindPathTick()
 
@@ -78,6 +89,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
       >
         <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
         <PlannedPathLayer
+          allowDuplicateSelection={plannedPathAllowDuplicateSelection}
           cols={GRID.cols}
           isRunning={isRunning}
           rows={GRID.rows}

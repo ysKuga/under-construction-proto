@@ -17,3 +17,10 @@ export const StackedVariant: Story = {
     plannedPathVariant: 'stacked',
   },
 }
+
+/** 同じセルの重複選択自体を禁止する方式を試す比較用 story（最終的な採用方針） */
+export const NoDuplicateSelection: Story = {
+  args: {
+    plannedPathAllowDuplicateSelection: false,
+  },
+}
