@@ -100,7 +100,7 @@ issue: #137
 - [x] 経路未選択時は「実行」「1 手戻す」を disabled に
 - [x] 「実行」完了（経路を歩き切った）時に予定経路をリセット
 - [x] 予定経路の途中セルは到達ごとに 1 つずつフェードアウトする（`PlannedPathCellRegistryProvider` で DOM 直書き、再レンダリングなし）
-- [x] 同一マスを複数回選択した場合の番号表示。`PlannedPathCellRegistryProvider` をセル単位から order（経路上の通し番号）単位へ変更し、出現ごとに個別フェードアウト可能に。表示は `PlannedPathLayer` の `variant` で 2 パターン比較試作（`list`＝カンマ列挙+ellipsis・既定 / `stacked`＝要素を重ねて最若番号を手前に表示。Storybook 'Stacked Variant' story）。最終的には経路選択時に同一マスの重複選択自体を禁止する方針だが、段階 5 の別項目（隣接マス制限）と合わせて後日対応
+- [x] 同一マスを複数回選択した場合の番号表示。`PlannedPathCellRegistryProvider` をセル単位から order（経路上の通し番号）単位へ変更し、出現ごとに個別フェードアウト可能に。表示は `PlannedPathLayer` の `variant` で 2 パターン比較試作（`list`＝カンマ列挙+ellipsis・既定 / `stacked`＝要素を重ねて最若番号を手前に表示。消化ごとに次の番号を最前面へ昇格、残り1枚になったら半透明に戻す。Storybook 'Stacked Variant' story）。加えて `allowDuplicateSelection=false` で重複選択自体を禁止する方式も試作（Storybook 'No Duplicate Selection' story、最終的にはこちらを既定にする方針）。3方式のどれを採用するかは段階 5 の別項目（隣接マス制限）と合わせて後日決定
 - [ ] 経路選択を隣接マスのみに制限。選択可能マスは点線等の見た目に変更し選択可能な状態を明示する
 - [ ] 到達済みマスのみ「表示」する（他マスは黒塗り or 非表示、表現方法は検討）。現状はゴール含め全マスが常時可視
 - [ ] 「1 手戻す」（計画上の消費取消）と「戻る」（到達済みマスへ消費を伴い異動する行動）を別枠の操作として分離検討。「戻る」は一見メリットのない行動のため、ギミックによるインセンティブ付与・退避行動としての活用など仕組みの導入を検討
@@ -139,6 +139,8 @@ issue: #137
 - 2026-09-12: 同一セルを経路上で複数回通る場合（例: 1→2→1→2 の往復）に、初回通過時点でフェードアウトし、後続の再訪問前でも見えないままになるバグを修正。`useFindPathTick` の `applyNextStep` で「経路上にまだ同じセルが残っているか」を判定し、残っていればフェードアウトを見送る（最後の訪問まで選択済みの見た目を保つ）
 - 2026-09-12: 走行中（tick 進行中）に `PlannedPathLayer` でセルを追加でき、追加した指定が実行中の残り経路（path store）に反映されず「消化されない指定」になる不具合を修正。`useFindPathTick` に `isRunning` を追加、`ActionBar`/`PlannedPathLayer` へ配布し走行中は「実行」「1 手戻す」・セル選択を全て disabled にする。配布のため `useFindPathTick` の呼び出し元を `ActionBar` から親（`FindPathProto01` 内の新設 `FindPathContent`）へ移した
 - 2026-09-12: 同一セルを複数回選択した際「最終的な番号のまま更新されない」問題（例: 1→2→1→2→1→2 で A=5,B=6 のまま tick1〜4 中も変化しない）を報告受け調査。原因はセル単位の `orderByCell`（`Map<string,number>`）が同一セルの複数出現を1つの番号でしか表現できず、`fadeOutCell` もセル単位の判定に頼っていたこと。`PlannedPathCellRegistryProvider` を order（経路上の通し番号、1 始まりでつねに一意）単位へ再設計し解消。あわせて表示方式を `PlannedPathLayer` の `variant` で 2 パターン比較試作（詳細は実装計画へ）
+- 2026-09-14: `stacked` variant の見た目を調整。(1) ずらし表示（margin）をやめ完全に重ねる（下の要素の端が見えていたのを解消）、(2) 重なり枚数が 2 以上のときだけ最前面を不透明にする（1 枚のみは通常どおり半透明）、(3) 消化ごとに次の番号を最前面へ動的に昇格（`PlannedPathCellRegistryProvider` の `fadeOutStep` に `promoteOrder`/`promoteAsLast` を追加、`variant: 'stacked'` のみ有効）、(4) 昇格後の重なりが残り 1 枚になったら半透明に戻す
+- 2026-09-14: 重複選択自体を禁止する方式（最終方針）を `PlannedPathLayer` の `allowDuplicateSelection` prop として試作。false のとき選択済みセルのクリックを無視する。Storybook 'No Duplicate Selection' story で比較確認できるようにした
 
 ## 懸念・リスク
 
