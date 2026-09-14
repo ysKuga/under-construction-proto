@@ -102,7 +102,7 @@ issue: #137
 - [x] 予定経路の途中セルは到達ごとに 1 つずつフェードアウトする（`PlannedPathCellRegistryProvider` で DOM 直書き、再レンダリングなし）
 - [x] 同一マスを複数回選択した場合の番号表示。`PlannedPathCellRegistryProvider` をセル単位から order（経路上の通し番号）単位へ変更し、出現ごとに個別フェードアウト可能に。表示は `PlannedPathLayer` の `variant` で 2 パターン比較試作（`list`＝カンマ列挙+ellipsis・既定 / `stacked`＝要素を重ねて最若番号を手前に表示。消化ごとに次の番号を最前面へ昇格、残り1枚になったら半透明に戻す。Storybook 'Stacked Variant' story）。加えて `allowDuplicateSelection=false` で重複選択自体を禁止する方式も試作（Storybook 'No Duplicate Selection' story、最終的にはこちらを既定にする方針）。3方式のどれを採用するかは段階 5 の別項目（隣接マス制限）と合わせて後日決定
 - [ ] 経路選択を隣接マスのみに制限。選択可能マスは点線等の見た目に変更し選択可能な状態を明示する
-- [ ] 到達済みマスのみ「表示」する（他マスは黒塗り or 非表示、表現方法は検討）。現状はゴール含め全マスが常時可視
+- [x] 到達済みマスのみ「表示」する。未到達マスは非表示、ゴール旗は隣接（斜め含む8方向）時のみ表示、未到達マスへの選択は不可（`VisibilityRegistryProvider` 新設、proto-02 のみ対応。理由は下記決定事項）
 - [ ] 「1 手戻す」（計画上の消費取消）と「戻る」（到達済みマスへ消費を伴い異動する行動）を別枠の操作として分離検討。「戻る」は一見メリットのない行動のため、ギミックによるインセンティブ付与・退避行動としての活用など仕組みの導入を検討
 - [ ] 障害物 / 歩数制限 / 一方通行セル（段階 4 から継続。「挑戦」「工夫」実現の中心方針）
 - [ ] （検討）bot を進行方向へ向ける
@@ -142,6 +142,12 @@ issue: #137
 - 2026-09-14: `stacked` variant の見た目を調整。(1) ずらし表示（margin）をやめ完全に重ねる（下の要素の端が見えていたのを解消）、(2) 重なり枚数が 2 以上のときだけ最前面を不透明にする（1 枚のみは通常どおり半透明）、(3) 消化ごとに次の番号を最前面へ動的に昇格（`PlannedPathCellRegistryProvider` の `fadeOutStep` に `promoteOrder`/`promoteAsLast` を追加、`variant: 'stacked'` のみ有効）、(4) 昇格後の重なりが残り 1 枚になったら半透明に戻す
 - 2026-09-14: 重複選択自体を禁止する方式（最終方針）を `PlannedPathLayer` の `allowDuplicateSelection` prop として試作。false のとき選択済みセルのクリックを無視する。Storybook 'No Duplicate Selection' story で比較確認できるようにした
 - 2026-09-14: `list` variant で「数字だけ消えてセルの背景・枠線が選択中のまま残る」不具合を修正。`list` variant のセル背景・枠線は `hasOrders`（React state）に基づく静的な値で、番号個別の `fadeOutStep`（DOM 直書き）とは独立していたため。セルの最後の番号が消化されたタイミングで `fadeOutCell` を新設して呼び、セル（`button`）自体の背景・枠線も DOM 直書きで transparent に戻すようにした（`PlannedPathCellRegistryProvider` に `registerCellNode`/`fadeOutCell` を追加、`variant: 'stacked'` は元々セル自体が透明なため no-op）
+- 2026-09-14: 段階5「到達済みマスのみ表示」を実装。当初 proto-01（積み上げ→まとめて「実行」方式）へ実装したが誤りと判明し取消（3 コミット reset）、proto-02（隣接クリック逐次移動方式）へ実装し直した。理由: 「到達済みマスのみ表示」は視界制限そのもので、未到達マスへの選択を不可にすると先読みができなくなる。proto-01 は「複数マス先読みして積み上げてから実行」が存在意義のゲーム性のため、視界制限とは根本的に矛盾する（実装検証時、隣接2マス先を同時に予定経路へ積もうとしたら2マス目が非表示で選択できず、1マスずつ実行を繰り返す破目になった）。段階5の「隣接マス制限」も同じ理由で proto-02 向けの検討事項としていた経緯（158行目）と整合する
+  - 未到達マスは非表示（`display: none`）。ゴール（旗）マーカーは到達済みマスに隣接（斜め含む8方向）していれば表示。未到達マスへの選択（クリック）は非表示により自然に不可
+  - `VisibilityRegistryProvider` を proto-02 配下に新設（`ActorNodeRegistryProvider` と同型、`useState` 不使用・ref + DOM 直書き）。到達済みセルを ref の Set で保持し、可視判定は「到達済みセル自身、またはその8近傍」
+  - `AdjacentMoveLayer` の各セル button・`GoalMarkerLayer`（proto-01 と共用）の旗 div を `registerVisibilityNode` で登録。`useAdjacentMove` の `handleCellClick` で `moveActor` と同時に `markVisited` を呼ぶ
+  - `GoalMarkerLayer` は proto-01 とも共用のため `registerVisibilityNode` を optional prop にし、未指定（proto-01）時は従来どおり常時表示のまま維持。proto-01 自体への機能追加は行わない
+  - Storybook 両 story で Playwright headless 確認（proto-02: 初期可視4セル→隣接セルへ移動後6セルへ拡大、ゴール旗は非隣接時非表示、console error なし。proto-01: 旗は従来どおり常時表示のまま変化なし）
 
 ## 懸念・リスク
 
@@ -151,8 +157,8 @@ issue: #137
 - 段階 2 で box-bot 搭載済。残課題（stage-05 README「未対応」に詳細）: (1) 複数 actor の z 順 / occlude、(2) 遠近に伴うセルのクリック判定歪み。tilt 位置ズレは解決（`resize={{ offsetSize: true }}`）
 - **ゲーム操作で React 再レンダリングを起こさない方針**（上記決定事項）。actor 移動が state 更新のため未達。段階 3 で position/move を ref ベースへ寄せる際に対応
 - 段階 5「戻る」のインセンティブ設計（ギミック・退避行動等）は具体案が未確立。今後の検討課題
-- 段階 5 到達済みマスのみ表示にする場合、ゴール（旗マーカー）や現在地の可視性とのバランスは未検討
 - 段階 5 経路選択を隣接マスのみに制限する場合の境界処理・視覚化（点線表示等）の具体的な実装方式は未検討
+- （将来検討）グリッド（正方形マス）からヘクス（六角形マス）表示への変更。今回はスコープ外、着手時期未定
 - React DevTools Profiler で「実行完了時、通常は無関係なはずの子要素（`Stage06`/`ActorsLayer` 等）が再レンダリング対象に巻き込まれる」挙動を確認。bisect の結果、原因は 76ed2fe（`isRunning` 導入、`useFindPathTick` の呼び出し元を `ActionBar` から親 `FindPathContent` へ移したコミット）と特定（`console.log` での実測で確認。当初立てていた「zustand state 更新と React useState 更新が 2 段階レンダリングになっている」仮説は誤りで、`setPlannedPath([])` と `setIsRunning(false)` は同一バッチで 1 回のレンダリングにまとまっていた）。`FindPathContent` が `isRunning` を保持しているため、実行開始・完了のたびに配下ツリー全体（`Stage06` 含む）が再レンダリングされる。**ゲーム操作で React 再レンダリングを起こさない方針**（前述の決定事項）に反するが、`ActorsLayer` 自体は position を ref 管理しているため実害は限定的と見られる。`isRunning` を Context 化するなど再レンダリング範囲を絞る対応は後日検討
 - 2026-09-14: 上記「実行完了時に子セル全部が再レンダリングされる」件、「重複選択の表示対応（order 単位化、5c674b1）あたりで発生し始めたのでは」との疑いを受け再 bisect。`PlannedPathLayer` の各セル生成箇所に `console.log` を仕込み、コミットごとに `git checkout <hash> -- <files>` でファイルのみ切り替えて実測。64645d0（isRunning 導入前）は 25 回（セル数ぶん 1 回）、76ed2fe（isRunning 導入）で 50 回（2 回）に増加、5c674b1（重複表示対応）でも変わらず 50 回。よって原因は従来の特定どおり 76ed2fe のみで、重複表示対応は無関係と確認できた
 - 2026-09-14: 隣接マス制限の実装に着手するにあたり、9/14 の「重複選択禁止を最終方針とする」決定（103 行目）を再検討。隣接マス限定移動では「同じセルへ戻って通る」動線（例: 1→2→1→3、障害物回避等）が正当な経路として発生しうるため、重複選択を一律禁止する方針は隣接制限と相性が悪いと判断。**新規に `proto-02` を新設**し、比較試作として別方式（`planned-path` 積み上げ→まとめて「実行」ではなく、隣接セルをクリックするたびに 1 手ずつ即時移動する逐次型）を実装。この方式では「重複選択」という概念自体が発生しない（積み上げが無いため）。あわせて、移動前に確認ダイアログを挟むかを切り替えるチェックボックスを追加し、event 駆動（セルクリック → 隣接判定 → 確認要否分岐 → `moveActor` 実行）で構成した。proto-01（積み上げ→実行方式）はそのまま維持し、2 方式を比較したうえで段階 5 の採用方針を決定する運びとする
