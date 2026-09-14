@@ -13,3 +13,7 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `_hooks/use-adjacent-move.ts`: `currentCell`(state) を軸に隣接判定 → (確認チェックボックス ON なら確認ダイアログ) → `moveActor`(DOM 直書き) を都度実行。「戻る」(直前セルへの逆戻り) も隣接クリックとして自然に許容され、proto-01 の重複選択問題が発生しない
   - `_components/adjacent-move-layer/`: 隣接セルのみ点線枠で選択可能を明示するクリックレイヤー
   - `GOAL_POSITION` は proto-01 の `constants.ts` を import して共用。`START_POSITION` は proto-02 固有
+- `proto-03`: 試作。`prototypes/stage/stage-07`（hex グリッド版、issue #162）をページ枠へマウントした版。移動方式は proto-02 と同じ隣接クリック逐次移動だが、`Stage07` の `useHexMove` に内蔵済みのためページ側は `onCellChange` を受けるだけ
+  - `constants.ts`: `GOAL_POSITION`/`START_POSITION` を axial 座標(`HexCell`)で定義。proto-01/02 とは座標系が異なるため独自定義（共用不可）
+  - `_components/goal-marker-layer/`: `GOAL_POSITION` セルへ旗マーカーを表示する非対話レイヤー。`Stage07` の `hex-layout` を共有し座標をズレさせない
+  - visibility（未到達マス非表示）・確認ダイアログは対象外（別途検討）
