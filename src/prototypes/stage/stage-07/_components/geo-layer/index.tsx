@@ -12,8 +12,10 @@ import {
  *
  * - 六角形本体を外接円半径のこの比率まで縮小して描画する。全辺同じ比率で
  *   縮めるため、隙間の太さが方向によらず均等になる
+ * - `MoveTargetLayer`（find-path proto-03）が選択可能マスの点線枠を同じ縮小率で
+ *   描画するために export する
  */
-const HEX_INSET_RATIO = 0.94
+export const HEX_INSET_RATIO = 0.94
 
 type GeoLayerProps = {
   /** 列数 */
@@ -43,8 +45,8 @@ type GeoLayerProps = {
  * - 六角形本体は SVG `polygon` で描画する。`border` + `clip-path` の組合せは
  *   辺の角度によって線の実効太さが変わりセル間の隙間が不均一に見えたため、
  *   幾何学的に正確な頂点座標を計算する SVG 方式へ変更（issue #162）
- * - 現在地に隣接するセルのみ点線枠で選択可能を明示する。現在地自体は
- *   `ActorsLayer` の box-bot が示すため、セル側でのハイライトは行わない（stage-06 と同一方針）
+ * - 選択可能マスの点線枠表示は `MoveTargetLayer`（find-path proto-03）へ委譲する。
+ *   ここでは隣接セルの `cursor: pointer` のみ付与する
  */
 export const GeoLayer = (props: GeoLayerProps) => {
   const {
@@ -100,9 +102,6 @@ export const GeoLayer = (props: GeoLayerProps) => {
               <polygon
                 fill="#f1f5f9"
                 points={hexPolygonPoints(hexSize, HEX_INSET_RATIO)}
-                stroke={selectable ? '#0284c7' : 'none'}
-                strokeDasharray={selectable ? '4 3' : undefined}
-                strokeWidth={selectable ? 2 : 0}
               />
             </svg>
           </button>
