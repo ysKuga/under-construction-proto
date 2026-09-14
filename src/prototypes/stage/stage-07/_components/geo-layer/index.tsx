@@ -24,6 +24,13 @@ type GeoLayerProps = {
   hexSize: number
   /** セルクリック時。隣接判定は呼び出し元（`useHexMove`）が行う */
   onCellClick: (cell: HexCell) => void
+  /**
+   * セル(button)の DOM を visibility registry 等へ登録する
+   *
+   * - 省略時は登録しない（常時表示）。渡した場合、呼び出し元の可視判定に
+   *   従って hex タイル自体の表示/非表示が切り替わる（find-path proto-03 で使用）
+   */
+  registerVisibilityNode?: (cell: HexCell, el: HTMLElement | null) => void
   /** 行数 */
   rows: number
 }
@@ -40,7 +47,14 @@ type GeoLayerProps = {
  *   `ActorsLayer` の box-bot が示すため、セル側でのハイライトは行わない（stage-06 と同一方針）
  */
 export const GeoLayer = (props: GeoLayerProps) => {
-  const { cols, currentCell, hexSize, onCellClick, rows } = props
+  const {
+    cols,
+    currentCell,
+    hexSize,
+    onCellClick,
+    registerVisibilityNode,
+    rows,
+  } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
@@ -78,6 +92,7 @@ export const GeoLayer = (props: GeoLayerProps) => {
             aria-label={`hex ${axial.q}-${axial.r}`}
             key={`${axial.q}-${axial.r}`}
             onClick={() => onCellClick(axial)}
+            ref={(el) => registerVisibilityNode?.(axial, el)}
             style={buttonStyle}
             type="button"
           >

@@ -11,7 +11,7 @@ export type HexCell = {
  *
  * - flat-top / pointed-top どちらでも同一（画面投影の向きが変わるのみ）
  */
-const HEX_DIRECTIONS: readonly HexCell[] = [
+export const HEX_DIRECTIONS: readonly HexCell[] = [
   { q: 1, r: 0 },
   { q: 1, r: -1 },
   { q: 0, r: -1 },
