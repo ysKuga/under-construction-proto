@@ -160,3 +160,6 @@ issue: #137
   - `_components/adjacent-move-layer/`: 隣接セルのみ点線枠で選択可能を明示。非隣接セルは `disabled` でクリック自体無効
   - time-control-03 の store 群・tick ループ（game-clock / path / planned-path / rxjs）は proto-02 に持ち込まない。逐次移動はクリック単位の離散更新のため、tick 駆動のアニメーション基盤が不要
   - Storybook `Default` story で動作確認（Playwright headless、`scratch/verify.mjs` 一時検証、確認後削除）。隣接判定・移動後の選択可能セル切替・「戻る」動線・確認ダイアログ表示、いずれも想定通り
+- 2026-09-14: proto-02 の `useAdjacentMove` を `useState` 全撤去（`currentCell`/`confirmRequired`/`reachedGoal` を全て ref 化）してリファクタ。移動のたびに `Stage06` 配下全体が再レンダリングされていた問題を解消
+  - 実装中、選択可能セルの `disabled` 属性を DOM 直書きで切り替える（React の `disabled` prop で初期化した後に外側から `node.disabled = false` する）方式が、以後そのセルのクリックを一切 React 側へ届かなくする不具合を確認。Playwright headless で `elementFromPoint` によるヒットテスト・DOM 上の `disabled`/border 状態はいずれも正しいにも関わらず、合成クリックイベントが React の `onClick` へ到達しなくなる事象（ネイティブ `.click()` / `dispatchEvent` / Playwright locator click いずれも同様に失効。原因は未特定だが、React が `disabled` prop 由来の DOM 属性について合成イベント発火可否をネイティブ DOM の現在値でなく内部トラッキングで判定している可能性を疑っている）
+  - 対応として `disabled` 属性自体を使うのをやめ、選択不可の判定を `handleCellClick` 内の `isAdjacent` ガードへ一本化（`AdjacentMoveLayer` の button は常時 non-disabled、見た目の点線枠のみ DOM 直書きで切替）。この方式なら再現しないことを確認済み
