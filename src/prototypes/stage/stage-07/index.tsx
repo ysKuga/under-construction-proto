@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties, PropsWithChildren } from 'react'
+import { ComponentProps, CSSProperties, PropsWithChildren } from 'react'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
 
@@ -24,6 +24,15 @@ type Stage07Props = PropsWithChildren<{
   onCellChange?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
   perspectivePx?: number
+  /**
+   * `GeoLayer` の hex タイルの DOM を visibility registry 等へ登録する
+   *
+   * - 省略時は登録しない（常時表示）。渡した場合、hex タイル自体の表示/非表示が
+   *   呼び出し元の可視判定に従って切り替わる（find-path proto-03 で使用）
+   */
+  registerCellVisibilityNode?: ComponentProps<
+    typeof GeoLayer
+  >['registerVisibilityNode']
   /** 行数 */
   rows: number
 }>
@@ -36,7 +45,9 @@ type Stage07Props = PropsWithChildren<{
  * - 遠近表現（perspective + rotateX の台形床）は stage-05/06 と同一。傾きは
  *   `usePerspectiveControl`（stage-05 から import）が `--floor-tilt` を ref 直書き
  * - box-bot-01 (`ActorsLayer`) をクリック移動中の現在地セルへ表示する。
- *   visibility / time-control 統合、複数 actor 対応は対象外（別途検討）
+ *   time-control 統合、複数 actor 対応は対象外（別途検討）
+ * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
+ *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  */
@@ -50,6 +61,7 @@ export const Stage07 = (props: Stage07Props) => {
     initialTiltDeg = 0,
     onCellChange,
     perspectivePx = 800,
+    registerCellVisibilityNode,
     rows,
   } = props
 
@@ -83,6 +95,7 @@ export const Stage07 = (props: Stage07Props) => {
             currentCell={currentCell}
             hexSize={hexSize}
             onCellClick={handleCellClick}
+            registerVisibilityNode={registerCellVisibilityNode}
             rows={rows}
           />
           <ActorsLayer
