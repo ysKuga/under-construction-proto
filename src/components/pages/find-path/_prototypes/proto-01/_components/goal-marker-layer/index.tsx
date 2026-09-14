@@ -5,17 +5,36 @@ import { GOAL_POSITION } from '../../constants'
 type GoalMarkerLayerProps = {
   /** 列数 */
   cols: number
+  /**
+   * ゴールセルの表示切替 DOM を visibility registry へ登録する
+   *
+   * - 省略時は常時表示（`VisibilityRegistryProvider` を持たない利用元向け）。
+   *   渡した場合は到達済みマスへ隣接するまで旗が非表示になる（proto-02 で使用）
+   */
+  registerVisibilityNode?: (
+    cell: { col: number; row: number },
+    el: HTMLElement | null,
+  ) => void
   /** 行数 */
   rows: number
 }
 
-/** セル1マスのスタイル */
-const cellStyle: CSSProperties = {
+/**
+ * セル1マスのスタイル
+ *
+ * - `gridColumn`/`gridRow` を明示指定する。CSS Grid の auto-placement は
+ *   `display: none` の item を配置計算から除外するため、ゴールセルが非表示に
+ *   なると後続セルが詰めて再配置されてしまう（`registerVisibilityNode` 経由で
+ *   非表示になるのはゴールセル1つのみだが、それでもズレは起きる）
+ */
+const cellStyle = (col: number, row: number): CSSProperties => ({
   alignItems: 'center',
   display: 'flex',
   fontSize: 20,
+  gridColumn: col + 1,
+  gridRow: row + 1,
   justifyContent: 'center',
-}
+})
 
 /**
  * ゴールセルの表示レイヤー
@@ -23,9 +42,12 @@ const cellStyle: CSSProperties = {
  * - `Stage06` の floor(grid) へ children として重ねる絶対配置オーバーレイ。
  *   `GOAL_POSITION` のセルにマーカーを表示するだけの非対話層
  * - `pointerEvents: none` でクリックを下層（`PlannedPathLayer`）へ通す
+ * - `registerVisibilityNode` 経由でゴールセルの DOM を visibility registry へ登録する
+ *   （渡された場合のみ）。可視状態の反映は registry 側の DOM 直書きに任せるため、
+ *   ここでは再レンダリングを起こさない
  */
 export const GoalMarkerLayer = (props: GoalMarkerLayerProps) => {
-  const { cols, rows } = props
+  const { cols, registerVisibilityNode, rows } = props
 
   const overlayStyle: CSSProperties = {
     display: 'grid',
@@ -40,11 +62,23 @@ export const GoalMarkerLayer = (props: GoalMarkerLayerProps) => {
   return (
     <div style={overlayStyle}>
       {Array.from({ length: rows }).map((_, row) =>
-        Array.from({ length: cols }).map((_, col) => (
-          <div key={`${row}-${col}`} style={cellStyle}>
-            {col === GOAL_POSITION.col && row === GOAL_POSITION.row ? '🚩' : ''}
-          </div>
-        )),
+        Array.from({ length: cols }).map((_, col) => {
+          const isGoal = col === GOAL_POSITION.col && row === GOAL_POSITION.row
+
+          return (
+            <div
+              key={`${row}-${col}`}
+              ref={
+                isGoal
+                  ? (el) => registerVisibilityNode?.({ col, row }, el)
+                  : undefined
+              }
+              style={cellStyle(col, row)}
+            >
+              {isGoal ? '🚩' : ''}
+            </div>
+          )
+        }),
       )}
     </div>
   )

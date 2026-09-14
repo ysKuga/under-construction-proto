@@ -6,6 +6,10 @@ import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-06/_contexts
 import { GoalMarkerLayer } from '../proto-01/_components/goal-marker-layer'
 
 import { AdjacentMoveLayer } from './_components/adjacent-move-layer'
+import {
+  useVisibilityRegistry,
+  VisibilityRegistryProvider,
+} from './_contexts/visibility-registry'
 import { useAdjacentMove } from './_hooks/use-adjacent-move'
 import { START_POSITION } from './constants'
 
@@ -22,6 +26,10 @@ const GRID = { cols: 5, rows: 5 } as const
  *   `moveActor`（DOM 直書き）を都度呼ぶだけで完結する
  * - `Stage06` は `interactive={false}`。セルクリックは `AdjacentMoveLayer`
  *   （隣接判定・確認ダイアログ）へ委ねる。`GoalMarkerLayer` は proto-01 と共用
+ * - `VisibilityRegistryProvider` は到達済みマスのみ表示するための Provider（proto-01
+ *   と同型だが、bot 初期セルが `START_POSITION` のため別実装）。`AdjacentMoveLayer`
+ *   （セル選択の表示/非表示）・`GoalMarkerLayer`（旗の表示/非表示）・`useAdjacentMove`
+ *   （到達記録）から読めるよう `Stage06` の外側に置く
  * - **`useState` を持たない**。`useAdjacentMove` が現在セル・ゴール到達を ref で
  *   保持し DOM 直書きで反映するため、bot の移動で `Stage06` 配下は再レンダリング
  *   されない。確認チェックボックスも非制御（`defaultChecked` + ref）
@@ -30,7 +38,9 @@ const GRID = { cols: 5, rows: 5 } as const
 const FindPathProto02 = () => {
   return (
     <ActorNodeRegistryProvider gridSize={GRID} initialPosition={START_POSITION}>
-      <FindPathProto02Content />
+      <VisibilityRegistryProvider>
+        <FindPathProto02Content />
+      </VisibilityRegistryProvider>
     </ActorNodeRegistryProvider>
   )
 }
@@ -39,10 +49,15 @@ const FindPathProto02 = () => {
 const FindPathProto02Content = () => {
   const {
     confirmCheckboxRef,
+    diagonalCheckboxRef,
     goalMessageRef,
     handleCellClick,
+    handleDiagonalToggle,
     registerCellNode,
+    registerVisibilityNode,
   } = useAdjacentMove(GRID)
+  const { registerVisibilityNode: registerMarkerVisibilityNode } =
+    useVisibilityRegistry()
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -58,11 +73,18 @@ const FindPathProto02Content = () => {
         rows={GRID.rows}
         size={400}
       >
-        <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
+        <GoalMarkerLayer
+          cols={GRID.cols}
+          registerVisibilityNode={(cell, el) =>
+            registerMarkerVisibilityNode(cell, 'marker', el)
+          }
+          rows={GRID.rows}
+        />
         <AdjacentMoveLayer
           cols={GRID.cols}
           onCellClick={handleCellClick}
           registerCellNode={registerCellNode}
+          registerVisibilityNode={registerVisibilityNode}
           rows={GRID.rows}
         />
       </Stage06>
@@ -74,6 +96,15 @@ const FindPathProto02Content = () => {
             type="checkbox"
           />{' '}
           移動前に確認する
+        </label>
+        <label>
+          <input
+            defaultChecked={false}
+            onChange={handleDiagonalToggle}
+            ref={diagonalCheckboxRef}
+            type="checkbox"
+          />{' '}
+          斜め移動を許可する
         </label>
         <span hidden ref={goalMessageRef}>
           🎉 ゴール到達
