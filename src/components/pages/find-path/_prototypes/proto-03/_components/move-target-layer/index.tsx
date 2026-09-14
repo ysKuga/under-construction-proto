@@ -32,8 +32,9 @@ type MoveTargetLayerProps = {
  * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。非対話
  *   (`pointerEvents: none`) でクリックは下層（`GeoLayer`）へ通す
  * - 表示演出（非表示 → 出現準備 → 表示）は `useMoveTargetLayer` が管理する
- *   （詳細は同フックの JSDoc 参照）。ここでは渡された位置・不透明度へ `GeoLayer`
- *   と同じ点線六角形（選択可能マスの見た目）を CSS transition で描画するだけ
+ *   （詳細は同フックの JSDoc 参照）。ここでは渡された位置・不透明度・拡大率へ
+ *   `GeoLayer` と同じ点線六角形（選択可能マスの見た目）を CSS transition で
+ *   描画するだけ
  */
 export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
   const { cols, currentCell, hexSize, mode, rows } = props
@@ -49,7 +50,7 @@ export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
 
   return (
     <>
-      {moveTargetLayer.map(({ cell, opacity, position }) => {
+      {moveTargetLayer.map(({ cell, opacity, position, scale }) => {
         const style: CSSProperties = {
           height: bounds.cellHeight,
           left: position.x,
@@ -57,9 +58,9 @@ export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
           pointerEvents: 'none',
           position: 'absolute',
           top: position.y,
-          transform: 'translate(-50%, -50%)',
+          transform: `translate(-50%, -50%) scale(${scale})`,
           transition:
-            'left 200ms ease-out, opacity 200ms ease-out, top 200ms ease-out',
+            'left 200ms ease-out, opacity 200ms ease-out, top 200ms ease-out, transform 200ms ease-out',
           width: bounds.cellWidth,
         }
 

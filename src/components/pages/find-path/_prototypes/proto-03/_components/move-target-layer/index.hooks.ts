@@ -16,6 +16,9 @@ import {
 /** 非表示 → 表示演出開始までの遅延 (ms) */
 const SPAWN_DELAY_MS = 80
 
+/** `scatter` モードの集合表示中の拡大率 */
+const SCATTER_ORIGIN_SCALE = 0.3
+
 /** 表示演出の種類 */
 export type MoveTargetDisplayMode =
   /** 対象セルの位置で opacity 0→1 のみ（位置移動なし） */
@@ -33,6 +36,8 @@ type MoveTarget = {
   opacity: number
   /** 表示位置 */
   position: PixelPoint
+  /** 拡大率（`scatter` モードの `spawned` 段階のみ `SCATTER_ORIGIN_SCALE`、それ以外は 1） */
+  scale: number
 }
 
 /** 表示演出の段階 */
@@ -72,12 +77,22 @@ const opacityOf = (mode: MoveTargetDisplayMode, phase: Phase): number =>
   mode === 'fade' && phase === 'spawned' ? 0 : 1
 
 /**
+ * mode/phase から拡大率を決める
+ *
+ * - `scatter` の `spawned`（bot マスへの集合表示中）のみ `SCATTER_ORIGIN_SCALE`
+ *   （小さく表示）、それ以外は等倍。散開の移動と同時に拡大させることで
+ *   「中心から生まれて広がる」印象を強める
+ */
+const scaleOf = (mode: MoveTargetDisplayMode, phase: Phase): number =>
+  mode === 'scatter' && phase === 'spawned' ? SCATTER_ORIGIN_SCALE : 1
+
+/**
  * 移動可能マスの表示演出（非表示 → 出現準備 → 表示）を管理する
  *
  * - 現在地セル変更のたび非表示へ戻し、`SPAWN_DELAY_MS` 経過後に演出開始
  *   （`spawned`）→ 直後の次フレームで表示完了（`revealed`）へ切替える
- * - `spawned`/`revealed` それぞれの位置・不透明度は `mode` によって変わる
- *   （`positionOf`/`opacityOf` 参照）。`spawned`→`revealed` の値の変化を
+ * - `spawned`/`revealed` それぞれの位置・不透明度・拡大率は `mode` によって変わる
+ *   （`positionOf`/`opacityOf`/`scaleOf` 参照）。`spawned`→`revealed` の値の変化を
  *   呼び出し元コンポーネント側の CSS transition が拾うことでアニメーションになる
  *   （`instant` は両段階で値が変わらないため transition が発火せず、結果として
  *   即座に出現して見える）
@@ -144,6 +159,7 @@ export const useMoveTargetLayer = (
       cell,
       opacity: opacityOf(mode, phase),
       position: positionOf(mode, phase, originPosition, targetPosition),
+      scale: scaleOf(mode, phase),
     }
   })
 }
