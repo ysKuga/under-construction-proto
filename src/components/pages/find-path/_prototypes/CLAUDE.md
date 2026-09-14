@@ -16,5 +16,6 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
 - `proto-03`: 試作。`prototypes/stage/stage-07`（hex グリッド版、issue #162）をページ枠へマウントした版。移動方式は proto-02 と同じ隣接クリック逐次移動だが、`Stage07` の `useHexMove` に内蔵済みのためページ側は `onCellChange` を受けるだけ
   - `constants.ts`: `GOAL_POSITION`/`START_POSITION` を axial 座標(`HexCell`)で定義。proto-01/02 とは座標系が異なるため独自定義（共用不可）
   - `_components/goal-marker-layer/`: `GOAL_POSITION` セルへ旗マーカーを表示する非対話レイヤー。`Stage07` の `hex-layout` を共有し座標をズレさせない
+  - `_components/move-target-layer/`: 移動可能マス（現在地の隣接6方向）の表示演出レイヤー。現在地セル変更のたび非表示 → 80ms後に演出開始、を `useMoveTargetLayer` が管理する。表示完了後は次の bot 移動完了まで維持し、移動完了時点で非表示（初期表示と同一の見た目）に戻る。演出は `mode` prop（`MoveTargetDisplayMode`）で切替可能: `scatter`（bot マスへ集合 → 対象マスへ散開、既定）/ `instant`（transitionなしで対象マスへ即座に出現）/ `fade`（対象マスの位置で opacity 0→1、位置移動なし）
   - `_contexts/visibility-registry/`: proto-02 の `VisibilityRegistryProvider`（矩形グリッド・8近傍）を axial 座標・6近傍（`HEX_DIRECTIONS`）へ移植した hex 版。未到達マスを非表示にする。`Stage07` へ `registerCellVisibilityNode` prop を追加し、hex タイル DOM を registry へ登録できるようにした（`GeoLayer` が対話も兼ねるため `NodeKind` は `floor`/`marker` の2種のみ）。到達済み表示は `setShowVisited` で切替可能（既定 ON）
   - 確認ダイアログは対象外（別途検討）

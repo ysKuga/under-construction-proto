@@ -7,6 +7,10 @@ import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import {
+  MoveTargetDisplayMode,
+  MoveTargetLayer,
+} from './_components/move-target-layer'
+import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
@@ -43,11 +47,15 @@ const FindPathProto03 = () => {
 
 /** `useVisibilityRegistry` を Provider の内側で呼び、UI へ配布する */
 const FindPathProto03Content = () => {
+  const [currentCell, setCurrentCell] = useState<HexCell>(START_POSITION)
+  const [displayMode, setDisplayMode] =
+    useState<MoveTargetDisplayMode>('scatter')
   const [goalReached, setGoalReached] = useState(false)
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
 
   const handleCellChange = (cell: HexCell) => {
+    setCurrentCell(cell)
     markVisited(cell)
 
     if (isSameCell(cell, GOAL_POSITION)) {
@@ -80,6 +88,13 @@ const FindPathProto03Content = () => {
           }
           rows={GRID.rows}
         />
+        <MoveTargetLayer
+          cols={GRID.cols}
+          currentCell={currentCell}
+          hexSize={HEX_SIZE}
+          mode={displayMode}
+          rows={GRID.rows}
+        />
       </Stage07>
       <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
         <label>
@@ -89,6 +104,19 @@ const FindPathProto03Content = () => {
             type="checkbox"
           />{' '}
           到達済みマスを表示する
+        </label>
+        <label>
+          移動可能マス表示{' '}
+          <select
+            onChange={(event) =>
+              setDisplayMode(event.target.value as MoveTargetDisplayMode)
+            }
+            value={displayMode}
+          >
+            <option value="scatter">散開</option>
+            <option value="instant">即時</option>
+            <option value="fade">フェード</option>
+          </select>
         </label>
         <span hidden={!goalReached}>🎉 ゴール到達</span>
       </div>
