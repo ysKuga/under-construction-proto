@@ -1,6 +1,16 @@
 'use client'
 
-import { ComponentProps, CSSProperties, PropsWithChildren } from 'react'
+import {
+  ComponentProps,
+  CSSProperties,
+  PropsWithChildren,
+  useState,
+} from 'react'
+
+import {
+  faceAction,
+  useBoxBotActionDispatcher,
+} from '@/components/theater/figure/box-bot'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
 
@@ -46,6 +56,8 @@ type Stage07Props = PropsWithChildren<{
  *   `usePerspectiveControl`（stage-05 から import）が `--floor-tilt` を ref 直書き
  * - box-bot-01 (`ActorsLayer`) をクリック移動中の現在地セルへ表示する。
  *   time-control 統合、複数 actor 対応は対象外（別途検討）
+ * - セル移動のたび `useHexMove` が算出した進行方向(yaw)を、bot と共有する
+ *   `eventTarget` 経由で `face` action へ dispatch し、bot を進行方向へ向かせる
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
@@ -65,7 +77,22 @@ export const Stage07 = (props: Stage07Props) => {
     rows,
   } = props
 
-  const { currentCell, handleCellClick } = useHexMove(initialCell, onCellChange)
+  /**
+   * player bot(box-bot-01)と共有する EventTarget
+   *
+   * - lazy initializer で 1 度だけ生成する（`BoxBotEventProvider` と同じ手法）。
+   *   `face` action(進行方向転換)を外部から発火するために `ActorsLayer` へ渡す
+   */
+  const [eventTarget] = useState<EventTarget>(() => new EventTarget())
+  const { face } = useBoxBotActionDispatcher(eventTarget, [faceAction])
+
+  const { currentCell, handleCellClick } = useHexMove(
+    initialCell,
+    onCellChange,
+    (yaw) => {
+      void face({ rad: yaw })
+    },
+  )
   const { floorRef, setTilt } = usePerspectiveControl()
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
@@ -101,6 +128,7 @@ export const Stage07 = (props: Stage07Props) => {
           <ActorsLayer
             cols={cols}
             currentCell={currentCell}
+            eventTarget={eventTarget}
             hexSize={hexSize}
             rows={rows}
             size={botSize}
