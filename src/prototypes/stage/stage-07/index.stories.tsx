@@ -11,6 +11,7 @@ type Story = StoryObj<typeof StoryComponent>
 
 export const Default: Story = {
   args: {
+    botSize: 60,
     cols: 5,
     hexSize: 40,
     rows: 5,
