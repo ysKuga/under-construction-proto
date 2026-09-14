@@ -10,6 +10,11 @@ type AdjacentMoveLayerProps = {
   onCellClick: (cell: Cell) => void
   /** セル(button)の DOM を登録する。`useAdjacentMove` からそのまま渡す */
   registerCellNode: (cell: Cell, el: HTMLButtonElement | null) => void
+  /**
+   * セル(button)の DOM を visibility registry へ登録する。`useAdjacentMove`
+   * からそのまま渡す
+   */
+  registerVisibilityNode: (cell: Cell, el: HTMLButtonElement | null) => void
   /** 行数 */
   rows: number
 }
@@ -41,9 +46,12 @@ const cellStyle = (selectable: boolean): CSSProperties => ({
  *   初期描画の選択可能判定は `START_POSITION`（bot の初期セル）で行う。
  *   移動後の切替は `registerCellNode` で登録した DOM への直書きに一本化する
  *   （このコンポーネント自体は移動のたびに再レンダリングされない）
+ * - 未到達（visibility registry で非可視）のセルは `display: none` にする。
+ *   見えないボタンはクリックもできないため、選択不可も同時に達成される
  */
 export const AdjacentMoveLayer = (props: AdjacentMoveLayerProps) => {
-  const { cols, onCellClick, registerCellNode, rows } = props
+  const { cols, onCellClick, registerCellNode, registerVisibilityNode, rows } =
+    props
 
   const overlayStyle: CSSProperties = {
     display: 'grid',
@@ -66,7 +74,10 @@ export const AdjacentMoveLayer = (props: AdjacentMoveLayerProps) => {
               aria-label={`${col}-${row} へ移動`}
               key={`${row}-${col}`}
               onClick={() => onCellClick(cell)}
-              ref={(el) => registerCellNode(cell, el)}
+              ref={(el) => {
+                registerCellNode(cell, el)
+                registerVisibilityNode(cell, el)
+              }}
               style={cellStyle(selectable)}
               type="button"
             />
