@@ -1,7 +1,11 @@
 import { CSSProperties } from 'react'
 
 import { colRowToAxial, HexCell, isHexAdjacent } from '../../_lib/hex'
-import { axialToPixel, hexPolygonPoints } from '../../_lib/hex-layout'
+import {
+  computeHexGridBounds,
+  hexCellCenter,
+  hexPolygonPoints,
+} from '../../_lib/hex-layout'
 
 /**
  * セル間の隙間を作るための縮小率
@@ -32,50 +36,41 @@ type GeoLayerProps = {
  * - 六角形本体は SVG `polygon` で描画する。`border` + `clip-path` の組合せは
  *   辺の角度によって線の実効太さが変わりセル間の隙間が不均一に見えたため、
  *   幾何学的に正確な頂点座標を計算する SVG 方式へ変更（issue #162）
- * - 現在地に隣接するセルのみ点線枠で選択可能を明示する
+ * - 現在地に隣接するセルのみ点線枠で選択可能を明示する。現在地自体は
+ *   `ActorsLayer` の box-bot が示すため、セル側でのハイライトは行わない（stage-06 と同一方針）
  */
 export const GeoLayer = (props: GeoLayerProps) => {
   const { cols, currentCell, hexSize, onCellClick, rows } = props
 
-  const cellWidth = hexSize * 2
-  const cellHeight = hexSize * Math.sqrt(3)
+  const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   const cells = Array.from({ length: rows }).flatMap((_, row) =>
-    Array.from({ length: cols }).map((_, col) => {
-      const axial = colRowToAxial(col, row)
-
-      return { axial, pixel: axialToPixel(axial, hexSize) }
-    }),
+    Array.from({ length: cols }).map((_, col) => colRowToAxial(col, row)),
   )
 
-  const xs = cells.map((cell) => cell.pixel.x)
-  const ys = cells.map((cell) => cell.pixel.y)
-  const minX = Math.min(...xs)
-  const minY = Math.min(...ys)
-
   const containerStyle: CSSProperties = {
-    height: Math.max(...ys) - minY + cellHeight,
+    height: bounds.containerHeight,
     position: 'relative',
-    width: Math.max(...xs) - minX + cellWidth,
+    width: bounds.containerWidth,
   }
 
   return (
     <div style={containerStyle}>
-      {cells.map(({ axial, pixel }) => {
-        const isCurrent = axial.q === currentCell.q && axial.r === currentCell.r
+      {cells.map((axial) => {
         const selectable = isHexAdjacent(currentCell, axial)
+        const center = hexCellCenter(axial, hexSize, bounds)
 
         const buttonStyle: CSSProperties = {
           background: 'transparent',
           border: 'none',
           cursor: selectable ? 'pointer' : 'default',
-          height: cellHeight,
-          left: pixel.x - minX + cellWidth / 2,
+          height: bounds.cellHeight,
+          left: center.x,
           padding: 0,
           position: 'absolute',
-          top: pixel.y - minY + cellHeight / 2,
+          top: center.y,
           transform: 'translate(-50%, -50%)',
-          width: cellWidth,
+          width: bounds.cellWidth,
         }
 
         return (
@@ -86,9 +81,9 @@ export const GeoLayer = (props: GeoLayerProps) => {
             style={buttonStyle}
             type="button"
           >
-            <svg height={cellHeight} width={cellWidth}>
+            <svg height={bounds.cellHeight} width={bounds.cellWidth}>
               <polygon
-                fill={isCurrent ? '#0284c7' : '#f1f5f9'}
+                fill="#f1f5f9"
                 points={hexPolygonPoints(hexSize, HEX_INSET_RATIO)}
                 stroke={selectable ? '#0284c7' : 'none'}
                 strokeDasharray={selectable ? '4 3' : undefined}
