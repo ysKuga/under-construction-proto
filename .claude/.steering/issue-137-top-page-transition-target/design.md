@@ -167,6 +167,15 @@ issue: #137
 - 2026-09-14: 「視界内に入ったら到達扱いにする」制御を追加。従来は `markVisited` が現在地セル自身のみを到達済みへ追加していたが、現在地の視界（8近傍、`visibleAreaOf`）全体を到達済みへ追加するよう変更。一度でも視界に入ったセルは、以後現在地の視界から外れても到達済み表示ON（既定）なら見え続ける。初期到達済みセルも `START_POSITION` 単体から `START_POSITION` の視界全体へ変更
   - Playwright headless で確認: 現在地を移動させ視界外になったセルが到達済み表示ONで表示継続 → OFFで非表示 → ONで再表示。現在地として一度も止まっていない（通り過ぎただけ視界に入った）セルも到達済みとして残ることを確認、console error なし
 
+- 2026-09-14: 段階5の検討事項4件（108〜111行目、bot向き転換・歩行モーション・実行中ノンストップ・自動経路探索）の実装方針を設計レベルで検討（実装は未着手）
+  - **bot を進行方向へ向ける**: box-bot-01 には yaw 回転を扱う `yawRef`（`BoxBotRefsProvider`）と `spin` action（`applyYawDelta` で増分加算のみ、絶対角度セット不可）が既存。進行方向を向けるには絶対角度セットの手段が要る。案: box-bot-01 に新規 action（例 `face`）を `defineAction` パターンで追加し、`use` 内で `yawRef.current` を直接書換える。瞬時切替か `useFrame` でイージングするか（`spin` の加減速ロジックが参考）は要検討。呼び出し元は各 proto の move hook（`useFindPathTick`/`useAdjacentMove`/`useHexMove`）側で移動元→移動先の (dx, dy) から方向を算出し、box-bot-01 の `useBoxBotActionDispatcher` 経由で dispatch する形になる想定。3 proto（tick 方式・隣接逐次・hex）すべてに配線が要る
+  - **進行時に歩くモーションを再生する**: box-bot-01 に walking action は未実装（46 行目、samples 版にはあるが未移植）。box-bot-01 への新規移植が前提。歩行中判定の区間（ON/OFF の切替タイミング）をどう定義するかが論点。moveActor 呼出しは DOM 直書きで瞬時、見た目の移動補間は `actors-layer` の CSS `transition` が担っている（tick 方式は `TICK_MS` 間隔、逐次方式はクリック単位）ため、walking ON を moveActor 呼出し直後に dispatch し、OFF を CSS transition 終了検知（`transitionend` 購読）または移動アニメーション時間ぶんの `setTimeout` で行う案が考えられる
+  - **実行中ノンストップ・介入時停止**: 現状 `isRunning`（`useFindPathTick`）中はセル選択・「1 手戻す」自体が disabled（`ActionBar`/`PlannedPathLayer`）のため、tick ループ自体は rxjs `timer` で既に途切れず走っている（「ノンストップ」は事実上達成済み）。この検討事項の本質は「実行中でも操作介入を受け付け、介入があった瞬間だけ停止する」という挙動変更（現行の全面 disabled 方針からの転換）を指すと判断。実現には isRunning 中のセル選択 disabled を解除し、介入検知時に `subscriptionRef.current?.unsubscribe()` を呼ぶ配線が要る。UX として「介入 = 何の操作を指すか」（セル追加のみ？「1 手戻す」も？）の定義から要検討
+  - **自動経路探索（目的地クリック）**: 旧世代 stage-04 に BFS 実装済み（[stage-04-pathfinding/design.md](../_closed/20260716-stage-04-pathfinding/design.md)、単一 actor 前提）。移植時の分岐は proto 方式の違いに依存
+    - proto-01（tick 方式、経路積み UI あり）: BFS 結果セル列をそのまま `planned-path` store へ push すればよく、既存の「経路積み→実行」フローにそのまま乗る。実装コスト低め
+    - proto-02（隣接逐次移動）/proto-03（hex）: tick ループを持たないため、BFS 結果を 1 手ずつ順に `moveActor` へ渡す駆動機構が別途要る（`setTimeout` 連鎖、または `useFindPathTick` の簡易版を新設）
+    - 視界制限（`VisibilityRegistryProvider`）採用時、自動生成経路が不可視セルを通過してよいかは要検討（106 行目の「視界内に入ったら到達扱い」ロジックとの整合）
+
 ## 懸念・リスク
 
 - ~~stage-04（画面座標 absolute）と box-bot（three.js Canvas）のレイヤ統合方式が未確定~~ → box-bot-01（表示領域 = 設置領域）採用で解消。Canvas が `cellSize` に収まり、samples 版の一回り大きい Canvas 起因の occlude / クリック奪取は単体では出ない
