@@ -49,8 +49,10 @@ const FindPathProto02 = () => {
 const FindPathProto02Content = () => {
   const {
     confirmCheckboxRef,
+    diagonalCheckboxRef,
     goalMessageRef,
     handleCellClick,
+    handleDiagonalToggle,
     registerCellNode,
     registerVisibilityNode,
   } = useAdjacentMove(GRID)
@@ -94,6 +96,15 @@ const FindPathProto02Content = () => {
             type="checkbox"
           />{' '}
           移動前に確認する
+        </label>
+        <label>
+          <input
+            defaultChecked={false}
+            onChange={handleDiagonalToggle}
+            ref={diagonalCheckboxRef}
+            type="checkbox"
+          />{' '}
+          斜め移動を許可する
         </label>
         <span hidden ref={goalMessageRef}>
           🎉 ゴール到達

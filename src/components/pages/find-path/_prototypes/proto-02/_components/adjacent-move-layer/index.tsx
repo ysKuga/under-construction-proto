@@ -6,6 +6,14 @@ import { START_POSITION } from '../../constants'
 type AdjacentMoveLayerProps = {
   /** 列数 */
   cols: number
+  /**
+   * 斜め方向を隣接として扱うかの初期値（既定 false）
+   *
+   * - 初期描画（選択可能セルの点線枠）にのみ使う。切替チェックボックスの
+   *   `defaultChecked` と揃える。切替後の再計算は `useAdjacentMove` の
+   *   `handleDiagonalToggle` が DOM 直書きで行う
+   */
+  initialAllowDiagonal?: boolean
   /** セルクリック時に呼ぶ（隣接判定・確認ダイアログは呼び出し元で処理済み） */
   onCellClick: (cell: Cell) => void
   /** セル(button)の DOM を登録する。`useAdjacentMove` からそのまま渡す */
@@ -56,15 +64,22 @@ const cellStyle = (
  *   届かなくなる事象を確認したため。選択不可の判定は `onCellClick` の呼び先
  *   （`handleCellClick`）の `isAdjacent` ガードへ一本化する
  * - 現在セルは React state を持たず `useAdjacentMove` が ref で保持するため、
- *   初期描画の選択可能判定は `START_POSITION`（bot の初期セル）で行う。
- *   移動後の切替は `registerCellNode` で登録した DOM への直書きに一本化する
- *   （このコンポーネント自体は移動のたびに再レンダリングされない）
+ *   初期描画の選択可能判定は `START_POSITION`（bot の初期セル）・
+ *   `initialAllowDiagonal`（斜め切替の初期値）で行う。移動後・切替後の反映は
+ *   `registerCellNode` で登録した DOM への直書きに一本化する（このコンポーネント
+ *   自体は移動・切替のたびに再レンダリングされない）
  * - 未到達（visibility registry で非可視）のセルは `display: none` にする。
  *   見えないボタンはクリックもできないため、選択不可も同時に達成される
  */
 export const AdjacentMoveLayer = (props: AdjacentMoveLayerProps) => {
-  const { cols, onCellClick, registerCellNode, registerVisibilityNode, rows } =
-    props
+  const {
+    cols,
+    initialAllowDiagonal = false,
+    onCellClick,
+    registerCellNode,
+    registerVisibilityNode,
+    rows,
+  } = props
 
   const overlayStyle: CSSProperties = {
     display: 'grid',
@@ -80,7 +95,11 @@ export const AdjacentMoveLayer = (props: AdjacentMoveLayerProps) => {
       {Array.from({ length: rows }).map((_, row) =>
         Array.from({ length: cols }).map((_, col) => {
           const cell = { col, row }
-          const selectable = isAdjacent(cell, START_POSITION)
+          const selectable = isAdjacent(
+            cell,
+            START_POSITION,
+            initialAllowDiagonal,
+          )
 
           return (
             <button
