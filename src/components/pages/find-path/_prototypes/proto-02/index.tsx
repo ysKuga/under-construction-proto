@@ -22,6 +22,9 @@ const GRID = { cols: 5, rows: 5 } as const
  *   `moveActor`（DOM 直書き）を都度呼ぶだけで完結する
  * - `Stage06` は `interactive={false}`。セルクリックは `AdjacentMoveLayer`
  *   （隣接判定・確認ダイアログ）へ委ねる。`GoalMarkerLayer` は proto-01 と共用
+ * - **`useState` を持たない**。`useAdjacentMove` が現在セル・ゴール到達を ref で
+ *   保持し DOM 直書きで反映するため、bot の移動で `Stage06` 配下は再レンダリング
+ *   されない。確認チェックボックスも非制御（`defaultChecked` + ref）
  * - route (`/find-path`) / page 実装は未着手。確認は Storybook で行う
  */
 const FindPathProto02 = () => {
@@ -35,12 +38,11 @@ const FindPathProto02 = () => {
 /** `useAdjacentMove` を Provider の内側で呼び、UI へ配布する */
 const FindPathProto02Content = () => {
   const {
-    confirmRequired,
-    currentCell,
+    confirmCheckboxRef,
+    goalMessageRef,
     handleCellClick,
-    reachedGoal,
-    setConfirmRequired,
-  } = useAdjacentMove()
+    registerCellNode,
+  } = useAdjacentMove(GRID)
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -59,21 +61,23 @@ const FindPathProto02Content = () => {
         <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
         <AdjacentMoveLayer
           cols={GRID.cols}
-          currentCell={currentCell}
           onCellClick={handleCellClick}
+          registerCellNode={registerCellNode}
           rows={GRID.rows}
         />
       </Stage06>
       <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
         <label>
           <input
-            checked={confirmRequired}
-            onChange={(event) => setConfirmRequired(event.target.checked)}
+            defaultChecked={false}
+            ref={confirmCheckboxRef}
             type="checkbox"
           />{' '}
           移動前に確認する
         </label>
-        {reachedGoal && <span>🎉 ゴール到達</span>}
+        <span hidden ref={goalMessageRef}>
+          🎉 ゴール到達
+        </span>
       </div>
     </div>
   )
