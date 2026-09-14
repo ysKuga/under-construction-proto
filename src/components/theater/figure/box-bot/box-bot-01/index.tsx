@@ -6,9 +6,11 @@ import * as React from 'react'
 import type { Group } from 'three'
 
 import {
+  ACTION_FACE,
   ACTION_JUMP,
   BOX_BOT_ACTIONS,
   DEFAULT_CLICK_BINDINGS,
+  faceAction,
   jumpAction,
 } from './_actions'
 import { Assembly } from './_components/assembly'
@@ -107,13 +109,20 @@ const ORBIT_MIN_DISTANCE = 3.5
 export const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
 
 /**
- * jump action・そのイベント名・dispatcher の再 export
+ * jump / face action・そのイベント名・dispatcher の再 export
  *
- * - 外部から `eventTarget` を共有して jump を購読/発火する用途(find-path proto の
- *   実行前アンロック等)向け。`actions` prop に `[jumpAction]` を渡し jump のみ有効化できる
- * - `useBoxBotActionDispatcher(eventTarget, [jumpAction])` で jump を外部から発火できる
+ * - 外部から `eventTarget` を共有して jump / face を購読/発火する用途(find-path proto の
+ *   実行前アンロック・進行方向転換等)向け。`actions` prop に `[jumpAction]`/`[faceAction]`
+ *   を渡し該当 action のみ有効化できる
+ * - `useBoxBotActionDispatcher(eventTarget, [faceAction])` で face を外部から発火できる
  */
-export { ACTION_JUMP, jumpAction, useBoxBotActionDispatcher }
+export {
+  ACTION_FACE,
+  ACTION_JUMP,
+  faceAction,
+  jumpAction,
+  useBoxBotActionDispatcher,
+}
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
