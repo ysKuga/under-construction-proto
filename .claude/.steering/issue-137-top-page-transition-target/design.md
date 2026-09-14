@@ -151,6 +151,20 @@ issue: #137
 - 2026-09-14: 上記実装のレイアウト崩れを修正。初期時、bot（0,0）の右に本来 (1,0) のみが選択可能に見えるべきところ、(1,0) の右隣にも点線枠のセルが並んで見える不具合をユーザー指摘で発覚。原因は CSS Grid の auto-placement が `display: none` の item を配置計算から除外すること。25 セル中大半を非表示にすると、残った可視セルだけが grid 先頭から詰めて再配置され、本来 (0,1)（bot の真下）であるべきセルが (1,0) の右隣に来ていた（tilt=0/55 いずれでも再現、遠近表現とは無関係と切り分け済み）。`AdjacentMoveLayer`・`GoalMarkerLayer` の各セル style に `gridColumn: col + 1` / `gridRow: row + 1` を明示指定して解消。Playwright で tilt 0/55 双方・移動後の可視範囲拡大を再確認
 - 2026-09-14: proto-02 の隣接移動判定（`isAdjacent`）へ斜め方向（8方向）を追加し、切替可能にした。`isAdjacent` に `allowDiagonal` 引数を追加（既定 4 方向のロジックはそのまま、8方向はチェビシェフ距離1で判定）。「斜め移動を許可する」チェックボックス（非制御、`diagonalCheckboxRef`）を新設し、変更時 `handleDiagonalToggle` が現在セル基準で選択可能セル（点線枠）を全セル走査で再計算する。従来の差分更新用 `neighborsOf`（4方向固定）は全セル走査方式に統合したため削除。視界（`VisibilityRegistryProvider`、常に8方向固定）とは独立した設定で、視界機能への影響なし。Playwright で斜めOFF/ON切替・斜め移動実行・ONからOFFへ戻す動作を確認
 - 2026-09-14: 到達済みマスのみ表示（視界制御）の本採用可否は保留、後日判断する。実装自体は proto-02 へ反映済み（PR 化）だが、ゲーム性への影響（探索要素の強さ・UX）を踏まえた最終判断は別途行う。段階5「経路選択を隣接マスのみに制限」（104行目）の採否判断とあわせて検討
+- 2026-09-14: proto-02 の未到達マス非表示制御を「視界」と「到達済み」の2軸へ分離。従来は`VisibilityRegistryProvider`の可視判定が「訪問済み全セルの8近傍の和」の一本化だったが、以下に変更
+  - 視界: 現在地基準の8近傍（斜め含む）のみ、常時可視。過去に訪れた他セルの周辺は視界に含めない
+  - 到達済み: 訪問履歴セルそのもの（8近傍でなくセル自身のみ）の表示可否を `setShowVisited` でON/OFF切替可能なオプションに（既定 ON）。UIに「到達済みマスを表示する」チェックボックスを追加
+  - 未到達（視界外かつ到達済み表示条件を満たさない）は従来どおり単純に `display: none`
+  - `VisibilityRegistryProvider` に `currentRef`（現在地）・`showVisitedRef`（表示オプション）を追加、`markVisited` は現在地更新も兼ねるよう変更。可視状態の再計算は差分更新（変更セルの8近傍のみ）から登録済み全セル走査へ統一（グリッドが5x5と小規模なため単純さ優先）
+  - Storybook + Playwright headless で確認: 初期状態（視界のみ4セル可視）→ 移動を重ね訪問済みセルが視界外になった状態で到達済み表示ON/OFF切替 → 該当セルの表示/非表示が追従、console error なし
+- 2026-09-14: 上記実装で未到達マスの床タイル（`GeoLayer`、stage-06）が非表示にならない不具合をユーザー指摘で発覚。`VisibilityRegistryProvider` は `AdjacentMoveLayer`（透明なクリック用オーバーレイ button）と `GoalMarkerLayer`（旗）のみ登録しており、下敷きの床タイル（グレー背景 `#f1f5f9` + 枠線、`interactive={false}` 時は非対話 `<div>`）は別レイヤーで常時全セル描画されたままだったため、視界外セルでもタイルの見た目自体は残っていた
+  - `GeoLayer`（stage-06）に `registerVisibilityNode` prop を追加（`GoalMarkerLayer` と同型、省略時は常時表示のまま）。各セルの button/div の ref から登録する
+  - `Stage06` に `registerCellVisibilityNode` prop を追加し `GeoLayer` へ伝播。`NodeKind` に `'floor'` を追加
+  - `GeoLayer` の `cellStyle` を定数から `(col, row) => CSSProperties` 関数へ変更し `gridColumn`/`gridRow` を明示指定（`AdjacentMoveLayer`/`GoalMarkerLayer` と同じ auto-placement 崩れ対策）
+  - proto-02 の `Stage06` へ `registerCellVisibilityNode={(cell, el) => registerCellVisibilityNode(cell, 'floor', el)}` を配線
+  - Playwright headless で床タイル（`#f1f5f9` 背景の div）の `display` を直接検査し、初期状態で視界内 4 セルのみ `block`・残り 21 セルが `none` になることを確認、console error なし
+- 2026-09-14: 「視界内に入ったら到達扱いにする」制御を追加。従来は `markVisited` が現在地セル自身のみを到達済みへ追加していたが、現在地の視界（8近傍、`visibleAreaOf`）全体を到達済みへ追加するよう変更。一度でも視界に入ったセルは、以後現在地の視界から外れても到達済み表示ON（既定）なら見え続ける。初期到達済みセルも `START_POSITION` 単体から `START_POSITION` の視界全体へ変更
+  - Playwright headless で確認: 現在地を移動させ視界外になったセルが到達済み表示ONで表示継続 → OFFで非表示 → ONで再表示。現在地として一度も止まっていない（通り過ぎただけ視界に入った）セルも到達済みとして残ることを確認、console error なし
 
 ## 懸念・リスク
 
