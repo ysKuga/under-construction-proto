@@ -19,13 +19,22 @@ type GoalMarkerLayerProps = {
   rows: number
 }
 
-/** セル1マスのスタイル */
-const cellStyle: CSSProperties = {
+/**
+ * セル1マスのスタイル
+ *
+ * - `gridColumn`/`gridRow` を明示指定する。CSS Grid の auto-placement は
+ *   `display: none` の item を配置計算から除外するため、ゴールセルが非表示に
+ *   なると後続セルが詰めて再配置されてしまう（`registerVisibilityNode` 経由で
+ *   非表示になるのはゴールセル1つのみだが、それでもズレは起きる）
+ */
+const cellStyle = (col: number, row: number): CSSProperties => ({
   alignItems: 'center',
   display: 'flex',
   fontSize: 20,
+  gridColumn: col + 1,
+  gridRow: row + 1,
   justifyContent: 'center',
-}
+})
 
 /**
  * ゴールセルの表示レイヤー
@@ -64,7 +73,7 @@ export const GoalMarkerLayer = (props: GoalMarkerLayerProps) => {
                   ? (el) => registerVisibilityNode?.({ col, row }, el)
                   : undefined
               }
-              style={cellStyle}
+              style={cellStyle(col, row)}
             >
               {isGoal ? '🚩' : ''}
             </div>

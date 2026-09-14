@@ -148,6 +148,7 @@ issue: #137
   - `AdjacentMoveLayer` の各セル button・`GoalMarkerLayer`（proto-01 と共用）の旗 div を `registerVisibilityNode` で登録。`useAdjacentMove` の `handleCellClick` で `moveActor` と同時に `markVisited` を呼ぶ
   - `GoalMarkerLayer` は proto-01 とも共用のため `registerVisibilityNode` を optional prop にし、未指定（proto-01）時は従来どおり常時表示のまま維持。proto-01 自体への機能追加は行わない
   - Storybook 両 story で Playwright headless 確認（proto-02: 初期可視4セル→隣接セルへ移動後6セルへ拡大、ゴール旗は非隣接時非表示、console error なし。proto-01: 旗は従来どおり常時表示のまま変化なし）
+- 2026-09-14: 上記実装のレイアウト崩れを修正。初期時、bot（0,0）の右に本来 (1,0) のみが選択可能に見えるべきところ、(1,0) の右隣にも点線枠のセルが並んで見える不具合をユーザー指摘で発覚。原因は CSS Grid の auto-placement が `display: none` の item を配置計算から除外すること。25 セル中大半を非表示にすると、残った可視セルだけが grid 先頭から詰めて再配置され、本来 (0,1)（bot の真下）であるべきセルが (1,0) の右隣に来ていた（tilt=0/55 いずれでも再現、遠近表現とは無関係と切り分け済み）。`AdjacentMoveLayer`・`GoalMarkerLayer` の各セル style に `gridColumn: col + 1` / `gridRow: row + 1` を明示指定して解消。Playwright で tilt 0/55 双方・移動後の可視範囲拡大を再確認
 
 ## 懸念・リスク
 

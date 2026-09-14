@@ -19,14 +19,27 @@ type AdjacentMoveLayerProps = {
   rows: number
 }
 
-/** セル1マスのスタイル。選択可能（隣接）セルのみ点線枠で明示する */
-const cellStyle = (selectable: boolean): CSSProperties => ({
+/**
+ * セル1マスのスタイル。選択可能（隣接）セルのみ点線枠で明示する
+ *
+ * - `gridColumn`/`gridRow` を明示指定する。CSS Grid の auto-placement は
+ *   `display: none` の item を配置計算から除外するため、visibility registry が
+ *   大半のセルを非表示にすると、残った可視セルだけが先頭から詰めて再配置されて
+ *   しまう（例: (1,0) の隣に本来 (0,1) が来るべきところ、詰まって表示される）
+ */
+const cellStyle = (
+  col: number,
+  row: number,
+  selectable: boolean,
+): CSSProperties => ({
   alignItems: 'center',
   background: 'transparent',
   border: selectable ? '1px dashed #0284c7' : '1px solid transparent',
   cursor: selectable ? 'pointer' : 'default',
   display: 'flex',
   font: 'inherit',
+  gridColumn: col + 1,
+  gridRow: row + 1,
   justifyContent: 'center',
   padding: 0,
   position: 'relative',
@@ -78,7 +91,7 @@ export const AdjacentMoveLayer = (props: AdjacentMoveLayerProps) => {
                 registerCellNode(cell, el)
                 registerVisibilityNode(cell, el)
               }}
-              style={cellStyle(selectable)}
+              style={cellStyle(col, row, selectable)}
               type="button"
             />
           )
