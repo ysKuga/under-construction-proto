@@ -6,6 +6,10 @@ import { Stage07 } from '@/prototypes/stage/stage-07'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
+import {
+  useVisibilityRegistry,
+  VisibilityRegistryProvider,
+} from './_contexts/visibility-registry'
 import { GOAL_POSITION, START_POSITION } from './constants'
 
 /** グリッド形状 */
@@ -22,12 +26,30 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
  *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）のため、
  *   ここでは `Stage07` のマウントとゴール到達判定のみを担う
- * - visibility（視界による未到達マス非表示）・確認ダイアログは対象外（別途検討）
+ * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
+ *   の hex 版）。可視判定は「視界（現在地基準の6近傍）」または「到達済み表示ONかつ
+ *   到達済みセル」（`setShowVisited` で切替可能、既定 ON）。`Stage07`（hex タイルの
+ *   表示/非表示）・`GoalMarkerLayer`（旗の表示/非表示）から読めるよう `Stage07`
+ *   の外側に置く
+ * - 確認ダイアログは対象外（別途検討）
  */
 const FindPathProto03 = () => {
+  return (
+    <VisibilityRegistryProvider>
+      <FindPathProto03Content />
+    </VisibilityRegistryProvider>
+  )
+}
+
+/** `useVisibilityRegistry` を Provider の内側で呼び、UI へ配布する */
+const FindPathProto03Content = () => {
   const [goalReached, setGoalReached] = useState(false)
+  const { markVisited, registerVisibilityNode, setShowVisited } =
+    useVisibilityRegistry()
 
   const handleCellChange = (cell: HexCell) => {
+    markVisited(cell)
+
     if (isSameCell(cell, GOAL_POSITION)) {
       setGoalReached(true)
     }
@@ -45,11 +67,31 @@ const FindPathProto03 = () => {
         initialCell={START_POSITION}
         initialTiltDeg={55}
         onCellChange={handleCellChange}
+        registerCellVisibilityNode={(cell, el) =>
+          registerVisibilityNode(cell, 'floor', el)
+        }
         rows={GRID.rows}
       >
-        <GoalMarkerLayer cols={GRID.cols} hexSize={HEX_SIZE} rows={GRID.rows} />
+        <GoalMarkerLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          registerVisibilityNode={(cell, el) =>
+            registerVisibilityNode(cell, 'marker', el)
+          }
+          rows={GRID.rows}
+        />
       </Stage07>
-      <span hidden={!goalReached}>🎉 ゴール到達</span>
+      <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+        <label>
+          <input
+            defaultChecked
+            onChange={(event) => setShowVisited(event.target.checked)}
+            type="checkbox"
+          />{' '}
+          到達済みマスを表示する
+        </label>
+        <span hidden={!goalReached}>🎉 ゴール到達</span>
+      </div>
     </div>
   )
 }

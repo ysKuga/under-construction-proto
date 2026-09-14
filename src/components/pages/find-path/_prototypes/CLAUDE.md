@@ -16,4 +16,5 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
 - `proto-03`: 試作。`prototypes/stage/stage-07`（hex グリッド版、issue #162）をページ枠へマウントした版。移動方式は proto-02 と同じ隣接クリック逐次移動だが、`Stage07` の `useHexMove` に内蔵済みのためページ側は `onCellChange` を受けるだけ
   - `constants.ts`: `GOAL_POSITION`/`START_POSITION` を axial 座標(`HexCell`)で定義。proto-01/02 とは座標系が異なるため独自定義（共用不可）
   - `_components/goal-marker-layer/`: `GOAL_POSITION` セルへ旗マーカーを表示する非対話レイヤー。`Stage07` の `hex-layout` を共有し座標をズレさせない
-  - visibility（未到達マス非表示）・確認ダイアログは対象外（別途検討）
+  - `_contexts/visibility-registry/`: proto-02 の `VisibilityRegistryProvider`（矩形グリッド・8近傍）を axial 座標・6近傍（`HEX_DIRECTIONS`）へ移植した hex 版。未到達マスを非表示にする。`Stage07` へ `registerCellVisibilityNode` prop を追加し、hex タイル DOM を registry へ登録できるようにした（`GeoLayer` が対話も兼ねるため `NodeKind` は `floor`/`marker` の2種のみ）。到達済み表示は `setShowVisited` で切替可能（既定 ON）
+  - 確認ダイアログは対象外（別途検討）
