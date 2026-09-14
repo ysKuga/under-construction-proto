@@ -8,13 +8,33 @@ export type PixelPoint = {
   y: number
 }
 
+/** flat-top 正六角形の頂点角度（度） */
+const HEX_VERTEX_ANGLES_DEG = [0, 60, 120, 180, 240, 300]
+
 /**
- * flat-top 正六角形の clip-path（頂点角度 0/60/120/180/240/300 度）
+ * flat-top 正六角形の SVG `points` 文字列を生成する
  *
- * - 中心 (50%, 50%)・外接円半径 50% の頂点座標を固定値で列挙
+ * - viewBox `0 0 (size*2) (size*sqrt(3))` を前提に、中心を viewBox 中央へ置く
+ * - `border`/`clip-path` の組合せは辺の角度によって線の実効太さが変わり、
+ *   セル間の隙間が不均一に見える問題があった。SVG の `polygon` + `stroke` は
+ *   線幅が幾何学的に均一なため採用
+ *
+ * @param size 外接円半径 (px)
+ * @param insetRatio セル間の隙間を作るための縮小率（0〜1、既定 1 でぴったり接する大きさ）
  */
-export const HEX_CLIP_PATH =
-  'polygon(100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%, 25% 6.7%, 75% 6.7%)'
+export const hexPolygonPoints = (size: number, insetRatio = 1): string => {
+  const radius = size * insetRatio
+  const cx = size
+  const cy = (size * Math.sqrt(3)) / 2
+
+  return HEX_VERTEX_ANGLES_DEG.map((deg) => {
+    const rad = (deg * Math.PI) / 180
+    const x = cx + radius * Math.cos(rad)
+    const y = cy + radius * Math.sin(rad)
+
+    return `${x},${y}`
+  }).join(' ')
+}
 
 /**
  * axial 座標をピクセル座標(中心点)へ変換する（flat-top）
