@@ -20,10 +20,12 @@ issue: #162
 - [x] 座標系: axial `{q, r}` 新設（既存 `{col, row}` は流用せず、hex 専用の型・隣接判定を新規作成）→ `stage-07/_lib/hex.ts` の `HexCell`
 - [x] 隣接判定: 6方向固定オフセットで `isHexAdjacent` 新設 → `stage-07/_lib/hex.ts`、`__tests__/hex.test.ts` で検証
 - [x] 配置先: 新規 `src/prototypes/stage/stage-07`（既存 stage-06 は温存、比較用に残す）
-- [ ] レイアウト: CSS Grid 廃止 → absolute 配置（%計算）+ 各セル `clip-path: polygon(...)` で六角形化
-  - flat-top（辺が上下）で確定。奇数列を半セル分縦ずらし（offset-col）
-- [ ] 到達点（試作スコープ）: 六角セル描画 + クリックで隣接移動まで
+- [x] レイアウト: CSS Grid 廃止 → absolute 配置（%計算）+ 各セル `clip-path: polygon(...)` で六角形化
+  - flat-top（辺が上下）で確定。奇数列を半セル分縦ずらし（offset-col）→ `stage-07/_lib/hex-layout.ts`（`axialToPixel`/`HEX_CLIP_PATH`）、`_components/geo-layer/`
+- [x] 到達点（試作スコープ）: 六角セル描画 + クリックで隣接移動まで
   - visibility registry・time-control 統合は対象外
+  - `_hooks/use-hex-move.ts` が現在地 state・隣接判定込みの移動を管理、`GeoLayer` から呼出し
+  - Storybook `Default` story + Playwright headless で確認（cols5×rows5=25セル描画、隣接クリックで移動、非隣接クリックは無視、console error なし）
 - [ ] 検証手順: tilt=0（傾きなし）でまず hex 描画・隣接移動を確認 → 傾き（rotateX）を入れて列オフセット方向の歪みを目視確認
 
 ## 決定事項
