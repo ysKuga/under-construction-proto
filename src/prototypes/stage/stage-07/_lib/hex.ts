@@ -34,3 +34,18 @@ export const isHexAdjacent = (a: HexCell, b: HexCell): boolean => {
     (direction) => direction.q === dq && direction.r === dr,
   )
 }
+
+/**
+ * 矩形グリッドの見た目座標(col, row)を axial 座標へ変換する
+ *
+ * - flat-top の "odd-q" オフセット方式（奇数列を半セル分ずらす）で対応付ける
+ *
+ * @param col 列
+ * @param row 行
+ */
+export const colRowToAxial = (col: number, row: number): HexCell => {
+  const q = col
+  const r = row - (col - (col & 1)) / 2
+
+  return { q, r }
+}
