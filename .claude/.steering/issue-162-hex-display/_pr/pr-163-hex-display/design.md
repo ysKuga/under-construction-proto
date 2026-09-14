@@ -26,7 +26,12 @@ issue: #162
   - visibility registry・time-control 統合は対象外
   - `_hooks/use-hex-move.ts` が現在地 state・隣接判定込みの移動を管理、`GeoLayer` から呼出し
   - Storybook `Default` story + Playwright headless で確認（cols5×rows5=25セル描画、隣接クリックで移動、非隣接クリックは無視、console error なし）
-- [ ] 検証手順: tilt=0（傾きなし）でまず hex 描画・隣接移動を確認 → 傾き（rotateX）を入れて列オフセット方向の歪みを目視確認
+- [x] 検証手順: tilt=0（傾きなし）でまず hex 描画・隣接移動を確認 → 傾き（rotateX）を入れて列オフセット方向の歪みを目視確認（Playwright headless、目立った歪みなし）
+- [x] hex への box-bot 設置: `stage-06` の `ActorsLayer`（逆 rotateX で直立、ref registry 化）を参考に、hex 座標版を新設
+  - `GeoLayer`/`ActorsLayer` 間でセル中心座標がズレないよう、境界計算(`computeHexGridBounds`)とセル中心変換(`hexCellCenter`)を `_lib/hex-layout.ts` へ共通化。`GeoLayer` 側もこれを使うようリファクタ
+  - 現在地セルのハイライト（塗り分け）は box-bot 本体が位置を示すため廃止（stage-06 の `GeoLayer` と同一方針）。隣接セルの点線枠は維持
+  - state（`useHexMove` の `currentCell`）ベースの再レンダリングのまま。ref registry 化・visibility 統合は今回も対象外
+  - Storybook `Default` story + Playwright headless で確認（原点セルに bot 表示、隣接クリックで bot 追従移動、tilt 変更後も直立維持、console error なし）
 
 ## 決定事項
 
@@ -37,6 +42,7 @@ issue: #162
 - 2026-09-14: レイアウト方式は CSS Grid を廃止し absolute 配置 + `clip-path` へ変更。CSS Grid は矩形前提で hex オフセットに乗らないため。副次的に、visibility registry 併用時の auto-placement 詰まりバグ（find-path 実装で発生済み）も構造的に回避できる見込み
 - 2026-09-14: セル本体の描画方式を `clip-path` から SVG `polygon` へ変更。ユーザー指摘で「水平方向の隙間が斜め方向より太い」不均一を確認、原因は `border` + `clip-path` の組合せで border 線が辺の角度によって実効太さが変わること（線がクリップされる量が辺ごとに異なる）。SVG `polygon` は三角関数で正確な頂点座標を計算するため、線幅・隙間が全方向で幾何学的に均等になる。あわせて `HEX_INSET_RATIO`（0.94）で六角形本体を外接円半径比で縮小し、セル間の隙間自体を作る方式に変更（`border`/`stroke` はセル本体の縁取りでなく、選択可能セルの点線表示のみに使用）。Playwright headless でポリゴンの縦横比（1.1547、正六角形の理論値と一致）・隣接セル間の隙間実測、スクリーンショット目視で確認
 - 2026-09-14: 試作到達点は「六角セル描画 + クリックで隣接移動」までに限定。visibility/time-control 等の統合は今回のスコープに含めない
+- 2026-09-14: 上記到達点確認後、box-bot 設置まで対応範囲を拡張。stage-06 相当の見た目（現在地に box-bot が立つ）まで揃え、find-path 適用可否判断の材料を増やす
 
 ## 懸念・リスク
 
