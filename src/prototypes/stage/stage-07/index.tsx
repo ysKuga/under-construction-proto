@@ -4,11 +4,14 @@ import { CSSProperties } from 'react'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
 
+import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
 import { useHexMove } from './_hooks/use-hex-move'
 import { HexCell } from './_lib/hex'
 
 type Stage07Props = {
+  /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
+  botSize: number
   /** 列数 */
   cols: number
   /** 六角形の外接円半径 (px) */
@@ -30,10 +33,12 @@ type Stage07Props = {
  *   absolute 配置する（issue #162）
  * - 遠近表現（perspective + rotateX の台形床）は stage-05/06 と同一。傾きは
  *   `usePerspectiveControl`（stage-05 から import）が `--floor-tilt` を ref 直書き
- * - visibility / time-control 統合、既存 box-bot の設置・移動は対象外（別途検討）
+ * - box-bot-01 (`ActorsLayer`) をクリック移動中の現在地セルへ表示する。
+ *   visibility / time-control 統合、複数 actor 対応は対象外（別途検討）
  */
 export const Stage07 = (props: Stage07Props) => {
   const {
+    botSize,
     cols,
     hexSize,
     initialCell = { q: 0, r: 0 },
@@ -73,6 +78,13 @@ export const Stage07 = (props: Stage07Props) => {
             hexSize={hexSize}
             onCellClick={handleCellClick}
             rows={rows}
+          />
+          <ActorsLayer
+            cols={cols}
+            currentCell={currentCell}
+            hexSize={hexSize}
+            rows={rows}
+            size={botSize}
           />
         </div>
       </div>

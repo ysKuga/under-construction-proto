@@ -1,4 +1,4 @@
-import { HexCell } from './hex'
+import { colRowToAxial, HexCell } from './hex'
 
 /** ピクセル座標(中心点) */
 export type PixelPoint = {
@@ -47,4 +47,78 @@ export const axialToPixel = (cell: HexCell, hexSize: number): PixelPoint => {
   const y = hexSize * Math.sqrt(3) * (cell.r + cell.q / 2)
 
   return { x, y }
+}
+
+/** hex グリッド全体のピクセル境界 */
+export type HexGridBounds = {
+  /** 1セルの高さ (px) */
+  cellHeight: number
+  /** 1セルの幅 (px) */
+  cellWidth: number
+  /** 全セルを収める描画領域の高さ (px) */
+  containerHeight: number
+  /** 全セルを収める描画領域の幅 (px) */
+  containerWidth: number
+  /** 全セル中の最小 x 座標 (px)。描画領域の原点合わせに使う */
+  minX: number
+  /** 全セル中の最小 y 座標 (px)。描画領域の原点合わせに使う */
+  minY: number
+}
+
+/**
+ * 矩形グリッド(cols, rows)を hex 化した際の描画領域境界を求める
+ *
+ * - `GeoLayer`（セル描画）と `ActorsLayer`（actor 配置）が同じ境界を使うことで、
+ *   両者の座標系がズレないようにする
+ *
+ * @param cols 列数
+ * @param rows 行数
+ * @param hexSize 六角形の外接円半径 (px)
+ */
+export const computeHexGridBounds = (
+  cols: number,
+  rows: number,
+  hexSize: number,
+): HexGridBounds => {
+  const cellWidth = hexSize * 2
+  const cellHeight = hexSize * Math.sqrt(3)
+
+  const pixels = Array.from({ length: rows }).flatMap((_, row) =>
+    Array.from({ length: cols }).map((_, col) =>
+      axialToPixel(colRowToAxial(col, row), hexSize),
+    ),
+  )
+  const xs = pixels.map((pixel) => pixel.x)
+  const ys = pixels.map((pixel) => pixel.y)
+  const minX = Math.min(...xs)
+  const minY = Math.min(...ys)
+
+  return {
+    cellHeight,
+    cellWidth,
+    containerHeight: Math.max(...ys) - minY + cellHeight,
+    containerWidth: Math.max(...xs) - minX + cellWidth,
+    minX,
+    minY,
+  }
+}
+
+/**
+ * axial セルの中心を、`computeHexGridBounds` の描画領域基準の座標へ変換する
+ *
+ * @param cell axial 座標
+ * @param hexSize 六角形の外接円半径 (px)
+ * @param bounds `computeHexGridBounds` の結果
+ */
+export const hexCellCenter = (
+  cell: HexCell,
+  hexSize: number,
+  bounds: Pick<HexGridBounds, 'cellHeight' | 'cellWidth' | 'minX' | 'minY'>,
+): PixelPoint => {
+  const pixel = axialToPixel(cell, hexSize)
+
+  return {
+    x: pixel.x - bounds.minX + bounds.cellWidth / 2,
+    y: pixel.y - bounds.minY + bounds.cellHeight / 2,
+  }
 }
