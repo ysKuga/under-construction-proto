@@ -35,6 +35,15 @@ type Stage06Props = PropsWithChildren<{
   interactive?: boolean
   /** perspective 視点距離 (px)。小さいほど遠近が強い */
   perspectivePx: number
+  /**
+   * `GeoLayer` のセル(床タイル)の DOM を visibility registry 等へ登録する
+   *
+   * - 省略時は登録しない（常時表示）。渡した場合、床タイル自体の表示/非表示が
+   *   呼び出し元の可視判定に従って切り替わる（find-path proto-02 で使用）
+   */
+  registerCellVisibilityNode?: ComponentProps<
+    typeof GeoLayer
+  >['registerVisibilityNode']
   /** 行数 */
   rows: number
   /** 描画領域の一辺 (px) */
@@ -68,6 +77,7 @@ export const Stage06 = (props: Stage06Props) => {
     initialTiltDeg,
     interactive = true,
     perspectivePx,
+    registerCellVisibilityNode,
     rows,
     size,
   } = props
@@ -106,7 +116,10 @@ export const Stage06 = (props: Stage06Props) => {
     <div>
       <div style={sceneStyle}>
         <div ref={floorRef} style={floorStyle}>
-          <GeoLayer interactive={interactive} />
+          <GeoLayer
+            interactive={interactive}
+            registerVisibilityNode={registerCellVisibilityNode}
+          />
           {children}
           <ActorsLayer
             actions={actorActions}

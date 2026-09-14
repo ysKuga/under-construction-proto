@@ -26,10 +26,12 @@ const GRID = { cols: 5, rows: 5 } as const
  *   `moveActor`（DOM 直書き）を都度呼ぶだけで完結する
  * - `Stage06` は `interactive={false}`。セルクリックは `AdjacentMoveLayer`
  *   （隣接判定・確認ダイアログ）へ委ねる。`GoalMarkerLayer` は proto-01 と共用
- * - `VisibilityRegistryProvider` は到達済みマスのみ表示するための Provider（proto-01
- *   と同型だが、bot 初期セルが `START_POSITION` のため別実装）。`AdjacentMoveLayer`
- *   （セル選択の表示/非表示）・`GoalMarkerLayer`（旗の表示/非表示）・`useAdjacentMove`
- *   （到達記録）から読めるよう `Stage06` の外側に置く
+ * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-01
+ *   と同型だが、bot 初期セルが `START_POSITION` のため別実装）。可視判定は「視界
+ *   （現在地基準の8近傍）」または「到達済み表示ONかつ到達済みセル」（`setShowVisited`
+ *   で切替可能、既定 ON）。`AdjacentMoveLayer`（セル選択の表示/非表示）・
+ *   `GoalMarkerLayer`（旗の表示/非表示）・`useAdjacentMove`（到達記録）から読めるよう
+ *   `Stage06` の外側に置く
  * - **`useState` を持たない**。`useAdjacentMove` が現在セル・ゴール到達を ref で
  *   保持し DOM 直書きで反映するため、bot の移動で `Stage06` 配下は再レンダリング
  *   されない。確認チェックボックスも非制御（`defaultChecked` + ref）
@@ -56,7 +58,7 @@ const FindPathProto02Content = () => {
     registerCellNode,
     registerVisibilityNode,
   } = useAdjacentMove(GRID)
-  const { registerVisibilityNode: registerMarkerVisibilityNode } =
+  const { registerVisibilityNode: registerCellVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
 
   return (
@@ -70,13 +72,16 @@ const FindPathProto02Content = () => {
         initialTiltDeg={55}
         interactive={false}
         perspectivePx={600}
+        registerCellVisibilityNode={(cell, el) =>
+          registerCellVisibilityNode(cell, 'floor', el)
+        }
         rows={GRID.rows}
         size={400}
       >
         <GoalMarkerLayer
           cols={GRID.cols}
           registerVisibilityNode={(cell, el) =>
-            registerMarkerVisibilityNode(cell, 'marker', el)
+            registerCellVisibilityNode(cell, 'marker', el)
           }
           rows={GRID.rows}
         />
@@ -105,6 +110,14 @@ const FindPathProto02Content = () => {
             type="checkbox"
           />{' '}
           斜め移動を許可する
+        </label>
+        <label>
+          <input
+            defaultChecked
+            onChange={(event) => setShowVisited(event.target.checked)}
+            type="checkbox"
+          />{' '}
+          到達済みマスを表示する
         </label>
         <span hidden ref={goalMessageRef}>
           🎉 ゴール到達
