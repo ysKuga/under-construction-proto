@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties } from 'react'
+import { CSSProperties, PropsWithChildren } from 'react'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
 
@@ -9,7 +9,7 @@ import { GeoLayer } from './_components/geo-layer'
 import { useHexMove } from './_hooks/use-hex-move'
 import { HexCell } from './_lib/hex'
 
-type Stage07Props = {
+type Stage07Props = PropsWithChildren<{
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
   /** 列数 */
@@ -20,11 +20,13 @@ type Stage07Props = {
   initialCell?: HexCell
   /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
+  /** 現在地セル変更時（省略可） */
+  onCellChange?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
   perspectivePx?: number
   /** 行数 */
   rows: number
-}
+}>
 
 /**
  * 舞台 (stage) — hex グリッド試作版
@@ -35,19 +37,23 @@ type Stage07Props = {
  *   `usePerspectiveControl`（stage-05 から import）が `--floor-tilt` を ref 直書き
  * - box-bot-01 (`ActorsLayer`) をクリック移動中の現在地セルへ表示する。
  *   visibility / time-control 統合、複数 actor 対応は対象外（別途検討）
+ * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
+ *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  */
 export const Stage07 = (props: Stage07Props) => {
   const {
     botSize,
+    children,
     cols,
     hexSize,
     initialCell = { q: 0, r: 0 },
     initialTiltDeg = 0,
+    onCellChange,
     perspectivePx = 800,
     rows,
   } = props
 
-  const { currentCell, handleCellClick } = useHexMove(initialCell)
+  const { currentCell, handleCellClick } = useHexMove(initialCell, onCellChange)
   const { floorRef, setTilt } = usePerspectiveControl()
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
@@ -86,6 +92,7 @@ export const Stage07 = (props: Stage07Props) => {
             rows={rows}
             size={botSize}
           />
+          {children}
         </div>
       </div>
       <label>
