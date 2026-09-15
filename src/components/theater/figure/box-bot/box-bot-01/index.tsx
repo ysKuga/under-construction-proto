@@ -19,6 +19,8 @@ import { DEFAULTS } from './_components/box-bot-model/index.constants'
 import { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-bot-action-dispatcher'
 import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
+import { CAMERA_POSITION, ORBIT_TARGET } from './_lib/camera'
+import { screenAngleToYaw } from './_lib/screen-facing'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
 /**
@@ -64,9 +66,6 @@ const BASE_FOV = (Math.atan(DEFAULT_HEIGHT / VIEW_INVARIANT) * 360) / Math.PI
  */
 const CANVAS_RESIZE = { offsetSize: true } as const
 
-/** カメラ位置(world) */
-export const CAMERA_POSITION: Vec3 = [3.6, 2.2, 5.4]
-
 /** Canvas の devicePixelRatio 範囲 */
 const CANVAS_DPR: [number, number] = [1, 2]
 
@@ -101,14 +100,6 @@ const ORBIT_MAX_DISTANCE = 12
 /** OrbitControls の最大ズームイン距離 */
 const ORBIT_MIN_DISTANCE = 3.5
 /**
- * OrbitControls の注視点(world)
- *
- * - Canvas を bot ぴったりに縮めたため、直立 bot が Canvas 中央へ来るよう較正した値
- * - fall 時の下部見切れ対策は #108 フェーズ1 で別途
- */
-export const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
-
-/**
  * jump / face action・そのイベント名・dispatcher の再 export
  *
  * - 外部から `eventTarget` を共有して jump / face を購読/発火する用途(find-path proto の
@@ -119,8 +110,11 @@ export const ORBIT_TARGET: Vec3 = [0, 0.32, 0]
 export {
   ACTION_FACE,
   ACTION_JUMP,
+  CAMERA_POSITION,
   faceAction,
   jumpAction,
+  ORBIT_TARGET,
+  screenAngleToYaw,
   useBoxBotActionDispatcher,
 }
 
