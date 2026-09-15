@@ -227,6 +227,11 @@ issue: #137
   - UI ラベル「移動速度」は実体（transition の所要時間）と乖離するため「移動時間(ms)」に修正（`Stage07` のスライダーラベルのみ、内部の prop 名 `moveDurationMs` 自体は変更なし）
   - 「振りのスパンは調整できない？」との質問を受け、`MAX_WALK_CYCLE_SEC`(定数、1.2 固定)を `maxWalkCycleSec` prop 化。`ActorsLayer`/`Stage07` 双方に追加し、`Stage07` は `initialMaxWalkCycleSec`(既定 1.2) + `useState` + スライダー UI（「歩行周期上限(s)」、0.3〜3 秒）で調整可能にした。歩幅(`swingAngle`/`armSwingAngle`)は変えず、周期の頭打ち値のみ調整対象
   - Playwright headless で `console.log` 一時追加により、`moveDurationMs`/`maxWalkCycleSec` の変更が `cycleSec = Math.min((moveDurationMs/1000)*2, maxWalkCycleSec)` へ即座に反映されることを数値で確認（3000ms/1.2s → cycleSec=1.2、3000ms/0.3s → cycleSec=0.3）。`tsc`/`eslint` エラーなし
+- 2026-09-15: 「腕・脚の振りも調整したい」「歩行周期上限は 50ms 単位で調整したい」とのユーザー依頼で追加対応
+  - `ActorsLayer`/`Stage07` に `legSwingAngle`（`WalkingConfig.swingAngle` に対応、既定 0.5）/ `armSwingAngle`（既定 0.35）を追加。`Stage07` は `initialLegSwingAngle`/`initialArmSwingAngle` + `useState` + スライダー UI（0〜1.2rad、step 0.05）で調整可能にした
+  - 実装時に注意点判明: `defineAction` は `{...defaults, ...actionConfig[name]}` で config をマージするため、`armSwingAngle`/`legSwingAngle` が `undefined`（prop 省略時）のままキーを含めて渡すと既定値を `undefined` で上書きしてしまう。`ActorsLayer` 側で `...(value !== undefined && { key: value })` の形にしてキー自体を省略するよう対応した
+  - 歩行周期上限(`maxWalkCycleSec`)のスライダー `step` を 0.1 → 0.05（50ms 相当）に変更。表示は浮動小数点誤差対策で `toFixed(2)` に統一（脚/腕振り角の表示も同様）
+  - Storybook + Playwright headless で確認: 脚/腕振り角スライダーのラベル・初期値表示（0.50/0.35）を確認。スライダーを最大(1.2)にして拡大クリップのスクリーンショットで既定よりはっきり大きく脚・腕が開くことを目視確認。`tsc`/`eslint` エラーなし
 
 ## 懸念・リスク
 
