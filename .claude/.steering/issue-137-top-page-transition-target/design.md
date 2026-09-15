@@ -178,9 +178,15 @@ issue: #137
 - 2026-09-15: 「bot を進行方向へ向ける」を proto-03（hex）のみ実装。対象範囲・回転方式（瞬時切替 or イージング）はユーザー判断で「proto-03 のみ」「瞬時切替」に決定
   - box-bot-01 に新規 `face` action を追加（`_actions/face/`）。`spin` と異なり `useFrame` は使わず、`ACTION_FACE` 受信時に 1 回だけ `applyYawDelta(正規化した差分)` を呼び瞬時に向きを切替える。絶対角度セット用の adapter API は追加せず、既存の `readFacing()`(現在の実効向き) と `applyYawDelta`(増分加算) の組合せで実現した
   - `box-bot-01/index.tsx` に `jumpAction` と同じパターンで `ACTION_FACE`/`faceAction` を再 export（外部から `eventTarget` 共有 + `useBoxBotActionDispatcher` で発火する用途）
-  - hex 6 方向（`HEX_DIRECTIONS`）→ yaw(rad) の変換 `hexDirectionToYaw` を `stage-07/_lib/hex.ts` に追加。`hex-layout.ts` の `axialToPixel` と同じ投影式（画面座標の `atan2(dy, dx)`）を hexSize=1 で複製して使用（`hex-layout.ts` への import は sibling 循環になるため）。box-bot-01 の 0 rad(カメラ正面) と画面角度の対応は実機確認で妥当と判断、追加の符号補正は不要だった
-  - `useHexMove` に `onFacingChange?: (yaw: number) => void` を追加。box-bot-01 の型（`faceAction`/`useBoxBotActionDispatcher`）を直接知らない疎結合のまま、算出した yaw を呼び出し元へ渡すだけにした（stage-06 `ActorsLayer` が `actions` prop を外から受ける設計と同じ考え方）。box-bot-01 との実結合（`useBoxBotActionDispatcher` の生成・dispatch）は `Stage07` 側に閉じた
+  - hex 6 方向（`HEX_DIRECTIONS`）→ 画面角度(rad、atan2 基準) の変換 `hexDirectionToScreenAngle` を `stage-07/_lib/hex.ts` に追加。`hex-layout.ts` の `axialToPixel` と同じ投影式（画面座標の `atan2(dy, dx)`）を hexSize=1 で複製して使用（`hex-layout.ts` への import は sibling 循環になるため）
+  - `useHexMove` に `onFacingChange?: (screenAngle: number) => void` を追加。box-bot-01 の型（`faceAction`/`useBoxBotActionDispatcher`）を直接知らない疎結合のまま、算出した画面角度を呼び出し元へ渡すだけにした（stage-06 `ActorsLayer` が `actions` prop を外から受ける設計と同じ考え方）。box-bot-01 との実結合（`useBoxBotActionDispatcher` の生成・dispatch）は `Stage07` 側に閉じた
   - `Stage07` で `eventTarget` を `useState` lazy initializer で生成（`BoxBotEventProvider` と同じ手法）し、`ActorsLayer`（`actions=[faceAction]` 固定）と `useHexMove` の両方へ配線
+- 2026-09-15: 上記実装のバグをユーザー指摘で発覚・修正。「(0,0)から右下(1,0)をクリックすると下を向く」（期待は右下方向）
+  - 原因調査のため `_actions/face/index.stories.tsx` を新規追加（0〜330° 12方向のボタンで `face` を dispatch、正式な story として今後も残す）し、Storybook + Playwright で box-bot-01 単体の yaw と見た目の対応を実機確認。判明した事実: yaw=0(カメラ正面、`rotationY` の基準)は画面上「手前(観察者向き)」に見え、画面座標の `atan2` 基準(0=右方向)とは 90° ズレていた
+  - 当初、単純に `atan2 結果 - 90°` のオフセット補正を試したが、box-bot-01 のカメラが斜め上から見下ろす遠近視点（`CAMERA_POSITION=[3.6,2.2,5.4]`、`ORBIT_TARGET=[0,0.32,0]`）のため、yaw 回転と画面上の見た目角度の関係は非線形（正面/背面付近で急激に変化し、側面付近ではほぼ変化しない）と判明。単純オフセットでは「右下」が実際にはほぼ側面向きに寄ってしまう不具合が残った。対応方針をユーザーに確認し「正確な投影計算で数値的に補正」を選択
+  - box-bot-01 に `_lib/camera.ts`（`CAMERA_POSITION`/`ORBIT_TARGET` を `index.tsx` から切り出し、両ファイルが参照）と `_lib/screen-facing.ts`（`screenAngleToYaw`）を新設。カメラの right/up ベクトルへ正面ベクトル `(sinθ,0,cosθ)` を投影し画面角度を求める `yawToScreenAngle` を内部に持ち、目的の画面角度に対し 0.5°(720分割)刻みで yaw 全域を走査し最も近い yaw を返す数値逆算（解析的な逆関数は非線形性のため導出できないため）。`screenAngleToYaw` を `index.tsx` から再 export
+  - 責務を再整理: `hex.ts` の関数は `hexDirectionToScreenAngle`（画面角度計算のみ、box-bot-01 非依存）に改称・簡素化。yaw への変換（`screenAngleToYaw`）は box-bot-01 のカメラモデルを知る `Stage07` 側で行うよう統一（`useHexMove`/`hex.ts` は一貫して box-bot-01 非依存を維持）
+  - Storybook + Playwright headless で再確認: 「右下」（screenAngle 30°）で正面と側面の中間の自然な斜め向き、「真下」（screenAngle 90°）で完全な正面向きになることを確認
   - Storybook + Playwright headless で 3 方向移動（右 → 右上 → 下）を実施、都度スクリーンショットで向きが変化することを目視確認。console error なし
 
 ## 懸念・リスク
