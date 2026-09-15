@@ -210,6 +210,10 @@ issue: #137
   - `useFindPathTick` の引数を単一の `walking` から `options: { face?, walking? }` へリファクタ（2 つ目の optional dispatcher を追加するタイミングで見通しをよくするため）。`face` を渡すと 1 tick 消化ごとに `getActorPosition`（移動前の現在地）と移動先の差分から画面角度を求め、`screenAngleToYaw` で yaw へ変換して dispatch する
   - `FindPathContent` で `faceAction` も `useBoxBotActionDispatcher`/`Stage06.actorActions` へ追加し、`useFindPathTick({ face, walking })` として渡す
   - Storybook + Playwright headless で確認: (1,0)→(1,1) の経路（右へ 1 歩→下へ 1 歩）を「実行」し、1 手目で横向き、2 手目で正面向きへ変化することをスクリーンショットで確認（proto-03 で確認済みの画面角度とカメラモデルの対応と一致）。`tsc`/`eslint` エラーなし、既存テスト 8 件 pass、console error なし
+- 2026-09-15: find-path proto-03（hex）に「速度調整」「walking 切替」を追加（ユーザー依頼）
+  - 速度調整: `Stage07`/`ActorsLayer` に `moveDurationMs`(既定 150)を追加。`ActorsLayer` の CSS transition(`left`/`top`/`transform`)の時間を可変にする。`Stage07` は `initialMoveDurationMs` prop + `useState` + tilt と同様のスライダー UI で管理（tilt と異なり操作頻度が低いため ref でなく state で許容）
+  - walking 切替: 既存の `Stage07.enableWalking` prop を `FindPathProto03Content` の state 化しチェックボックスで切替可能にした（既定 OFF、1 マス移動との相性問題は解消済みでないため既定は維持）
+  - Storybook + Playwright headless で確認: 速度スライダーを 800ms にして隣接セル移動 → 400ms 時点でまだ移動中（150ms 既定なら完了しているはず）、900ms 時点で到達済みであることをスクリーンショットで確認。walking チェックボックス ON で隣接セル移動時に脚が開いた歩行姿勢になることを確認。`tsc`/`eslint` エラーなし、console error なし
 
 ## 懸念・リスク
 
