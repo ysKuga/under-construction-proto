@@ -264,18 +264,18 @@ export const Stage07 = (props: Stage07Props) => {
         {legSwingAngle.toFixed(2)}
       </label>
       <label>
-        腕振り角(rad){' '}
+        腕振り角(deg){' '}
         <input
-          defaultValue={initialArmSwingAngle}
-          max={1.2}
+          defaultValue={(initialArmSwingAngle * 180) / Math.PI}
+          max={180}
           min={0}
           onChange={(event) => {
-            setArmSwingAngle(Number(event.target.value))
+            setArmSwingAngle((Number(event.target.value) * Math.PI) / 180)
           }}
-          step={0.05}
+          step={1}
           type="range"
         />{' '}
-        {armSwingAngle.toFixed(2)}
+        {Math.round((armSwingAngle * 180) / Math.PI)}°
       </label>
     </div>
   )
