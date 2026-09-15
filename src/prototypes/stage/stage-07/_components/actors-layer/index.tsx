@@ -22,6 +22,12 @@ type ActorsLayerProps = {
   eventTarget?: EventTarget
   /** 六角形の外接円半径 (px) */
   hexSize: number
+  /**
+   * walking の脚振り周期(`cycleSec`)の上限(秒)（省略時は `1.2`）
+   *
+   * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
+   */
+  maxWalkCycleSec?: number
   /** セル間移動アニメーションの所要時間(ms)（省略時は `150`） */
   moveDurationMs?: number
   /**
@@ -47,7 +53,7 @@ type ActorsLayerProps = {
  * - `walking` action の脚振り周期(`cycleSec`)を `moveDurationMs` と連動させる。
  *   移動時間だけを変えても脚の振り速度(周期)が一定だと、見た目の歩幅と移動距離の
  *   対応が崩れる（速い移動なのに脚がゆっくり／遅い移動なのに脚が速く振れる）ため
- * - `cycleSec` には `MAX_WALK_CYCLE_SEC` の上限を設ける。線形連動のみだと極端に遅い
+ * - `cycleSec` には `maxWalkCycleSec` の上限を設ける。線形連動のみだと極端に遅い
  *   `moveDurationMs`（3000ms 等）で周期が数秒に伸び、歩幅(`swingAngle`)は変わらない
  *   ため振れているかどうか視認しづらくなる。歩幅は変えず、周期の伸びだけ頭打ちにして
  *   常に一定以上の頻度で動きが見えるようにする
@@ -56,15 +62,13 @@ type ActorsLayerProps = {
 /** face / walking を有効化する(jump/spin 等は無効のまま) */
 const ACTIONS = [faceAction, walkingAction]
 
-/** walking の脚振り周期(`cycleSec`)の上限(秒)。歩幅は変えず頻度の頭打ちのみに使う */
-const MAX_WALK_CYCLE_SEC = 1.2
-
 export const ActorsLayer = (props: ActorsLayerProps) => {
   const {
     cols,
     currentCell,
     eventTarget,
     hexSize,
+    maxWalkCycleSec = 1.2,
     moveDurationMs = 150,
     onArrived,
     rows,
@@ -93,9 +97,9 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
 
   /**
    * walking の 1 周期(両脚 1 往復 = 2 歩)を、1 マス移動(片脚 1 歩)の 2 マスぶんとみなし、
-   * 移動時間の 2 倍を周期にする（`MAX_WALK_CYCLE_SEC` で頭打ち）
+   * 移動時間の 2 倍を周期にする（`maxWalkCycleSec` で頭打ち）
    */
-  const cycleSec = Math.min((moveDurationMs / 1000) * 2, MAX_WALK_CYCLE_SEC)
+  const cycleSec = Math.min((moveDurationMs / 1000) * 2, maxWalkCycleSec)
 
   return (
     <div onTransitionEnd={handleTransitionEnd} style={style}>

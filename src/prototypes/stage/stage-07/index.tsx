@@ -39,6 +39,12 @@ type Stage07Props = PropsWithChildren<{
   hexSize: number
   /** 初期の現在地セル（省略時は axial 原点 (0, 0)） */
   initialCell?: HexCell
+  /**
+   * walking の脚振り周期(`cycleSec`)の初期上限(秒)（省略時は `1.2`）
+   *
+   * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
+   */
+  initialMaxWalkCycleSec?: number
   /** セル間移動アニメーションの初期所要時間(ms)（省略時は `150`） */
   initialMoveDurationMs?: number
   /** rotateX の初期角度 (deg)（省略時は 0） */
@@ -80,9 +86,9 @@ type Stage07Props = PropsWithChildren<{
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
- * - セル間移動アニメーションの所要時間(`moveDurationMs`)はスライダーで調整可能
- *   （`ActorsLayer` の CSS transition 時間。tilt と異なり操作頻度が低いため
- *   `useState` で管理、再レンダリングを許容する）
+ * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
+ *   (`maxWalkCycleSec`)はいずれもスライダーで調整可能（`ActorsLayer` へ渡す。
+ *   tilt と異なり操作頻度が低いため `useState` で管理、再レンダリングを許容する）
  */
 export const Stage07 = (props: Stage07Props) => {
   const {
@@ -92,6 +98,7 @@ export const Stage07 = (props: Stage07Props) => {
     enableWalking = false,
     hexSize,
     initialCell = { q: 0, r: 0 },
+    initialMaxWalkCycleSec = 1.2,
     initialMoveDurationMs = 150,
     initialTiltDeg = 0,
     onCellChange,
@@ -102,6 +109,8 @@ export const Stage07 = (props: Stage07Props) => {
 
   /** セル間移動アニメーションの所要時間(ms)。スライダーで調整可能 */
   const [moveDurationMs, setMoveDurationMs] = useState(initialMoveDurationMs)
+  /** walking の脚振り周期(cycleSec)の上限(秒)。スライダーで調整可能 */
+  const [maxWalkCycleSec, setMaxWalkCycleSec] = useState(initialMaxWalkCycleSec)
 
   /**
    * player bot(box-bot-01)と共有する EventTarget
@@ -177,6 +186,7 @@ export const Stage07 = (props: Stage07Props) => {
             currentCell={currentCell}
             eventTarget={eventTarget}
             hexSize={hexSize}
+            maxWalkCycleSec={maxWalkCycleSec}
             moveDurationMs={moveDurationMs}
             onArrived={handleArrived}
             rows={rows}
@@ -199,7 +209,7 @@ export const Stage07 = (props: Stage07Props) => {
         />
       </label>
       <label>
-        移動速度{' '}
+        移動時間(ms){' '}
         <input
           defaultValue={initialMoveDurationMs}
           max={3000}
@@ -211,6 +221,20 @@ export const Stage07 = (props: Stage07Props) => {
           type="range"
         />{' '}
         {moveDurationMs}ms
+      </label>
+      <label>
+        歩行周期上限(s){' '}
+        <input
+          defaultValue={initialMaxWalkCycleSec}
+          max={3}
+          min={0.3}
+          onChange={(event) => {
+            setMaxWalkCycleSec(Number(event.target.value))
+          }}
+          step={0.1}
+          type="range"
+        />{' '}
+        {maxWalkCycleSec}s
       </label>
     </div>
   )
