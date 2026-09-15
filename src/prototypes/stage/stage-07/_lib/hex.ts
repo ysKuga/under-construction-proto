@@ -81,3 +81,36 @@ export const colRowToAxial = (col: number, row: number): HexCell => {
 
   return { q, r }
 }
+
+/**
+ * axial セルが (cols, rows) の矩形グリッドを hex 化した範囲内か判定する
+ *
+ * - `colRowToAxial` の逆変換(odd-q offset)で col/row を復元し、範囲内か確認する
+ */
+const isHexCellInGrid = (
+  cell: HexCell,
+  cols: number,
+  rows: number,
+): boolean => {
+  const col = cell.q
+  const row = cell.r + (col - (col & 1)) / 2
+
+  return col >= 0 && col < cols && row >= 0 && row < rows
+}
+
+/**
+ * 初期向き先のセルを、進入可能(グリッド範囲内)な隣接セルから優先順に選ぶ
+ *
+ * - `HEX_DIRECTIONS` の並び順で走査し、最初に見つかったグリッド内の隣接セルを返す。
+ *   隅セル等で既定の向き先が範囲外(進入不可)のときに使う
+ * - 全方向とも範囲外なら `undefined`
+ */
+export const pickInitialFacingTarget = (
+  cell: HexCell,
+  cols: number,
+  rows: number,
+): HexCell | undefined =>
+  HEX_DIRECTIONS.map((direction) => ({
+    q: cell.q + direction.q,
+    r: cell.r + direction.r,
+  })).find((target) => isHexCellInGrid(target, cols, rows))

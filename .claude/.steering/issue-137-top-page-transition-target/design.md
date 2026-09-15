@@ -105,9 +105,11 @@ issue: #137
 - [x] 到達済みマスのみ「表示」する。未到達マスは非表示、ゴール旗は隣接（斜め含む8方向）時のみ表示、未到達マスへの選択は不可（`VisibilityRegistryProvider` 新設、proto-02 のみ対応。理由は下記決定事項）。**本採用可否は保留、後日判断**（下記決定事項）
 - [ ] 「1 手戻す」（計画上の消費取消）と「戻る」（到達済みマスへ消費を伴い異動する行動）を別枠の操作として分離検討。「戻る」は一見メリットのない行動のため、ギミックによるインセンティブ付与・退避行動としての活用など仕組みの導入を検討
 - [ ] 障害物 / 歩数制限 / 一方通行セル（段階 4 から継続。「挑戦」「工夫」実現の中心方針）
-- [x] （検討）bot を進行方向へ向ける（proto-03 のみ対応。他 proto は未着手）
-- [ ] （検討）進行時に歩くモーションを再生する
-- [ ] （検討）「実行」中は停止を挟まず歩く速度を維持する。途中の操作介入があった時点で停止する
+- [x] （検討）bot を進行方向へ向ける（proto-03 / proto-01 対応。proto-02 は未着手）
+- [x] （検討）進行時に歩くモーションを再生する（proto-03 / proto-01 対応。proto-02 は未着手）
+- [ ] （検討）移動距離に依らず速度を一定にする。現状は 1 マス移動も複数マス移動も同じ所要時間になり速度が変わって見える課題がある
+  - 案1: 時間ベースでなく速度ベースにする（1 マス移動と複数マス移動は同じ速度になり、複数マス移動は距離に比例して時間が伸びる）
+  - 案2: 「実行」中は停止を挟まず、目的地まで速度の変化をさせずに移動する（途中の操作介入があった時点で停止する）
 - [ ] （検討）到達済みマス表示ON時、または視界制限自体を採用しない（全マス表示）場合に、隣接以外の目的地セルをクリックすると経路探索により自動で経路を生成し移動する。現行の「隣接セルを1手ずつクリック」方式に加える、または代替する入力方式として検討。先行実装: 旧世代 stage-04 で経路探索を実装済み（[stage-04-pathfinding/design.md](../_closed/20260716-stage-04-pathfinding/design.md)、BFS 想定・単一 actor 前提。「予備」フェーズで経路計算 → 「実行」フェーズで逐次移動、`stage-time-control` の時間管理機構に依存）。find-path 側は tick 駆動でなく DOM 直書き + CSS transition の逐次移動（`useAdjacentMove`/`useHexMove`）のため、経路計算結果をどう逐次移動へ渡すかは移植時に要検討
 
 ## 決定事項
@@ -188,6 +190,56 @@ issue: #137
   - 責務を再整理: `hex.ts` の関数は `hexDirectionToScreenAngle`（画面角度計算のみ、box-bot-01 非依存）に改称・簡素化。yaw への変換（`screenAngleToYaw`）は box-bot-01 のカメラモデルを知る `Stage07` 側で行うよう統一（`useHexMove`/`hex.ts` は一貫して box-bot-01 非依存を維持）
   - Storybook + Playwright headless で再確認: 「右下」（screenAngle 30°）で正面と側面の中間の自然な斜め向き、「真下」（screenAngle 90°）で完全な正面向きになることを確認
   - Storybook + Playwright headless で 3 方向移動（右 → 右上 → 下）を実施、都度スクリーンショットで向きが変化することを目視確認。console error なし
+- 2026-09-15: 「進行時に歩くモーションを再生する」を proto-03（hex）のみ実装。対象範囲はユーザー判断で「proto-03 のみ」に決定（face と同様）
+  - box-bot-01 の既存 `walkingAction`/`ACTION_WALKING`（脚の前後スイング on/off トグル、`BOX_BOT_ACTIONS` に元々収録済みだが外部非公開だった）を `face`/`jump` と同じパターンで `box-bot-01/index.tsx` から再 export。`Stage07` の `ActorsLayer` の `actions` に `walkingAction` を追加
+  - walking はトグル方式（1 回の dispatch で on/off 反転）のため、on/off 状態を `Stage07` 側の `isWalkingRef` で追跡。ON: `useHexMove` の `onCellChange`（セル移動確定時）で `isWalkingRef.current` が false のときのみ dispatch → true にする。OFF: `ActorsLayer` の位置決め div（`left`/`top`/`transform` を 150ms transition させている要素）に新設した `onArrived`（`transitionend` の `propertyName === 'left'` のみ拾う）で `isWalkingRef.current` が true のときのみ dispatch → false にする
+  - この方式により、連続移動中（次の移動が前の移動の transition 完了前に来る）は ON を維持し続け、移動が完全に止まった（transitionend が発火した）ときのみ OFF になる（ユーザー選択の「moveActor 直前で ON、常時 ON のまま次 moveActor が来れば継続」を実現）
+  - Storybook + Playwright headless で確認: ブラウザ内タイマーで 50ms 間隔の連続 3 回移動を発火 → walking dispatch が ON 1 回 / OFF 1 回のみ（最後の移動の transition 完了時に OFF）であることを console.log 一時追加で確認。スクリーンショットで移動中は脚が前後に開いた歩行姿勢、停止後は直立姿勢に戻ることを目視確認。console error なし
+- 2026-09-15: 歩行に腕の振りを追加(ユーザー追加依頼)。box-bot-01 には転倒(fall)用の `applyArmAngle`(両腕同角度、直立中は書込まない)はあったが、歩行の自然な腕振り(左右逆位相)には使えないため新設が必要だった
+  - `BoxBotActionHost` に `applyArmSwing({ left, right })` を新設(`applyLegSwing` と同型、adapter が左右の腕グループの `rotation.x` へ反映)。fall の `applyArmAngle` と書込先(同じ `rotation.x`)は共有するが、fall は直立中(`phaseRef===0`)は早期 return して書かないため排他的に動作し競合しない
+  - `walkingAction` の `WalkingConfig` に `armSwingAngle`(既定 0.35、脚の `swingAngle`=0.5 よりやや控えめ)を追加。`useWalking` で脚と同じ位相・速度をもとに、反対側の脚と同位相(左腕 = 右脚、右腕 = 左脚)で腕角を計算し `applyArmSwing` へ渡す。停止時の 0 への戻し(`approach`)・早期 return 条件(両脚・両腕が戻りきったか)も脚と同様に腕を含めて判定
+  - Storybook + Playwright headless で確認: 連続移動中に左右の腕が交互に前後する見た目をスクリーンショットで確認(拡大クリップで目視)。console error なし
+- 2026-09-15: proto-03（1 マスごとの隣接クリック移動）は歩行モーションと相性が悪い(150ms transition の一瞬で on → off するため脚が開きかけてすぐ閉じる不自然な動きになる)とのユーザー指摘を受け、歩行 on/off を切替可能にした
+  - `Stage07` に `enableWalking?: boolean`(既定 `false`)を追加。既存の `isWalkingRef` on/off ロジックはこの prop が true のときのみ動作する。find-path proto-03 側は明示的に渡していないため引き続き無効(1 マス移動での不自然な動きを解消)
+  - 「複数マスを移動する実装」として find-path proto-01（tick 駆動、経路をまとめて「実行」）に歩行を新規対応。`useFindPathTick` に `walking?: () => Promise<void>`(box-bot-01 の walking action dispatcher)を optional 引数として追加し、`isWalkingRef` を内部に持つ。`execute()` 開始時に on、歩き切り（`rest.length===0`）時に off にする。1 マスごとでなく「実行」開始 〜 歩き切りの実行全体を 1 周期とするため、tick 単位のちらつきが起きない
+  - `FindPathContent`（proto-01/index.tsx）で `eventTarget` を新規生成し `useBoxBotActionDispatcher` で walking dispatcher を取得、`useFindPathTick(walking)` へ渡すと同時に `Stage06` へ `actorActions={[walkingAction]}` / `actorEventTarget` を配線
+  - 汎用 hook として共通化する案もあったが、「stage-07（1 マス粒度）」「find-path proto-01（実行全体粒度）」で on/off の判定ロジックが異なる（前者は transitionend、後者は execute/歩き切り）ため、ユーザー判断で各実装に閉じた形のまま個別対応とした
+  - Storybook + Playwright headless で確認: proto-01 で 3 マス経路を積み「実行」→ tick 進行中は脚が開いた歩行姿勢、歩き切り後に直立へ戻ることをスクリーンショットで確認。proto-03 は `enableWalking` 未指定のまま隣接セル移動しても歩行姿勢にならない（直立のまま移動）ことを確認。`use-find-path-tick.test.ts` の既存 8 件のテストは変更なしで pass。console error なし
+- 2026-09-15: 「bot を進行方向へ向ける」を find-path proto-01（tick 駆動）へ追加対応（ユーザー依頼）。stage-07 と同じ face action を使うが、矩形グリッドは col/row の差分がそのまま画面上の x/y 差分になるため hex のような座標変換は不要
+  - `stage-06/_lib/direction.ts` を新設し `gridDirectionToScreenAngle(from, to)` を追加（`stage-07/_lib/hex.ts` の `hexDirectionToScreenAngle` に相当、box-bot-01 非依存）。box-bot-01 への変換(`screenAngleToYaw`)は呼び出し側（`useFindPathTick`）が行う
+  - `useFindPathTick` の引数を単一の `walking` から `options: { face?, walking? }` へリファクタ（2 つ目の optional dispatcher を追加するタイミングで見通しをよくするため）。`face` を渡すと 1 tick 消化ごとに `getActorPosition`（移動前の現在地）と移動先の差分から画面角度を求め、`screenAngleToYaw` で yaw へ変換して dispatch する
+  - `FindPathContent` で `faceAction` も `useBoxBotActionDispatcher`/`Stage06.actorActions` へ追加し、`useFindPathTick({ face, walking })` として渡す
+  - Storybook + Playwright headless で確認: (1,0)→(1,1) の経路（右へ 1 歩→下へ 1 歩）を「実行」し、1 手目で横向き、2 手目で正面向きへ変化することをスクリーンショットで確認（proto-03 で確認済みの画面角度とカメラモデルの対応と一致）。`tsc`/`eslint` エラーなし、既存テスト 8 件 pass、console error なし
+- 2026-09-15: find-path proto-03（hex）に「速度調整」「walking 切替」を追加（ユーザー依頼）
+  - 速度調整: `Stage07`/`ActorsLayer` に `moveDurationMs`(既定 150)を追加。`ActorsLayer` の CSS transition(`left`/`top`/`transform`)の時間を可変にする。`Stage07` は `initialMoveDurationMs` prop + `useState` + tilt と同様のスライダー UI で管理（tilt と異なり操作頻度が低いため ref でなく state で許容）
+  - walking 切替: 既存の `Stage07.enableWalking` prop を `FindPathProto03Content` の state 化しチェックボックスで切替可能にした（既定 OFF、1 マス移動との相性問題は解消済みでないため既定は維持）
+  - Storybook + Playwright headless で確認: 速度スライダーを 800ms にして隣接セル移動 → 400ms 時点でまだ移動中（150ms 既定なら完了しているはず）、900ms 時点で到達済みであることをスクリーンショットで確認。walking チェックボックス ON で隣接セル移動時に脚が開いた歩行姿勢になることを確認。`tsc`/`eslint` エラーなし、console error なし
+- 2026-09-15: 上記に追加でユーザー指摘 2 件対応
+  - 速度スライダーの上限を 800 → 3000 に拡大
+  - 「walking が時間ありきになっている」問題を修正。従来は `moveDurationMs`（移動時間）を変えても `walkingAction` の脚振り周期（`WalkingConfig.cycleSec`、既定 1 秒固定）が連動せず、速い移動でも脚がゆっくり振れる／遅い移動でも脚が同じ速さで振れる、という歩幅と移動距離の乖離があった。`ActorsLayer`（stage-07）で `cycleSec = (moveDurationMs / 1000) * 2` を算出し、`BoxBot01` の `actionConfig={{ walking: { cycleSec } }}` へ渡して連動させた（`actionConfig` は `BOX_BOT_ACTIONS` 全体から型導出されるため `actions` prop の絞り込みに関わらず渡せる）
+  - 換算比は「walking の 1 周期(両脚 1 往復 = 2 歩)を移動 2 マスぶんとみなす」とし、1 マス移動(片脚 1 歩) = 半周期とした（`cycleSec = moveDurationMs[s] * 2`）。人間の歩行が「1 周期で両脚各 1 歩ずつ進む」ことを踏まえた対応付け
+  - Storybook + Playwright headless で確認: 速度 3000ms（cycleSec=6s）でゆったりした脚振り、速度 50ms（cycleSec=0.1s）で速い脚振りになることをスクリーンショットで確認。console error なし
+- 2026-09-15: 上記の cycleSec 線形連動だと、速度 3000ms（cycleSec=6s）で「振っているかどうか視認しづらい」とユーザー指摘。歩幅(`swingAngle`/`armSwingAngle`)は変えず、周期(`cycleSec`)側で対応する方針を確認（「速ければスパンの短い振りにする」方向）
+  - `ActorsLayer`（stage-07）に `MAX_WALK_CYCLE_SEC = 1.2`(秒)を新設し、`cycleSec = Math.min((moveDurationMs / 1000) * 2, MAX_WALK_CYCLE_SEC)` で頭打ちにした。移動が速い間は従来どおり比例して周期が縮むが、移動が遅い（`moveDurationMs` が大きい）場合でも周期は 1.2 秒を超えない。歩幅は変えず頻度の下限のみ保証する対応
+  - 「一歩ごとの速度変化（踏み出しは速く、着地前に減速する等の加減速）」は今回の実装範囲に含めない（将来課題、下記懸念・リスクへ記録）
+  - Storybook + Playwright headless で確認: 速度 3000ms・walking ON で 300ms 間隔のスクリーンショットを連続撮影し、脚が左右に開閉する変化が明確に視認できることを確認（クランプ前は 6 秒周期でほぼ変化が見えなかった）。console error なし
+- 2026-09-15: 上記に追加でユーザー指摘 2 件対応
+  - UI ラベル「移動速度」は実体（transition の所要時間）と乖離するため「移動時間(ms)」に修正（`Stage07` のスライダーラベルのみ、内部の prop 名 `moveDurationMs` 自体は変更なし）
+  - 「振りのスパンは調整できない？」との質問を受け、`MAX_WALK_CYCLE_SEC`(定数、1.2 固定)を `maxWalkCycleSec` prop 化。`ActorsLayer`/`Stage07` 双方に追加し、`Stage07` は `initialMaxWalkCycleSec`(既定 1.2) + `useState` + スライダー UI（「歩行周期上限(s)」、0.3〜3 秒）で調整可能にした。歩幅(`swingAngle`/`armSwingAngle`)は変えず、周期の頭打ち値のみ調整対象
+  - Playwright headless で `console.log` 一時追加により、`moveDurationMs`/`maxWalkCycleSec` の変更が `cycleSec = Math.min((moveDurationMs/1000)*2, maxWalkCycleSec)` へ即座に反映されることを数値で確認（3000ms/1.2s → cycleSec=1.2、3000ms/0.3s → cycleSec=0.3）。`tsc`/`eslint` エラーなし
+- 2026-09-15: 「腕・脚の振りも調整したい」「歩行周期上限は 50ms 単位で調整したい」とのユーザー依頼で追加対応
+  - `ActorsLayer`/`Stage07` に `legSwingAngle`（`WalkingConfig.swingAngle` に対応、既定 0.5）/ `armSwingAngle`（既定 0.35）を追加。`Stage07` は `initialLegSwingAngle`/`initialArmSwingAngle` + `useState` + スライダー UI（0〜1.2rad、step 0.05）で調整可能にした
+  - 実装時に注意点判明: `defineAction` は `{...defaults, ...actionConfig[name]}` で config をマージするため、`armSwingAngle`/`legSwingAngle` が `undefined`（prop 省略時）のままキーを含めて渡すと既定値を `undefined` で上書きしてしまう。`ActorsLayer` 側で `...(value !== undefined && { key: value })` の形にしてキー自体を省略するよう対応した
+  - 歩行周期上限(`maxWalkCycleSec`)のスライダー `step` を 0.1 → 0.05（50ms 相当）に変更。表示は浮動小数点誤差対策で `toFixed(2)` に統一（脚/腕振り角の表示も同様）
+  - Storybook + Playwright headless で確認: 脚/腕振り角スライダーのラベル・初期値表示（0.50/0.35）を確認。スライダーを最大(1.2)にして拡大クリップのスクリーンショットで既定よりはっきり大きく脚・腕が開くことを目視確認。`tsc`/`eslint` エラーなし
+- 2026-09-15: 「腕の振りを大きくしても変わらない」とのユーザー指摘を受け調査。`use-walking.ts` へ一時 `console.log` を追加し、`config.armSwingAngle` がスライダー変更に応じて正しく更新されること（0.35→1.2）を数値確認。単発の 1 マス移動では歩行がほぼ一瞬で on/off し腕の振れの変化を目視で捉えにくかっただけで、実装バグではないと判明（連続移動で持続させたスクリーンショット比較では、既定は斜め程度・最大(1.2rad)は真横近くまで開くことを確認）
+  - 上記の流れで「単純に腕の振りを 0〜180 度の範囲で動かしたい」と要望を受け、腕振り角スライダーのみ度数法(deg)表示に変更。内部の `armSwingAngle` state・`ActorsLayer` へ渡す prop は既存どおり rad 単位のまま、UI のスライダー値だけ deg⇄rad 変換する（`Stage07` の `initialArmSwingAngle` prop 自体も rad 単位で変更なし。UI 表示のみ deg 化）
+  - Storybook + Playwright headless で確認: スライダーを 180° にすると `config.armSwingAngle` が `Math.PI` 相当になり、腕が真後ろまで振れきる見た目をスクリーンショットで確認。`tsc`/`eslint` エラーなし
+- 2026-09-15: 上記「0〜180 度で動かす」の意図がスライダー調整ではなく「常に 180 度に固定」だったと判明（「180 にしても変わらない」との追加報告もあり）。腕振り角の UI スライダー・state・prop(`armSwingAngle`/`initialArmSwingAngle`)を撤去し、`ActorsLayer` 内の定数 `ARM_SWING_ANGLE = Math.PI`(180度固定)を常に使うよう変更。脚振り角(`legSwingAngle`)は指示どおり対象外、スライダーのまま維持
+  - Playwright 環境では固定前の可変実装でも 180° 設定時に腕が振れることを確認できていたため、「変わらない」の報告は再現できていない（HMR 未反映等の環境要因の可能性）。固定化によりスライダー操作自体が不要になったため実害は解消
+  - Storybook + Playwright headless で確認: UI から腕振り角スライダーが消えていること、歩行時に腕が大きく振れる(180度固定)ことをスクリーンショットで確認。`tsc`/`eslint` エラーなし
+- 2026-09-15: 「1 回転しているように見える」とのユーザー指摘で `ARM_SWING_ANGLE` の解釈違いが判明。`Math.sin(phase) * ARM_SWING_ANGLE` が `rotation.x` へそのまま入るため、この値は「振幅(中心=直立から前後それぞれの最大角)」であり、`Math.PI`(180度)を振幅に使うと前後 180 度ずつ・合計 360 度(1 回転)になっていた。「前後に 90 ずつ(合計可動域 180 度)」という要望を受け `ARM_SWING_ANGLE = Math.PI / 2` に修正
+  - Storybook + Playwright headless で確認: 連続歩行中、腕が真横(90度)まで振れ、直立(0度)を中心に前後対称に動くことをスクリーンショットで確認。`tsc`/`eslint` エラーなし
 
 ## 懸念・リスク
 
@@ -199,6 +251,7 @@ issue: #137
 - 段階 5「戻る」のインセンティブ設計（ギミック・退避行動等）は具体案が未確立。今後の検討課題
 - 段階 5 経路選択を隣接マスのみに制限する場合の境界処理・視覚化（点線表示等）の具体的な実装方式は未検討
 - （将来検討）グリッド（正方形マス）からヘクス（六角形マス）表示への変更。今回はスコープ外、着手時期未定
+- （将来検討）歩行の「一歩ごとの速度変化」（踏み出しは速く、着地前に減速する等の加減速）。現状の `walking` は cycleSec 一定の等速 sin 波のみ。tick 駆動(proto-01)・隣接逐次(proto-03)で方式が異なるため、具体的な持ち込み方は着手時に要検討
 - React DevTools Profiler で「実行完了時、通常は無関係なはずの子要素（`Stage06`/`ActorsLayer` 等）が再レンダリング対象に巻き込まれる」挙動を確認。bisect の結果、原因は 76ed2fe（`isRunning` 導入、`useFindPathTick` の呼び出し元を `ActionBar` から親 `FindPathContent` へ移したコミット）と特定（`console.log` での実測で確認。当初立てていた「zustand state 更新と React useState 更新が 2 段階レンダリングになっている」仮説は誤りで、`setPlannedPath([])` と `setIsRunning(false)` は同一バッチで 1 回のレンダリングにまとまっていた）。`FindPathContent` が `isRunning` を保持しているため、実行開始・完了のたびに配下ツリー全体（`Stage06` 含む）が再レンダリングされる。**ゲーム操作で React 再レンダリングを起こさない方針**（前述の決定事項）に反するが、`ActorsLayer` 自体は position を ref 管理しているため実害は限定的と見られる。`isRunning` を Context 化するなど再レンダリング範囲を絞る対応は後日検討
 - 2026-09-14: 上記「実行完了時に子セル全部が再レンダリングされる」件、「重複選択の表示対応（order 単位化、5c674b1）あたりで発生し始めたのでは」との疑いを受け再 bisect。`PlannedPathLayer` の各セル生成箇所に `console.log` を仕込み、コミットごとに `git checkout <hash> -- <files>` でファイルのみ切り替えて実測。64645d0（isRunning 導入前）は 25 回（セル数ぶん 1 回）、76ed2fe（isRunning 導入）で 50 回（2 回）に増加、5c674b1（重複表示対応）でも変わらず 50 回。よって原因は従来の特定どおり 76ed2fe のみで、重複表示対応は無関係と確認できた
 - 2026-09-14: 隣接マス制限の実装に着手するにあたり、9/14 の「重複選択禁止を最終方針とする」決定（103 行目）を再検討。隣接マス限定移動では「同じセルへ戻って通る」動線（例: 1→2→1→3、障害物回避等）が正当な経路として発生しうるため、重複選択を一律禁止する方針は隣接制限と相性が悪いと判断。**新規に `proto-02` を新設**し、比較試作として別方式（`planned-path` 積み上げ→まとめて「実行」ではなく、隣接セルをクリックするたびに 1 手ずつ即時移動する逐次型）を実装。この方式では「重複選択」という概念自体が発生しない（積み上げが無いため）。あわせて、移動前に確認ダイアログを挟むかを切り替えるチェックボックスを追加し、event 駆動（セルクリック → 隣接判定 → 確認要否分岐 → `moveActor` 実行）で構成した。proto-01（積み上げ→実行方式）はそのまま維持し、2 方式を比較したうえで段階 5 の採用方針を決定する運びとする

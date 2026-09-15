@@ -8,11 +8,14 @@ import { jumpAction } from './jump'
 import { marchingAction } from './marching'
 import { spinAction } from './spin'
 import { walkingAction } from './walking'
+import { walkingResetAction } from './walking-reset'
 
 export * from './define-action'
 export { ACTION_FACE, faceAction } from './face'
 export { ACTION_JUMP, jumpAction } from './jump'
 export * from './types'
+export { ACTION_WALKING, walkingAction } from './walking'
+export { ACTION_WALKING_RESET, walkingResetAction } from './walking-reset'
 
 /**
  * box-bot が備えるアクション一覧
@@ -29,6 +32,7 @@ export const BOX_BOT_ACTIONS = [
   autoRotateAction,
   armToggleAction,
   walkingAction,
+  walkingResetAction,
   marchingAction,
   bodyBobbingAction,
   fallAction,

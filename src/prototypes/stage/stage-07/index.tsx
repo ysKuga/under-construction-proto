@@ -4,6 +4,8 @@ import {
   ComponentProps,
   CSSProperties,
   PropsWithChildren,
+  useEffect,
+  useRef,
   useState,
 } from 'react'
 
@@ -11,6 +13,8 @@ import {
   faceAction,
   screenAngleToYaw,
   useBoxBotActionDispatcher,
+  walkingAction,
+  walkingResetAction,
 } from '@/components/theater/figure/box-bot'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
@@ -18,17 +22,39 @@ import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-contro
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
 import { useHexMove } from './_hooks/use-hex-move'
-import { HexCell } from './_lib/hex'
+import {
+  HexCell,
+  hexDirectionToScreenAngle,
+  pickInitialFacingTarget,
+} from './_lib/hex'
 
 type Stage07Props = PropsWithChildren<{
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
   /** 列数 */
   cols: number
+  /**
+   * 移動中に walking action(歩行モーション)を再生するか(省略時は `false`)
+   *
+   * - 1 マスごとの隣接クリック移動(150ms transition)だと on → off が一瞬で
+   *   切り替わり不自然に見えるため、既定は無効。tick 駆動で複数マスを連続実行する
+   *   方式（find-path proto-01 の `useFindPathTick` 等）の方が相性がよい
+   */
+  enableWalking?: boolean
   /** 六角形の外接円半径 (px) */
   hexSize: number
   /** 初期の現在地セル（省略時は axial 原点 (0, 0)） */
   initialCell?: HexCell
+  /** walking の脚振り角の初期振幅(rad)（省略時は `WALKING_DEFAULTS.swingAngle` = `0.5`） */
+  initialLegSwingAngle?: number
+  /**
+   * walking の脚振り周期(`cycleSec`)の初期上限(秒)（省略時は `1.2`）
+   *
+   * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
+   */
+  initialMaxWalkCycleSec?: number
+  /** セル間移動アニメーションの初期所要時間(ms)（省略時は `150`） */
+  initialMoveDurationMs?: number
   /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
   /** 現在地セル変更時（省略可） */
@@ -60,24 +86,54 @@ type Stage07Props = PropsWithChildren<{
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
+ * - 初期表示時は `pickInitialFacingTarget`(`_lib/hex`) が、`initialCell` の隣接に
+ *   進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける（隅セル対策）
+ * - `enableWalking`(既定 `false`)が true のときのみ、移動開始で `walking` action を on
+ *   にする（トグル方式のため `isWalkingRef` で on 済みかを追跡）。歩行は到着まで
+ *   継続させ、位置決め div の CSS transition 完了（`ActorsLayer` の `onArrived`、
+ *   到着＝次の移動が来ないまま静止したタイミング）で `walkingReset()`（腕・脚を
+ *   規定位置(0)へ即座にスナップする action）を呼んで歩行を止める。次の移動が
+ *   続けば `onArrived` は発火しない（transition が新しい移動先へ上書きされる）ため
+ *   自然に on が維持される
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
+ * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
+ *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)はいずれもスライダーで
+ *   調整可能（`ActorsLayer` へ渡す。tilt と異なり操作頻度が低いため `useState`
+ *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
+ *   固定値)で調整不要とのユーザー判断のため UI なし
  */
+/** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
+const WALKING_RESET_DURATION_MS = 200
+/** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
+const INITIAL_FACING_MAX_RETRY_FRAMES = 30
+
 export const Stage07 = (props: Stage07Props) => {
   const {
     botSize,
     children,
     cols,
+    enableWalking = false,
     hexSize,
     initialCell = { q: 0, r: 0 },
+    initialLegSwingAngle = 0.5,
+    initialMaxWalkCycleSec = 1.2,
+    initialMoveDurationMs = 150,
     initialTiltDeg = 0,
     onCellChange,
     perspectivePx = 800,
     registerCellVisibilityNode,
     rows,
   } = props
+
+  /** セル間移動アニメーションの所要時間(ms)。スライダーで調整可能 */
+  const [moveDurationMs, setMoveDurationMs] = useState(initialMoveDurationMs)
+  /** walking の脚振り周期(cycleSec)の上限(秒)。スライダーで調整可能 */
+  const [maxWalkCycleSec, setMaxWalkCycleSec] = useState(initialMaxWalkCycleSec)
+  /** walking の脚振り角の振幅(rad)。スライダーで調整可能 */
+  const [legSwingAngle, setLegSwingAngle] = useState(initialLegSwingAngle)
 
   /**
    * player bot(box-bot-01)と共有する EventTarget
@@ -86,16 +142,76 @@ export const Stage07 = (props: Stage07Props) => {
    *   `face` action(進行方向転換)を外部から発火するために `ActorsLayer` へ渡す
    */
   const [eventTarget] = useState<EventTarget>(() => new EventTarget())
-  const { face } = useBoxBotActionDispatcher(eventTarget, [faceAction])
+  const { face, walking, walkingReset } = useBoxBotActionDispatcher(
+    eventTarget,
+    [faceAction, walkingAction, walkingResetAction],
+  )
+
+  /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
+  const isWalkingRef = useRef(false)
+  /** 初期向き調整(下記 useEffect)で最新の `face` を読むための ref */
+  const faceRef = useRef(face)
+
+  useEffect(() => {
+    // 毎レンダー最新の face を ref へ反映する(react-hooks/refs: render 中の書込み禁止)
+    faceRef.current = face
+  })
+
+  useEffect(() => {
+    // 初期表示時、隣接に進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける。
+    // マウント時に実行する。box-bot-01 の Canvas(r3f の別レンダラ)側で action の
+    // listener が attach されるまで数フレーム(実測で 8〜9 フレーム程度)かかるため、
+    // INITIAL_FACING_MAX_RETRY_FRAMES フレームの間 rAF で再送し続け、listener attach
+    // 後の 1 回を確実に届ける(絶対角度指定の dispatch のため、attach 済み以降の
+    // 重複送信は差分 0 の no-op になり無害)
+    const target = pickInitialFacingTarget(initialCell, cols, rows)
+    const screenAngle = target && hexDirectionToScreenAngle(initialCell, target)
+
+    if (screenAngle === undefined) return
+
+    const rad = screenAngleToYaw(screenAngle)
+
+    let handle = 0
+    let frame = 0
+    const tick = () => {
+      frame += 1
+      void faceRef.current({ rad })
+
+      if (frame < INITIAL_FACING_MAX_RETRY_FRAMES) {
+        handle = requestAnimationFrame(tick)
+      }
+    }
+
+    handle = requestAnimationFrame(tick)
+
+    return () => cancelAnimationFrame(handle)
+    // マウント時の initialCell/cols/rows のみで判定する。face は faceRef 経由
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const { currentCell, handleCellClick } = useHexMove(
     initialCell,
-    onCellChange,
+    (cell) => {
+      if (enableWalking && !isWalkingRef.current) {
+        isWalkingRef.current = true
+        void walking()
+      }
+
+      onCellChange?.(cell)
+    },
     (screenAngle) => {
       void face({ rad: screenAngleToYaw(screenAngle) })
     },
   )
   const { floorRef, setTilt } = usePerspectiveControl()
+
+  /** セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする */
+  const handleArrived = () => {
+    if (!enableWalking || !isWalkingRef.current) return
+
+    isWalkingRef.current = false
+    void walkingReset(WALKING_RESET_DURATION_MS)
+  }
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
   const sceneStyle: CSSProperties = {
@@ -132,6 +248,10 @@ export const Stage07 = (props: Stage07Props) => {
             currentCell={currentCell}
             eventTarget={eventTarget}
             hexSize={hexSize}
+            legSwingAngle={legSwingAngle}
+            maxWalkCycleSec={maxWalkCycleSec}
+            moveDurationMs={moveDurationMs}
+            onArrived={handleArrived}
             rows={rows}
             size={botSize}
           />
@@ -150,6 +270,48 @@ export const Stage07 = (props: Stage07Props) => {
           step={1}
           type="range"
         />
+      </label>
+      <label>
+        移動時間(ms){' '}
+        <input
+          defaultValue={initialMoveDurationMs}
+          max={3000}
+          min={50}
+          onChange={(event) => {
+            setMoveDurationMs(Number(event.target.value))
+          }}
+          step={10}
+          type="range"
+        />{' '}
+        {moveDurationMs}ms
+      </label>
+      <label>
+        歩行周期上限(s){' '}
+        <input
+          defaultValue={initialMaxWalkCycleSec}
+          max={3}
+          min={0.3}
+          onChange={(event) => {
+            setMaxWalkCycleSec(Number(event.target.value))
+          }}
+          step={0.05}
+          type="range"
+        />{' '}
+        {maxWalkCycleSec.toFixed(2)}s
+      </label>
+      <label>
+        脚振り角(rad){' '}
+        <input
+          defaultValue={initialLegSwingAngle}
+          max={1.2}
+          min={0}
+          onChange={(event) => {
+            setLegSwingAngle(Number(event.target.value))
+          }}
+          step={0.05}
+          type="range"
+        />{' '}
+        {legSwingAngle.toFixed(2)}
       </label>
     </div>
   )

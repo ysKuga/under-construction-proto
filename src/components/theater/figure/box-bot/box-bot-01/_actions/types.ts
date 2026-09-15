@@ -116,6 +116,15 @@ export type BoxBotActionHost = {
    */
   applyArmLift: (lift: { left: number; right: number }) => void
   /**
+   * 左右の腕の前後振り角を設定する(絶対値)
+   *
+   * - `left` / `right` は肩を支点にした x 軸回転(rad)。adapter が左右の腕グループの\
+   *   `rotation.x` へ反映する
+   * - 0 で静止位置。walking が使う(脚と逆側が同位相)。`applyArmAngle`(両腕同値、fall 用)\
+   *   とは書込先が同じ軸だが、fall は直立中は書かないため排他的に動作し競合しない
+   */
+  applyArmSwing: (angles: { left: number; right: number }) => void
+  /**
    * 体全体の上下オフセットを設定する(絶対値)
    *
    * - `y` は world +y。adapter が `walkingBobRef` の `position.y` へ反映する
@@ -176,6 +185,12 @@ export type BoxBotActionHost = {
   eventTarget: EventTarget
   /** クリック操作が有効か。無効時はアクションを起動しない */
   interactive: boolean
+  /**
+   * 左右の腕の現在の前後振り角を返す(rad)
+   *
+   * - `arm.leftRef` / `arm.rightRef` の `rotation.x`。walking が書いた値を walkingReset が読む
+   */
+  readArmSwing: () => { left: number; right: number }
   /**
    * 現在の実効 facing(bot の向き、rad)を返す
    *
