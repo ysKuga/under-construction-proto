@@ -35,8 +35,10 @@ type ActorsLayerProps = {
   /**
    * セル間移動アニメーション(位置決め div の CSS transition)完了時(省略可)
    *
-   * - `left`/`top`/`transform` の 3 プロパティで発火するため `propertyName === 'left'`
-   *   のみ拾う(1 回の移動につき 1 回だけ呼ぶ)
+   * - `left`/`top`/`transform` の 3 プロパティで発火する。hex 座標は移動方向によって
+   *   `left`/`top` の一方しか値が変化しないケースがある(例: axial の q 不変の移動は
+   *   `left` が変化しない)ため、両方を完了判定の対象にする。呼び出し側は
+   *   `left`/`top` それぞれの `transitionend` で二重に呼ばれても安全な実装にすること
    */
   onArrived?: () => void
   /** 行数 */
@@ -102,7 +104,7 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
   }
 
   const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
-    if (event.propertyName !== 'left') return
+    if (event.propertyName !== 'left' && event.propertyName !== 'top') return
 
     onArrived?.()
   }
