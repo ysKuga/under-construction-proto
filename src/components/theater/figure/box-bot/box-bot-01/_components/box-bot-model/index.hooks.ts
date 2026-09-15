@@ -95,6 +95,17 @@ const writeArmLift = (
   if (rightArmRef.current) rightArmRef.current.rotation.z = right
 }
 
+/** 左右の腕グループの前後振り角(`rotation.x`)を個別に設定する(walking) */
+const writeArmSwing = (
+  leftArmRef: RefObject<Group | null>,
+  rightArmRef: RefObject<Group | null>,
+  left: number,
+  right: number,
+): void => {
+  if (leftArmRef.current) leftArmRef.current.rotation.x = left
+  if (rightArmRef.current) rightArmRef.current.rotation.x = right
+}
+
 /** 左右の脚グループの前後スイング角(`rotation.x`)を個別に設定する(walking) */
 const writeLegSwing = (
   leftLegRef: RefObject<Group | null>,
@@ -246,6 +257,8 @@ export function useBoxBotModel(
     applyArmAngle: (rad) => writeArmAngle(arm.leftRef, arm.rightRef, rad),
     applyArmLift: (lift) =>
       writeArmLift(arm.leftRef, arm.rightRef, lift.left, lift.right),
+    applyArmSwing: (angles) =>
+      writeArmSwing(arm.leftRef, arm.rightRef, angles.left, angles.right),
     applyBodyBob: (y) => writeBodyBob(walkingBobRef, y),
     applyLegBob: (offsets) =>
       writeLegBob(

@@ -16,7 +16,12 @@ const SETTLED_EPS = 1e-3
 /** walking が host から必要とする操作面 */
 type WalkingHost = Pick<
   BoxBotActionContext<WalkingConfig>,
-  'applyLegSwing' | 'config' | 'eventTarget' | 'interactive' | 'readPosture'
+  | 'applyArmSwing'
+  | 'applyLegSwing'
+  | 'config'
+  | 'eventTarget'
+  | 'interactive'
+  | 'readPosture'
 >
 
 /**
@@ -30,12 +35,22 @@ type WalkingHost = Pick<
  * - 位相・角速度・左右の現在角(`phaseRef` / `speedRef` / `*AngleRef`)は本 action が\
  *   ローカルに持つ。脚グループへの反映は `host.applyLegSwing`(adapter が `leg.leftRef` /\
  *   `leg.rightRef` の `rotation.x` へ)。両脚が戻りきって静止中は `useFrame` を早期 return する
+ * - 腕も脚と同じ位相・速度で振る(`host.applyArmSwing`)。反対側の脚が前へ出るとき腕も\
+ *   前へ出る(左腕は右脚と同位相 = 逆の sin 波)自然な歩行の対応にする。振幅は\
+ *   `config.armSwingAngle` で脚と別に持つ
  * - marching(`position.y`)とは軸が別なので、同時に適用されても破綻しない
  *
  * @param host アクション実行に必要な操作面(adapter が実装)
  */
 export const useWalking = (host: WalkingHost): void => {
-  const { applyLegSwing, config, eventTarget, interactive, readPosture } = host
+  const {
+    applyArmSwing,
+    applyLegSwing,
+    config,
+    eventTarget,
+    interactive,
+    readPosture,
+  } = host
 
   /** 歩行中か */
   const activeRef = useRef(false)
@@ -47,6 +62,10 @@ export const useWalking = (host: WalkingHost): void => {
   const leftAngleRef = useRef(0)
   /** 右脚の現在のスイング角 (rad) */
   const rightAngleRef = useRef(0)
+  /** 左腕の現在の振り角 (rad) */
+  const leftArmAngleRef = useRef(0)
+  /** 右腕の現在の振り角 (rad) */
+  const rightArmAngleRef = useRef(0)
 
   const onWalking = () => {
     if (!interactive) return
@@ -57,16 +76,24 @@ export const useWalking = (host: WalkingHost): void => {
   useEventListener(ACTION_WALKING, onWalking, { target: eventTarget })
 
   useFrame((_, dt) => {
-    // 停止していて両脚も戻りきっているなら書かない
+    // 停止していて両脚・両腕も戻りきっているなら書かない
     if (
       !activeRef.current &&
       speedRef.current <= STOP_SPEED_EPS &&
       Math.abs(leftAngleRef.current) < SETTLED_EPS &&
-      Math.abs(rightAngleRef.current) < SETTLED_EPS
+      Math.abs(rightAngleRef.current) < SETTLED_EPS &&
+      Math.abs(leftArmAngleRef.current) < SETTLED_EPS &&
+      Math.abs(rightArmAngleRef.current) < SETTLED_EPS
     )
       return
 
-    const { cycleSec, settleRate, speedApproachRate, swingAngle } = config
+    const {
+      armSwingAngle,
+      cycleSec,
+      settleRate,
+      speedApproachRate,
+      swingAngle,
+    } = config
     const targetSpeed = activeRef.current ? (2 * Math.PI) / cycleSec : 0
     speedRef.current = approach(
       speedRef.current,
@@ -79,13 +106,33 @@ export const useWalking = (host: WalkingHost): void => {
       phaseRef.current += speedRef.current * dt
       leftAngleRef.current = Math.sin(phaseRef.current) * swingAngle
       rightAngleRef.current = Math.sin(phaseRef.current + Math.PI) * swingAngle
+      // 腕は反対側の脚と同位相(左腕 = 右脚、右腕 = 左脚)
+      leftArmAngleRef.current =
+        Math.sin(phaseRef.current + Math.PI) * armSwingAngle
+      rightArmAngleRef.current = Math.sin(phaseRef.current) * armSwingAngle
     } else {
       // sin 途中で止まらないよう、位相をリセットして角度を直接 0 へ寄せる
       phaseRef.current = 0
       leftAngleRef.current = approach(leftAngleRef.current, 0, settleRate, dt)
       rightAngleRef.current = approach(rightAngleRef.current, 0, settleRate, dt)
+      leftArmAngleRef.current = approach(
+        leftArmAngleRef.current,
+        0,
+        settleRate,
+        dt,
+      )
+      rightArmAngleRef.current = approach(
+        rightArmAngleRef.current,
+        0,
+        settleRate,
+        dt,
+      )
     }
 
     applyLegSwing({ left: leftAngleRef.current, right: rightAngleRef.current })
+    applyArmSwing({
+      left: leftArmAngleRef.current,
+      right: rightArmAngleRef.current,
+    })
   })
 }
