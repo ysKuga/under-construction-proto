@@ -10,8 +10,6 @@ import { HexCell } from '../../_lib/hex'
 import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
 
 type ActorsLayerProps = {
-  /** walking の腕振り角の振幅(rad)（省略時は `WALKING_DEFAULTS.armSwingAngle` = `0.35`） */
-  armSwingAngle?: number
   /** 列数 */
   cols: number
   /** 現在地セル */
@@ -66,9 +64,11 @@ type ActorsLayerProps = {
 /** face / walking を有効化する(jump/spin 等は無効のまま) */
 const ACTIONS = [faceAction, walkingAction]
 
+/** 腕振り角(rad)。180度(体側から真後ろまで)に固定する(調整不要とのユーザー判断) */
+const ARM_SWING_ANGLE = Math.PI
+
 export const ActorsLayer = (props: ActorsLayerProps) => {
   const {
-    armSwingAngle,
     cols,
     currentCell,
     eventTarget,
@@ -112,10 +112,10 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
       <BoxBot01
         actionConfig={{
           walking: {
+            armSwingAngle: ARM_SWING_ANGLE,
             cycleSec,
             // defineAction が {...defaults, ...override} でマージするため、
             // undefined を明示的に含めると既定値を上書きしてしまう。省略する
-            ...(armSwingAngle !== undefined && { armSwingAngle }),
             ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
           },
         }}
