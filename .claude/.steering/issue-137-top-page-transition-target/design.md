@@ -193,6 +193,10 @@ issue: #137
   - walking はトグル方式（1 回の dispatch で on/off 反転）のため、on/off 状態を `Stage07` 側の `isWalkingRef` で追跡。ON: `useHexMove` の `onCellChange`（セル移動確定時）で `isWalkingRef.current` が false のときのみ dispatch → true にする。OFF: `ActorsLayer` の位置決め div（`left`/`top`/`transform` を 150ms transition させている要素）に新設した `onArrived`（`transitionend` の `propertyName === 'left'` のみ拾う）で `isWalkingRef.current` が true のときのみ dispatch → false にする
   - この方式により、連続移動中（次の移動が前の移動の transition 完了前に来る）は ON を維持し続け、移動が完全に止まった（transitionend が発火した）ときのみ OFF になる（ユーザー選択の「moveActor 直前で ON、常時 ON のまま次 moveActor が来れば継続」を実現）
   - Storybook + Playwright headless で確認: ブラウザ内タイマーで 50ms 間隔の連続 3 回移動を発火 → walking dispatch が ON 1 回 / OFF 1 回のみ（最後の移動の transition 完了時に OFF）であることを console.log 一時追加で確認。スクリーンショットで移動中は脚が前後に開いた歩行姿勢、停止後は直立姿勢に戻ることを目視確認。console error なし
+- 2026-09-15: 歩行に腕の振りを追加(ユーザー追加依頼)。box-bot-01 には転倒(fall)用の `applyArmAngle`(両腕同角度、直立中は書込まない)はあったが、歩行の自然な腕振り(左右逆位相)には使えないため新設が必要だった
+  - `BoxBotActionHost` に `applyArmSwing({ left, right })` を新設(`applyLegSwing` と同型、adapter が左右の腕グループの `rotation.x` へ反映)。fall の `applyArmAngle` と書込先(同じ `rotation.x`)は共有するが、fall は直立中(`phaseRef===0`)は早期 return して書かないため排他的に動作し競合しない
+  - `walkingAction` の `WalkingConfig` に `armSwingAngle`(既定 0.35、脚の `swingAngle`=0.5 よりやや控えめ)を追加。`useWalking` で脚と同じ位相・速度をもとに、反対側の脚と同位相(左腕 = 右脚、右腕 = 左脚)で腕角を計算し `applyArmSwing` へ渡す。停止時の 0 への戻し(`approach`)・早期 return 条件(両脚・両腕が戻りきったか)も脚と同様に腕を含めて判定
+  - Storybook + Playwright headless で確認: 連続移動中に左右の腕が交互に前後する見た目をスクリーンショットで確認(拡大クリップで目視)。console error なし
 
 ## 懸念・リスク
 
