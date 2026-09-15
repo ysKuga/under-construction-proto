@@ -105,8 +105,8 @@ issue: #137
 - [x] 到達済みマスのみ「表示」する。未到達マスは非表示、ゴール旗は隣接（斜め含む8方向）時のみ表示、未到達マスへの選択は不可（`VisibilityRegistryProvider` 新設、proto-02 のみ対応。理由は下記決定事項）。**本採用可否は保留、後日判断**（下記決定事項）
 - [ ] 「1 手戻す」（計画上の消費取消）と「戻る」（到達済みマスへ消費を伴い異動する行動）を別枠の操作として分離検討。「戻る」は一見メリットのない行動のため、ギミックによるインセンティブ付与・退避行動としての活用など仕組みの導入を検討
 - [ ] 障害物 / 歩数制限 / 一方通行セル（段階 4 から継続。「挑戦」「工夫」実現の中心方針）
-- [x] （検討）bot を進行方向へ向ける（proto-03 のみ対応。他 proto は未着手）
-- [x] （検討）進行時に歩くモーションを再生する（proto-03 のみ対応。他 proto は未着手）
+- [x] （検討）bot を進行方向へ向ける（proto-03 / proto-01 対応。proto-02 は未着手）
+- [x] （検討）進行時に歩くモーションを再生する（proto-03 / proto-01 対応。proto-02 は未着手）
 - [ ] （検討）「実行」中は停止を挟まず歩く速度を維持する。途中の操作介入があった時点で停止する
 - [ ] （検討）到達済みマス表示ON時、または視界制限自体を採用しない（全マス表示）場合に、隣接以外の目的地セルをクリックすると経路探索により自動で経路を生成し移動する。現行の「隣接セルを1手ずつクリック」方式に加える、または代替する入力方式として検討。先行実装: 旧世代 stage-04 で経路探索を実装済み（[stage-04-pathfinding/design.md](../_closed/20260716-stage-04-pathfinding/design.md)、BFS 想定・単一 actor 前提。「予備」フェーズで経路計算 → 「実行」フェーズで逐次移動、`stage-time-control` の時間管理機構に依存）。find-path 側は tick 駆動でなく DOM 直書き + CSS transition の逐次移動（`useAdjacentMove`/`useHexMove`）のため、経路計算結果をどう逐次移動へ渡すかは移植時に要検討
 
@@ -203,6 +203,11 @@ issue: #137
   - `FindPathContent`（proto-01/index.tsx）で `eventTarget` を新規生成し `useBoxBotActionDispatcher` で walking dispatcher を取得、`useFindPathTick(walking)` へ渡すと同時に `Stage06` へ `actorActions={[walkingAction]}` / `actorEventTarget` を配線
   - 汎用 hook として共通化する案もあったが、「stage-07（1 マス粒度）」「find-path proto-01（実行全体粒度）」で on/off の判定ロジックが異なる（前者は transitionend、後者は execute/歩き切り）ため、ユーザー判断で各実装に閉じた形のまま個別対応とした
   - Storybook + Playwright headless で確認: proto-01 で 3 マス経路を積み「実行」→ tick 進行中は脚が開いた歩行姿勢、歩き切り後に直立へ戻ることをスクリーンショットで確認。proto-03 は `enableWalking` 未指定のまま隣接セル移動しても歩行姿勢にならない（直立のまま移動）ことを確認。`use-find-path-tick.test.ts` の既存 8 件のテストは変更なしで pass。console error なし
+- 2026-09-15: 「bot を進行方向へ向ける」を find-path proto-01（tick 駆動）へ追加対応（ユーザー依頼）。stage-07 と同じ face action を使うが、矩形グリッドは col/row の差分がそのまま画面上の x/y 差分になるため hex のような座標変換は不要
+  - `stage-06/_lib/direction.ts` を新設し `gridDirectionToScreenAngle(from, to)` を追加（`stage-07/_lib/hex.ts` の `hexDirectionToScreenAngle` に相当、box-bot-01 非依存）。box-bot-01 への変換(`screenAngleToYaw`)は呼び出し側（`useFindPathTick`）が行う
+  - `useFindPathTick` の引数を単一の `walking` から `options: { face?, walking? }` へリファクタ（2 つ目の optional dispatcher を追加するタイミングで見通しをよくするため）。`face` を渡すと 1 tick 消化ごとに `getActorPosition`（移動前の現在地）と移動先の差分から画面角度を求め、`screenAngleToYaw` で yaw へ変換して dispatch する
+  - `FindPathContent` で `faceAction` も `useBoxBotActionDispatcher`/`Stage06.actorActions` へ追加し、`useFindPathTick({ face, walking })` として渡す
+  - Storybook + Playwright headless で確認: (1,0)→(1,1) の経路（右へ 1 歩→下へ 1 歩）を「実行」し、1 手目で横向き、2 手目で正面向きへ変化することをスクリーンショットで確認（proto-03 で確認済みの画面角度とカメラモデルの対応と一致）。`tsc`/`eslint` エラーなし、既存テスト 8 件 pass、console error なし
 
 ## 懸念・リスク
 
