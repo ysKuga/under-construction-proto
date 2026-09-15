@@ -232,6 +232,9 @@ issue: #137
   - 実装時に注意点判明: `defineAction` は `{...defaults, ...actionConfig[name]}` で config をマージするため、`armSwingAngle`/`legSwingAngle` が `undefined`（prop 省略時）のままキーを含めて渡すと既定値を `undefined` で上書きしてしまう。`ActorsLayer` 側で `...(value !== undefined && { key: value })` の形にしてキー自体を省略するよう対応した
   - 歩行周期上限(`maxWalkCycleSec`)のスライダー `step` を 0.1 → 0.05（50ms 相当）に変更。表示は浮動小数点誤差対策で `toFixed(2)` に統一（脚/腕振り角の表示も同様）
   - Storybook + Playwright headless で確認: 脚/腕振り角スライダーのラベル・初期値表示（0.50/0.35）を確認。スライダーを最大(1.2)にして拡大クリップのスクリーンショットで既定よりはっきり大きく脚・腕が開くことを目視確認。`tsc`/`eslint` エラーなし
+- 2026-09-15: 「腕の振りを大きくしても変わらない」とのユーザー指摘を受け調査。`use-walking.ts` へ一時 `console.log` を追加し、`config.armSwingAngle` がスライダー変更に応じて正しく更新されること（0.35→1.2）を数値確認。単発の 1 マス移動では歩行がほぼ一瞬で on/off し腕の振れの変化を目視で捉えにくかっただけで、実装バグではないと判明（連続移動で持続させたスクリーンショット比較では、既定は斜め程度・最大(1.2rad)は真横近くまで開くことを確認）
+  - 上記の流れで「単純に腕の振りを 0〜180 度の範囲で動かしたい」と要望を受け、腕振り角スライダーのみ度数法(deg)表示に変更。内部の `armSwingAngle` state・`ActorsLayer` へ渡す prop は既存どおり rad 単位のまま、UI のスライダー値だけ deg⇄rad 変換する（`Stage07` の `initialArmSwingAngle` prop 自体も rad 単位で変更なし。UI 表示のみ deg 化）
+  - Storybook + Playwright headless で確認: スライダーを 180° にすると `config.armSwingAngle` が `Math.PI` 相当になり、腕が真後ろまで振れきる見た目をスクリーンショットで確認。`tsc`/`eslint` エラーなし
 
 ## 懸念・リスク
 
