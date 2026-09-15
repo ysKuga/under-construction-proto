@@ -13,6 +13,7 @@ export * from './define-action'
 export { ACTION_FACE, faceAction } from './face'
 export { ACTION_JUMP, jumpAction } from './jump'
 export * from './types'
+export { ACTION_WALKING, walkingAction } from './walking'
 
 /**
  * box-bot が備えるアクション一覧

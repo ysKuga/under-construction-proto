@@ -8,10 +8,12 @@ import type { Group } from 'three'
 import {
   ACTION_FACE,
   ACTION_JUMP,
+  ACTION_WALKING,
   BOX_BOT_ACTIONS,
   DEFAULT_CLICK_BINDINGS,
   faceAction,
   jumpAction,
+  walkingAction,
 } from './_actions'
 import { Assembly } from './_components/assembly'
 import { BoxBotModel } from './_components/box-bot-model'
@@ -100,22 +102,24 @@ const ORBIT_MAX_DISTANCE = 12
 /** OrbitControls の最大ズームイン距離 */
 const ORBIT_MIN_DISTANCE = 3.5
 /**
- * jump / face action・そのイベント名・dispatcher の再 export
+ * jump / face / walking action・そのイベント名・dispatcher の再 export
  *
- * - 外部から `eventTarget` を共有して jump / face を購読/発火する用途(find-path proto の
- *   実行前アンロック・進行方向転換等)向け。`actions` prop に `[jumpAction]`/`[faceAction]`
- *   を渡し該当 action のみ有効化できる
+ * - 外部から `eventTarget` を共有して jump / face / walking を購読/発火する用途(find-path
+ *   proto の実行前アンロック・進行方向転換・歩行モーション等)向け。`actions` prop に
+ *   `[jumpAction]`/`[faceAction]`/`[walkingAction]` を渡し該当 action のみ有効化できる
  * - `useBoxBotActionDispatcher(eventTarget, [faceAction])` で face を外部から発火できる
  */
 export {
   ACTION_FACE,
   ACTION_JUMP,
+  ACTION_WALKING,
   CAMERA_POSITION,
   faceAction,
   jumpAction,
   ORBIT_TARGET,
   screenAngleToYaw,
   useBoxBotActionDispatcher,
+  walkingAction,
 }
 
 /**
