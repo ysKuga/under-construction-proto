@@ -3,6 +3,7 @@
 import { ComponentProps, useState } from 'react'
 
 import {
+  faceAction,
   useBoxBotActionDispatcher,
   walkingAction,
 } from '@/components/theater/figure/box-bot'
@@ -74,16 +75,22 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  * - walking action(歩行モーション)は「実行」開始 〜 歩き切りを 1 周期として on/off
  *   する（`useFindPathTick` へ dispatcher を渡す）。複数マスを連続で歩く tick 駆動と
  *   相性がよい（1 マスごとの隣接クリック移動、stage-07 とは異なる粒度）
+ * - face action(進行方向転換)は 1 tick 消化ごとに bot を進行方向へ向ける
+ *   （`useFindPathTick` へ dispatcher を渡す。stage-07 と同じ考え方）
  */
 const FindPathContent = (props: FindPathProto01Props) => {
   const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
-  const { walking } = useBoxBotActionDispatcher(actorEventTarget, [
+  const { face, walking } = useBoxBotActionDispatcher(actorEventTarget, [
+    faceAction,
     walkingAction,
   ])
 
-  const { execute, isRunning, reachedGoal } = useFindPathTick(walking)
+  const { execute, isRunning, reachedGoal } = useFindPathTick({
+    face,
+    walking,
+  })
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -91,7 +98,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
         Find Path
       </h1>
       <Stage06
-        actorActions={[walkingAction]}
+        actorActions={[faceAction, walkingAction]}
         actorEventTarget={actorEventTarget}
         botSize={56}
         cols={GRID.cols}

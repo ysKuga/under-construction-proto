@@ -10,7 +10,9 @@ import {
   withLatestFrom,
 } from 'rxjs'
 
+import { screenAngleToYaw } from '@/components/theater/figure/box-bot'
 import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
+import { gridDirectionToScreenAngle } from '@/prototypes/stage/stage-06/_lib/direction'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStoreApi } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 import { usePathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/path'
@@ -19,6 +21,18 @@ import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
+
+type UseFindPathTickOptions = {
+  /**
+   * box-bot-01 の face action dispatcher(省略時は進行方向転換しない)
+   *
+   * - 1 tick 消化(1 マス移動)ごとに、移動元→移動先の方向を画面角度へ変換し
+   *   `screenAngleToYaw` で yaw へ変換して dispatch する
+   */
+  face?: (override: { rad: number }) => Promise<void>
+  /** box-bot-01 の walking action dispatcher(省略時は歩行モーション再生しない) */
+  walking?: () => Promise<void>
+}
 
 type UseFindPathTickReturn = {
   /**
@@ -54,19 +68,23 @@ type UseFindPathTickReturn = {
  *   再レンダリングなし）
  * - 到達後の bot 移動（`moveActor`）自体は再レンダリングを起こさないが、`reachedGoal`
  *   はクリア表示のための単発 state。ゴール到達は tick 進行中に高々 1 回しか起きない
- * - `walking`(省略可、box-bot-01 の walking action トグル dispatcher)を渡すと、
+ * - `options.walking`(省略可、box-bot-01 の walking action トグル dispatcher)を渡すと、
  *   「実行」開始で on、歩き切りで off にする。1 マスごとの隣接クリック移動(stage-07)と
  *   異なり、実行全体を 1 周期として on/off するため tick 単位のちらつきが起きない
+ * - `options.face`(省略可、box-bot-01 の face action dispatcher)を渡すと、1 tick
+ *   消化ごとに bot を進行方向へ向ける
  *
- * @param walking box-bot-01 の walking action dispatcher(省略時は歩行モーション再生しない)
+ * @param options walking/face の dispatcher(いずれも省略可)
  */
 export const useFindPathTick = (
-  walking?: () => Promise<void>,
+  options: UseFindPathTickOptions = {},
 ): UseFindPathTickReturn => {
+  const { face, walking } = options
+
   const gameClock = useGameClockStoreApi()
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
-  const { moveActor } = useActorNodeRegistry()
+  const { getActorPosition, moveActor } = useActorNodeRegistry()
   const { fadeOutCell, fadeOutStep, resetAllSteps } =
     usePlannedPathCellRegistry()
 
@@ -127,8 +145,17 @@ export const useFindPathTick = (
       },
       TICK_MS,
     )
+    const target = { col: next.x, row: next.y }
+
+    if (face) {
+      const current = getActorPosition(PLAYER_ACTOR_ID)
+      void face({
+        rad: screenAngleToYaw(gridDirectionToScreenAngle(current, target)),
+      })
+    }
+
     path.getState().setPath(PLAYER_ACTOR_ID, rest)
-    moveActor(PLAYER_ACTOR_ID, { col: next.x, row: next.y })
+    moveActor(PLAYER_ACTOR_ID, target)
 
     if (rest.length === 0) {
       // 歩き切ったら予定経路をクリアする（次の企図まで「実行」は disabled）。
@@ -175,6 +202,8 @@ export const useFindPathTick = (
     fadeOutStep,
     resetAllSteps,
     moveActor,
+    getActorPosition,
+    face,
     walking,
   ])
 
