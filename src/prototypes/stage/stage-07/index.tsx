@@ -27,6 +27,14 @@ type Stage07Props = PropsWithChildren<{
   botSize: number
   /** 列数 */
   cols: number
+  /**
+   * 移動中に walking action(歩行モーション)を再生するか(省略時は `false`)
+   *
+   * - 1 マスごとの隣接クリック移動(150ms transition)だと on → off が一瞬で
+   *   切り替わり不自然に見えるため、既定は無効。tick 駆動で複数マスを連続実行する
+   *   方式（find-path proto-01 の `useFindPathTick` 等）の方が相性がよい
+   */
+  enableWalking?: boolean
   /** 六角形の外接円半径 (px) */
   hexSize: number
   /** 初期の現在地セル（省略時は axial 原点 (0, 0)） */
@@ -62,9 +70,10 @@ type Stage07Props = PropsWithChildren<{
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
- * - 移動開始で `walking` action を on、`ActorsLayer` の位置決め div の CSS transition
- *   完了（次の移動が来ないまま静止）で off にする（`walking` はトグル方式のため
- *   `isWalkingRef` で on/off 状態を追跡する）。連続移動中は on を維持し続ける
+ * - `enableWalking`(既定 `false`)が true のときのみ、移動開始で `walking` action を on、
+ *   `ActorsLayer` の位置決め div の CSS transition 完了（次の移動が来ないまま静止）で
+ *   off にする（`walking` はトグル方式のため `isWalkingRef` で on/off 状態を追跡する）。
+ *   連続移動中は on を維持し続ける
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
@@ -75,6 +84,7 @@ export const Stage07 = (props: Stage07Props) => {
     botSize,
     children,
     cols,
+    enableWalking = false,
     hexSize,
     initialCell = { q: 0, r: 0 },
     initialTiltDeg = 0,
@@ -102,7 +112,7 @@ export const Stage07 = (props: Stage07Props) => {
   const { currentCell, handleCellClick } = useHexMove(
     initialCell,
     (cell) => {
-      if (!isWalkingRef.current) {
+      if (enableWalking && !isWalkingRef.current) {
         isWalkingRef.current = true
         void walking()
       }
@@ -117,7 +127,7 @@ export const Stage07 = (props: Stage07Props) => {
 
   /** セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする */
   const handleArrived = () => {
-    if (!isWalkingRef.current) return
+    if (!enableWalking || !isWalkingRef.current) return
 
     isWalkingRef.current = false
     void walking()
