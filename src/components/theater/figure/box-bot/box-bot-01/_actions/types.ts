@@ -186,6 +186,12 @@ export type BoxBotActionHost = {
   /** クリック操作が有効か。無効時はアクションを起動しない */
   interactive: boolean
   /**
+   * 左右の腕の現在の前後振り角を返す(rad)
+   *
+   * - `arm.leftRef` / `arm.rightRef` の `rotation.x`。walking が書いた値を walkingReset が読む
+   */
+  readArmSwing: () => { left: number; right: number }
+  /**
    * 現在の実効 facing(bot の向き、rad)を返す
    *
    * - `rotationY`(初期回転 prop)+ `yawRef` の累積回転(spin / autoRotate)

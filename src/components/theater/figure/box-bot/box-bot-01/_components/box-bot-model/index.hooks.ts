@@ -142,6 +142,15 @@ const readLegSwing = (
   right: rightLegRef.current?.rotation.x ?? 0,
 })
 
+/** 左右の腕グループの現在の前後振り角(`rotation.x`)を返す(walkingReset 用) */
+const readArmSwing = (
+  leftArmRef: RefObject<Group | null>,
+  rightArmRef: RefObject<Group | null>,
+): { left: number; right: number } => ({
+  left: leftArmRef.current?.rotation.x ?? 0,
+  right: rightArmRef.current?.rotation.x ?? 0,
+})
+
 /**
  * 左右の脚グループの現在の足踏みオフセット(`position.y` の base からの相対)を返す(body-bobbing 用)
  *
@@ -277,6 +286,7 @@ export function useBoxBotModel(
     applyYawDelta: (rad) => writeYawDelta(yawRef, rad),
     eventTarget,
     interactive,
+    readArmSwing: () => readArmSwing(arm.leftRef, arm.rightRef),
     readFacing: () => readFacing(yawRef, rotationY),
     readLegBob: () => readLegBob(leg.leftRef, leg.rightRef, layout.leg.y),
     readLegSwing: () => readLegSwing(leg.leftRef, leg.rightRef),

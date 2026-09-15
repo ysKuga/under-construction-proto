@@ -9,11 +9,13 @@ import {
   ACTION_FACE,
   ACTION_JUMP,
   ACTION_WALKING,
+  ACTION_WALKING_RESET,
   BOX_BOT_ACTIONS,
   DEFAULT_CLICK_BINDINGS,
   faceAction,
   jumpAction,
   walkingAction,
+  walkingResetAction,
 } from './_actions'
 import { Assembly } from './_components/assembly'
 import { BoxBotModel } from './_components/box-bot-model'
@@ -113,6 +115,7 @@ export {
   ACTION_FACE,
   ACTION_JUMP,
   ACTION_WALKING,
+  ACTION_WALKING_RESET,
   CAMERA_POSITION,
   faceAction,
   jumpAction,
@@ -120,6 +123,7 @@ export {
   screenAngleToYaw,
   useBoxBotActionDispatcher,
   walkingAction,
+  walkingResetAction,
 }
 
 /**

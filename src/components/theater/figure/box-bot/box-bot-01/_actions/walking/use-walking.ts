@@ -5,6 +5,7 @@ import { useEventListener } from '@/hooks/event'
 
 import { approach } from '../../_lib/approach'
 import type { BoxBotActionContext } from '../types'
+import { ACTION_WALKING_RESET } from '../walking-reset/config'
 
 import { ACTION_WALKING, type WalkingConfig } from './config'
 
@@ -29,6 +30,11 @@ type WalkingHost = Pick<
  *
  * - `ACTION_WALKING`(外部 dispatch)を購読し、1 回の dispatch で on/off をトグルする。\
  *   `readPosture() !== 0`(転倒中/横倒し/起き上がり中)の間はトグルを無視する
+ * - `ACTION_WALKING_RESET`(`walkingReset` action、外部 dispatch)を購読し、off にした\
+ *   うえで `resettingRef` を立て、`useFrame` を完全に沈黙させる(`applyLegSwing`/\
+ *   `applyArmSwing` を一切呼ばない)。`walkingReset` 側が同じタイミングで腕・脚を\
+ *   規定位置へ戻す書き込みを担うため、ここで自然減衰処理を続けると同じフレームで\
+ *   競合して上書きし合ってしまう。`resettingRef` は次の `ACTION_WALKING` トグルで解除する
  * - `activeRef` の on/off で角速度の目標値を切替え、`approach` で滑らかに寄せる\
  *   (開始で加速、停止で減速)。角速度が `STOP_SPEED_EPS` を下回ったら位相追従をやめ、\
  *   脚角を直接 0 へ `approach` する(sin 波の途中で止めると脚が斜めのまま静止するため)
@@ -54,6 +60,8 @@ export const useWalking = (host: WalkingHost): void => {
 
   /** 歩行中か */
   const activeRef = useRef(false)
+  /** `walkingReset` に腕・脚の制御を委ねている間か(true の間 useFrame は何もしない) */
+  const resettingRef = useRef(false)
   /** 脚 swing の位相 (rad) */
   const phaseRef = useRef(0)
   /** 現在の角速度 (rad/s) */
@@ -71,11 +79,26 @@ export const useWalking = (host: WalkingHost): void => {
     if (!interactive) return
     if (readPosture() !== 0) return
     activeRef.current = !activeRef.current
+    // 歩行を再開したので `walkingReset` への委譲を解除し、自前の制御へ戻る
+    resettingRef.current = false
   }
 
   useEventListener(ACTION_WALKING, onWalking, { target: eventTarget })
 
+  const onWalkingReset = () => {
+    activeRef.current = false
+    resettingRef.current = true
+  }
+
+  useEventListener(ACTION_WALKING_RESET, onWalkingReset, {
+    // walkingReset action(`use-walking-reset.ts`)も同じイベントを購読するため許可
+    allowMultiple: true,
+    target: eventTarget,
+  })
+
   useFrame((_, dt) => {
+    if (resettingRef.current) return
+
     // 停止していて両脚・両腕も戻りきっているなら書かない
     if (
       !activeRef.current &&
