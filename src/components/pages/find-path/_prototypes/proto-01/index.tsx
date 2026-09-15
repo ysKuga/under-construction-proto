@@ -1,7 +1,11 @@
 'use client'
 
-import { ComponentProps } from 'react'
+import { ComponentProps, useState } from 'react'
 
+import {
+  useBoxBotActionDispatcher,
+  walkingAction,
+} from '@/components/theater/figure/box-bot'
 import { Stage06 } from '@/prototypes/stage/stage-06'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 
@@ -67,11 +71,19 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  * - `isRunning`: tick 走行中は `PlannedPathLayer` のセル選択を止める。走行中に
  *   追加した指定は実行用の残り経路（path store）へ反映されず「消化されない指定」に
  *   なってしまうため
+ * - walking action(歩行モーション)は「実行」開始 〜 歩き切りを 1 周期として on/off
+ *   する（`useFindPathTick` へ dispatcher を渡す）。複数マスを連続で歩く tick 駆動と
+ *   相性がよい（1 マスごとの隣接クリック移動、stage-07 とは異なる粒度）
  */
 const FindPathContent = (props: FindPathProto01Props) => {
   const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
 
-  const { execute, isRunning, reachedGoal } = useFindPathTick()
+  const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
+  const { walking } = useBoxBotActionDispatcher(actorEventTarget, [
+    walkingAction,
+  ])
+
+  const { execute, isRunning, reachedGoal } = useFindPathTick(walking)
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -79,6 +91,8 @@ const FindPathContent = (props: FindPathProto01Props) => {
         Find Path
       </h1>
       <Stage06
+        actorActions={[walkingAction]}
+        actorEventTarget={actorEventTarget}
         botSize={56}
         cols={GRID.cols}
         initialTiltDeg={55}
