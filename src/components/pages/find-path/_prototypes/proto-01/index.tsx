@@ -9,6 +9,7 @@ import {
 } from '@/components/theater/figure/box-bot'
 import { Stage06 } from '@/prototypes/stage/stage-06'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
+import { useInitialFacing } from '@/prototypes/stage/stage-06/_hooks/use-initial-facing'
 
 import { ActionBar } from './_components/action-bar'
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
@@ -19,6 +20,14 @@ import { useFindPathTick } from './_hooks/use-find-path-tick'
 
 /** グリッド形状（provider の gridSize と Stage06 の cols/rows で共有する） */
 const GRID = { cols: 5, rows: 5 } as const
+
+/**
+ * 初期向き(画面角度、rad)。右下(45°)
+ *
+ * - 隣接判定による自動算出(右)だと顔(目)がカメラ側を向かず見えないため、
+ *   `useInitialFacing` へ明示指定する
+ */
+const INITIAL_FACING_SCREEN_ANGLE = Math.PI / 4
 
 /**
  * FindPathProto01 — find-path ページ試作
@@ -77,6 +86,8 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  *   相性がよい（1 マスごとの隣接クリック移動、stage-07 とは異なる粒度）
  * - face action(進行方向転換)は 1 tick 消化ごとに bot を進行方向へ向ける
  *   （`useFindPathTick` へ dispatcher を渡す。stage-07 と同じ考え方）
+ * - 初期表示時は `useInitialFacing` に `INITIAL_FACING_SCREEN_ANGLE`(右下)を
+ *   明示指定し、その向きへ固定する（自動算出だと右向きになり顔が見えないため）
  */
 const FindPathContent = (props: FindPathProto01Props) => {
   const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
@@ -91,6 +102,8 @@ const FindPathContent = (props: FindPathProto01Props) => {
     face,
     walking,
   })
+
+  useInitialFacing(face, GRID, INITIAL_FACING_SCREEN_ANGLE)
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
