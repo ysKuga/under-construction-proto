@@ -105,7 +105,7 @@ issue: #137
 - [x] 到達済みマスのみ「表示」する。未到達マスは非表示、ゴール旗は隣接（斜め含む8方向）時のみ表示、未到達マスへの選択は不可（`VisibilityRegistryProvider` 新設、proto-02 のみ対応。理由は下記決定事項）。**本採用可否は保留、後日判断**（下記決定事項）
 - [ ] 「1 手戻す」（計画上の消費取消）と「戻る」（到達済みマスへ消費を伴い異動する行動）を別枠の操作として分離検討。「戻る」は一見メリットのない行動のため、ギミックによるインセンティブ付与・退避行動としての活用など仕組みの導入を検討
 - [ ] 障害物 / 歩数制限 / 一方通行セル（段階 4 から継続。「挑戦」「工夫」実現の中心方針）
-- [ ] （検討）bot を進行方向へ向ける
+- [x] （検討）bot を進行方向へ向ける（proto-03 のみ対応。他 proto は未着手）
 - [ ] （検討）進行時に歩くモーションを再生する
 - [ ] （検討）「実行」中は停止を挟まず歩く速度を維持する。途中の操作介入があった時点で停止する
 - [ ] （検討）到達済みマス表示ON時、または視界制限自体を採用しない（全マス表示）場合に、隣接以外の目的地セルをクリックすると経路探索により自動で経路を生成し移動する。現行の「隣接セルを1手ずつクリック」方式に加える、または代替する入力方式として検討。先行実装: 旧世代 stage-04 で経路探索を実装済み（[stage-04-pathfinding/design.md](../_closed/20260716-stage-04-pathfinding/design.md)、BFS 想定・単一 actor 前提。「予備」フェーズで経路計算 → 「実行」フェーズで逐次移動、`stage-time-control` の時間管理機構に依存）。find-path 側は tick 駆動でなく DOM 直書き + CSS transition の逐次移動（`useAdjacentMove`/`useHexMove`）のため、経路計算結果をどう逐次移動へ渡すかは移植時に要検討
@@ -166,6 +166,28 @@ issue: #137
   - Playwright headless で床タイル（`#f1f5f9` 背景の div）の `display` を直接検査し、初期状態で視界内 4 セルのみ `block`・残り 21 セルが `none` になることを確認、console error なし
 - 2026-09-14: 「視界内に入ったら到達扱いにする」制御を追加。従来は `markVisited` が現在地セル自身のみを到達済みへ追加していたが、現在地の視界（8近傍、`visibleAreaOf`）全体を到達済みへ追加するよう変更。一度でも視界に入ったセルは、以後現在地の視界から外れても到達済み表示ON（既定）なら見え続ける。初期到達済みセルも `START_POSITION` 単体から `START_POSITION` の視界全体へ変更
   - Playwright headless で確認: 現在地を移動させ視界外になったセルが到達済み表示ONで表示継続 → OFFで非表示 → ONで再表示。現在地として一度も止まっていない（通り過ぎただけ視界に入った）セルも到達済みとして残ることを確認、console error なし
+
+- 2026-09-14: 段階5の検討事項4件（108〜111行目、bot向き転換・歩行モーション・実行中ノンストップ・自動経路探索）の実装方針を設計レベルで検討（実装は未着手）
+  - **bot を進行方向へ向ける**: box-bot-01 には yaw 回転を扱う `yawRef`（`BoxBotRefsProvider`）と `spin` action（`applyYawDelta` で増分加算のみ、絶対角度セット不可）が既存。進行方向を向けるには絶対角度セットの手段が要る。案: box-bot-01 に新規 action（例 `face`）を `defineAction` パターンで追加し、`use` 内で `yawRef.current` を直接書換える。瞬時切替か `useFrame` でイージングするか（`spin` の加減速ロジックが参考）は要検討。呼び出し元は各 proto の move hook（`useFindPathTick`/`useAdjacentMove`/`useHexMove`）側で移動元→移動先の (dx, dy) から方向を算出し、box-bot-01 の `useBoxBotActionDispatcher` 経由で dispatch する形になる想定。3 proto（tick 方式・隣接逐次・hex）すべてに配線が要る
+  - **進行時に歩くモーションを再生する**: 訂正（2026-09-15、`face` action 実装時に判明）: box-bot-01 には `walking`/`marching` action が既に実装済み（`BOX_BOT_ACTIONS` に含まれる。46 行目の「未実装」記述は誤り、いつの間にか移植されていた）。残る論点は歩行中判定の区間（ON/OFF の切替タイミング）のみ。moveActor 呼出しは DOM 直書きで瞬時、見た目の移動補間は `actors-layer` の CSS `transition` が担っている（tick 方式は `TICK_MS` 間隔、逐次方式はクリック単位）ため、walking ON を moveActor 呼出し直後に dispatch し、OFF を CSS transition 終了検知（`transitionend` 購読）または移動アニメーション時間ぶんの `setTimeout` で行う案が考えられる
+  - **実行中ノンストップ・介入時停止**: 現状 `isRunning`（`useFindPathTick`）中はセル選択・「1 手戻す」自体が disabled（`ActionBar`/`PlannedPathLayer`）のため、tick ループ自体は rxjs `timer` で既に途切れず走っている（「ノンストップ」は事実上達成済み）。この検討事項の本質は「実行中でも操作介入を受け付け、介入があった瞬間だけ停止する」という挙動変更（現行の全面 disabled 方針からの転換）を指すと判断。実現には isRunning 中のセル選択 disabled を解除し、介入検知時に `subscriptionRef.current?.unsubscribe()` を呼ぶ配線が要る。UX として「介入 = 何の操作を指すか」（セル追加のみ？「1 手戻す」も？）の定義から要検討
+  - **自動経路探索（目的地クリック）**: 旧世代 stage-04 に BFS 実装済み（[stage-04-pathfinding/design.md](../_closed/20260716-stage-04-pathfinding/design.md)、単一 actor 前提）。移植時の分岐は proto 方式の違いに依存
+    - proto-01（tick 方式、経路積み UI あり）: BFS 結果セル列をそのまま `planned-path` store へ push すればよく、既存の「経路積み→実行」フローにそのまま乗る。実装コスト低め
+    - proto-02（隣接逐次移動）/proto-03（hex）: tick ループを持たないため、BFS 結果を 1 手ずつ順に `moveActor` へ渡す駆動機構が別途要る（`setTimeout` 連鎖、または `useFindPathTick` の簡易版を新設）
+    - 視界制限（`VisibilityRegistryProvider`）採用時、自動生成経路が不可視セルを通過してよいかは要検討（106 行目の「視界内に入ったら到達扱い」ロジックとの整合）
+- 2026-09-15: 「bot を進行方向へ向ける」を proto-03（hex）のみ実装。対象範囲・回転方式（瞬時切替 or イージング）はユーザー判断で「proto-03 のみ」「瞬時切替」に決定
+  - box-bot-01 に新規 `face` action を追加（`_actions/face/`）。`spin` と異なり `useFrame` は使わず、`ACTION_FACE` 受信時に 1 回だけ `applyYawDelta(正規化した差分)` を呼び瞬時に向きを切替える。絶対角度セット用の adapter API は追加せず、既存の `readFacing()`(現在の実効向き) と `applyYawDelta`(増分加算) の組合せで実現した
+  - `box-bot-01/index.tsx` に `jumpAction` と同じパターンで `ACTION_FACE`/`faceAction` を再 export（外部から `eventTarget` 共有 + `useBoxBotActionDispatcher` で発火する用途）
+  - hex 6 方向（`HEX_DIRECTIONS`）→ 画面角度(rad、atan2 基準) の変換 `hexDirectionToScreenAngle` を `stage-07/_lib/hex.ts` に追加。`hex-layout.ts` の `axialToPixel` と同じ投影式（画面座標の `atan2(dy, dx)`）を hexSize=1 で複製して使用（`hex-layout.ts` への import は sibling 循環になるため）
+  - `useHexMove` に `onFacingChange?: (screenAngle: number) => void` を追加。box-bot-01 の型（`faceAction`/`useBoxBotActionDispatcher`）を直接知らない疎結合のまま、算出した画面角度を呼び出し元へ渡すだけにした（stage-06 `ActorsLayer` が `actions` prop を外から受ける設計と同じ考え方）。box-bot-01 との実結合（`useBoxBotActionDispatcher` の生成・dispatch）は `Stage07` 側に閉じた
+  - `Stage07` で `eventTarget` を `useState` lazy initializer で生成（`BoxBotEventProvider` と同じ手法）し、`ActorsLayer`（`actions=[faceAction]` 固定）と `useHexMove` の両方へ配線
+- 2026-09-15: 上記実装のバグをユーザー指摘で発覚・修正。「(0,0)から右下(1,0)をクリックすると下を向く」（期待は右下方向）
+  - 原因調査のため `_actions/face/index.stories.tsx` を新規追加（0〜330° 12方向のボタンで `face` を dispatch、正式な story として今後も残す）し、Storybook + Playwright で box-bot-01 単体の yaw と見た目の対応を実機確認。判明した事実: yaw=0(カメラ正面、`rotationY` の基準)は画面上「手前(観察者向き)」に見え、画面座標の `atan2` 基準(0=右方向)とは 90° ズレていた
+  - 当初、単純に `atan2 結果 - 90°` のオフセット補正を試したが、box-bot-01 のカメラが斜め上から見下ろす遠近視点（`CAMERA_POSITION=[3.6,2.2,5.4]`、`ORBIT_TARGET=[0,0.32,0]`）のため、yaw 回転と画面上の見た目角度の関係は非線形（正面/背面付近で急激に変化し、側面付近ではほぼ変化しない）と判明。単純オフセットでは「右下」が実際にはほぼ側面向きに寄ってしまう不具合が残った。対応方針をユーザーに確認し「正確な投影計算で数値的に補正」を選択
+  - box-bot-01 に `_lib/camera.ts`（`CAMERA_POSITION`/`ORBIT_TARGET` を `index.tsx` から切り出し、両ファイルが参照）と `_lib/screen-facing.ts`（`screenAngleToYaw`）を新設。カメラの right/up ベクトルへ正面ベクトル `(sinθ,0,cosθ)` を投影し画面角度を求める `yawToScreenAngle` を内部に持ち、目的の画面角度に対し 0.5°(720分割)刻みで yaw 全域を走査し最も近い yaw を返す数値逆算（解析的な逆関数は非線形性のため導出できないため）。`screenAngleToYaw` を `index.tsx` から再 export
+  - 責務を再整理: `hex.ts` の関数は `hexDirectionToScreenAngle`（画面角度計算のみ、box-bot-01 非依存）に改称・簡素化。yaw への変換（`screenAngleToYaw`）は box-bot-01 のカメラモデルを知る `Stage07` 側で行うよう統一（`useHexMove`/`hex.ts` は一貫して box-bot-01 非依存を維持）
+  - Storybook + Playwright headless で再確認: 「右下」（screenAngle 30°）で正面と側面の中間の自然な斜め向き、「真下」（screenAngle 90°）で完全な正面向きになることを確認
+  - Storybook + Playwright headless で 3 方向移動（右 → 右上 → 下）を実施、都度スクリーンショットで向きが変化することを目視確認。console error なし
 
 ## 懸念・リスク
 
