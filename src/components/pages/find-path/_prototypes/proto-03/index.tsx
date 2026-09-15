@@ -36,9 +36,10 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  *   表示/非表示）・`GoalMarkerLayer`（旗の表示/非表示）から読めるよう `Stage07`
  *   の外側に置く
  * - 確認ダイアログは対象外（別途検討）
- * - 歩行モーション（`Stage07` の `enableWalking`）はチェックボックスで切替可能（既定 OFF）。
- *   1 マスごとの隣接クリック移動は歩行と相性が悪い（150ms transition の一瞬で on/off
- *   する不自然な動き）ため既定無効、有効化して比較できるようにする
+ * - 歩行モーション（`Stage07` の `enableWalking`）はチェックボックスで切替可能（既定 ON）。
+ *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、
+ *   1 マスごとの隣接クリック移動でも到着後に行進が続く不自然さが解消したため既定有効化。
+ *   無効化との比較用にチェックボックスは残す
  */
 const FindPathProto03 = () => {
   return (
@@ -53,7 +54,7 @@ const FindPathProto03Content = () => {
   const [currentCell, setCurrentCell] = useState<HexCell>(START_POSITION)
   const [displayMode, setDisplayMode] =
     useState<MoveTargetDisplayMode>('scatter')
-  const [enableWalking, setEnableWalking] = useState(false)
+  const [enableWalking, setEnableWalking] = useState(true)
   const [goalReached, setGoalReached] = useState(false)
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
