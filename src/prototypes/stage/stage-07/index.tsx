@@ -37,8 +37,12 @@ type Stage07Props = PropsWithChildren<{
   enableWalking?: boolean
   /** 六角形の外接円半径 (px) */
   hexSize: number
+  /** walking の腕振り角の初期振幅(rad)（省略時は `WALKING_DEFAULTS.armSwingAngle` = `0.35`） */
+  initialArmSwingAngle?: number
   /** 初期の現在地セル（省略時は axial 原点 (0, 0)） */
   initialCell?: HexCell
+  /** walking の脚振り角の初期振幅(rad)（省略時は `WALKING_DEFAULTS.swingAngle` = `0.5`） */
+  initialLegSwingAngle?: number
   /**
    * walking の脚振り周期(`cycleSec`)の初期上限(秒)（省略時は `1.2`）
    *
@@ -87,8 +91,9 @@ type Stage07Props = PropsWithChildren<{
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
- *   (`maxWalkCycleSec`)はいずれもスライダーで調整可能（`ActorsLayer` へ渡す。
- *   tilt と異なり操作頻度が低いため `useState` で管理、再レンダリングを許容する）
+ *   (`maxWalkCycleSec`)・脚/腕振り角の振幅(`legSwingAngle`/`armSwingAngle`)は
+ *   いずれもスライダーで調整可能（`ActorsLayer` へ渡す。tilt と異なり操作頻度が
+ *   低いため `useState` で管理、再レンダリングを許容する）
  */
 export const Stage07 = (props: Stage07Props) => {
   const {
@@ -97,7 +102,9 @@ export const Stage07 = (props: Stage07Props) => {
     cols,
     enableWalking = false,
     hexSize,
+    initialArmSwingAngle = 0.35,
     initialCell = { q: 0, r: 0 },
+    initialLegSwingAngle = 0.5,
     initialMaxWalkCycleSec = 1.2,
     initialMoveDurationMs = 150,
     initialTiltDeg = 0,
@@ -111,6 +118,10 @@ export const Stage07 = (props: Stage07Props) => {
   const [moveDurationMs, setMoveDurationMs] = useState(initialMoveDurationMs)
   /** walking の脚振り周期(cycleSec)の上限(秒)。スライダーで調整可能 */
   const [maxWalkCycleSec, setMaxWalkCycleSec] = useState(initialMaxWalkCycleSec)
+  /** walking の脚振り角の振幅(rad)。スライダーで調整可能 */
+  const [legSwingAngle, setLegSwingAngle] = useState(initialLegSwingAngle)
+  /** walking の腕振り角の振幅(rad)。スライダーで調整可能 */
+  const [armSwingAngle, setArmSwingAngle] = useState(initialArmSwingAngle)
 
   /**
    * player bot(box-bot-01)と共有する EventTarget
@@ -182,10 +193,12 @@ export const Stage07 = (props: Stage07Props) => {
             rows={rows}
           />
           <ActorsLayer
+            armSwingAngle={armSwingAngle}
             cols={cols}
             currentCell={currentCell}
             eventTarget={eventTarget}
             hexSize={hexSize}
+            legSwingAngle={legSwingAngle}
             maxWalkCycleSec={maxWalkCycleSec}
             moveDurationMs={moveDurationMs}
             onArrived={handleArrived}
@@ -231,10 +244,38 @@ export const Stage07 = (props: Stage07Props) => {
           onChange={(event) => {
             setMaxWalkCycleSec(Number(event.target.value))
           }}
-          step={0.1}
+          step={0.05}
           type="range"
         />{' '}
-        {maxWalkCycleSec}s
+        {maxWalkCycleSec.toFixed(2)}s
+      </label>
+      <label>
+        脚振り角(rad){' '}
+        <input
+          defaultValue={initialLegSwingAngle}
+          max={1.2}
+          min={0}
+          onChange={(event) => {
+            setLegSwingAngle(Number(event.target.value))
+          }}
+          step={0.05}
+          type="range"
+        />{' '}
+        {legSwingAngle.toFixed(2)}
+      </label>
+      <label>
+        腕振り角(rad){' '}
+        <input
+          defaultValue={initialArmSwingAngle}
+          max={1.2}
+          min={0}
+          onChange={(event) => {
+            setArmSwingAngle(Number(event.target.value))
+          }}
+          step={0.05}
+          type="range"
+        />{' '}
+        {armSwingAngle.toFixed(2)}
       </label>
     </div>
   )

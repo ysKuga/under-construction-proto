@@ -10,6 +10,8 @@ import { HexCell } from '../../_lib/hex'
 import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
 
 type ActorsLayerProps = {
+  /** walking の腕振り角の振幅(rad)（省略時は `WALKING_DEFAULTS.armSwingAngle` = `0.35`） */
+  armSwingAngle?: number
   /** 列数 */
   cols: number
   /** 現在地セル */
@@ -22,6 +24,8 @@ type ActorsLayerProps = {
   eventTarget?: EventTarget
   /** 六角形の外接円半径 (px) */
   hexSize: number
+  /** walking の脚振り角の振幅(rad)（省略時は `WALKING_DEFAULTS.swingAngle` = `0.5`） */
+  legSwingAngle?: number
   /**
    * walking の脚振り周期(`cycleSec`)の上限(秒)（省略時は `1.2`）
    *
@@ -64,10 +68,12 @@ const ACTIONS = [faceAction, walkingAction]
 
 export const ActorsLayer = (props: ActorsLayerProps) => {
   const {
+    armSwingAngle,
     cols,
     currentCell,
     eventTarget,
     hexSize,
+    legSwingAngle,
     maxWalkCycleSec = 1.2,
     moveDurationMs = 150,
     onArrived,
@@ -104,7 +110,15 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
   return (
     <div onTransitionEnd={handleTransitionEnd} style={style}>
       <BoxBot01
-        actionConfig={{ walking: { cycleSec } }}
+        actionConfig={{
+          walking: {
+            cycleSec,
+            // defineAction が {...defaults, ...override} でマージするため、
+            // undefined を明示的に含めると既定値を上書きしてしまう。省略する
+            ...(armSwingAngle !== undefined && { armSwingAngle }),
+            ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
+          },
+        }}
         actions={ACTIONS}
         eventTarget={eventTarget}
         orbit={false}
