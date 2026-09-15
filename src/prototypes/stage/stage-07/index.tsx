@@ -4,6 +4,7 @@ import {
   ComponentProps,
   CSSProperties,
   PropsWithChildren,
+  useEffect,
   useRef,
   useState,
 } from 'react'
@@ -21,7 +22,11 @@ import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-contro
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
 import { useHexMove } from './_hooks/use-hex-move'
-import { HexCell } from './_lib/hex'
+import {
+  HexCell,
+  hexDirectionToScreenAngle,
+  pickInitialFacingTarget,
+} from './_lib/hex'
 
 type Stage07Props = PropsWithChildren<{
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
@@ -81,6 +86,8 @@ type Stage07Props = PropsWithChildren<{
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
+ * - 初期表示時は `pickInitialFacingTarget`(`_lib/hex`) が、`initialCell` の隣接に
+ *   進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける（隅セル対策）
  * - `enableWalking`(既定 `false`)が true のときのみ、移動開始で `walking` action を on
  *   にする（トグル方式のため `isWalkingRef` で on 済みかを追跡）。歩行は到着まで
  *   継続させ、位置決め div の CSS transition 完了（`ActorsLayer` の `onArrived`、
@@ -98,6 +105,9 @@ type Stage07Props = PropsWithChildren<{
  *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
  *   固定値)で調整不要とのユーザー判断のため UI なし
  */
+/** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
+const INITIAL_FACING_MAX_RETRY_FRAMES = 30
+
 export const Stage07 = (props: Stage07Props) => {
   const {
     botSize,
@@ -137,6 +147,45 @@ export const Stage07 = (props: Stage07Props) => {
 
   /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
+  /** 初期向き調整(下記 useEffect)で最新の `face` を読むための ref */
+  const faceRef = useRef(face)
+
+  useEffect(() => {
+    // 毎レンダー最新の face を ref へ反映する(react-hooks/refs: render 中の書込み禁止)
+    faceRef.current = face
+  })
+
+  useEffect(() => {
+    // 初期表示時、隣接に進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける。
+    // マウント時に実行する。box-bot-01 の Canvas(r3f の別レンダラ)側で action の
+    // listener が attach されるまで数フレーム(実測で 8〜9 フレーム程度)かかるため、
+    // INITIAL_FACING_MAX_RETRY_FRAMES フレームの間 rAF で再送し続け、listener attach
+    // 後の 1 回を確実に届ける(絶対角度指定の dispatch のため、attach 済み以降の
+    // 重複送信は差分 0 の no-op になり無害)
+    const target = pickInitialFacingTarget(initialCell, cols, rows)
+    const screenAngle = target && hexDirectionToScreenAngle(initialCell, target)
+
+    if (screenAngle === undefined) return
+
+    const rad = screenAngleToYaw(screenAngle)
+
+    let handle = 0
+    let frame = 0
+    const tick = () => {
+      frame += 1
+      void faceRef.current({ rad })
+
+      if (frame < INITIAL_FACING_MAX_RETRY_FRAMES) {
+        handle = requestAnimationFrame(tick)
+      }
+    }
+
+    handle = requestAnimationFrame(tick)
+
+    return () => cancelAnimationFrame(handle)
+    // マウント時の initialCell/cols/rows のみで判定する。face は faceRef 経由
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const { currentCell, handleCellClick } = useHexMove(
     initialCell,
