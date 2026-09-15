@@ -106,7 +106,7 @@ issue: #137
 - [ ] 「1 手戻す」（計画上の消費取消）と「戻る」（到達済みマスへ消費を伴い異動する行動）を別枠の操作として分離検討。「戻る」は一見メリットのない行動のため、ギミックによるインセンティブ付与・退避行動としての活用など仕組みの導入を検討
 - [ ] 障害物 / 歩数制限 / 一方通行セル（段階 4 から継続。「挑戦」「工夫」実現の中心方針）
 - [x] （検討）bot を進行方向へ向ける（proto-03 のみ対応。他 proto は未着手）
-- [ ] （検討）進行時に歩くモーションを再生する
+- [x] （検討）進行時に歩くモーションを再生する（proto-03 のみ対応。他 proto は未着手）
 - [ ] （検討）「実行」中は停止を挟まず歩く速度を維持する。途中の操作介入があった時点で停止する
 - [ ] （検討）到達済みマス表示ON時、または視界制限自体を採用しない（全マス表示）場合に、隣接以外の目的地セルをクリックすると経路探索により自動で経路を生成し移動する。現行の「隣接セルを1手ずつクリック」方式に加える、または代替する入力方式として検討。先行実装: 旧世代 stage-04 で経路探索を実装済み（[stage-04-pathfinding/design.md](../_closed/20260716-stage-04-pathfinding/design.md)、BFS 想定・単一 actor 前提。「予備」フェーズで経路計算 → 「実行」フェーズで逐次移動、`stage-time-control` の時間管理機構に依存）。find-path 側は tick 駆動でなく DOM 直書き + CSS transition の逐次移動（`useAdjacentMove`/`useHexMove`）のため、経路計算結果をどう逐次移動へ渡すかは移植時に要検討
 
@@ -188,6 +188,11 @@ issue: #137
   - 責務を再整理: `hex.ts` の関数は `hexDirectionToScreenAngle`（画面角度計算のみ、box-bot-01 非依存）に改称・簡素化。yaw への変換（`screenAngleToYaw`）は box-bot-01 のカメラモデルを知る `Stage07` 側で行うよう統一（`useHexMove`/`hex.ts` は一貫して box-bot-01 非依存を維持）
   - Storybook + Playwright headless で再確認: 「右下」（screenAngle 30°）で正面と側面の中間の自然な斜め向き、「真下」（screenAngle 90°）で完全な正面向きになることを確認
   - Storybook + Playwright headless で 3 方向移動（右 → 右上 → 下）を実施、都度スクリーンショットで向きが変化することを目視確認。console error なし
+- 2026-09-15: 「進行時に歩くモーションを再生する」を proto-03（hex）のみ実装。対象範囲はユーザー判断で「proto-03 のみ」に決定（face と同様）
+  - box-bot-01 の既存 `walkingAction`/`ACTION_WALKING`（脚の前後スイング on/off トグル、`BOX_BOT_ACTIONS` に元々収録済みだが外部非公開だった）を `face`/`jump` と同じパターンで `box-bot-01/index.tsx` から再 export。`Stage07` の `ActorsLayer` の `actions` に `walkingAction` を追加
+  - walking はトグル方式（1 回の dispatch で on/off 反転）のため、on/off 状態を `Stage07` 側の `isWalkingRef` で追跡。ON: `useHexMove` の `onCellChange`（セル移動確定時）で `isWalkingRef.current` が false のときのみ dispatch → true にする。OFF: `ActorsLayer` の位置決め div（`left`/`top`/`transform` を 150ms transition させている要素）に新設した `onArrived`（`transitionend` の `propertyName === 'left'` のみ拾う）で `isWalkingRef.current` が true のときのみ dispatch → false にする
+  - この方式により、連続移動中（次の移動が前の移動の transition 完了前に来る）は ON を維持し続け、移動が完全に止まった（transitionend が発火した）ときのみ OFF になる（ユーザー選択の「moveActor 直前で ON、常時 ON のまま次 moveActor が来れば継続」を実現）
+  - Storybook + Playwright headless で確認: ブラウザ内タイマーで 50ms 間隔の連続 3 回移動を発火 → walking dispatch が ON 1 回 / OFF 1 回のみ（最後の移動の transition 完了時に OFF）であることを console.log 一時追加で確認。スクリーンショットで移動中は脚が前後に開いた歩行姿勢、停止後は直立姿勢に戻ることを目視確認。console error なし
 
 ## 懸念・リスク
 
