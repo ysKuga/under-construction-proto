@@ -202,7 +202,7 @@ export const Stage07 = (props: Stage07Props) => {
         移動速度{' '}
         <input
           defaultValue={initialMoveDurationMs}
-          max={800}
+          max={3000}
           min={50}
           onChange={(event) => {
             setMoveDurationMs(Number(event.target.value))

@@ -44,6 +44,9 @@ type ActorsLayerProps = {
  *   `computeHexGridBounds` を共有し、セルの見た目位置とズレないようにする
  * - 床の rotateX を打ち消す逆 rotateX で、傾いた床の上でも直立させる（stage-06 の
  *   `ActorsLayer` と同一手法）
+ * - `walking` action の脚振り周期(`cycleSec`)を `moveDurationMs` と連動させる。
+ *   移動時間だけを変えても脚の振り速度(周期)が一定だと、見た目の歩幅と移動距離の
+ *   対応が崩れる（速い移動なのに脚がゆっくり／遅い移動なのに脚が速く振れる）ため
  * - visibility registry・複数 actor・ref registry 化は対象外（試作スコープ、issue #162）
  */
 /** face / walking を有効化する(jump/spin 等は無効のまま) */
@@ -81,9 +84,16 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
     onArrived?.()
   }
 
+  /**
+   * walking の 1 周期(両脚 1 往復 = 2 歩)を、1 マス移動(片脚 1 歩)の 2 マスぶんとみなし、
+   * 移動時間の 2 倍を周期にする
+   */
+  const cycleSec = (moveDurationMs / 1000) * 2
+
   return (
     <div onTransitionEnd={handleTransitionEnd} style={style}>
       <BoxBot01
+        actionConfig={{ walking: { cycleSec } }}
         actions={ACTIONS}
         eventTarget={eventTarget}
         orbit={false}
