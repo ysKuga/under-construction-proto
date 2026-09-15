@@ -1,6 +1,10 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, TransitionEvent } from 'react'
 
-import { BoxBot01, faceAction } from '@/components/theater/figure/box-bot'
+import {
+  BoxBot01,
+  faceAction,
+  walkingAction,
+} from '@/components/theater/figure/box-bot'
 
 import { HexCell } from '../../_lib/hex'
 import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
@@ -18,6 +22,13 @@ type ActorsLayerProps = {
   eventTarget?: EventTarget
   /** 六角形の外接円半径 (px) */
   hexSize: number
+  /**
+   * セル間移動アニメーション(位置決め div の CSS transition)完了時(省略可)
+   *
+   * - `left`/`top`/`transform` の 3 プロパティで発火するため `propertyName === 'left'`
+   *   のみ拾う(1 回の移動につき 1 回だけ呼ぶ)
+   */
+  onArrived?: () => void
   /** 行数 */
   rows: number
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
@@ -33,11 +44,12 @@ type ActorsLayerProps = {
  *   `ActorsLayer` と同一手法）
  * - visibility registry・複数 actor・ref registry 化は対象外（試作スコープ、issue #162）
  */
-/** face のみ有効化する(jump/spin 等は無効のまま) */
-const ACTIONS = [faceAction]
+/** face / walking を有効化する(jump/spin 等は無効のまま) */
+const ACTIONS = [faceAction, walkingAction]
 
 export const ActorsLayer = (props: ActorsLayerProps) => {
-  const { cols, currentCell, eventTarget, hexSize, rows, size } = props
+  const { cols, currentCell, eventTarget, hexSize, onArrived, rows, size } =
+    props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const center = hexCellCenter(currentCell, hexSize, bounds)
@@ -53,8 +65,14 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
     width: size,
   }
 
+  const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (event.propertyName !== 'left') return
+
+    onArrived?.()
+  }
+
   return (
-    <div style={style}>
+    <div onTransitionEnd={handleTransitionEnd} style={style}>
       <BoxBot01
         actions={ACTIONS}
         eventTarget={eventTarget}

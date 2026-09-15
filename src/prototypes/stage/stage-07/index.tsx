@@ -4,6 +4,7 @@ import {
   ComponentProps,
   CSSProperties,
   PropsWithChildren,
+  useRef,
   useState,
 } from 'react'
 
@@ -11,6 +12,7 @@ import {
   faceAction,
   screenAngleToYaw,
   useBoxBotActionDispatcher,
+  walkingAction,
 } from '@/components/theater/figure/box-bot'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
@@ -60,6 +62,9 @@ type Stage07Props = PropsWithChildren<{
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
+ * - 移動開始で `walking` action を on、`ActorsLayer` の位置決め div の CSS transition
+ *   完了（次の移動が来ないまま静止）で off にする（`walking` はトグル方式のため
+ *   `isWalkingRef` で on/off 状態を追跡する）。連続移動中は on を維持し続ける
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
@@ -86,16 +91,37 @@ export const Stage07 = (props: Stage07Props) => {
    *   `face` action(進行方向転換)を外部から発火するために `ActorsLayer` へ渡す
    */
   const [eventTarget] = useState<EventTarget>(() => new EventTarget())
-  const { face } = useBoxBotActionDispatcher(eventTarget, [faceAction])
+  const { face, walking } = useBoxBotActionDispatcher(eventTarget, [
+    faceAction,
+    walkingAction,
+  ])
+
+  /** 歩行 action の on/off 状態(トグル方式のため呼び出し側で追跡する) */
+  const isWalkingRef = useRef(false)
 
   const { currentCell, handleCellClick } = useHexMove(
     initialCell,
-    onCellChange,
+    (cell) => {
+      if (!isWalkingRef.current) {
+        isWalkingRef.current = true
+        void walking()
+      }
+
+      onCellChange?.(cell)
+    },
     (screenAngle) => {
       void face({ rad: screenAngleToYaw(screenAngle) })
     },
   )
   const { floorRef, setTilt } = usePerspectiveControl()
+
+  /** セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする */
+  const handleArrived = () => {
+    if (!isWalkingRef.current) return
+
+    isWalkingRef.current = false
+    void walking()
+  }
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
   const sceneStyle: CSSProperties = {
@@ -132,6 +158,7 @@ export const Stage07 = (props: Stage07Props) => {
             currentCell={currentCell}
             eventTarget={eventTarget}
             hexSize={hexSize}
+            onArrived={handleArrived}
             rows={rows}
             size={botSize}
           />
