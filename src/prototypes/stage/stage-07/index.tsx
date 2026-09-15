@@ -105,6 +105,8 @@ type Stage07Props = PropsWithChildren<{
  *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
  *   固定値)で調整不要とのユーザー判断のため UI なし
  */
+/** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
+const WALKING_RESET_DURATION_MS = 200
 /** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
 const INITIAL_FACING_MAX_RETRY_FRAMES = 30
 
@@ -208,7 +210,7 @@ export const Stage07 = (props: Stage07Props) => {
     if (!enableWalking || !isWalkingRef.current) return
 
     isWalkingRef.current = false
-    void walkingReset()
+    void walkingReset(WALKING_RESET_DURATION_MS)
   }
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
