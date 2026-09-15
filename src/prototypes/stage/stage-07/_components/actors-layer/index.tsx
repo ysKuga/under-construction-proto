@@ -64,8 +64,14 @@ type ActorsLayerProps = {
 /** face / walking を有効化する(jump/spin 等は無効のまま) */
 const ACTIONS = [faceAction, walkingAction]
 
-/** 腕振り角(rad)。180度(体側から真後ろまで)に固定する(調整不要とのユーザー判断) */
-const ARM_SWING_ANGLE = Math.PI
+/**
+ * 腕振り角の振幅(rad)。前後 90 度ずつ(合計可動域 180 度)に固定する
+ *
+ * - `Math.sin(phase) * ARM_SWING_ANGLE` が rotation.x へそのまま入るため、
+ *   振幅 = 中心(直立)から前後それぞれの最大角。180 度(`Math.PI`)を振幅に
+ *   使うと前後 180 度ずつ(合計 360 度、1 回転)になってしまうため π/2 にする
+ */
+const ARM_SWING_ANGLE = Math.PI / 2
 
 export const ActorsLayer = (props: ActorsLayerProps) => {
   const {
