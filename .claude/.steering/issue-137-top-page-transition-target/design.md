@@ -235,6 +235,9 @@ issue: #137
 - 2026-09-15: 「腕の振りを大きくしても変わらない」とのユーザー指摘を受け調査。`use-walking.ts` へ一時 `console.log` を追加し、`config.armSwingAngle` がスライダー変更に応じて正しく更新されること（0.35→1.2）を数値確認。単発の 1 マス移動では歩行がほぼ一瞬で on/off し腕の振れの変化を目視で捉えにくかっただけで、実装バグではないと判明（連続移動で持続させたスクリーンショット比較では、既定は斜め程度・最大(1.2rad)は真横近くまで開くことを確認）
   - 上記の流れで「単純に腕の振りを 0〜180 度の範囲で動かしたい」と要望を受け、腕振り角スライダーのみ度数法(deg)表示に変更。内部の `armSwingAngle` state・`ActorsLayer` へ渡す prop は既存どおり rad 単位のまま、UI のスライダー値だけ deg⇄rad 変換する（`Stage07` の `initialArmSwingAngle` prop 自体も rad 単位で変更なし。UI 表示のみ deg 化）
   - Storybook + Playwright headless で確認: スライダーを 180° にすると `config.armSwingAngle` が `Math.PI` 相当になり、腕が真後ろまで振れきる見た目をスクリーンショットで確認。`tsc`/`eslint` エラーなし
+- 2026-09-15: 上記「0〜180 度で動かす」の意図がスライダー調整ではなく「常に 180 度に固定」だったと判明（「180 にしても変わらない」との追加報告もあり）。腕振り角の UI スライダー・state・prop(`armSwingAngle`/`initialArmSwingAngle`)を撤去し、`ActorsLayer` 内の定数 `ARM_SWING_ANGLE = Math.PI`(180度固定)を常に使うよう変更。脚振り角(`legSwingAngle`)は指示どおり対象外、スライダーのまま維持
+  - Playwright 環境では固定前の可変実装でも 180° 設定時に腕が振れることを確認できていたため、「変わらない」の報告は再現できていない（HMR 未反映等の環境要因の可能性）。固定化によりスライダー操作自体が不要になったため実害は解消
+  - Storybook + Playwright headless で確認: UI から腕振り角スライダーが消えていること、歩行時に腕が大きく振れる(180度固定)ことをスクリーンショットで確認。`tsc`/`eslint` エラーなし
 
 ## 懸念・リスク
 
