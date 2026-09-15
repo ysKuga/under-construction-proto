@@ -223,6 +223,10 @@ issue: #137
   - `ActorsLayer`（stage-07）に `MAX_WALK_CYCLE_SEC = 1.2`(秒)を新設し、`cycleSec = Math.min((moveDurationMs / 1000) * 2, MAX_WALK_CYCLE_SEC)` で頭打ちにした。移動が速い間は従来どおり比例して周期が縮むが、移動が遅い（`moveDurationMs` が大きい）場合でも周期は 1.2 秒を超えない。歩幅は変えず頻度の下限のみ保証する対応
   - 「一歩ごとの速度変化（踏み出しは速く、着地前に減速する等の加減速）」は今回の実装範囲に含めない（将来課題、下記懸念・リスクへ記録）
   - Storybook + Playwright headless で確認: 速度 3000ms・walking ON で 300ms 間隔のスクリーンショットを連続撮影し、脚が左右に開閉する変化が明確に視認できることを確認（クランプ前は 6 秒周期でほぼ変化が見えなかった）。console error なし
+- 2026-09-15: 上記に追加でユーザー指摘 2 件対応
+  - UI ラベル「移動速度」は実体（transition の所要時間）と乖離するため「移動時間(ms)」に修正（`Stage07` のスライダーラベルのみ、内部の prop 名 `moveDurationMs` 自体は変更なし）
+  - 「振りのスパンは調整できない？」との質問を受け、`MAX_WALK_CYCLE_SEC`(定数、1.2 固定)を `maxWalkCycleSec` prop 化。`ActorsLayer`/`Stage07` 双方に追加し、`Stage07` は `initialMaxWalkCycleSec`(既定 1.2) + `useState` + スライダー UI（「歩行周期上限(s)」、0.3〜3 秒）で調整可能にした。歩幅(`swingAngle`/`armSwingAngle`)は変えず、周期の頭打ち値のみ調整対象
+  - Playwright headless で `console.log` 一時追加により、`moveDurationMs`/`maxWalkCycleSec` の変更が `cycleSec = Math.min((moveDurationMs/1000)*2, maxWalkCycleSec)` へ即座に反映されることを数値で確認（3000ms/1.2s → cycleSec=1.2、3000ms/0.3s → cycleSec=0.3）。`tsc`/`eslint` エラーなし
 
 ## 懸念・リスク
 
