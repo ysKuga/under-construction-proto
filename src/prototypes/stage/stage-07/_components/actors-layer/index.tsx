@@ -4,6 +4,7 @@ import {
   BoxBot01,
   faceAction,
   walkingAction,
+  walkingResetAction,
 } from '@/components/theater/figure/box-bot'
 
 import { HexCell } from '../../_lib/hex'
@@ -63,8 +64,8 @@ type ActorsLayerProps = {
  *   常に一定以上の頻度で動きが見えるようにする
  * - visibility registry・複数 actor・ref registry 化は対象外（試作スコープ、issue #162）
  */
-/** face / walking を有効化する(jump/spin 等は無効のまま) */
-const ACTIONS = [faceAction, walkingAction]
+/** face / walking / walkingReset を有効化する(jump/spin 等は無効のまま) */
+const ACTIONS = [faceAction, walkingAction, walkingResetAction]
 
 /**
  * 腕振り角の振幅(rad)。前後 90 度ずつ(合計可動域 180 度)に固定する
@@ -74,6 +75,16 @@ const ACTIONS = [faceAction, walkingAction]
  *   使うと前後 180 度ずつ(合計 360 度、1 回転)になってしまうため π/2 にする
  */
 const ARM_SWING_ANGLE = Math.PI / 2
+
+/**
+ * walking の速度収束レート(`speedApproachRate`)の基準値。box-bot 既定値
+ * (`WALKING_DEFAULTS.speedApproachRate`)と同じ、`cycleSec` = 1 のときの値
+ *
+ * - `cycleSec` に反比例させ、周期が短いほど速く収束させる(`cycleSec` 計算の隣で使用)。
+ *   box-bot 既定のレートのまま stage-07 の短い `moveDurationMs`(数百 ms)で使うと、
+ *   歩行の減速だけで数秒かかり「到着後も行進が続く」ように見えるため
+ */
+const BASE_SPEED_APPROACH_RATE = 3
 
 export const ActorsLayer = (props: ActorsLayerProps) => {
   const {
@@ -99,7 +110,7 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
     top: center.y,
     transform: 'translate(-50%, -53%) rotateX(calc(-1 * var(--floor-tilt)))',
     transformOrigin: 'center bottom',
-    transition: `left ${moveDurationMs}ms, top ${moveDurationMs}ms, transform ${moveDurationMs}ms`,
+    transition: `left ${moveDurationMs}ms linear, top ${moveDurationMs}ms linear, transform ${moveDurationMs}ms linear`,
     width: size,
   }
 
@@ -115,6 +126,9 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
    */
   const cycleSec = Math.min((moveDurationMs / 1000) * 2, maxWalkCycleSec)
 
+  /** `cycleSec` に反比例させた歩行の速度収束レート(`BASE_SPEED_APPROACH_RATE` 参照) */
+  const speedApproachRate = BASE_SPEED_APPROACH_RATE / cycleSec
+
   return (
     <div onTransitionEnd={handleTransitionEnd} style={style}>
       <BoxBot01
@@ -122,6 +136,7 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
           walking: {
             armSwingAngle: ARM_SWING_ANGLE,
             cycleSec,
+            speedApproachRate,
             // defineAction が {...defaults, ...override} でマージするため、
             // undefined を明示的に含めると既定値を上書きしてしまう。省略する
             ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),

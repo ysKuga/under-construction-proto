@@ -13,6 +13,7 @@ import {
   screenAngleToYaw,
   useBoxBotActionDispatcher,
   walkingAction,
+  walkingResetAction,
 } from '@/components/theater/figure/box-bot'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
@@ -80,10 +81,13 @@ type Stage07Props = PropsWithChildren<{
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
- * - `enableWalking`(既定 `false`)が true のときのみ、移動開始で `walking` action を on、
- *   `ActorsLayer` の位置決め div の CSS transition 完了（次の移動が来ないまま静止）で
- *   off にする（`walking` はトグル方式のため `isWalkingRef` で on/off 状態を追跡する）。
- *   連続移動中は on を維持し続ける
+ * - `enableWalking`(既定 `false`)が true のときのみ、移動開始で `walking` action を on
+ *   にする（トグル方式のため `isWalkingRef` で on 済みかを追跡）。歩行は到着まで
+ *   継続させ、位置決め div の CSS transition 完了（`ActorsLayer` の `onArrived`、
+ *   到着＝次の移動が来ないまま静止したタイミング）で `walkingReset()`（腕・脚を
+ *   規定位置(0)へ即座にスナップする action）を呼んで歩行を止める。次の移動が
+ *   続けば `onArrived` は発火しない（transition が新しい移動先へ上書きされる）ため
+ *   自然に on が維持される
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
@@ -126,12 +130,12 @@ export const Stage07 = (props: Stage07Props) => {
    *   `face` action(進行方向転換)を外部から発火するために `ActorsLayer` へ渡す
    */
   const [eventTarget] = useState<EventTarget>(() => new EventTarget())
-  const { face, walking } = useBoxBotActionDispatcher(eventTarget, [
-    faceAction,
-    walkingAction,
-  ])
+  const { face, walking, walkingReset } = useBoxBotActionDispatcher(
+    eventTarget,
+    [faceAction, walkingAction, walkingResetAction],
+  )
 
-  /** 歩行 action の on/off 状態(トグル方式のため呼び出し側で追跡する) */
+  /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
 
   const { currentCell, handleCellClick } = useHexMove(
@@ -155,7 +159,7 @@ export const Stage07 = (props: Stage07Props) => {
     if (!enableWalking || !isWalkingRef.current) return
 
     isWalkingRef.current = false
-    void walking()
+    void walkingReset()
   }
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
