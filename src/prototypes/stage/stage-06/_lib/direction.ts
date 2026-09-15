@@ -1,4 +1,4 @@
-import { GridPosition } from '../_contexts/actor-node-registry'
+import { GridPosition, GridSize } from '../_contexts/actor-node-registry'
 
 /**
  * 移動元→移動先セルの方向を、画面上の角度(rad、atan2 基準: 0 = 右、π/2 = 下)へ変換する
@@ -17,3 +17,33 @@ export const gridDirectionToScreenAngle = (
 
   return Math.atan2(dy, dx)
 }
+
+/** 隣接4方向のオフセット。画面角度 0(右)基準の時計回り順 */
+const FACING_PRIORITY: readonly GridPosition[] = [
+  { col: 1, row: 0 },
+  { col: 0, row: 1 },
+  { col: -1, row: 0 },
+  { col: 0, row: -1 },
+]
+
+/**
+ * 初期向き先のセルを、進入可能(グリッド範囲内)な隣接セルから優先順に選ぶ
+ *
+ * - `FACING_PRIORITY`(画面角度 0 = 右から時計回り)の順で走査し、最初に見つかった
+ *   グリッド内の隣接セルを返す。隅セル等で既定の向き先が範囲外(進入不可)のときに使う
+ * - 全方向とも範囲外(1x1 グリッド等)なら `undefined`
+ */
+export const pickInitialFacingTarget = (
+  cell: GridPosition,
+  gridSize: GridSize,
+): GridPosition | undefined =>
+  FACING_PRIORITY.map((delta) => ({
+    col: cell.col + delta.col,
+    row: cell.row + delta.row,
+  })).find(
+    (target) =>
+      target.col >= 0 &&
+      target.col < gridSize.cols &&
+      target.row >= 0 &&
+      target.row < gridSize.rows,
+  )
