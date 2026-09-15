@@ -9,6 +9,7 @@ import {
 
 import {
   faceAction,
+  screenAngleToYaw,
   useBoxBotActionDispatcher,
 } from '@/components/theater/figure/box-bot'
 
@@ -56,8 +57,9 @@ type Stage07Props = PropsWithChildren<{
  *   `usePerspectiveControl`（stage-05 から import）が `--floor-tilt` を ref 直書き
  * - box-bot-01 (`ActorsLayer`) をクリック移動中の現在地セルへ表示する。
  *   time-control 統合、複数 actor 対応は対象外（別途検討）
- * - セル移動のたび `useHexMove` が算出した進行方向(yaw)を、bot と共有する
- *   `eventTarget` 経由で `face` action へ dispatch し、bot を進行方向へ向かせる
+ * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
+ *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
+ *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
@@ -89,8 +91,8 @@ export const Stage07 = (props: Stage07Props) => {
   const { currentCell, handleCellClick } = useHexMove(
     initialCell,
     onCellChange,
-    (yaw) => {
-      void face({ rad: yaw })
+    (screenAngle) => {
+      void face({ rad: screenAngleToYaw(screenAngle) })
     },
   )
   const { floorRef, setTilt } = usePerspectiveControl()

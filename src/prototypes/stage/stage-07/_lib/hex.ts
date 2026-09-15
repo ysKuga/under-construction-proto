@@ -49,14 +49,14 @@ const hexDirectionScreenAngle = (direction: HexCell): number => {
 }
 
 /**
- * 移動元→移動先セルの方向を、box-bot-01 の yaw(rad)へ変換する
+ * 移動元→移動先セルの方向を、画面上の角度(rad、atan2 基準: 0 = 右、π/2 = 下)へ変換する
  *
  * - 隣接セル前提(`HEX_DIRECTIONS` のいずれとも一致しない場合は `undefined`)
- * - 画面座標(dx: 右+、dy: 下+)の `atan2` をそのまま yaw の基準に対応付けている。\
- *   box-bot-01 は 0 rad = カメラ正面(world +z)。実機確認で向きのズレが出た場合、\
- *   符号反転・オフセット加算で補正する
+ * - box-bot-01 の yaw(3D 空間の y 軸回転)への変換は行わない。box-bot-01 のカメラモデルを
+ *   知らない疎結合を保つため、呼び出し側(`Stage07`)が `screenAngleToYaw`（box-bot-01 側）
+ *   でこの画面角度を yaw へ変換する
  */
-export const hexDirectionToYaw = (
+export const hexDirectionToScreenAngle = (
   from: HexCell,
   to: HexCell,
 ): number | undefined => {

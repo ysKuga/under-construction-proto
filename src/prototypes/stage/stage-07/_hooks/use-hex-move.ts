@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { HexCell, hexDirectionToYaw, isHexAdjacent } from '../_lib/hex'
+import { HexCell, hexDirectionToScreenAngle, isHexAdjacent } from '../_lib/hex'
 
 type UseHexMoveReturn = {
   /** 現在地セル */
@@ -14,13 +14,13 @@ type UseHexMoveReturn = {
  *
  * @param initialCell 初期セル
  * @param onCellChange 現在地セル変更時（省略可）
- * @param onFacingChange 移動方向の yaw(rad)算出時（省略可）。bot の box-bot-01 実体との\
- *   結合(`useBoxBotActionDispatcher`)は呼び出し側(`Stage07`)が持つため、ここでは角度を渡すのみ
+ * @param onFacingChange 移動方向の画面角度(rad、atan2 基準)算出時（省略可）。box-bot-01 の
+ *   yaw への変換・dispatch は呼び出し側(`Stage07`)が持つため、ここでは画面角度を渡すのみ
  */
 export const useHexMove = (
   initialCell: HexCell,
   onCellChange?: (cell: HexCell) => void,
-  onFacingChange?: (yaw: number) => void,
+  onFacingChange?: (screenAngle: number) => void,
 ): UseHexMoveReturn => {
   const [currentCell, setCurrentCell] = useState(initialCell)
 
@@ -29,10 +29,10 @@ export const useHexMove = (
       return
     }
 
-    const yaw = hexDirectionToYaw(currentCell, cell)
+    const screenAngle = hexDirectionToScreenAngle(currentCell, cell)
 
-    if (yaw !== undefined) {
-      onFacingChange?.(yaw)
+    if (screenAngle !== undefined) {
+      onFacingChange?.(screenAngle)
     }
 
     setCurrentCell(cell)
