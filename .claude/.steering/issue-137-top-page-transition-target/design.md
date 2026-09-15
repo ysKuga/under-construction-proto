@@ -197,6 +197,12 @@ issue: #137
   - `BoxBotActionHost` に `applyArmSwing({ left, right })` を新設(`applyLegSwing` と同型、adapter が左右の腕グループの `rotation.x` へ反映)。fall の `applyArmAngle` と書込先(同じ `rotation.x`)は共有するが、fall は直立中(`phaseRef===0`)は早期 return して書かないため排他的に動作し競合しない
   - `walkingAction` の `WalkingConfig` に `armSwingAngle`(既定 0.35、脚の `swingAngle`=0.5 よりやや控えめ)を追加。`useWalking` で脚と同じ位相・速度をもとに、反対側の脚と同位相(左腕 = 右脚、右腕 = 左脚)で腕角を計算し `applyArmSwing` へ渡す。停止時の 0 への戻し(`approach`)・早期 return 条件(両脚・両腕が戻りきったか)も脚と同様に腕を含めて判定
   - Storybook + Playwright headless で確認: 連続移動中に左右の腕が交互に前後する見た目をスクリーンショットで確認(拡大クリップで目視)。console error なし
+- 2026-09-15: proto-03（1 マスごとの隣接クリック移動）は歩行モーションと相性が悪い(150ms transition の一瞬で on → off するため脚が開きかけてすぐ閉じる不自然な動きになる)とのユーザー指摘を受け、歩行 on/off を切替可能にした
+  - `Stage07` に `enableWalking?: boolean`(既定 `false`)を追加。既存の `isWalkingRef` on/off ロジックはこの prop が true のときのみ動作する。find-path proto-03 側は明示的に渡していないため引き続き無効(1 マス移動での不自然な動きを解消)
+  - 「複数マスを移動する実装」として find-path proto-01（tick 駆動、経路をまとめて「実行」）に歩行を新規対応。`useFindPathTick` に `walking?: () => Promise<void>`(box-bot-01 の walking action dispatcher)を optional 引数として追加し、`isWalkingRef` を内部に持つ。`execute()` 開始時に on、歩き切り（`rest.length===0`）時に off にする。1 マスごとでなく「実行」開始 〜 歩き切りの実行全体を 1 周期とするため、tick 単位のちらつきが起きない
+  - `FindPathContent`（proto-01/index.tsx）で `eventTarget` を新規生成し `useBoxBotActionDispatcher` で walking dispatcher を取得、`useFindPathTick(walking)` へ渡すと同時に `Stage06` へ `actorActions={[walkingAction]}` / `actorEventTarget` を配線
+  - 汎用 hook として共通化する案もあったが、「stage-07（1 マス粒度）」「find-path proto-01（実行全体粒度）」で on/off の判定ロジックが異なる（前者は transitionend、後者は execute/歩き切り）ため、ユーザー判断で各実装に閉じた形のまま個別対応とした
+  - Storybook + Playwright headless で確認: proto-01 で 3 マス経路を積み「実行」→ tick 進行中は脚が開いた歩行姿勢、歩き切り後に直立へ戻ることをスクリーンショットで確認。proto-03 は `enableWalking` 未指定のまま隣接セル移動しても歩行姿勢にならない（直立のまま移動）ことを確認。`use-find-path-tick.test.ts` の既存 8 件のテストは変更なしで pass。console error なし
 
 ## 懸念・リスク
 
