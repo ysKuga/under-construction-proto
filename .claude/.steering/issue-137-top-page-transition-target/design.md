@@ -214,6 +214,11 @@ issue: #137
   - 速度調整: `Stage07`/`ActorsLayer` に `moveDurationMs`(既定 150)を追加。`ActorsLayer` の CSS transition(`left`/`top`/`transform`)の時間を可変にする。`Stage07` は `initialMoveDurationMs` prop + `useState` + tilt と同様のスライダー UI で管理（tilt と異なり操作頻度が低いため ref でなく state で許容）
   - walking 切替: 既存の `Stage07.enableWalking` prop を `FindPathProto03Content` の state 化しチェックボックスで切替可能にした（既定 OFF、1 マス移動との相性問題は解消済みでないため既定は維持）
   - Storybook + Playwright headless で確認: 速度スライダーを 800ms にして隣接セル移動 → 400ms 時点でまだ移動中（150ms 既定なら完了しているはず）、900ms 時点で到達済みであることをスクリーンショットで確認。walking チェックボックス ON で隣接セル移動時に脚が開いた歩行姿勢になることを確認。`tsc`/`eslint` エラーなし、console error なし
+- 2026-09-15: 上記に追加でユーザー指摘 2 件対応
+  - 速度スライダーの上限を 800 → 3000 に拡大
+  - 「walking が時間ありきになっている」問題を修正。従来は `moveDurationMs`（移動時間）を変えても `walkingAction` の脚振り周期（`WalkingConfig.cycleSec`、既定 1 秒固定）が連動せず、速い移動でも脚がゆっくり振れる／遅い移動でも脚が同じ速さで振れる、という歩幅と移動距離の乖離があった。`ActorsLayer`（stage-07）で `cycleSec = (moveDurationMs / 1000) * 2` を算出し、`BoxBot01` の `actionConfig={{ walking: { cycleSec } }}` へ渡して連動させた（`actionConfig` は `BOX_BOT_ACTIONS` 全体から型導出されるため `actions` prop の絞り込みに関わらず渡せる）
+  - 換算比は「walking の 1 周期(両脚 1 往復 = 2 歩)を移動 2 マスぶんとみなす」とし、1 マス移動(片脚 1 歩) = 半周期とした（`cycleSec = moveDurationMs[s] * 2`）。人間の歩行が「1 周期で両脚各 1 歩ずつ進む」ことを踏まえた対応付け
+  - Storybook + Playwright headless で確認: 速度 3000ms（cycleSec=6s）でゆったりした脚振り、速度 50ms（cycleSec=0.1s）で速い脚振りになることをスクリーンショットで確認。console error なし
 
 ## 懸念・リスク
 
