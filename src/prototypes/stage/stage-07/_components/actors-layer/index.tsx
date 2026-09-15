@@ -22,6 +22,8 @@ type ActorsLayerProps = {
   eventTarget?: EventTarget
   /** 六角形の外接円半径 (px) */
   hexSize: number
+  /** セル間移動アニメーションの所要時間(ms)（省略時は `150`） */
+  moveDurationMs?: number
   /**
    * セル間移動アニメーション(位置決め div の CSS transition)完了時(省略可)
    *
@@ -48,8 +50,16 @@ type ActorsLayerProps = {
 const ACTIONS = [faceAction, walkingAction]
 
 export const ActorsLayer = (props: ActorsLayerProps) => {
-  const { cols, currentCell, eventTarget, hexSize, onArrived, rows, size } =
-    props
+  const {
+    cols,
+    currentCell,
+    eventTarget,
+    hexSize,
+    moveDurationMs = 150,
+    onArrived,
+    rows,
+    size,
+  } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const center = hexCellCenter(currentCell, hexSize, bounds)
@@ -61,7 +71,7 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
     top: center.y,
     transform: 'translate(-50%, -53%) rotateX(calc(-1 * var(--floor-tilt)))',
     transformOrigin: 'center bottom',
-    transition: 'left 150ms, top 150ms, transform 150ms',
+    transition: `left ${moveDurationMs}ms, top ${moveDurationMs}ms, transform ${moveDurationMs}ms`,
     width: size,
   }
 

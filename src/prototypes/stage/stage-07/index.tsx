@@ -39,6 +39,8 @@ type Stage07Props = PropsWithChildren<{
   hexSize: number
   /** 初期の現在地セル（省略時は axial 原点 (0, 0)） */
   initialCell?: HexCell
+  /** セル間移動アニメーションの初期所要時間(ms)（省略時は `150`） */
+  initialMoveDurationMs?: number
   /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
   /** 現在地セル変更時（省略可） */
@@ -78,6 +80,9 @@ type Stage07Props = PropsWithChildren<{
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
+ * - セル間移動アニメーションの所要時間(`moveDurationMs`)はスライダーで調整可能
+ *   （`ActorsLayer` の CSS transition 時間。tilt と異なり操作頻度が低いため
+ *   `useState` で管理、再レンダリングを許容する）
  */
 export const Stage07 = (props: Stage07Props) => {
   const {
@@ -87,12 +92,16 @@ export const Stage07 = (props: Stage07Props) => {
     enableWalking = false,
     hexSize,
     initialCell = { q: 0, r: 0 },
+    initialMoveDurationMs = 150,
     initialTiltDeg = 0,
     onCellChange,
     perspectivePx = 800,
     registerCellVisibilityNode,
     rows,
   } = props
+
+  /** セル間移動アニメーションの所要時間(ms)。スライダーで調整可能 */
+  const [moveDurationMs, setMoveDurationMs] = useState(initialMoveDurationMs)
 
   /**
    * player bot(box-bot-01)と共有する EventTarget
@@ -168,6 +177,7 @@ export const Stage07 = (props: Stage07Props) => {
             currentCell={currentCell}
             eventTarget={eventTarget}
             hexSize={hexSize}
+            moveDurationMs={moveDurationMs}
             onArrived={handleArrived}
             rows={rows}
             size={botSize}
@@ -187,6 +197,20 @@ export const Stage07 = (props: Stage07Props) => {
           step={1}
           type="range"
         />
+      </label>
+      <label>
+        移動速度{' '}
+        <input
+          defaultValue={initialMoveDurationMs}
+          max={800}
+          min={50}
+          onChange={(event) => {
+            setMoveDurationMs(Number(event.target.value))
+          }}
+          step={10}
+          type="range"
+        />{' '}
+        {moveDurationMs}ms
       </label>
     </div>
   )
