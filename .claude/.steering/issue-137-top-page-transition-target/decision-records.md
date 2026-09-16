@@ -42,3 +42,4 @@ backlog.md から参照される決定事項ログ。1 エントリ 1〜2 行目
 - 2026-09-15: 脚・腕振り角（`legSwingAngle`/`armSwingAngle`）をスライダー化。腕振り角は後に「常時180度固定」要望を受け撤去、`ARM_SWING_ANGLE` 定数化 → 振幅と可動域の解釈誤りが判明し `Math.PI / 2`（前後90度ずつ）に修正
 - 2026-09-16: 移動距離に依らず速度一定化を案1（速度ベース化）で実装。`actor-node-registry` の `moveActor` で移動距離（斜めは√2倍）から transition duration を算出し DOM 直書き。proto-02 で直進150ms/斜め212msを実機確認
 - 2026-09-16: 障害物衝突判定は案A（セル境界のみ）に確定。次マスに障害物があれば `moveActor` 自体を呼ばない方式。理由: 現 actor 移動は CSS transition 任せで JS 側がアニメ中の途中位置を持たないため、マス移動途中の急停止は不可（正確にやるなら Web Animations API 移行が要る、過剰と判断）。経路プランニング制は離散ステップのため案Aで十分
+- 2026-09-16: 複数中継点の連続等速移動を案A（tick 停止ゼロ化、CSS transition 継続）で実装。`use-find-path-tick` の tick 発火間隔を固定 `TICK_MS` から区間距離ベースの可変長（`moveActor` と同じ distance × `CELL_TRANSITION_MS`）に変更、区間の継ぎ目で静止せず動き続けるようにした。旋回時の減速等の連続速度プロファイル制御（案B: Web Animations API 移行）は将来検討として design.md 懸念・リスクへ分離
