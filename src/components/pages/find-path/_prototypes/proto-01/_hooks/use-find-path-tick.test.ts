@@ -12,6 +12,8 @@ import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-0
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
+import { useEnergyStoreApi } from '../_stores/energy'
+import { DEFAULT_ENERGY_INFO } from '../_stores/energy/constants'
 import { GOAL_POSITION, OBSTACLE_CELLS, TICK_MS } from '../constants'
 
 import { useFindPathTick } from './use-find-path-tick'
@@ -33,6 +35,7 @@ const wrapper = ({ children }: PropsWithChildren) =>
 const renderTick = () =>
   renderHook(
     () => ({
+      energy: useEnergyStoreApi(),
       gameClock: useGameClockStoreApi(),
       plannedPath: usePlannedPathStoreApi(),
       registry: useActorNodeRegistry(),
@@ -211,4 +214,34 @@ test('再度「実行」すると reachedGoal がリセットされる', () => {
   seedPlanned(result, [{ col: 1, row: 0 }])
   act(() => result.current.tick.execute())
   expect(result.current.tick.reachedGoal).toBe(false)
+})
+
+test('エネルギーが尽きると tick ループが停止する（ゴール未達）', () => {
+  const { result } = renderTick()
+
+  seedPlanned(result, [
+    { col: 1, row: 0 },
+    { col: 2, row: 0 },
+    { col: 3, row: 0 },
+  ])
+
+  act(() => {
+    result.current.energy
+      .getState()
+      .consume(PLAYER_ACTOR_ID, DEFAULT_ENERGY_INFO.current - 1)
+  })
+
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS * 5))
+
+  // 残エネルギー=1 のため 1 マスだけ消化して停止する
+  expect(cellOf(result)).toEqual({ col: 1, row: 0 })
+  expect(result.current.tick.isRunning).toBe(false)
+  expect(result.current.tick.reachedGoal).toBe(false)
+  expect(
+    result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
+  ).toBe(0)
+  expect(
+    result.current.plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID),
+  ).toEqual([])
 })
