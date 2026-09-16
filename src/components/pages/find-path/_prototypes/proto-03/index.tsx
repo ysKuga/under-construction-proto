@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { Stage07 } from '@/prototypes/stage/stage-07'
+import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-07/_contexts/actor-node-registry'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
@@ -44,12 +45,17 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、
  *   1 マスごとの隣接クリック移動でも到着後に行進が続く不自然さが解消したため既定有効化。
  *   無効化との比較用にチェックボックスは残す
+ * - `ActorNodeRegistryProvider`（hex 版）は actor の現在セルを保持する Provider。
+ *   `Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の追加に備え、外部から
+ *   クリックを介さず actor を動かせるようにするため）
  */
 const FindPathProto03 = () => {
   return (
-    <VisibilityRegistryProvider>
-      <FindPathProto03Content />
-    </VisibilityRegistryProvider>
+    <ActorNodeRegistryProvider initialCell={START_POSITION}>
+      <VisibilityRegistryProvider>
+        <FindPathProto03Content />
+      </VisibilityRegistryProvider>
+    </ActorNodeRegistryProvider>
   )
 }
 
@@ -87,7 +93,6 @@ const FindPathProto03Content = () => {
         cols={GRID.cols}
         enableWalking={enableWalking}
         hexSize={HEX_SIZE}
-        initialCell={START_POSITION}
         initialTiltDeg={55}
         onCellChange={handleCellChange}
         registerCellVisibilityNode={(cell, el) =>

@@ -21,6 +21,7 @@ import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-contro
 
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
+import { useActorNodeRegistry } from './_contexts/actor-node-registry'
 import { useHexMove } from './_hooks/use-hex-move'
 import {
   HexCell,
@@ -50,8 +51,6 @@ type Stage07Props = PropsWithChildren<{
   enableWalking?: boolean
   /** 六角形の外接円半径 (px) */
   hexSize: number
-  /** 初期の現在地セル（省略時は axial 原点 (0, 0)） */
-  initialCell?: HexCell
   /** walking の脚振り角の初期振幅(rad)（省略時は `WALKING_DEFAULTS.swingAngle` = `0.5`） */
   initialLegSwingAngle?: number
   /**
@@ -64,6 +63,13 @@ type Stage07Props = PropsWithChildren<{
   initialMoveDurationMs?: number
   /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
+  /**
+   * セルクリックで actor を移動させるか（省略時は `true`）
+   *
+   * - `false` にすると `GeoLayer` は非対話になる。クリックを外側のレイヤー
+   *   （find-path の予定経路レイヤー等）へ委ねるとき使う
+   */
+  interactive?: boolean
   /** 現在地セル変更時（省略可） */
   onCellChange?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
@@ -88,13 +94,17 @@ type Stage07Props = PropsWithChildren<{
  *   absolute 配置する（issue #162）
  * - 遠近表現（perspective + rotateX の台形床）は stage-05/06 と同一。傾きは
  *   `usePerspectiveControl`（stage-05 から import）が `--floor-tilt` を ref 直書き
- * - box-bot-01 (`ActorsLayer`) をクリック移動中の現在地セルへ表示する。
- *   time-control 統合、複数 actor 対応は対象外（別途検討）
+ * - actor の現在セルは外側の `ActorNodeRegistryProvider`（hex 版）が保持する。
+ *   `useHexMove` はクリック検証（隣接判定・進入可否）と facing 算出のみ行い、
+ *   位置更新は registry の `moveActor` へ委ねる（tick 駆動実行時、外部からクリックを
+ *   介さず `moveActor` を直接呼べるようにするため）。複数 actor 対応は対象外（別途検討）
+ * - `interactive`（既定 `true`）を `false` にすると `GeoLayer` は非対話になる。
+ *   クリックを外側のレイヤー（tick 駆動実行時の予定経路レイヤー等）へ委ねる
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
- * - 初期表示時は `pickInitialFacingTarget`(`_lib/hex`) が、`initialCell` の隣接に
- *   進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける（隅セル対策）
+ * - 初期表示時は `pickInitialFacingTarget`(`_lib/hex`) が、現在セル(registry の
+ *   初期値)の隣接に進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける（隅セル対策）
  * - `enableWalking`(既定 `false`)が true のときのみ、移動開始で `walking` action を on
  *   にする（トグル方式のため `isWalkingRef` で on 済みかを追跡）。歩行は到着まで
  *   継続させ、位置決め div の CSS transition 完了（`ActorsLayer` の `onArrived`、
@@ -127,11 +137,11 @@ export const Stage07 = (props: Stage07Props) => {
     cols,
     enableWalking = false,
     hexSize,
-    initialCell = { q: 0, r: 0 },
     initialLegSwingAngle = 0.5,
     initialMaxWalkCycleSec = 1.2,
     initialMoveDurationMs = 150,
     initialTiltDeg = 0,
+    interactive = true,
     onCellChange,
     perspectivePx = 800,
     registerCellVisibilityNode,
@@ -156,6 +166,7 @@ export const Stage07 = (props: Stage07Props) => {
     eventTarget,
     [faceAction, walkingAction, walkingResetAction],
   )
+  const { currentCell, moveActor } = useActorNodeRegistry()
 
   /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
@@ -174,8 +185,8 @@ export const Stage07 = (props: Stage07Props) => {
     // INITIAL_FACING_MAX_RETRY_FRAMES フレームの間 rAF で再送し続け、listener attach
     // 後の 1 回を確実に届ける(絶対角度指定の dispatch のため、attach 済み以降の
     // 重複送信は差分 0 の no-op になり無害)
-    const target = pickInitialFacingTarget(initialCell, cols, rows)
-    const screenAngle = target && hexDirectionToScreenAngle(initialCell, target)
+    const target = pickInitialFacingTarget(currentCell, cols, rows)
+    const screenAngle = target && hexDirectionToScreenAngle(currentCell, target)
 
     if (screenAngle === undefined) return
 
@@ -195,12 +206,13 @@ export const Stage07 = (props: Stage07Props) => {
     handle = requestAnimationFrame(tick)
 
     return () => cancelAnimationFrame(handle)
-    // マウント時の initialCell/cols/rows のみで判定する。face は faceRef 経由
+    // マウント時の currentCell(初期値)/cols/rows のみで判定する。face は faceRef 経由
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const { currentCell, handleCellClick } = useHexMove(
-    initialCell,
+  const { handleCellClick } = useHexMove(
+    currentCell,
+    moveActor,
     (cell) => {
       if (enableWalking && !isWalkingRef.current) {
         isWalkingRef.current = true
@@ -251,6 +263,7 @@ export const Stage07 = (props: Stage07Props) => {
             cols={cols}
             currentCell={currentCell}
             hexSize={hexSize}
+            interactive={interactive}
             onCellClick={handleCellClick}
             registerVisibilityNode={registerCellVisibilityNode}
             rows={rows}

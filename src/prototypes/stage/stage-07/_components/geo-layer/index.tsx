@@ -31,6 +31,14 @@ type GeoLayerProps = {
   currentCell: HexCell
   /** 六角形の外接円半径 (px) */
   hexSize: number
+  /**
+   * セルクリックで actor を移動させるか
+   *
+   * - `false` の場合はセルを非対話の `<div>` で描画する（find-path proto-03 の
+   *   tick 駆動実行のように、クリックを別レイヤー（予定経路レイヤー）へ
+   *   委ねたいとき使う）
+   */
+  interactive: boolean
   /** セルクリック時。隣接判定は呼び出し元（`useHexMove`）が行う */
   onCellClick: (cell: HexCell) => void
   /**
@@ -54,6 +62,8 @@ type GeoLayerProps = {
  *   幾何学的に正確な頂点座標を計算する SVG 方式へ変更（issue #162）
  * - 選択可能マスの点線枠表示は `MoveTargetLayer`（find-path proto-03）へ委譲する。
  *   ここでは隣接セルの `cursor: pointer` のみ付与する
+ * - `interactive=false` のセルは非対話の `<div>` で描画する（stage-06 の
+ *   `GeoLayer` と同じ方針）
  */
 export const GeoLayer = (props: GeoLayerProps) => {
   const {
@@ -61,6 +71,7 @@ export const GeoLayer = (props: GeoLayerProps) => {
     cols,
     currentCell,
     hexSize,
+    interactive,
     onCellClick,
     registerVisibilityNode,
     rows,
@@ -85,10 +96,9 @@ export const GeoLayer = (props: GeoLayerProps) => {
           isHexAdjacent(currentCell, axial) && (canEnterCell?.(axial) ?? true)
         const center = hexCellCenter(axial, hexSize, bounds)
 
-        const buttonStyle: CSSProperties = {
+        const cellStyle: CSSProperties = {
           background: 'transparent',
           border: 'none',
-          cursor: selectable ? 'pointer' : 'default',
           height: bounds.cellHeight,
           left: center.x,
           padding: 0,
@@ -98,22 +108,34 @@ export const GeoLayer = (props: GeoLayerProps) => {
           width: bounds.cellWidth,
         }
 
-        return (
+        const hexagon = (
+          <svg height={bounds.cellHeight} width={bounds.cellWidth}>
+            <polygon
+              fill="#f1f5f9"
+              points={hexPolygonPoints(hexSize, HEX_INSET_RATIO)}
+            />
+          </svg>
+        )
+
+        return interactive ? (
           <button
             aria-label={`hex ${axial.q}-${axial.r}`}
             key={`${axial.q}-${axial.r}`}
             onClick={() => onCellClick(axial)}
             ref={(el) => registerVisibilityNode?.(axial, el)}
-            style={buttonStyle}
+            style={{ ...cellStyle, cursor: selectable ? 'pointer' : 'default' }}
             type="button"
           >
-            <svg height={bounds.cellHeight} width={bounds.cellWidth}>
-              <polygon
-                fill="#f1f5f9"
-                points={hexPolygonPoints(hexSize, HEX_INSET_RATIO)}
-              />
-            </svg>
+            {hexagon}
           </button>
+        ) : (
+          <div
+            key={`${axial.q}-${axial.r}`}
+            ref={(el) => registerVisibilityNode?.(axial, el)}
+            style={cellStyle}
+          >
+            {hexagon}
+          </div>
         )
       })}
     </div>
