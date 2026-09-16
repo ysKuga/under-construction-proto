@@ -11,11 +11,13 @@ import {
   MoveTargetLayer,
 } from './_components/move-target-layer'
 import { ObstacleLayer } from './_components/obstacle-layer'
+import { OneWayLayer } from './_components/one-way-layer'
 import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
 import { isObstacleCell } from './_lib/obstacle'
+import { isBlockedByOneWay } from './_lib/one-way'
 import { GOAL_POSITION, START_POSITION } from './constants'
 
 /** グリッド形状 */
@@ -70,6 +72,10 @@ const FindPathProto03Content = () => {
     }
   }
 
+  /** 対象セルへ進入可能か（障害物・一方通行の逆走を除外） */
+  const canEnterCell = (cell: HexCell) =>
+    !isObstacleCell(cell) && !isBlockedByOneWay(currentCell, cell)
+
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
       <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
@@ -77,7 +83,7 @@ const FindPathProto03Content = () => {
       </h1>
       <Stage07
         botSize={56}
-        canEnterCell={(cell) => !isObstacleCell(cell)}
+        canEnterCell={canEnterCell}
         cols={GRID.cols}
         enableWalking={enableWalking}
         hexSize={HEX_SIZE}
@@ -105,8 +111,16 @@ const FindPathProto03Content = () => {
           }
           rows={GRID.rows}
         />
+        <OneWayLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          registerVisibilityNode={(cell, el) =>
+            registerVisibilityNode(cell, 'marker', el)
+          }
+          rows={GRID.rows}
+        />
         <MoveTargetLayer
-          canEnterCell={(cell) => !isObstacleCell(cell)}
+          canEnterCell={canEnterCell}
           cols={GRID.cols}
           currentCell={currentCell}
           hexSize={HEX_SIZE}
