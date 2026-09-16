@@ -6,8 +6,7 @@ import { ONE_WAY_CELLS } from '../constants'
 export type OneWayDirection =
   'left' | 'lower-left' | 'lower-right' | 'right' | 'upper-left' | 'upper-right'
 
-/** 退出方向 → axial delta（矢印の向き計算に `_components/one-way-layer` から参照） */
-export const DIRECTION_DELTA: Record<OneWayDirection, HexCell> = {
+const DIRECTION_DELTA: Record<OneWayDirection, HexCell> = {
   left: { q: -1, r: 0 },
   'lower-left': { q: -1, r: 1 },
   'lower-right': { q: 0, r: 1 },
@@ -16,7 +15,8 @@ export const DIRECTION_DELTA: Record<OneWayDirection, HexCell> = {
   'upper-right': { q: 1, r: -1 },
 }
 
-const OPPOSITE_DIRECTION: Record<OneWayDirection, OneWayDirection> = {
+/** 退出方向 → 反対方向（進入禁止方向。`_components/one-way-layer` のバリア線から参照） */
+export const OPPOSITE_DIRECTION: Record<OneWayDirection, OneWayDirection> = {
   left: 'right',
   'lower-left': 'upper-right',
   'lower-right': 'upper-left',
