@@ -9,6 +9,8 @@ import {
   useRef,
 } from 'react'
 
+import { CELL_TRANSITION_MS } from '../../constants'
+
 /** グリッド上の位置 (0-indexed) */
 export type GridPosition = {
   /** 列 */
@@ -112,7 +114,7 @@ export const ActorNodeRegistryProvider = (
   )
 
   const applyToNode = useCallback(
-    (id: string, position: GridPosition) => {
+    (id: string, position: GridPosition, durationMs = 0) => {
       const node = nodesRef.current.get(id)
 
       if (!node) {
@@ -121,6 +123,7 @@ export const ActorNodeRegistryProvider = (
 
       const { left, top } = toCellPercent(position, gridSize)
 
+      node.style.transitionDuration = `${durationMs}ms`
       node.style.left = left
       node.style.top = top
     },
@@ -143,12 +146,18 @@ export const ActorNodeRegistryProvider = (
 
   const moveActor = useCallback(
     (id: string, target: GridPosition) => {
+      const current = positionsRef.current.get(id) ?? initialPosition
       const next = clampPosition(target, gridSize)
+      // 移動距離 (斜めは √2 倍) に比例した duration にし、見た目の速度を一定にする
+      const distance = Math.hypot(
+        next.col - current.col,
+        next.row - current.row,
+      )
 
       positionsRef.current.set(id, next)
-      applyToNode(id, next)
+      applyToNode(id, next, distance * CELL_TRANSITION_MS)
     },
-    [applyToNode, gridSize],
+    [applyToNode, gridSize, initialPosition],
   )
 
   const value = useMemo(

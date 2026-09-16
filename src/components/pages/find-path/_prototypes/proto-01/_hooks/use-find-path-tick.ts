@@ -13,7 +13,10 @@ import {
 import { screenAngleToYaw } from '@/components/theater/figure/box-bot'
 import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 import { gridDirectionToScreenAngle } from '@/prototypes/stage/stage-06/_lib/direction'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import {
+  CELL_TRANSITION_MS,
+  PLAYER_ACTOR_ID,
+} from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStoreApi } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 import { usePathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/path'
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
@@ -21,6 +24,15 @@ import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
+
+/**
+ * 区間 `index` を消化するための待機時間 (ms)
+ *
+ * - 直前区間（`index - 1`）の transition 時間。直前の移動が完了してから次を
+ *   開始するため。最初の区間（`index === 0`）は待機不要（即時消化）
+ */
+const thresholdForSegment = (durations: number[], index: number) =>
+  index === 0 ? 0 : durations[index - 1]
 
 type UseFindPathTickOptions = {
   /**
@@ -64,6 +76,9 @@ type UseFindPathTickReturn = {
  * - **r3f `useFrame`（実時間で毎フレーム描画補間する層）とは別レイヤー**。ここは
  *   論理時間 = tick を刻み、1 tick で bot を 1 セル進める。セル間の見た目の補間は
  *   `actors-layer` の CSS `transition` が担う
+ * - tick の間隔は固定でなく、区間ごとの移動距離（斜めは √2 倍）から
+ *   `actor-node-registry` の `moveActor` と同じ算出で可変にする。CSS transition の
+ *   所要時間ぴったりで次 tick が発火するため、経路の継ぎ目で静止せず等速で動き続ける
  * - 1 tick の処理: game-clock へ log → path を pop → `moveActor`（DOM 直書き、
  *   再レンダリングなし）
  * - 到達後の bot 移動（`moveActor`）自体は再レンダリングを起こさないが、`reachedGoal`
@@ -98,6 +113,20 @@ export const useFindPathTick = (
 
   /** 消化済み tick 数。`execute` 開始時に 0 へ戻す。+1 が消化したセルの `order` と一致する */
   const consumedCountRef = useRef(0)
+
+  /** 区間ごとの transition 時間 (ms)。`execute` 開始時に距離ベースで算出する */
+  const segmentDurationsRef = useRef<number[]>([])
+  /** 消化済み区間数。tick ループの carry 消化・`applyNextStep` 呼出しの両方が参照する */
+  const segmentIndexRef = useRef(0)
+  /**
+   * 直近の carry 計算時刻 (`performance.now()`)
+   *
+   * - `REALTIME_STEP_MS` 固定加算だと、DOM 操作等でメインスレッドが一時的にブロックされ
+   *   setInterval 発火が遅延・間引きされた際に carry 蓄積が実経過時間とズレる
+   *   （区間 duration を短くしたことで誤差が体感できるレベルまで顕在化した）。
+   *   実際の経過時間で加算し、このズレを避ける
+   */
+  const lastTickTimeRef = useRef(0)
 
   /**
    * timeScale の現在値を rx ストリームへ供給する橋渡し
@@ -219,6 +248,23 @@ export const useFindPathTick = (
     setReachedGoal(false)
     setIsRunning(true)
     consumedCountRef.current = 0
+    segmentIndexRef.current = 0
+
+    // 区間ごとの移動距離（斜めは √2 倍）から transition 時間を算出する。
+    // `moveActor` 側と同じ基準（distance * CELL_TRANSITION_MS）にし、tick 発火の
+    // タイミングを実際の見た目のアニメーション所要時間へ一致させる
+    const start = getActorPosition(PLAYER_ACTOR_ID)
+    const points = [
+      start,
+      ...planned.map((step) => ({ col: step.x, row: step.y })),
+    ]
+
+    segmentDurationsRef.current = points.slice(1).map((point, index) => {
+      const prev = points[index]
+      const distance = Math.hypot(point.col - prev.col, point.row - prev.row)
+
+      return distance * CELL_TRANSITION_MS
+    })
 
     if (walking && !isWalkingRef.current) {
       isWalkingRef.current = true
@@ -231,26 +277,69 @@ export const useFindPathTick = (
     const hasRemaining = () =>
       path.getState().getPath(PLAYER_ACTOR_ID).length > 0
 
-    subscriptionRef.current = timer(REALTIME_STEP_MS, REALTIME_STEP_MS)
-      .pipe(
-        // timeScale=0 の間は carry が増えず tick が出ない（ポーズ相当）
-        withLatestFrom(timeScale$),
-        // 実時間の持ち越し（carry）を貯め、TICK_MS を超えた分だけ tick を発火する
-        scan(
-          (acc, [, timeScale]) => {
-            const carried = acc.carry + REALTIME_STEP_MS * timeScale
-            const ticks = Math.floor(carried / TICK_MS)
+    // isRunning の変更に伴う再レンダリング（design.md 懸念・リスク）が重く、ここで
+    // 直接 lastTickTimeRef を起算すると carry が過大に貯まり最初の複数区間が一括消化
+    // されてしまう。次の描画フレーム後に起算しこの遅延を吸収する
+    requestAnimationFrame(() => {
+      lastTickTimeRef.current = performance.now()
 
-            return { carry: carried - ticks * TICK_MS, ticks }
+      subscriptionRef.current = timer(REALTIME_STEP_MS, REALTIME_STEP_MS)
+        .pipe(
+          // timeScale=0 の間は carry が増えず tick が出ない（ポーズ相当）
+          withLatestFrom(timeScale$),
+          // 実経過時間の持ち越し（carry）を貯め、直前区間の transition 時間が
+          // 経過した分だけ tick を発火する（区間距離に応じ閾値が可変。最初の区間は
+          // 待機なしで即時消化する）
+          scan(
+            (acc, [, timeScale]) => {
+              const now = performance.now()
+              const elapsedMs = now - lastTickTimeRef.current
+
+              lastTickTimeRef.current = now
+
+              let carry = acc.carry + elapsedMs * timeScale
+              let consumed = 0
+
+              while (
+                segmentIndexRef.current + consumed <
+                  segmentDurationsRef.current.length &&
+                carry >=
+                  thresholdForSegment(
+                    segmentDurationsRef.current,
+                    segmentIndexRef.current + consumed,
+                  )
+              ) {
+                const threshold = thresholdForSegment(
+                  segmentDurationsRef.current,
+                  segmentIndexRef.current + consumed,
+                )
+
+                // 閾値 0（最初の区間、待機なし即時消化）の場合、carry は消化に使われて
+                // いない。そのまま持ち越すと次区間の待機時間にその分食い込んでしまう
+                // ため 0 にリセットする
+                carry = threshold === 0 ? 0 : carry - threshold
+                consumed += 1
+              }
+
+              return { carry, consumed }
+            },
+            { carry: 0, consumed: 0 },
+          ),
+          // consumed=0 の tick は mergeMap で何も emit されず takeWhile が評価されない
+          // ため、pathが空になった後も判定されずストリームが残り続けてしまう。
+          // scan 直後（毎 tick 必ず評価される位置）に置く
+          takeWhile(hasRemaining),
+          // 1 step で複数区間分（早送り時）を 1 つずつ流す
+          mergeMap(({ consumed }) => range(0, consumed)),
+        )
+        .subscribe({
+          next: () => {
+            applyNextStep()
+            segmentIndexRef.current += 1
           },
-          { carry: 0, ticks: 0 },
-        ),
-        // 1 step で複数 tick 分（早送り時）を 1 つずつ流す
-        mergeMap(({ ticks }) => range(0, ticks)),
-        takeWhile(hasRemaining),
-      )
-      .subscribe({ next: applyNextStep })
-  }, [applyNextStep, path, plannedPath, timeScale$, walking])
+        })
+    })
+  }, [applyNextStep, getActorPosition, path, plannedPath, timeScale$, walking])
 
   return { execute, isRunning, reachedGoal }
 }
