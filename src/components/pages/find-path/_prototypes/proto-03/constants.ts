@@ -12,3 +12,9 @@ export const OBSTACLE_CELLS: readonly HexCell[] = [
   { q: 2, r: 1 },
   { q: 3, r: 0 },
 ]
+
+/** 一方通行セル一覧（退出方向固定。exitDirection の逆方向からの進入を拒否） */
+export const ONE_WAY_CELLS = [
+  { exitDirection: 'right', q: 1, r: 3 },
+  { exitDirection: 'lower-left', q: 4, r: 0 },
+] as const

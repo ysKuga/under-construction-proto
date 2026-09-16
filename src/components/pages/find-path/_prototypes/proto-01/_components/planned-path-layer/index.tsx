@@ -1,11 +1,13 @@
 import { CSSProperties } from 'react'
 
+import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-registry'
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 import { isObstacleCell } from '../../_lib/obstacle'
+import { isBlockedByOneWay } from '../../_lib/one-way'
 
 type PlannedPathLayerProps = {
   /**
@@ -46,7 +48,7 @@ type PlannedPathLayerProps = {
 const cellStyle = (
   hasOrders: boolean,
   variant: 'list' | 'stacked',
-  isObstacle: boolean,
+  isBlocked: boolean,
 ): CSSProperties => ({
   alignItems: 'center',
   background:
@@ -58,7 +60,7 @@ const cellStyle = (
       ? '1px solid #0284c7'
       : '1px solid transparent',
   color: '#0c4a6e',
-  cursor: isObstacle ? 'not-allowed' : 'pointer',
+  cursor: isBlocked ? 'not-allowed' : 'pointer',
   display: 'flex',
   font: 'inherit',
   fontWeight: 700,
@@ -135,6 +137,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
 
   const { appendStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const { registerCellNode, registerStepNode } = usePlannedPathCellRegistry()
+  const { getActorPosition } = useActorNodeRegistry()
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
@@ -146,6 +149,12 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
 
     ordersByCell.set(key, [...(ordersByCell.get(key) ?? []), index + 1])
   })
+
+  /** 一方通行判定の直前セル（予定経路の末尾、空なら actor の現在セル） */
+  const lastPlannedPosition = planned[planned.length - 1]
+  const precedingCell = lastPlannedPosition
+    ? { col: lastPlannedPosition.x, row: lastPlannedPosition.y }
+    : getActorPosition(PLAYER_ACTOR_ID)
 
   const overlayStyle: CSSProperties = {
     display: 'grid',
@@ -161,12 +170,14 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
       {Array.from({ length: rows }).map((_, row) =>
         Array.from({ length: cols }).map((_, col) => {
           const orders = ordersByCell.get(`${col},${row}`) ?? []
-          const isObstacle = isObstacleCell({ col, row })
+          const isBlocked =
+            isObstacleCell({ col, row }) ||
+            isBlockedByOneWay(precedingCell, { col, row })
 
           return (
             <button
               aria-label={`予定経路へ ${col}-${row} を追加`}
-              disabled={isRunning || isObstacle}
+              disabled={isRunning || isBlocked}
               key={`${row}-${col}`}
               onClick={() => {
                 if (!allowDuplicateSelection && orders.length > 0) {
@@ -176,7 +187,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
                 appendStep({ col, row })
               }}
               ref={(el) => registerCellNode({ col, row }, el)}
-              style={cellStyle(orders.length > 0, variant, isObstacle)}
+              style={cellStyle(orders.length > 0, variant, isBlocked)}
               type="button"
             >
               {variant === 'stacked' ? (

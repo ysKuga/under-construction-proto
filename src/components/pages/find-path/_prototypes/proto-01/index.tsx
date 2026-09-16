@@ -14,6 +14,7 @@ import { useInitialFacing } from '@/prototypes/stage/stage-06/_hooks/use-initial
 import { ActionBar } from './_components/action-bar'
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import { ObstacleLayer } from './_components/obstacle-layer'
+import { OneWayLayer } from './_components/one-way-layer'
 import { PlannedPathLayer } from './_components/planned-path-layer'
 import { FindPathStoresProvider } from './_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from './_contexts/planned-path-cell-registry'
@@ -124,6 +125,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
       >
         <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
         <ObstacleLayer cols={GRID.cols} rows={GRID.rows} />
+        <OneWayLayer cols={GRID.cols} rows={GRID.rows} />
         <PlannedPathLayer
           allowDuplicateSelection={plannedPathAllowDuplicateSelection}
           cols={GRID.cols}
