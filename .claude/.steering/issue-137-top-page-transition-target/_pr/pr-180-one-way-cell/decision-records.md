@@ -1,5 +1,6 @@
 # 決定事項（一方通行セル）
 
-- 2026-09-16: 意味論は「退出方向固定型」(ベルトコンベア型)。セルに「出られる方向」を1つ持たせる。矢印表示がそのセル自体に乗るため見た目が直感的で、「進入方向制限型」(門型)より実装・視覚表現ともシンプル
+- 2026-09-16: 意味論は「退出方向固定型」(ベルトコンベア型)。セルに「出られる方向」を1つ持たせる。「進入方向制限型」(門型)より実装がシンプル
 - 2026-09-16: 逆方向進入時は「選択拒否」。障害物セル(`isObstacleCell`)と同じUX ― `PlannedPathLayer` でボタンを disabled + cursor `not-allowed` にする。判定は隣接ペア(直前セル→対象セル)の向きと退出方向を比較する
-- 2026-09-16: proto-03(hex)は6方向のため矢印絵文字の出し分け不採用、単一矢印を `hexDirectionToScreenAngle` の画面角度で CSS rotate する方式にした。選択拒否は proto-01(`PlannedPathLayer` disabled)と異なり `Stage07` の `canEnterCell` prop（`useHexMove` 組込み）に集約、直前セルは呼び出し元の `currentCell` state を使う
+- 2026-09-16: proto-03(hex)の選択拒否は proto-01(`PlannedPathLayer` disabled)と異なり `Stage07` の `canEnterCell` prop（`useHexMove` 組込み）に集約、直前セルは呼び出し元の `currentCell` state を使う
+- 2026-09-16: 表示は矢印(退出方向を指す)を不採用にし、進入禁止方向（退出方向の反対側）の辺へバリア線を引く方式へ変更。矢印は「その方向にしか行けない」ように見え、実際の判定（進入方向が退出方向の逆のときだけ拒否。垂直方向は自由に出入り可）と見た目が食い違っていたため（実装時のレビューで指摘）。proto-03(hex)は `HEX_VERTEX_ANGLES_DEG` 基準で進入禁止方向に対応する頂点ペアを求め SVG line で描画

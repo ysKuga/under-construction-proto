@@ -10,8 +10,8 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `constants.ts` の `GOAL_POSITION`: 到達判定に使うゴールセル。`OBSTACLE_CELLS`: 通行不可の障害物セル一覧（proto-01 のみ対象、proto-02/03 は対象外）
   - `_lib/obstacle.ts`: `isObstacleCell` で cell が障害物か判定する。`PlannedPathLayer`（選択拒否）と `use-find-path-tick`（実行時、次マス障害物なら `moveActor` を呼ばない）双方から参照
   - `constants.ts` の `ONE_WAY_CELLS`: 一方通行セル一覧（座標 + `exitDirection`、退出方向固定型）。proto-01 のみ対象
-  - `_lib/one-way.ts`: `isBlockedByOneWay(from, to)` で直前セルからの進入方向が退出方向の逆（出口側からの進入）かを判定する。`PlannedPathLayer` の選択拒否から参照。垂直方向からの進入は許可（issue #137 決定事項）
-  - `_components/one-way-layer/`: `ONE_WAY_CELLS` セルへ `exitDirection` に応じた矢印絵文字を表示する非対話レイヤー（`ObstacleLayer` 同型）
+  - `_lib/one-way.ts`: `isBlockedByOneWay(from, to)` で直前セルからの進入方向が退出方向の逆（出口側からの進入）かを判定する。`PlannedPathLayer` の選択拒否から参照。垂直方向からの進入は許可（issue #137 決定事項）。`OPPOSITE_DIRECTION` はバリア線の辺計算のため `_components/one-way-layer` からも参照
+  - `_components/one-way-layer/`: `ONE_WAY_CELLS` セルへ進入禁止方向（`exitDirection` の反対側）の辺だけ赤いバリア線を表示する非対話レイヤー（`ObstacleLayer` 同型）。矢印（退出方向を指す表示）は「その方向にしか行けない」ように見え実際の判定と食い違うため不採用（issue #137 決定事項）
   - `_components/goal-marker-layer/`: `GOAL_POSITION` セルに旗マーカーを表示する非対話レイヤー
   - `_components/obstacle-layer/`: `OBSTACLE_CELLS` セルを塗りつぶす非対話レイヤー。選択拒否自体は `PlannedPathLayer` 側の判定で行う
 - `proto-02`: 試作。proto-01 とは別方式のゲーム内容比較用。隣接セルをクリックするたびに 1 手ずつ即時移動する逐次型 (`planned-path` 積み上げ・tick ループなし)
@@ -27,7 +27,7 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `_lib/obstacle.ts`: `isObstacleCell` で cell が障害物か判定する
   - `_components/obstacle-layer/`: `OBSTACLE_CELLS` セルへ岩アイコンを表示する非対話レイヤー
   - `constants.ts` の `ONE_WAY_CELLS`: 一方通行セル一覧（axial 座標 + `exitDirection`、6方向）。proto-01 とは方向の型が異なり共用不可
-  - `_lib/one-way.ts`: `isBlockedByOneWay(from, to)` で直前セルからの進入方向が退出方向の逆かを判定する。`DIRECTION_DELTA` は矢印の向き計算のため `_components/one-way-layer` からも参照
-  - `_components/one-way-layer/`: `ONE_WAY_CELLS` セルへ `hexDirectionToScreenAngle` の画面角度で単一矢印を回転表示する非対話レイヤー（hex は6方向のため絵文字出し分けでは足りず rotate 方式）
+  - `_lib/one-way.ts`: `isBlockedByOneWay(from, to)` で直前セルからの進入方向が退出方向の逆かを判定する。`OPPOSITE_DIRECTION` はバリア線の辺計算のため `_components/one-way-layer` からも参照
+  - `_components/one-way-layer/`: `ONE_WAY_CELLS` セルへ進入禁止方向（`exitDirection` の反対側）の辺だけバリア線を表示する非対話レイヤー。hex は6方向のため `HEX_VERTEX_ANGLES_DEG` 基準で進入禁止方向に対応する頂点ペアを求め SVG line で描画する（proto-01 は矩形なので border で足りるが hex は辺が斜めのため SVG が必要）
   - 選択拒否は `Stage07` の `canEnterCell` prop（`useHexMove` の隣接判定に組込み済み）で行う。`index.tsx` の `canEnterCell` が `isObstacleCell`/`isBlockedByOneWay`(直前セルは `currentCell` state) をまとめて `Stage07`/`MoveTargetLayer` 双方へ渡す。`GeoLayer`/`MoveTargetLayer` の選択可能表示（`cursor: pointer`・点線枠）にも同じ判定を反映し、進入不可セルは押せそうに見えないようにする
   - 確認ダイアログは対象外（別途検討）
