@@ -9,6 +9,8 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `_hooks/use-planned-path-steps.ts`: 予定経路をセル単位で append / pop する wrapper hook。tc-03 の planned-path store は無改変
   - `constants.ts` の `GOAL_POSITION`: 到達判定に使うゴールセル。`OBSTACLE_CELLS`: 通行不可の障害物セル一覧（proto-01 のみ対象、proto-02/03 は対象外）
   - `_lib/obstacle.ts`: `isObstacleCell` で cell が障害物か判定する。`PlannedPathLayer`（選択拒否）と `use-find-path-tick`（実行時、次マス障害物なら `moveActor` を呼ばない）双方から参照
+  - `constants.ts` の `ONE_WAY_CELLS`: 一方通行セル一覧（座標 + `exitDirection`、退出方向固定型）。proto-01 のみ対象
+  - `_lib/one-way.ts`: `isBlockedByOneWay(from, to)` で直前セルからの進入方向が退出方向の逆（出口側からの進入）かを判定する。`PlannedPathLayer` の選択拒否から参照。垂直方向からの進入は許可（issue #137 決定事項）
   - `_components/goal-marker-layer/`: `GOAL_POSITION` セルに旗マーカーを表示する非対話レイヤー
   - `_components/obstacle-layer/`: `OBSTACLE_CELLS` セルを塗りつぶす非対話レイヤー。選択拒否自体は `PlannedPathLayer` 側の判定で行う
 - `proto-02`: 試作。proto-01 とは別方式のゲーム内容比較用。隣接セルをクリックするたびに 1 手ずつ即時移動する逐次型 (`planned-path` 積み上げ・tick ループなし)
