@@ -97,7 +97,14 @@ const FindPathProto03Content = () => {
           }
           rows={GRID.rows}
         />
-        <ObstacleLayer cols={GRID.cols} hexSize={HEX_SIZE} rows={GRID.rows} />
+        <ObstacleLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          registerVisibilityNode={(cell, el) =>
+            registerVisibilityNode(cell, 'marker', el)
+          }
+          rows={GRID.rows}
+        />
         <MoveTargetLayer
           canEnterCell={(cell) => !isObstacleCell(cell)}
           cols={GRID.cols}

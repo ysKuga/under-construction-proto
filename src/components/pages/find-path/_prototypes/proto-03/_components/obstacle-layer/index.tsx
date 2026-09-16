@@ -1,5 +1,6 @@
 import { CSSProperties } from 'react'
 
+import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
   computeHexGridBounds,
   hexCellCenter,
@@ -12,6 +13,12 @@ type ObstacleLayerProps = {
   cols: number
   /** 六角形の外接円半径 (px)。`GeoLayer`/`ActorsLayer` と同じ値を渡し座標をズレさせない */
   hexSize: number
+  /**
+   * 障害物セルの DOM を visibility registry へ登録する
+   *
+   * - 省略時は常時表示。渡した場合は未到達マスへ隣接するまで岩が非表示になる
+   */
+  registerVisibilityNode?: (cell: HexCell, el: HTMLElement | null) => void
   /** 行数 */
   rows: number
 }
@@ -25,9 +32,11 @@ type ObstacleLayerProps = {
  *   を共有し、見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。選択拒否自体は
  *   `Stage07` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
+ * - `registerVisibilityNode` 経由で障害物セルの DOM を visibility registry へ登録する
+ *   （渡された場合のみ）。未到達マスの岩が視界外から見えてしまうのを防ぐ
  */
 export const ObstacleLayer = (props: ObstacleLayerProps) => {
-  const { cols, hexSize, rows } = props
+  const { cols, hexSize, registerVisibilityNode, rows } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
@@ -53,7 +62,11 @@ export const ObstacleLayer = (props: ObstacleLayerProps) => {
         }
 
         return (
-          <div key={`${cell.q},${cell.r}`} style={style}>
+          <div
+            key={`${cell.q},${cell.r}`}
+            ref={(el) => registerVisibilityNode?.(cell, el)}
+            style={style}
+          >
             🪨
           </div>
         )
