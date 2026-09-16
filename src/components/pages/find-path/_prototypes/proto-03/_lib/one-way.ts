@@ -26,29 +26,25 @@ export const OPPOSITE_DIRECTION: Record<OneWayDirection, OneWayDirection> = {
 }
 
 /**
- * from→to の移動が一方通行セル(to)の退出方向に逆行するか判定する
- *
- * - to が一方通行セルでなければ常に false
- * - 進入方向が退出方向の逆（出口側からの進入）のときのみ block する（proto-01
- *   `_lib/one-way.ts` と同じ意味論。decision-records.md 2026-09-16 退出方向固定型）
+ * a がバリアセルで、b が a の進入禁止方向（退出方向の反対側）にある隣接セルか判定する
  */
-export const isBlockedByOneWay = (from: HexCell, to: HexCell): boolean => {
-  const oneWay = ONE_WAY_CELLS.find(
-    (cell) => cell.q === to.q && cell.r === to.r,
-  )
+const hasBarrierBetween = (a: HexCell, b: HexCell): boolean => {
+  const oneWay = ONE_WAY_CELLS.find((cell) => cell.q === a.q && cell.r === a.r)
 
   if (!oneWay) {
     return false
   }
 
-  const delta = { q: to.q - from.q, r: to.r - from.r }
-  const moveDirection = (
-    Object.keys(DIRECTION_DELTA) as OneWayDirection[]
-  ).find(
-    (direction) =>
-      DIRECTION_DELTA[direction].q === delta.q &&
-      DIRECTION_DELTA[direction].r === delta.r,
-  )
+  const barrierDelta = DIRECTION_DELTA[OPPOSITE_DIRECTION[oneWay.exitDirection]]
 
-  return moveDirection === OPPOSITE_DIRECTION[oneWay.exitDirection]
+  return b.q === a.q + barrierDelta.q && b.r === a.r + barrierDelta.r
 }
+
+/**
+ * from-to 間に壁があるか判定する（proto-01 `_lib/one-way.ts` と同じ意味論）
+ *
+ * - 一方通行セルの退出方向の反対側の辺には壁があり、跨ぐ移動は方向を問わず\
+ *   常に拒否する（decision-records.md 2026-09-16 壁化）
+ */
+export const isBlockedByOneWay = (from: HexCell, to: HexCell): boolean =>
+  hasBarrierBetween(from, to) || hasBarrierBetween(to, from)
