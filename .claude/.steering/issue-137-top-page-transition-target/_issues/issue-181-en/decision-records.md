@@ -13,3 +13,5 @@
 - 2026-09-16: PR #183 で proto-01 の EN 保持・Context 注入・消費ロジック（`useFindPathTick` への統合、0 で打ち切り）を実装。回復ロジックは別 PR
 - 2026-09-16: 略称「EN」は画面表示専用（3行目の方針を再徹底）。型・変数・store・関数等の実装識別子は正式名称 `energy` を使う（`EnStore` 等の略称実装を `EnergyStore` 等へ修正）。JSDoc コメントも「エネルギー」表記に統一する
 - 2026-09-17: EN 残量 UI（`EN: x/y`）を proto-01 の `ActionBar` へ実装。専用コンポーネント新設でなく既存 `ActionBar` へ `useEnergyStore` selector で表示（`usePlannedPathStore`/`useGameClockStore` と同じ配置パターン）。Storybook + Playwright で「実行」による消費 → 表示反映（10/10 → 9/10）を確認
+- 2026-09-17: proto-03（hex）への tick 駆動「実行」導入は規模が大きいため PR-A（stage-07 基盤: `interactive` prop + hex 版 ActorNodeRegistry）→ PR-B（EnergyStore を proto-01 から find-path 共有層へ移設）→ PR-C（hex tick駆動+EN配線+UI）の3段階に分割する
+- 2026-09-17: PR-A 実装。stage-06 の `ActorNodeRegistryProvider`（DOM 直書き）とは異なり、stage-07 版は `useState` ベースの Context に留める（stage-07/proto-02/03 は元々 props 経由で再レンダリングする設計のため、DOM 直書きへの書き換えは不要な複雑化と判断）。`Stage07Props.initialCell` は廃止し `ActorNodeRegistryProvider` 側の prop へ移設。`Stage07Props.interactive`（既定 `true`）を新設し、hex 版 `GeoLayer` を stage-06 と同じ button/div 分岐にした
