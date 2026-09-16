@@ -31,6 +31,13 @@ import {
 type Stage07Props = PropsWithChildren<{
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
+  /**
+   * 対象セルへ進入可能か（省略時は常に進入可能）
+   *
+   * - 隣接判定に加えてこのセルへの移動を拒否できる（find-path proto-03 の
+   *   障害物セル判定等）。`useHexMove` へそのまま渡す
+   */
+  canEnterCell?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
   /**
@@ -97,6 +104,8 @@ type Stage07Props = PropsWithChildren<{
  *   自然に on が維持される
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
+ * - `canEnterCell` を渡すと `useHexMove` の隣接判定に加えてそのセルへの移動を
+ *   拒否できる（find-path proto-03 の障害物セル判定で使用）
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
@@ -113,6 +122,7 @@ const INITIAL_FACING_MAX_RETRY_FRAMES = 30
 export const Stage07 = (props: Stage07Props) => {
   const {
     botSize,
+    canEnterCell,
     children,
     cols,
     enableWalking = false,
@@ -202,6 +212,7 @@ export const Stage07 = (props: Stage07Props) => {
     (screenAngle) => {
       void face({ rad: screenAngleToYaw(screenAngle) })
     },
+    canEnterCell,
   )
   const { floorRef, setTilt } = usePerspectiveControl()
 
@@ -236,6 +247,7 @@ export const Stage07 = (props: Stage07Props) => {
       <div style={sceneStyle}>
         <div ref={floorRef} style={floorStyle}>
           <GeoLayer
+            canEnterCell={canEnterCell}
             cols={cols}
             currentCell={currentCell}
             hexSize={hexSize}

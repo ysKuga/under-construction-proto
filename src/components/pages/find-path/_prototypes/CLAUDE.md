@@ -20,4 +20,8 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `_components/goal-marker-layer/`: `GOAL_POSITION` セルへ旗マーカーを表示する非対話レイヤー。`Stage07` の `hex-layout` を共有し座標をズレさせない
   - `_components/move-target-layer/`: 移動可能マス（現在地の隣接6方向）の表示演出レイヤー。現在地セル変更のたび非表示 → 80ms後に演出開始、を `useMoveTargetLayer` が管理する。表示完了後は次の bot 移動完了まで維持し、移動完了時点で非表示（初期表示と同一の見た目）に戻る。演出は `mode` prop（`MoveTargetDisplayMode`）で切替可能: `scatter`（bot マスへ集合 → 対象マスへ散開、既定）/ `instant`（transitionなしで対象マスへ即座に出現）/ `fade`（対象マスの位置で opacity 0→1、位置移動なし）
   - `_contexts/visibility-registry/`: proto-02 の `VisibilityRegistryProvider`（矩形グリッド・8近傍）を axial 座標・6近傍（`HEX_DIRECTIONS`）へ移植した hex 版。未到達マスを非表示にする。`Stage07` へ `registerCellVisibilityNode` prop を追加し、hex タイル DOM を registry へ登録できるようにした（`GeoLayer` が対話も兼ねるため `NodeKind` は `floor`/`marker` の2種のみ）。到達済み表示は `setShowVisited` で切替可能（既定 ON）
+  - `constants.ts` の `OBSTACLE_CELLS`: 通行不可の障害物セル一覧（axial 座標。proto-01 と座標系が異なり共用不可）
+  - `_lib/obstacle.ts`: `isObstacleCell` で cell が障害物か判定する
+  - `_components/obstacle-layer/`: `OBSTACLE_CELLS` セルへ岩アイコンを表示する非対話レイヤー
+  - 選択拒否は `Stage07` の `canEnterCell` prop（`useHexMove` の隣接判定に組込み済み）で行う。`GeoLayer`/`MoveTargetLayer` の選択可能表示（`cursor: pointer`・点線枠）にも同じ判定を反映し、障害物セルは押せそうに見えないようにする
   - 確認ダイアログは対象外（別途検討）
