@@ -9,7 +9,6 @@ issue: #137
 ## 背景・制約
 
 - 親: [issue-137 backlog.md](../backlog.md) 該当項目からの分割（障害物・一方通行セルは別 steering）
-- 実装着手は PR #180（一方通行セル）マージ後。障害物・一方通行セルと同じ `PlannedPathLayer`/`canEnterCell` 経路へ判定を積む構成になる見込みのため、先行 PR の変更と衝突しないよう順序を空ける
 - 方式は「実行中消費型」。予定経路は自由に組める。「実行」tick 進行ごとに1消費、道中の回復要素で回復する。事前判定型（予定経路作成時点で選択拒否）は「まだ実行していないのに拾ったことにする」必要が生じ回復アイテムと相性が悪いため不採用（decision-records.md 2026-09-16）
 
 実装計画: [backlog.md](backlog.md)。決定事項: [decision-records.md](decision-records.md)。
