@@ -26,5 +26,8 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `constants.ts` の `OBSTACLE_CELLS`: 通行不可の障害物セル一覧（axial 座標。proto-01 と座標系が異なり共用不可）
   - `_lib/obstacle.ts`: `isObstacleCell` で cell が障害物か判定する
   - `_components/obstacle-layer/`: `OBSTACLE_CELLS` セルへ岩アイコンを表示する非対話レイヤー
-  - 選択拒否は `Stage07` の `canEnterCell` prop（`useHexMove` の隣接判定に組込み済み）で行う。`GeoLayer`/`MoveTargetLayer` の選択可能表示（`cursor: pointer`・点線枠）にも同じ判定を反映し、障害物セルは押せそうに見えないようにする
+  - `constants.ts` の `ONE_WAY_CELLS`: 一方通行セル一覧（axial 座標 + `exitDirection`、6方向）。proto-01 とは方向の型が異なり共用不可
+  - `_lib/one-way.ts`: `isBlockedByOneWay(from, to)` で直前セルからの進入方向が退出方向の逆かを判定する。`DIRECTION_DELTA` は矢印の向き計算のため `_components/one-way-layer` からも参照
+  - `_components/one-way-layer/`: `ONE_WAY_CELLS` セルへ `hexDirectionToScreenAngle` の画面角度で単一矢印を回転表示する非対話レイヤー（hex は6方向のため絵文字出し分けでは足りず rotate 方式）
+  - 選択拒否は `Stage07` の `canEnterCell` prop（`useHexMove` の隣接判定に組込み済み）で行う。`index.tsx` の `canEnterCell` が `isObstacleCell`/`isBlockedByOneWay`(直前セルは `currentCell` state) をまとめて `Stage07`/`MoveTargetLayer` 双方へ渡す。`GeoLayer`/`MoveTargetLayer` の選択可能表示（`cursor: pointer`・点線枠）にも同じ判定を反映し、進入不可セルは押せそうに見えないようにする
   - 確認ダイアログは対象外（別途検討）
