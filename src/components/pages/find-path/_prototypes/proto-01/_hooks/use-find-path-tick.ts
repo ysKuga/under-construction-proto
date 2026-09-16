@@ -13,7 +13,10 @@ import {
 import { screenAngleToYaw } from '@/components/theater/figure/box-bot'
 import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 import { gridDirectionToScreenAngle } from '@/prototypes/stage/stage-06/_lib/direction'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import {
+  CELL_TRANSITION_MS,
+  PLAYER_ACTOR_ID,
+} from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStoreApi } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 import { usePathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/path'
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
@@ -64,6 +67,9 @@ type UseFindPathTickReturn = {
  * - **r3f `useFrame`（実時間で毎フレーム描画補間する層）とは別レイヤー**。ここは
  *   論理時間 = tick を刻み、1 tick で bot を 1 セル進める。セル間の見た目の補間は
  *   `actors-layer` の CSS `transition` が担う
+ * - tick の間隔は固定でなく、区間ごとの移動距離（斜めは √2 倍）から
+ *   `actor-node-registry` の `moveActor` と同じ算出で可変にする。CSS transition の
+ *   所要時間ぴったりで次 tick が発火するため、経路の継ぎ目で静止せず等速で動き続ける
  * - 1 tick の処理: game-clock へ log → path を pop → `moveActor`（DOM 直書き、
  *   再レンダリングなし）
  * - 到達後の bot 移動（`moveActor`）自体は再レンダリングを起こさないが、`reachedGoal`
@@ -98,6 +104,11 @@ export const useFindPathTick = (
 
   /** 消化済み tick 数。`execute` 開始時に 0 へ戻す。+1 が消化したセルの `order` と一致する */
   const consumedCountRef = useRef(0)
+
+  /** 区間ごとの transition 時間 (ms)。`execute` 開始時に距離ベースで算出する */
+  const segmentDurationsRef = useRef<number[]>([])
+  /** 消化済み区間数。tick ループの carry 消化・`applyNextStep` 呼出しの両方が参照する */
+  const segmentIndexRef = useRef(0)
 
   /**
    * timeScale の現在値を rx ストリームへ供給する橋渡し
@@ -219,6 +230,23 @@ export const useFindPathTick = (
     setReachedGoal(false)
     setIsRunning(true)
     consumedCountRef.current = 0
+    segmentIndexRef.current = 0
+
+    // 区間ごとの移動距離（斜めは √2 倍）から transition 時間を算出する。
+    // `moveActor` 側と同じ基準（distance * CELL_TRANSITION_MS）にし、tick 発火の
+    // タイミングを実際の見た目のアニメーション所要時間へ一致させる
+    const start = getActorPosition(PLAYER_ACTOR_ID)
+    const points = [
+      start,
+      ...planned.map((step) => ({ col: step.x, row: step.y })),
+    ]
+
+    segmentDurationsRef.current = points.slice(1).map((point, index) => {
+      const prev = points[index]
+      const distance = Math.hypot(point.col - prev.col, point.row - prev.row)
+
+      return distance * CELL_TRANSITION_MS
+    })
 
     if (walking && !isWalkingRef.current) {
       isWalkingRef.current = true
@@ -235,22 +263,39 @@ export const useFindPathTick = (
       .pipe(
         // timeScale=0 の間は carry が増えず tick が出ない（ポーズ相当）
         withLatestFrom(timeScale$),
-        // 実時間の持ち越し（carry）を貯め、TICK_MS を超えた分だけ tick を発火する
+        // 実時間の持ち越し（carry）を貯め、消化予定区間の transition 時間を
+        // 超えた分だけ tick を発火する（区間距離に応じ閾値が可変）
         scan(
           (acc, [, timeScale]) => {
-            const carried = acc.carry + REALTIME_STEP_MS * timeScale
-            const ticks = Math.floor(carried / TICK_MS)
+            let carry = acc.carry + REALTIME_STEP_MS * timeScale
+            let consumed = 0
 
-            return { carry: carried - ticks * TICK_MS, ticks }
+            while (
+              segmentIndexRef.current + consumed <
+                segmentDurationsRef.current.length &&
+              carry >=
+                segmentDurationsRef.current[segmentIndexRef.current + consumed]
+            ) {
+              carry -=
+                segmentDurationsRef.current[segmentIndexRef.current + consumed]
+              consumed += 1
+            }
+
+            return { carry, consumed }
           },
-          { carry: 0, ticks: 0 },
+          { carry: 0, consumed: 0 },
         ),
-        // 1 step で複数 tick 分（早送り時）を 1 つずつ流す
-        mergeMap(({ ticks }) => range(0, ticks)),
+        // 1 step で複数区間分（早送り時）を 1 つずつ流す
+        mergeMap(({ consumed }) => range(0, consumed)),
         takeWhile(hasRemaining),
       )
-      .subscribe({ next: applyNextStep })
-  }, [applyNextStep, path, plannedPath, timeScale$, walking])
+      .subscribe({
+        next: () => {
+          applyNextStep()
+          segmentIndexRef.current += 1
+        },
+      })
+  }, [applyNextStep, getActorPosition, path, plannedPath, timeScale$, walking])
 
   return { execute, isRunning, reachedGoal }
 }
