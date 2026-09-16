@@ -14,8 +14,8 @@ issue: #137
 
 ## セル仕様
 
-- 意味論: 退出方向固定型(ベルトコンベア型)。セルは「出られる方向」を1つ持つ(decision-records.md 2026-09-16)
-- 逆方向進入時: 選択拒否。予定経路作成時、直前セルからの進入方向がそのセルの退出方向と逆なら選択不可にする(decision-records.md 2026-09-16)
+- 意味論: 壁型。セルは「開いている方向(exitDirection)」を1つ持ち、その反対側の辺には壁がある。壁のある辺を跨ぐ移動は方向を問わず常に不可(双方向とも通行不可、decision-records.md 2026-09-16)
+- 選択拒否・ガイド抑制: 予定経路作成時の選択（proto-01 `PlannedPathLayer`）・移動可能マス表示（proto-03 `MoveTargetLayer`）とも、壁を跨ぐ先は disabled / 表示除外にする(decision-records.md 2026-09-16)
 - 実装対象: proto-01(矩形grid)・proto-03(hex)双方に実装済み
 
 ## 懸念・リスク
