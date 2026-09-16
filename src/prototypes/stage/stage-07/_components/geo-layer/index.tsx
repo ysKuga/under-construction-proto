@@ -18,6 +18,13 @@ import {
 export const HEX_INSET_RATIO = 0.94
 
 type GeoLayerProps = {
+  /**
+   * 対象セルへ進入可能か（省略時は常に進入可能）
+   *
+   * - 選択可能表示（`cursor: pointer`）の判定にのみ使う。実際の進入拒否は
+   *   呼び出し元（`useHexMove`）が行う
+   */
+  canEnterCell?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
   /** 現在地セル。隣接セルの選択可能表示・強調表示に使う */
@@ -50,6 +57,7 @@ type GeoLayerProps = {
  */
 export const GeoLayer = (props: GeoLayerProps) => {
   const {
+    canEnterCell,
     cols,
     currentCell,
     hexSize,
@@ -73,7 +81,8 @@ export const GeoLayer = (props: GeoLayerProps) => {
   return (
     <div style={containerStyle}>
       {cells.map((axial) => {
-        const selectable = isHexAdjacent(currentCell, axial)
+        const selectable =
+          isHexAdjacent(currentCell, axial) && (canEnterCell?.(axial) ?? true)
         const center = hexCellCenter(axial, hexSize, bounds)
 
         const buttonStyle: CSSProperties = {
