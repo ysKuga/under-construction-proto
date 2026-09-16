@@ -40,3 +40,5 @@ backlog.md から参照される決定事項ログ。1 エントリ 1〜2 行目
 - 2026-09-15: 「bot 向き転換」を proto-01（tick 駆動）へも追加。矩形グリッドは座標変換不要、`gridDirectionToScreenAngle` 新設
 - 2026-09-15: proto-03 に速度調整（`moveDurationMs`）と walking 切替 UI を追加。walking の脚振り周期 `cycleSec` を `moveDurationMs` に連動させ（低速時の視認性確保のため頭打ち `maxWalkCycleSec` を設定）
 - 2026-09-15: 脚・腕振り角（`legSwingAngle`/`armSwingAngle`）をスライダー化。腕振り角は後に「常時180度固定」要望を受け撤去、`ARM_SWING_ANGLE` 定数化 → 振幅と可動域の解釈誤りが判明し `Math.PI / 2`（前後90度ずつ）に修正
+- 2026-09-16: 移動距離に依らず速度一定化を案1（速度ベース化）で実装。`actor-node-registry` の `moveActor` で移動距離（斜めは√2倍）から transition duration を算出し DOM 直書き。proto-02 で直進150ms/斜め212msを実機確認
+- 2026-09-16: 障害物衝突判定は案A（セル境界のみ）に確定。次マスに障害物があれば `moveActor` 自体を呼ばない方式。理由: 現 actor 移動は CSS transition 任せで JS 側がアニメ中の途中位置を持たないため、マス移動途中の急停止は不可（正確にやるなら Web Animations API 移行が要る、過剰と判断）。経路プランニング制は離散ステップのため案Aで十分
