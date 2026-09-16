@@ -4,3 +4,4 @@
 
 - [event-driven-ui/](event-driven-ui/README.md) — UI とロジックの分離について
 - [component-input-layers/](component-input-layers/README.md) — component の入力 (props/store/computed) 分離について
+- [adr/](adr/README.md) — アーキテクチャ判断記録（ADR）の運用方針
