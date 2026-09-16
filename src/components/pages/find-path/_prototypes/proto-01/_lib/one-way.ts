@@ -12,7 +12,8 @@ const DIRECTION_DELTA: Record<OneWayDirection, GridPosition> = {
   up: { col: 0, row: -1 },
 }
 
-const OPPOSITE_DIRECTION: Record<OneWayDirection, OneWayDirection> = {
+/** 退出方向 → 反対方向（進入禁止方向。`_components/one-way-layer` のバリア線から参照） */
+export const OPPOSITE_DIRECTION: Record<OneWayDirection, OneWayDirection> = {
   down: 'up',
   left: 'right',
   right: 'left',
