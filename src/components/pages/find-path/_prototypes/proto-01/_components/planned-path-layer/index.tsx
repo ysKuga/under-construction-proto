@@ -5,6 +5,7 @@ import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_
 
 import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-registry'
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
+import { isObstacleCell } from '../../_lib/obstacle'
 
 type PlannedPathLayerProps = {
   /**
@@ -45,6 +46,7 @@ type PlannedPathLayerProps = {
 const cellStyle = (
   hasOrders: boolean,
   variant: 'list' | 'stacked',
+  isObstacle: boolean,
 ): CSSProperties => ({
   alignItems: 'center',
   background:
@@ -56,7 +58,7 @@ const cellStyle = (
       ? '1px solid #0284c7'
       : '1px solid transparent',
   color: '#0c4a6e',
-  cursor: 'pointer',
+  cursor: isObstacle ? 'not-allowed' : 'pointer',
   display: 'flex',
   font: 'inherit',
   fontWeight: 700,
@@ -159,11 +161,12 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
       {Array.from({ length: rows }).map((_, row) =>
         Array.from({ length: cols }).map((_, col) => {
           const orders = ordersByCell.get(`${col},${row}`) ?? []
+          const isObstacle = isObstacleCell({ col, row })
 
           return (
             <button
               aria-label={`予定経路へ ${col}-${row} を追加`}
-              disabled={isRunning}
+              disabled={isRunning || isObstacle}
               key={`${row}-${col}`}
               onClick={() => {
                 if (!allowDuplicateSelection && orders.length > 0) {
@@ -173,7 +176,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
                 appendStep({ col, row })
               }}
               ref={(el) => registerCellNode({ col, row }, el)}
-              style={cellStyle(orders.length > 0, variant)}
+              style={cellStyle(orders.length > 0, variant, isObstacle)}
               type="button"
             >
               {variant === 'stacked' ? (
