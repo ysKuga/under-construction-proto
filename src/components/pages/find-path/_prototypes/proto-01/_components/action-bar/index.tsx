@@ -4,6 +4,7 @@ import { useGameClockStore } from '@/prototypes/time-control/time-control-03/_st
 import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
+import { useEnergyStore } from '../../_stores/energy'
 
 type ActionBarProps = {
   /** 「実行」。`useFindPathTick` から親経由で受け取る */
@@ -22,6 +23,7 @@ type ActionBarProps = {
  * - 「1 手戻す」: 予定経路の末尾を取り消す。予定経路が空、または走行中は disabled
  * - 速度スライダー: `timeScale` を game-clock store へ書き込む（0 でポーズ）。
  *   非制御。tick ドライバ側が store を購読して反映する
+ * - EN 残量表示: `EN: x/y`（画面表示のみ略称。実装識別子は `energy` のまま、issue #181）
  */
 export const ActionBar = (props: ActionBarProps) => {
   const { execute, isRunning, reachedGoal } = props
@@ -30,6 +32,9 @@ export const ActionBar = (props: ActionBarProps) => {
   const setTimeScale = useGameClockStore((state) => state.setTimeScale)
   const hasPlannedPath = usePlannedPathStore(
     (state) => state.getPlannedPath(PLAYER_ACTOR_ID).length > 0,
+  )
+  const energyInfo = useEnergyStore((state) =>
+    state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
   const editDisabled = !hasPlannedPath || isRunning
 
@@ -59,6 +64,9 @@ export const ActionBar = (props: ActionBarProps) => {
           type="range"
         />
       </label>
+      <span>
+        EN: {energyInfo.current}/{energyInfo.max}
+      </span>
       {reachedGoal && <span>🎉 ゴール到達</span>}
     </div>
   )
