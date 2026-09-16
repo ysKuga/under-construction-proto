@@ -1,0 +1,42 @@
+# 決定事項（issue #137）
+
+backlog.md から参照される決定事項ログ。1 エントリ 1〜2 行目安、原因調査の結論等は例外的に残す。
+
+- 2026-09-06: issue #137 起票。トップページ改修（#131）の後続テーマとして分離
+- 2026-09-06: route 名 `/find-path` 確定。ゲーム内容は経路プランニング制（tick 実行前に `planned-path` を組む方式）に確定
+- 2026-09-06: 着手順を段階 1 ステージ → 2 bot 配置 → 3 time-control → 4 ゲーム内容深堀 に確定
+- 2026-09-06: actor は box-bot に統一（`Robot01` は旧世代の暫定）。stage-05 は段階 2 まで actor 未搭載
+- 2026-09-07: 遠近方式を CSS `perspective` + `rotateX`（床面台形化）へ転換。scale 補間は破棄
+- 2026-09-07: 傾きは ref 経由で制御（`--floor-tilt` 直接書換え、再レンダリング回避）
+- 2026-09-07: stage-05 に box-bot-01 を actor 搭載。floor に `preserve-3d`、逆 `rotateX` で直立、position 管理は stage-04 と共有
+- 2026-09-07: actor は `theater/figure/box-bot` の `BoxBot01` に確定（`samples` 版は不使用）。表示領域 = 設置領域のため実測補正を全廃
+- 2026-09-07: box-bot-01 の fov 自動算出を overscan 基準へ変更、`style.height` で拡縮可能に
+- 2026-09-07: box-bot-01 の表示領域 = 設置領域は維持。actor サイズは `botSize` prop でマスサイズと独立させる
+- 2026-09-07: 傾いた床で Canvas が設置領域より縮む問題、`<Canvas resize={{ offsetSize: true }}>` で解消
+- 2026-09-07: **ゲーム操作で React 再レンダリングを起こさない方針**を確認。actor 移動は state 依存のため未達、段階 3 で ref ベースへ寄せる（design.md 懸念・リスク）
+- 2026-09-07: 同一マスに複数 bot 表示可（translate でずらす）。tilt 依存の actor 位置ズレは `resize={{ offsetSize: true }}` で解決
+- 2026-09-08: ページ枠は試作 `_prototypes/proto-01` として先行。route/page 化は段階 3 まで進めてから行う
+- 2026-09-12: route/page 化を一旦取りやめ。page 実装は `_prototypes` 非参照方針に変更、段階 5（ゲーム性検討）を優先
+- 2026-09-12: `game-evaluation` スキルで段階 1〜4 評価。「おもしろみ」該当なしの指摘を受け段階 5 追加
+- 2026-09-12: 段階 5 着手。ジャンプ 3 回アンロック撤去、stage-06 の動作確認用静的 bot 削除
+- 2026-09-12: 経路未選択時「実行」「1 手戻す」disabled 化、実行完了時に予定経路クリア
+- 2026-09-12: 予定経路を到達ごとに 1 つずつフェードアウト。`PlannedPathCellRegistryProvider` 新設（ref + DOM 直書き、再レンダリングなし）。以降複数件、DOM 直書きが React の style diffing に乗らず再選択・一括クリア・複数回通過時に古い opacity が残るバグを順次修正（`resetCell`/`resetAllCells`/経路上残存判定）
+- 2026-09-12: 走行中のセル追加が反映されない不具合を修正。`isRunning` 追加、走行中は選択・実行操作を全 disabled 化
+- 2026-09-12: 同一セル複数回選択時に番号が最新化されない問題を修正。原因: セル単位の `orderByCell` が複数出現を 1 つの番号でしか表現できなかったこと。`PlannedPathCellRegistryProvider` を order（経路上の通し番号）単位へ再設計
+- 2026-09-14: 表示方式 `stacked`/`list` の 2 variant を比較試作。最終的に重複選択禁止（`allowDuplicateSelection`）を採用方針とした
+- 2026-09-14: 段階 5「到達済みマスのみ表示」実装。proto-02（隣接逐次移動方式）へ実装。原因: 視界制限は先読み前提の proto-01（積み上げ→実行）とは根本的に矛盾する（複数マス先読みができなくなる）。`VisibilityRegistryProvider` 新設（ref + DOM 直書き）
+- 2026-09-14: CSS Grid の auto-placement が `display: none` 要素を配置計算から除外し、可視セルが詰めて再配置されるレイアウト崩れを発見・修正。`gridColumn`/`gridRow` を明示指定
+- 2026-09-14: proto-02 の隣接移動判定へ斜め方向（8方向）を追加、切替可能に（`allowDiagonal`）
+- 2026-09-14: 「視界」（現在地8近傍、常時可視）と「到達済み」（訪問履歴、表示 ON/OFF 切替可）を2軸に分離。視界に入ったセルは以降到達済み扱いとする
+- 2026-09-14: 床タイル（`GeoLayer`）が視界外でも非表示にならない不具合を修正。`registerVisibilityNode` を `GeoLayer` にも配線
+- 2026-09-14: 到達済みマスのみ表示（視界制限）の本採用可否は保留、後日判断。段階5「隣接マス制限」の採否とあわせて検討
+- 2026-09-14: 隣接マス限定移動は「同じセルへ戻って通る」動線が正当な経路として発生しうるため、重複選択一律禁止は隣接制限と相性が悪いと判断。新規 `proto-02`（隣接クリックで 1 手ずつ即時移動する逐次型）を新設して比較試作。time-control の store 群・tick ループは持ち込まない
+- 2026-09-14: `useAdjacentMove` を全 ref 化（`useState` 撤去）、`Stage06` 配下全体の再レンダリングを解消。`disabled` 属性の DOM 直書き切替は React の合成イベント到達不可バグを踏むため不採用、`isAdjacent` ガード方式に統一
+- 2026-09-15: 「bot を進行方向へ向ける」を proto-03（hex）のみ実装。box-bot-01 に `face` action 新設（`applyYawDelta` による瞬時切替）。hex 方向 → 画面角度変換は box-bot-01 非依存の `hex.ts` に切り出し
+- 2026-09-15: face の向きズレバグ修正。原因: box-bot-01 の yaw 基準と画面座標 atan2 基準が 90° ズレている上、カメラの遠近視点により両者の関係が非線形。単純オフセット補正では不十分なため、数値逆算（`screenAngleToYaw`）で補正
+- 2026-09-15: 「歩くモーション再生」を proto-03 のみ実装。既存 `walkingAction` を再 export、moveActor 直後に ON・`transitionend` 検知で OFF にするトグル方式
+- 2026-09-15: 歩行に腕振りを追加。`applyArmSwing` 新設、脚と逆位相（左腕=右脚）で計算
+- 2026-09-15: proto-03 は 1 マス移動と歩行モーションの相性が悪いため `enableWalking` prop で切替可能に（既定 OFF）。proto-01（tick 駆動）にも歩行対応、実行全体を 1 周期として on/off
+- 2026-09-15: 「bot 向き転換」を proto-01（tick 駆動）へも追加。矩形グリッドは座標変換不要、`gridDirectionToScreenAngle` 新設
+- 2026-09-15: proto-03 に速度調整（`moveDurationMs`）と walking 切替 UI を追加。walking の脚振り周期 `cycleSec` を `moveDurationMs` に連動させ（低速時の視認性確保のため頭打ち `maxWalkCycleSec` を設定）
+- 2026-09-15: 脚・腕振り角（`legSwingAngle`/`armSwingAngle`）をスライダー化。腕振り角は後に「常時180度固定」要望を受け撤去、`ARM_SWING_ANGLE` 定数化 → 振幅と可動域の解釈誤りが判明し `Math.PI / 2`（前後90度ずつ）に修正
