@@ -14,6 +14,8 @@ import { MoveTargetDisplayMode, useMoveTargetLayer } from './index.hooks'
 export type { MoveTargetDisplayMode }
 
 type MoveTargetLayerProps = {
+  /** 対象セルへ進入可能か（省略時は常に進入可能）。障害物セル等を除外する */
+  canEnterCell?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
   /** 現在地セル。移動可能マス(隣接6方向)の算出・表示演出のトリガーに使う */
@@ -37,7 +39,7 @@ type MoveTargetLayerProps = {
  *   描画するだけ
  */
 export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
-  const { cols, currentCell, hexSize, mode, rows } = props
+  const { canEnterCell, cols, currentCell, hexSize, mode, rows } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const moveTargetLayer = useMoveTargetLayer(
@@ -46,6 +48,7 @@ export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
     hexSize,
     mode,
     rows,
+    canEnterCell,
   )
 
   return (

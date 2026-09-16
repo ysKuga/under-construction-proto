@@ -10,10 +10,12 @@ import {
   MoveTargetDisplayMode,
   MoveTargetLayer,
 } from './_components/move-target-layer'
+import { ObstacleLayer } from './_components/obstacle-layer'
 import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
+import { isObstacleCell } from './_lib/obstacle'
 import { GOAL_POSITION, START_POSITION } from './constants'
 
 /** グリッド形状 */
@@ -75,6 +77,7 @@ const FindPathProto03Content = () => {
       </h1>
       <Stage07
         botSize={56}
+        canEnterCell={(cell) => !isObstacleCell(cell)}
         cols={GRID.cols}
         enableWalking={enableWalking}
         hexSize={HEX_SIZE}
@@ -94,7 +97,9 @@ const FindPathProto03Content = () => {
           }
           rows={GRID.rows}
         />
+        <ObstacleLayer cols={GRID.cols} hexSize={HEX_SIZE} rows={GRID.rows} />
         <MoveTargetLayer
+          canEnterCell={(cell) => !isObstacleCell(cell)}
           cols={GRID.cols}
           currentCell={currentCell}
           hexSize={HEX_SIZE}

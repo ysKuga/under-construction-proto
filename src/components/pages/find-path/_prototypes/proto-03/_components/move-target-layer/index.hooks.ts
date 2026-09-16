@@ -43,16 +43,22 @@ type MoveTarget = {
 /** 表示演出の段階 */
 type Phase = 'hidden' | 'revealed' | 'spawned'
 
-/** グリッド全セルのうち current に隣接するセル（＝移動可能マス）を列挙する */
+/**
+ * グリッド全セルのうち current に隣接し、かつ進入可能なセル（＝移動可能マス）を
+ * 列挙する
+ */
 const reachableCellsOf = (
   current: HexCell,
   cols: number,
   rows: number,
+  canEnter?: (cell: HexCell) => boolean,
 ): HexCell[] =>
   Array.from({ length: rows }).flatMap((_, row) =>
     Array.from({ length: cols })
       .map((_, col) => colRowToAxial(col, row))
-      .filter((cell) => isHexAdjacent(current, cell)),
+      .filter(
+        (cell) => isHexAdjacent(current, cell) && (canEnter?.(cell) ?? true),
+      ),
   )
 
 /**
@@ -104,6 +110,8 @@ const scaleOf = (mode: MoveTargetDisplayMode, phase: Phase): number =>
  * @param hexSize 六角形の外接円半径 (px)
  * @param mode 表示演出の種類
  * @param rows グリッド行数
+ * @param canEnter 対象セルへ進入可能か（省略時は常に進入可能）。障害物セル等を
+ *   移動可能マス表示から除外する
  */
 export const useMoveTargetLayer = (
   currentCell: HexCell,
@@ -111,6 +119,7 @@ export const useMoveTargetLayer = (
   hexSize: number,
   mode: MoveTargetDisplayMode,
   rows: number,
+  canEnter?: (cell: HexCell) => boolean,
 ): MoveTarget[] => {
   const [phase, setPhase] = useState<Phase>('hidden')
   const [trackedCell, setTrackedCell] = useState(currentCell)
@@ -152,7 +161,7 @@ export const useMoveTargetLayer = (
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const originPosition = hexCellCenter(currentCell, hexSize, bounds)
 
-  return reachableCellsOf(currentCell, cols, rows).map((cell) => {
+  return reachableCellsOf(currentCell, cols, rows, canEnter).map((cell) => {
     const targetPosition = hexCellCenter(cell, hexSize, bounds)
 
     return {
