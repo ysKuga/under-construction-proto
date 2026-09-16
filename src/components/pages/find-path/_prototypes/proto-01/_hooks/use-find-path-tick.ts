@@ -24,7 +24,7 @@ import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { isObstacleCell } from '../_lib/obstacle'
-import { useEnStoreApi } from '../_stores/en'
+import { useEnergyStoreApi } from '../_stores/energy'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
 /**
@@ -56,7 +56,7 @@ type UseFindPathTickReturn = {
    * - 予定経路が空なら何もしない
    * - 途中の番号は到達ごとに 1 つずつフェードアウトし、歩き切ったら予定経路を\
    *   クリアする（番号の見た目も明示的にリセットする）
-   * - 1 マス消化するごとに EN を 1 消費し、0 になったらそこで打ち切る（ゴール未達）
+   * - 1 マス消化するごとにエネルギーを 1 消費し、0 になったらそこで打ち切る（ゴール未達）
    */
   execute: () => void
   /**
@@ -102,7 +102,7 @@ export const useFindPathTick = (
   const gameClock = useGameClockStoreApi()
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
-  const en = useEnStoreApi()
+  const energy = useEnergyStoreApi()
   const { getActorPosition, moveActor } = useActorNodeRegistry()
   const { fadeOutCell, fadeOutStep, resetAllSteps } =
     usePlannedPathCellRegistry()
@@ -194,14 +194,15 @@ export const useFindPathTick = (
       moveActor(PLAYER_ACTOR_ID, target)
     }
 
-    en.getState().consume(PLAYER_ACTOR_ID, 1)
-    const outOfEn = en.getState().getEnInfo(PLAYER_ACTOR_ID).current <= 0
+    energy.getState().consume(PLAYER_ACTOR_ID, 1)
+    const outOfEnergy =
+      energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current <= 0
 
-    if (rest.length === 0 || outOfEn) {
-      // 歩き切った、または EN 切れでこれ以上進めない場合の終了処理（ゴール未達）。
+    if (rest.length === 0 || outOfEnergy) {
+      // 歩き切った、またはエネルギー切れでこれ以上進めない場合の終了処理（ゴール未達）。
       // fadeOutStep 済みの番号は resetAllSteps で明示的に戻す
-      if (outOfEn && rest.length > 0) {
-        // 経路はまだ残っているが EN 切れのため打ち切る
+      if (outOfEnergy && rest.length > 0) {
+        // 経路はまだ残っているがエネルギー切れのため打ち切る
         path.getState().setPath(PLAYER_ACTOR_ID, [])
       }
 
@@ -244,7 +245,7 @@ export const useFindPathTick = (
       setReachedGoal(true)
     }
   }, [
-    en,
+    energy,
     gameClock,
     path,
     plannedPath,
