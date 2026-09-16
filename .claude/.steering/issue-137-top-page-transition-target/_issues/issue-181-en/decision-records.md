@@ -10,3 +10,4 @@
 - 2026-09-16: EN 残量の UI 表示は数値表示（`EN: 5/10`）
 - 2026-09-16: 実装対象は proto-01・proto-03 両方。proto-01 は「実行」tick 駆動（`useFindPathTick`）が既存のためそのまま統合、proto-03 は tick 駆動自体が未実装（隣接クリック逐次移動のみ）のため新設が必要。両者を分離し、proto-03 側は別 PR とする
 - 2026-09-16: EN store は find-path 固有の zustand store として新設（`FindPathStoresProvider` と同じ `createStoreContext` パターン）。time-control-03（汎用時間管理ロジック）へは持ち込まない、EN はゲームデザイン上の資源管理概念のため
+- 2026-09-16: PR #183 で proto-01 の EN 保持・Context 注入・消費ロジック（`useFindPathTick` への統合、0 で打ち切り）を実装。回復ロジックは別 PR
