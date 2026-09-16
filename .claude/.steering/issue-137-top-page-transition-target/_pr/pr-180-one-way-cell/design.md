@@ -9,7 +9,6 @@ issue: #137
 ## 背景・制約
 
 - 親: [issue-137 backlog.md](../backlog.md) 該当項目からの分割（障害物・歩数制限は別 steering）
-- 未検討。詳細はこれから
 
 実装計画: [backlog.md](backlog.md)。決定事項: [decision-records.md](decision-records.md)。
 
@@ -21,4 +20,4 @@ issue: #137
 
 ## 懸念・リスク
 
-- 矢印の視覚表現(3D 遠近ステージ上での向き表示方法)未検討
+- proto-03(hex)展開時の矢印表現方法未検討（axial 座標での方向マッピング）
