@@ -23,3 +23,9 @@ export const OBSTACLE_CELLS = [
   { col: 2, row: 2 },
   { col: 3, row: 1 },
 ] as const
+
+/** 一方通行セル一覧（退出方向固定。exitDirection の逆方向からの進入を拒否） */
+export const ONE_WAY_CELLS = [
+  { col: 1, exitDirection: 'right', row: 3 },
+  { col: 3, exitDirection: 'up', row: 2 },
+] as const
