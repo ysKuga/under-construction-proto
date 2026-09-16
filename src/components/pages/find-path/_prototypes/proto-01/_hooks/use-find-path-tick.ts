@@ -23,6 +23,7 @@ import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-0
 import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
+import { isObstacleCell } from '../_lib/obstacle'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
 /**
@@ -175,6 +176,7 @@ export const useFindPathTick = (
       TICK_MS,
     )
     const target = { col: next.x, row: next.y }
+    const blocked = isObstacleCell(target)
 
     if (face) {
       const current = getActorPosition(PLAYER_ACTOR_ID)
@@ -184,7 +186,10 @@ export const useFindPathTick = (
     }
 
     path.getState().setPath(PLAYER_ACTOR_ID, rest)
-    moveActor(PLAYER_ACTOR_ID, target)
+
+    if (!blocked) {
+      moveActor(PLAYER_ACTOR_ID, target)
+    }
 
     if (rest.length === 0) {
       // 歩き切ったら予定経路をクリアする（次の企図まで「実行」は disabled）。
@@ -220,7 +225,11 @@ export const useFindPathTick = (
       }
     }
 
-    if (next.x === GOAL_POSITION.col && next.y === GOAL_POSITION.row) {
+    if (
+      !blocked &&
+      next.x === GOAL_POSITION.col &&
+      next.y === GOAL_POSITION.row
+    ) {
       setReachedGoal(true)
     }
   }, [
