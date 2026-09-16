@@ -7,6 +7,7 @@
 - **issue 直結**(issue 単位の大きな作業テーマ): `issue-{issue番号}-slug`
   - 例: `issue-96-app-top-page-readme-style`
   - issue 直結 steering から分割するサブ作業、親配下へネスト配置: `issue-{issue番号}-slug/YYYYMMDD-slug/`。issue 番号は付与しない(ネスト位置自体で親が明らか)
+  - サブ作業を GitHub 上の正式サブ issue として分離した場合、`issue-{親issue番号}-slug/_issues/issue-{子issue番号}-slug/`(`_pr`/`_closed` と対になる中間ディレクトリ)。配下構成は issue 直結と同じ(design.md/backlog.md/decision-records.md。実装フェーズは内部でさらに `_pr/pr-{PR番号}-slug/` へ)
 - **個別作業(検討段階、PR 未作成、issue 非紐づけ)**: `YYYYMMDD-slug`(従来通り)
 - **実装フェーズ(PR あり)**: `_pr/pr-{PR番号}-slug/`(`_closed/` と対になる中間ディレクトリ、issue 配下・非紐づけ共通)
   - 空 PR を先に作成し番号を確保 → 検討段階の `YYYYMMDD-slug` から `_pr/pr-{PR番号}-slug/` へ `git mv`
@@ -23,3 +24,5 @@
 ## 例
 
 `.claude/.steering/issue-96-app-top-page-readme-style/design.md` の実装計画から、追加検討が必要な項目を `.claude/.steering/issue-96-app-top-page-readme-style/20260825-box-bot-display-tuning/` へ分割。実装着手時に空 PR(#101)を作成し `issue-96-app-top-page-readme-style/_pr/pr-101-box-bot-display-tuning/` へリネーム。対応完了後 `issue-96-app-top-page-readme-style/_closed/pr-101-box-bot-display-tuning/` へ close。
+
+`issue-137-top-page-transition-target/20260916-energy/` を GitHub 上のサブ issue(#181)として分離し、`issue-137-top-page-transition-target/_issues/issue-181-en/` へリネーム。
