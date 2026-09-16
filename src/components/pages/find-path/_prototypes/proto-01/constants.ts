@@ -16,3 +16,10 @@ export const REALTIME_STEP_MS = 10
 
 /** ゴールセル */
 export const GOAL_POSITION = { col: 3, row: 3 } as const
+
+/** 障害物セル一覧（通行不可） */
+export const OBSTACLE_CELLS = [
+  { col: 1, row: 1 },
+  { col: 2, row: 2 },
+  { col: 3, row: 1 },
+] as const

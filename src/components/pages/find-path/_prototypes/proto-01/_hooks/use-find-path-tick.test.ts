@@ -12,7 +12,7 @@ import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-0
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
-import { GOAL_POSITION, TICK_MS } from '../constants'
+import { GOAL_POSITION, OBSTACLE_CELLS, TICK_MS } from '../constants'
 
 import { useFindPathTick } from './use-find-path-tick'
 
@@ -166,6 +166,22 @@ test('ゴールセルに到達すると reachedGoal が true になる', () => {
   act(() => vi.advanceTimersByTime(TICK_MS * 2))
   expect(cellOf(result)).toEqual(GOAL_POSITION)
   expect(result.current.tick.reachedGoal).toBe(true)
+})
+
+test('次マスが障害物なら moveActor をスキップするが、経路自体は消化される', () => {
+  const { result } = renderTick()
+  const obstacle = OBSTACLE_CELLS[0]
+
+  seedPlanned(result, [obstacle, { col: 4, row: 4 }])
+
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS * 2))
+
+  // 障害物セルへは移動せず、その次の指定まで消化される
+  expect(cellOf(result)).toEqual({ col: 4, row: 4 })
+  expect(
+    result.current.plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID),
+  ).toEqual([])
 })
 
 test('経路を歩き切ると予定経路がクリアされる', () => {
