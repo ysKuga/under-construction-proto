@@ -2,10 +2,7 @@
 
 import { PropsWithChildren, useState } from 'react'
 
-import {
-  createEnergyStore,
-  EnergyStoreContext,
-} from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import {
   createGameClockStore,
   GameClockStoreContext,
@@ -35,15 +32,12 @@ export const FindPathStoresProvider = (props: PropsWithChildren) => {
   const [gameClockStore] = useState(() => createGameClockStore())
   const [pathStore] = useState(() => createPathStore())
   const [plannedPathStore] = useState(() => createPlannedPathStore())
-  const [energyStore] = useState(() => createEnergyStore())
 
   return (
     <GameClockStoreContext.Provider value={gameClockStore}>
       <PathStoreContext.Provider value={pathStore}>
         <PlannedPathStoreContext.Provider value={plannedPathStore}>
-          <EnergyStoreContext.Provider value={energyStore}>
-            {children}
-          </EnergyStoreContext.Provider>
+          <EnergyStoreProvider>{children}</EnergyStoreProvider>
         </PlannedPathStoreContext.Provider>
       </PathStoreContext.Provider>
     </GameClockStoreContext.Provider>
