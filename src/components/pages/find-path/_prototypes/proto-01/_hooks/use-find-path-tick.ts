@@ -319,6 +319,12 @@ export const useFindPathTick = (
 
               lastTickTimeRef.current = now
 
+              if (timeScale === 0) {
+                // carry を増やさないだけでは、最初の区間（閾値 0、待機なし即時消化）が
+                // carry=0 のままでも消化されてしまう。ポーズ中は tick 自体を出さない
+                return { carry: acc.carry, consumed: 0 }
+              }
+
               let carry = acc.carry + elapsedMs * timeScale
               let consumed = 0
 

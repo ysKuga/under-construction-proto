@@ -8,7 +8,10 @@ import {
   ActorNodeRegistryProvider,
   useActorNodeRegistry,
 } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import {
+  CELL_TRANSITION_MS,
+  PLAYER_ACTOR_ID,
+} from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStoreApi } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
@@ -77,15 +80,15 @@ test('「実行」で予定経路を 1 tick ごとに 1 セルずつ消化し、
 
   act(() => result.current.tick.execute())
 
-  // timeScale=1 なので 1 tick 消化に TICK_MS 分の実時間が要る
-  act(() => vi.advanceTimersByTime(TICK_MS))
+  // timeScale=1 なので 1 区間消化に CELL_TRANSITION_MS 分の実時間が要る
+  act(() => vi.advanceTimersByTime(CELL_TRANSITION_MS))
   expect(cellOf(result)).toEqual({ col: 1, row: 0 })
 
-  act(() => vi.advanceTimersByTime(TICK_MS * 2))
+  act(() => vi.advanceTimersByTime(CELL_TRANSITION_MS * 2))
   expect(cellOf(result)).toEqual({ col: 3, row: 0 })
 
   // 枯渇後はいくら進めても動かない
-  act(() => vi.advanceTimersByTime(TICK_MS * 5))
+  act(() => vi.advanceTimersByTime(CELL_TRANSITION_MS * 5))
   expect(cellOf(result)).toEqual({ col: 3, row: 0 })
 
   // game-clock に 3 tick 分ログされ、commonGameTimeMs が 3 * TICK_MS 進む
@@ -106,11 +109,11 @@ test('timeScale で消化速度が変わる', () => {
   })
   act(() => result.current.tick.execute())
 
-  // 4 倍速: TICK_MS / 4 の実時間で 1 tick
-  act(() => vi.advanceTimersByTime(TICK_MS / 4))
+  // 4 倍速: CELL_TRANSITION_MS / 4 の実時間で 1 区間
+  act(() => vi.advanceTimersByTime(CELL_TRANSITION_MS / 4))
   expect(cellOf(result)).toEqual({ col: 1, row: 0 })
 
-  act(() => vi.advanceTimersByTime(TICK_MS / 4))
+  act(() => vi.advanceTimersByTime(CELL_TRANSITION_MS / 4))
   expect(cellOf(result)).toEqual({ col: 2, row: 0 })
 })
 
@@ -123,7 +126,7 @@ test('timeScale=0 の間は進まない（ポーズ）', () => {
     result.current.gameClock.getState().setTimeScale(0)
   })
   act(() => result.current.tick.execute())
-  act(() => vi.advanceTimersByTime(TICK_MS * 10))
+  act(() => vi.advanceTimersByTime(CELL_TRANSITION_MS * 10))
 
   expect(cellOf(result)).toEqual({ col: 0, row: 0 })
 
@@ -131,7 +134,7 @@ test('timeScale=0 の間は進まない（ポーズ）', () => {
   act(() => {
     result.current.gameClock.getState().setTimeScale(1)
   })
-  act(() => vi.advanceTimersByTime(TICK_MS))
+  act(() => vi.advanceTimersByTime(CELL_TRANSITION_MS))
   expect(cellOf(result)).toEqual({ col: 1, row: 0 })
 })
 
