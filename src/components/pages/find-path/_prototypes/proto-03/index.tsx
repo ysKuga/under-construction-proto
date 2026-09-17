@@ -83,8 +83,8 @@ const FindPathProto03Content = () => {
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
   const energyStoreApi = useEnergyStoreApi()
-  const hasEnergy = useEnergyStore(
-    (state) => state.getEnergyInfo(PLAYER_ACTOR_ID).current > 0,
+  const energyInfo = useEnergyStore((state) =>
+    state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
 
   const handleCellChange = (cell: HexCell) => {
@@ -99,7 +99,9 @@ const FindPathProto03Content = () => {
 
   /** 対象セルへ進入可能か（障害物・一方通行の逆走・EN 切れを除外） */
   const canEnterCell = (cell: HexCell) =>
-    hasEnergy && !isObstacleCell(cell) && !isBlockedByOneWay(currentCell, cell)
+    energyInfo.current > 0 &&
+    !isObstacleCell(cell) &&
+    !isBlockedByOneWay(currentCell, cell)
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -182,6 +184,9 @@ const FindPathProto03Content = () => {
             <option value="fade">フェード</option>
           </select>
         </label>
+        <span>
+          EN: {energyInfo.current}/{energyInfo.max}
+        </span>
         <span hidden={!goalReached}>🎉 ゴール到達</span>
       </div>
     </div>
