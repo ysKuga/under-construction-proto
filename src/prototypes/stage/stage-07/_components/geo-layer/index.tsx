@@ -132,7 +132,11 @@ export const GeoLayer = (props: GeoLayerProps) => {
           <div
             key={`${axial.q}-${axial.r}`}
             ref={(el) => registerVisibilityNode?.(axial, el)}
-            style={cellStyle}
+            // 非対話時はクリックを完全に下層（find-path の予定経路レイヤー等）へ
+            // 透過させる。floor は rotateX + preserve-3d の 3D 空間のため、
+            // pointerEvents 未指定だとブラウザの 3D ヒットテストが DOM 順を無視して
+            // このタイルを拾ってしまうことがある（issue #181 PR-C で発覚）
+            style={{ ...cellStyle, pointerEvents: 'none' }}
           >
             {hexagon}
           </div>
