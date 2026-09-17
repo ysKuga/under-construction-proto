@@ -3,6 +3,10 @@
 import { PropsWithChildren, useState } from 'react'
 
 import {
+  createEnergyStore,
+  EnergyStoreContext,
+} from '@/components/pages/find-path/_prototypes/_stores/energy'
+import {
   createGameClockStore,
   GameClockStoreContext,
 } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
@@ -14,8 +18,6 @@ import {
   createPlannedPathStore,
   PlannedPathStoreContext,
 } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
-
-import { createEnergyStore, EnergyStoreContext } from '../../_stores/energy'
 
 /**
  * find-path 試作の store Provider

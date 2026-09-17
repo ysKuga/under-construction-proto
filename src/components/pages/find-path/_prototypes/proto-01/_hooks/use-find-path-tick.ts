@@ -10,6 +10,7 @@ import {
   withLatestFrom,
 } from 'rxjs'
 
+import { useEnergyStoreApi } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { screenAngleToYaw } from '@/components/theater/figure/box-bot'
 import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 import { gridDirectionToScreenAngle } from '@/prototypes/stage/stage-06/_lib/direction'
@@ -24,7 +25,6 @@ import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { isObstacleCell } from '../_lib/obstacle'
-import { useEnergyStoreApi } from '../_stores/energy'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
 /**

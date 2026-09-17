@@ -1,10 +1,10 @@
+import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { Button } from '@/components/ui/button'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStore } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
-import { useEnergyStore } from '../../_stores/energy'
 
 type ActionBarProps = {
   /** 「実行」。`useFindPathTick` から親経由で受け取る */
