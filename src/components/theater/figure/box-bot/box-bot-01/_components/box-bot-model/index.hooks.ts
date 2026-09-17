@@ -66,12 +66,14 @@ const writeShadowLift = (
   if (shadowLiftRef?.current) shadowLiftRef.current.position.y = y
 }
 
-/** 前傾グループ(`fallPivotRef`)の前傾角(`rotation.x`)を `rad` に設定する(fall) */
-const writeTilt = (
-  fallPivotRef: RefObject<Group | null>,
-  rad: number,
-): void => {
-  if (fallPivotRef.current) fallPivotRef.current.rotation.x = rad
+/**
+ * 前傾グループの前傾角(`rotation.x`)を `rad` に設定する
+ *
+ * - `fallPivotRef`(fall、シルエット中心軸・全身)/ `torsoRef`(energy-out、腰軸・上半身のみ)
+ *   共通で使う
+ */
+const writeTilt = (pivotRef: RefObject<Group | null>, rad: number): void => {
+  if (pivotRef.current) pivotRef.current.rotation.x = rad
 }
 
 /** 左右の腕グループの前方スイング角(`rotation.x`)を `rad` に設定する(fall) */
@@ -216,8 +218,16 @@ export function useBoxBotModel(
 
   const { actions } = useBoxBotActions()
 
-  const { arm, fallPivotRef, leg, postureRef, rootRef, walkingBobRef, yawRef } =
-    useBoxBotRefs()
+  const {
+    arm,
+    fallPivotRef,
+    leg,
+    postureRef,
+    rootRef,
+    torsoRef,
+    walkingBobRef,
+    yawRef,
+  } = useBoxBotRefs()
 
   const eventTarget = useBoxBotEventTarget()
   const dispatch = useEventDispatcher(eventTarget)
@@ -283,6 +293,7 @@ export function useBoxBotModel(
     applyShift: (offset) => writeShift(displayAreaRef, offset),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
     applyTiltAngle: (rad) => writeTilt(fallPivotRef, rad),
+    applyTorsoTiltAngle: (rad) => writeTilt(torsoRef, rad),
     applyYawDelta: (rad) => writeYawDelta(yawRef, rad),
     eventTarget,
     interactive,
@@ -309,6 +320,7 @@ export function useBoxBotModel(
     onClick,
     rootRef,
     rotationY,
+    torsoRef,
     walkingBobRef,
     yawRef,
   }

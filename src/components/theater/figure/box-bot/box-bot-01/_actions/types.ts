@@ -176,6 +176,14 @@ export type BoxBotActionHost = {
    */
   applyTiltAngle: (rad: number) => void
   /**
+   * 上半身前傾角を設定する(絶対値)
+   *
+   * - `rad` は腰(脚の付け根)まわりの x 軸回転。adapter が `torsoRef` グループの `rotation.x`\
+   *   へ反映する。`applyTiltAngle`(シルエット中心軸・脚を含めた全身)とは回転中心・対象範囲が\
+   *   異なる。energy-out が使う(脚は接地させたまま上半身だけ屈める「予防姿勢」)
+   */
+  applyTorsoTiltAngle: (rad: number) => void
+  /**
    * yaw(y 軸回転)を増分で加える
    *
    * - `rad` はこのフレームで加算する角度。adapter が回転グループの `rotation.y` へ加算する

@@ -1,6 +1,7 @@
 import { armToggleAction } from './arm-toggle'
 import { autoRotateAction } from './auto-rotate'
 import { bodyBobbingAction } from './body-bobbing'
+import { energyOutAction } from './energy-out'
 import { faceAction } from './face'
 import { fallAction } from './fall'
 import { hoppingAction } from './hopping'
@@ -11,6 +12,7 @@ import { walkingAction } from './walking'
 import { walkingResetAction } from './walking-reset'
 
 export * from './define-action'
+export { ACTION_ENERGY_OUT, energyOutAction } from './energy-out'
 export { ACTION_FACE, faceAction } from './face'
 export { ACTION_JUMP, jumpAction } from './jump'
 export * from './types'
@@ -36,6 +38,7 @@ export const BOX_BOT_ACTIONS = [
   marchingAction,
   bodyBobbingAction,
   fallAction,
+  energyOutAction,
 ] as const
 
 /**
