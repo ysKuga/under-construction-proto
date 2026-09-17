@@ -38,6 +38,12 @@ const thresholdForSegment = (durations: number[], index: number) =>
 
 type UseFindPathTickOptions = {
   /**
+   * box-bot-01 の energyOut action dispatcher(省略時は EN 切れ演出を再生しない)
+   *
+   * - EN 切れでこれ以上進めなくなった tick でトグル発火する(直立 → へたり込み)
+   */
+  energyOut?: () => Promise<void>
+  /**
    * box-bot-01 の face action dispatcher(省略時は進行方向転換しない)
    *
    * - 1 tick 消化(1 マス移動)ごとに、移動元→移動先の方向を画面角度へ変換し
@@ -92,12 +98,12 @@ type UseFindPathTickReturn = {
  * - `options.face`(省略可、box-bot-01 の face action dispatcher)を渡すと、1 tick
  *   消化ごとに bot を進行方向へ向ける
  *
- * @param options walking/face の dispatcher(いずれも省略可)
+ * @param options walking/face/energyOut の dispatcher(いずれも省略可)
  */
 export const useFindPathTick = (
   options: UseFindPathTickOptions = {},
 ): UseFindPathTickReturn => {
-  const { face, walking } = options
+  const { energyOut, face, walking } = options
 
   const gameClock = useGameClockStoreApi()
   const path = usePathStoreApi()
@@ -214,6 +220,8 @@ export const useFindPathTick = (
         isWalkingRef.current = false
         void walking()
       }
+
+      if (energyOut && outOfEnergy) void energyOut()
     } else {
       // 同じセルが経路上でまだ後に残っていれば、その番号を最前面へ昇格させる。
       // 残っていなければ通常のフェードアウトのみ
@@ -254,6 +262,7 @@ export const useFindPathTick = (
     resetAllSteps,
     moveActor,
     getActorPosition,
+    energyOut,
     face,
     walking,
   ])

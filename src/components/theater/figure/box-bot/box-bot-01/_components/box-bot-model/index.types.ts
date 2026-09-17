@@ -230,6 +230,15 @@ export interface BoxBotRefs {
   /** 全体グループ。jump の squash(scale)対象。JSX で `<group ref>` にバインドする */
   rootRef: RefObject<Group | null>
   /**
+   * 腰(脚の付け根)を支点に上半身(胴体・頭・腕)だけ前傾させるグループ
+   *
+   * - energy-out がここへ `rotation.x` を入れる。`walkingBobRef` の内側、脚とは兄弟\
+   *   (脚を含まない)。`fallPivotRef`(シルエット中心軸、脚も含めた全身)とは回転中心・\
+   *   対象範囲が異なる ― 「予防姿勢」は脚を接地させたまま上半身だけ屈める動きのため。\
+   *   JSX で `<group ref>` にバインド
+   */
+  torsoRef: RefObject<Group | null>
+  /**
    * walking / marching 中に体全体を上下させるグループ
    *
    * - body-bobbing がここへ `position.y` を入れる。`fallPivotRef` の内側、全パーツを包む。\
@@ -269,7 +278,13 @@ export type Handlers = {
 
 export interface UseBoxBotModelReturn extends Pick<
   BoxBotRefs,
-  'arm' | 'fallPivotRef' | 'leg' | 'rootRef' | 'walkingBobRef' | 'yawRef'
+  | 'arm'
+  | 'fallPivotRef'
+  | 'leg'
+  | 'rootRef'
+  | 'torsoRef'
+  | 'walkingBobRef'
+  | 'yawRef'
 > {
   /** マージ後の設定値 */
   cfg: BoxBot3DConfig

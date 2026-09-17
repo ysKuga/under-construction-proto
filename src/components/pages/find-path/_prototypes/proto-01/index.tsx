@@ -3,6 +3,7 @@
 import { ComponentProps, useState } from 'react'
 
 import {
+  energyOutAction,
   faceAction,
   useBoxBotActionDispatcher,
   walkingAction,
@@ -88,6 +89,8 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  *   相性がよい（1 マスごとの隣接クリック移動、stage-07 とは異なる粒度）
  * - face action(進行方向転換)は 1 tick 消化ごとに bot を進行方向へ向ける
  *   （`useFindPathTick` へ dispatcher を渡す。stage-07 と同じ考え方）
+ * - energyOut action(EN 切れ演出)は EN 切れでこれ以上進めなくなった tick でトグル発火する
+ *   （`useFindPathTick` へ dispatcher を渡す。issue #181）
  * - 初期表示時は `useInitialFacing` に `INITIAL_FACING_SCREEN_ANGLE`(右下)を
  *   明示指定し、その向きへ固定する（自動算出だと右向きになり顔が見えないため）
  */
@@ -95,12 +98,13 @@ const FindPathContent = (props: FindPathProto01Props) => {
   const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
-  const { face, walking } = useBoxBotActionDispatcher(actorEventTarget, [
-    faceAction,
-    walkingAction,
-  ])
+  const { energyOut, face, walking } = useBoxBotActionDispatcher(
+    actorEventTarget,
+    [faceAction, walkingAction, energyOutAction],
+  )
 
   const { execute, isRunning, reachedGoal } = useFindPathTick({
+    energyOut,
     face,
     walking,
   })
@@ -113,7 +117,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
         Find Path
       </h1>
       <Stage06
-        actorActions={[faceAction, walkingAction]}
+        actorActions={[faceAction, walkingAction, energyOutAction]}
         actorEventTarget={actorEventTarget}
         botSize={56}
         cols={GRID.cols}
