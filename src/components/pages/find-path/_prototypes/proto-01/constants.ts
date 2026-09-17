@@ -29,3 +29,19 @@ export const ONE_WAY_CELLS = [
   { col: 1, exitDirection: 'right', row: 3 },
   { col: 3, exitDirection: 'up', row: 2 },
 ] as const
+
+/**
+ * 回復アイテム一覧（踏むと回復、1個ずつ使い切り）
+ *
+ * - 配置・回復量は仮値（design.md 懸念・リスク、後日バランス調整）
+ */
+export const RECOVERY_ITEM_CELLS = [{ amount: 3, col: 2, row: 0 }] as const
+
+/**
+ * 回復スポット一覧（踏むたび回復、指定回数で枯渇しうる）
+ *
+ * - 配置・回復量・回数は仮値（design.md 懸念・リスク、後日バランス調整）
+ */
+export const RECOVERY_SPOT_CELLS = [
+  { amount: 2, col: 4, row: 2, stock: 2 },
+] as const
