@@ -1,5 +1,19 @@
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+/**
+ * tick 1 回分の論理時間（ms）
+ *
+ * - 1 tick = bot 1 セルぶんの移動（隣接セルのみ選択可のため区間距離は常に 1）
+ */
+export const TICK_MS = 400
+
+/**
+ * auto 進行の実時間刻み（ms）
+ *
+ * - `timeScale` はこの刻み単位で反映される
+ */
+export const REALTIME_STEP_MS = 10
+
 /** bot の初期セル（axial 原点） */
 export const START_POSITION: HexCell = { q: 0, r: 0 }
 
