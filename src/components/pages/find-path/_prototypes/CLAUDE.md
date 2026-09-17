@@ -4,6 +4,7 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
 
 ## 構成
 
+- `_stores/energy`: proto-01/02/03 共有の EnergyStore（issue #181）。`createStoreContext` パターン。find-path ページ自体は route/page 未実装のため、`_prototypes` の外（page 直下）へはまだ出さない（PR-B 2026-09-17、issue-181-en decision-records.md 参照）
 - `proto-01`: 試作。`prototypes/stage/stage-06` (遠近ステージ + actor 位置 ref 版) をページ枠へマウントした土台。ゲーム内容は経路プランニング制 (`planned-path` へ積み上げ → まとめて「実行」で tick 進行)
   - `_contexts/find-path-stores/`: time-control-03 の game-clock / path / planned-path を無改変で束ねる Provider。position / intent は持ち込まない (セル単位・単一 bot と噛み合わないため)。tick は未接続 (PR-C)
   - `_hooks/use-planned-path-steps.ts`: 予定経路をセル単位で append / pop する wrapper hook。tc-03 の planned-path store は無改変

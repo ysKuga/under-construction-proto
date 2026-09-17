@@ -2,6 +2,8 @@ import { act, renderHook } from '@testing-library/react'
 import { createElement, PropsWithChildren } from 'react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
+import { useEnergyStoreApi } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { DEFAULT_ENERGY_INFO } from '@/components/pages/find-path/_prototypes/_stores/energy/constants'
 import {
   ActorNodeRegistryProvider,
   useActorNodeRegistry,
@@ -12,8 +14,6 @@ import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-0
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
-import { useEnergyStoreApi } from '../_stores/energy'
-import { DEFAULT_ENERGY_INFO } from '../_stores/energy/constants'
 import { GOAL_POSITION, OBSTACLE_CELLS, TICK_MS } from '../constants'
 
 import { useFindPathTick } from './use-find-path-tick'
