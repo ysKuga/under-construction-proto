@@ -1,7 +1,11 @@
+'use client'
+
+import { PropsWithChildren, useState } from 'react'
 import { StoreApi } from 'zustand/vanilla'
 
 import { createStoreContext } from '@/stores/utils/create-store-context'
 
+import { createEnergyStore } from './store'
 import { EnergyState } from './types'
 
 const { StoreContext, useStoreApi, useStoreSelector } =
@@ -9,6 +13,19 @@ const { StoreContext, useStoreApi, useStoreSelector } =
 
 /** Energy store 用 Context */
 export const EnergyStoreContext = StoreContext
+
+/** Energy store を生成し Context 経由で配布する */
+export const EnergyStoreProvider = (props: PropsWithChildren) => {
+  const { children } = props
+
+  const [energyStore] = useState(() => createEnergyStore())
+
+  return (
+    <EnergyStoreContext.Provider value={energyStore}>
+      {children}
+    </EnergyStoreContext.Provider>
+  )
+}
 
 /** Energy store を selector 購読する */
 export const useEnergyStore = <T,>(

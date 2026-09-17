@@ -2,6 +2,12 @@
 
 import { useState } from 'react'
 
+import {
+  EnergyStoreProvider,
+  useEnergyStore,
+  useEnergyStoreApi,
+} from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-07/_contexts/actor-node-registry'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
@@ -30,6 +36,21 @@ const HEX_SIZE = 40
 const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
 
 /**
+ * 進入拒否条件を1件表す
+ *
+ * - `perceived`: 認識として不可（未到達・EN 切れ等、事前に把握できるため
+ *   移動可能マス表示等のガイドにも反映する）
+ * - `resultOnly`: 結果として不可（認識外の障害物・他アクターとのコンフリクト等、
+ *   実行してみないと分からない。現時点では実例なし）
+ */
+type EnterGuard = {
+  /** 対象セルへ進入可能か */
+  check: (cell: HexCell) => boolean
+  /** 判定の種類 */
+  kind: 'perceived' | 'resultOnly'
+}
+
+/**
  * FindPathProto03 — find-path ページ試作（hex グリッド版）
  *
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
@@ -48,14 +69,19 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  * - `ActorNodeRegistryProvider`（hex 版）は actor の現在セルを保持する Provider。
  *   `Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の追加に備え、外部から
  *   クリックを介さず actor を動かせるようにするため）
+ * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費する。予定経路・tick
+ *   駆動の「実行」は proto-01 と異なり導入しない（1 マスごとの隣接クリック移動の
+ *   まま）ため、`canEnterCell` へ残量判定を加え移動成立時に直接消費する
  */
 const FindPathProto03 = () => {
   return (
-    <ActorNodeRegistryProvider initialCell={START_POSITION}>
-      <VisibilityRegistryProvider>
-        <FindPathProto03Content />
-      </VisibilityRegistryProvider>
-    </ActorNodeRegistryProvider>
+    <EnergyStoreProvider>
+      <ActorNodeRegistryProvider initialCell={START_POSITION}>
+        <VisibilityRegistryProvider>
+          <FindPathProto03Content />
+        </VisibilityRegistryProvider>
+      </ActorNodeRegistryProvider>
+    </EnergyStoreProvider>
   )
 }
 
@@ -68,19 +94,40 @@ const FindPathProto03Content = () => {
   const [goalReached, setGoalReached] = useState(false)
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
+  const energyStoreApi = useEnergyStoreApi()
+  const energyInfo = useEnergyStore((state) =>
+    state.getEnergyInfo(PLAYER_ACTOR_ID),
+  )
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
     markVisited(cell)
+    energyStoreApi.getState().consume(PLAYER_ACTOR_ID, 1)
 
     if (isSameCell(cell, GOAL_POSITION)) {
       setGoalReached(true)
     }
   }
 
-  /** 対象セルへ進入可能か（障害物・一方通行の逆走を除外） */
+  /** 進入拒否条件一覧（`EnterGuard`） */
+  const enterGuards: EnterGuard[] = [
+    { check: () => energyInfo.current > 0, kind: 'perceived' },
+    { check: (cell) => !isObstacleCell(cell), kind: 'perceived' },
+    {
+      check: (cell) => !isBlockedByOneWay(currentCell, cell),
+      kind: 'perceived',
+    },
+  ]
+
+  /** 移動可能マスガイド等、表示に使う進入可否（`perceived` ガードのみ） */
+  const canEnterCellPerceived = (cell: HexCell) =>
+    enterGuards
+      .filter((guard) => guard.kind === 'perceived')
+      .every((guard) => guard.check(cell))
+
+  /** 実際の移動判定に使う進入可否（全ガード） */
   const canEnterCell = (cell: HexCell) =>
-    !isObstacleCell(cell) && !isBlockedByOneWay(currentCell, cell)
+    enterGuards.every((guard) => guard.check(cell))
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -125,7 +172,7 @@ const FindPathProto03Content = () => {
           rows={GRID.rows}
         />
         <MoveTargetLayer
-          canEnterCell={canEnterCell}
+          canEnterCell={canEnterCellPerceived}
           cols={GRID.cols}
           currentCell={currentCell}
           hexSize={HEX_SIZE}
@@ -163,6 +210,9 @@ const FindPathProto03Content = () => {
             <option value="fade">フェード</option>
           </select>
         </label>
+        <span>
+          EN: {energyInfo.current}/{energyInfo.max}
+        </span>
         <span hidden={!goalReached}>🎉 ゴール到達</span>
       </div>
     </div>
