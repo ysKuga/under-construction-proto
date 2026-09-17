@@ -2,6 +2,13 @@
 
 import { useState } from 'react'
 
+import {
+  createEnergyStore,
+  EnergyStoreContext,
+  useEnergyStore,
+  useEnergyStoreApi,
+} from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-07/_contexts/actor-node-registry'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
@@ -48,14 +55,21 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  * - `ActorNodeRegistryProvider`（hex 版）は actor の現在セルを保持する Provider。
  *   `Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の追加に備え、外部から
  *   クリックを介さず actor を動かせるようにするため）
+ * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費する。予定経路・tick
+ *   駆動の「実行」は proto-01 と異なり導入しない（1 マスごとの隣接クリック移動の
+ *   まま）ため、`canEnterCell` へ残量判定を加え移動成立時に直接消費する
  */
 const FindPathProto03 = () => {
+  const [energyStore] = useState(() => createEnergyStore())
+
   return (
-    <ActorNodeRegistryProvider initialCell={START_POSITION}>
-      <VisibilityRegistryProvider>
-        <FindPathProto03Content />
-      </VisibilityRegistryProvider>
-    </ActorNodeRegistryProvider>
+    <EnergyStoreContext.Provider value={energyStore}>
+      <ActorNodeRegistryProvider initialCell={START_POSITION}>
+        <VisibilityRegistryProvider>
+          <FindPathProto03Content />
+        </VisibilityRegistryProvider>
+      </ActorNodeRegistryProvider>
+    </EnergyStoreContext.Provider>
   )
 }
 
@@ -68,19 +82,24 @@ const FindPathProto03Content = () => {
   const [goalReached, setGoalReached] = useState(false)
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
+  const energyStoreApi = useEnergyStoreApi()
+  const hasEnergy = useEnergyStore(
+    (state) => state.getEnergyInfo(PLAYER_ACTOR_ID).current > 0,
+  )
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
     markVisited(cell)
+    energyStoreApi.getState().consume(PLAYER_ACTOR_ID, 1)
 
     if (isSameCell(cell, GOAL_POSITION)) {
       setGoalReached(true)
     }
   }
 
-  /** 対象セルへ進入可能か（障害物・一方通行の逆走を除外） */
+  /** 対象セルへ進入可能か（障害物・一方通行の逆走・EN 切れを除外） */
   const canEnterCell = (cell: HexCell) =>
-    !isObstacleCell(cell) && !isBlockedByOneWay(currentCell, cell)
+    hasEnergy && !isObstacleCell(cell) && !isBlockedByOneWay(currentCell, cell)
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
