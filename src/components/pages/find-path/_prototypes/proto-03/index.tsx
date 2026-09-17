@@ -3,8 +3,7 @@
 import { useState } from 'react'
 
 import {
-  createEnergyStore,
-  EnergyStoreContext,
+  EnergyStoreProvider,
   useEnergyStore,
   useEnergyStoreApi,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
@@ -37,6 +36,21 @@ const HEX_SIZE = 40
 const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
 
 /**
+ * 進入拒否条件を1件表す
+ *
+ * - `perceived`: 認識として不可（未到達・EN 切れ等、事前に把握できるため
+ *   移動可能マス表示等のガイドにも反映する）
+ * - `resultOnly`: 結果として不可（認識外の障害物・他アクターとのコンフリクト等、
+ *   実行してみないと分からない。現時点では実例なし）
+ */
+type EnterGuard = {
+  /** 対象セルへ進入可能か */
+  check: (cell: HexCell) => boolean
+  /** 判定の種類 */
+  kind: 'perceived' | 'resultOnly'
+}
+
+/**
  * FindPathProto03 — find-path ページ試作（hex グリッド版）
  *
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
@@ -60,16 +74,14 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  *   まま）ため、`canEnterCell` へ残量判定を加え移動成立時に直接消費する
  */
 const FindPathProto03 = () => {
-  const [energyStore] = useState(() => createEnergyStore())
-
   return (
-    <EnergyStoreContext.Provider value={energyStore}>
+    <EnergyStoreProvider>
       <ActorNodeRegistryProvider initialCell={START_POSITION}>
         <VisibilityRegistryProvider>
           <FindPathProto03Content />
         </VisibilityRegistryProvider>
       </ActorNodeRegistryProvider>
-    </EnergyStoreContext.Provider>
+    </EnergyStoreProvider>
   )
 }
 
@@ -97,11 +109,25 @@ const FindPathProto03Content = () => {
     }
   }
 
-  /** 対象セルへ進入可能か（障害物・一方通行の逆走・EN 切れを除外） */
+  /** 進入拒否条件一覧（`EnterGuard`） */
+  const enterGuards: EnterGuard[] = [
+    { check: () => energyInfo.current > 0, kind: 'perceived' },
+    { check: (cell) => !isObstacleCell(cell), kind: 'perceived' },
+    {
+      check: (cell) => !isBlockedByOneWay(currentCell, cell),
+      kind: 'perceived',
+    },
+  ]
+
+  /** 移動可能マスガイド等、表示に使う進入可否（`perceived` ガードのみ） */
+  const canEnterCellPerceived = (cell: HexCell) =>
+    enterGuards
+      .filter((guard) => guard.kind === 'perceived')
+      .every((guard) => guard.check(cell))
+
+  /** 実際の移動判定に使う進入可否（全ガード） */
   const canEnterCell = (cell: HexCell) =>
-    energyInfo.current > 0 &&
-    !isObstacleCell(cell) &&
-    !isBlockedByOneWay(currentCell, cell)
+    enterGuards.every((guard) => guard.check(cell))
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -146,7 +172,7 @@ const FindPathProto03Content = () => {
           rows={GRID.rows}
         />
         <MoveTargetLayer
-          canEnterCell={canEnterCell}
+          canEnterCell={canEnterCellPerceived}
           cols={GRID.cols}
           currentCell={currentCell}
           hexSize={HEX_SIZE}
