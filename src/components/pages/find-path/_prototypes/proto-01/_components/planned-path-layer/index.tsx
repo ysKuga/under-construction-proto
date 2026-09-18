@@ -8,6 +8,42 @@ import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-re
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 import { isObstacleCell } from '../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../_lib/one-way'
+import { useItemStore } from '../../_stores/items'
+import { ItemInstance } from '../../_stores/items/types'
+
+/**
+ * セル上の要素(障害物・回復アイテム・回復スポット)の説明文言
+ *
+ * - 対応する表示レイヤー(`ObstacleLayer`/`RecoveryItemLayer`/`RecoverySpotLayer`)は
+ *   `pointerEvents: none` の非対話オーバーレイのため hover を受け取れない。実際に
+ *   マウスオーバーを受けるセル本体(このコンポーネントの `button`)へ `title` として
+ *   付与する
+ *
+ * @param col セルの列
+ * @param row セルの行
+ * @param items `ItemStore` の `itemsById`
+ */
+const cellTitle = (
+  col: number,
+  row: number,
+  items: Record<string, ItemInstance>,
+): string | undefined => {
+  if (isObstacleCell({ col, row })) {
+    return '障害物（通行不可）'
+  }
+
+  const item = Object.values(items).find(
+    (candidate) => candidate.cell.col === col && candidate.cell.row === row,
+  )
+
+  if (!item) {
+    return undefined
+  }
+
+  return item.stock !== undefined
+    ? '回復スポット（到達するとエネルギー回復、在庫が尽きるまで複数回）'
+    : '回復アイテム（踏むとエネルギー回復、1個限り）'
+}
 
 type PlannedPathLayerProps = {
   /**
@@ -120,7 +156,11 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  *   選択した場合の表示は `variant` で切り替える（list = 列挙 / stacked = 重ねる）。
  *   `allowDuplicateSelection=false` なら重複選択自体を無効化する
  * - tick 走行中（`isRunning`）はセル選択を disabled にする
- * - planned-path store のみ購読。bot の移動（path / position）では再レンダリングしない
+ * - planned-path / items store を購読。bot の移動（path / position）では再レンダリングしない
+ * - セル本体（`button`）へ `title` を付与し、障害物・回復アイテム・回復スポットの
+ *   説明を hover 表示する（issue #137）。対応する表示レイヤー（`ObstacleLayer` 等）は
+ *   `pointerEvents: none` の非対話オーバーレイで hover を受け取れないため、実際に
+ *   マウスオーバーを受けるここへ持たせる（`cellTitle`）
  * - 番号（`order`）ごとに個別の DOM を `PlannedPathCellRegistryProvider` へ登録する。
  *   到達済み番号のフェードアウト（`useFindPathTick`）はここを経由して opacity を\
  *   直書きする（再レンダリングなし）。`order` は経路計画中つねに新しい値が発行される\
@@ -141,6 +181,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
+  const items = useItemStore((state) => state.itemsById)
 
   /** "col,row" → 積んだ順番（1 始まり）の一覧。同じセルを複数回選択すると複数持つ */
   const ordersByCell = new Map<string, number[]>()
@@ -188,6 +229,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
               }}
               ref={(el) => registerCellNode({ col, row }, el)}
               style={cellStyle(orders.length > 0, variant, isBlocked)}
+              title={cellTitle(col, row, items)}
               type="button"
             >
               {variant === 'stacked' ? (

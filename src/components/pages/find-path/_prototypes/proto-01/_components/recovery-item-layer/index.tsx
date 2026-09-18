@@ -53,7 +53,11 @@ export const RecoveryItemLayer = (props: RecoveryItemLayerProps) => {
   return (
     <div style={overlayStyle}>
       {recoveryItems.map((item) => (
-        <div key={item.id} style={cellStyle(item.cell.col, item.cell.row)}>
+        <div
+          className="ui-term-energy-recovery-item"
+          key={item.id}
+          style={cellStyle(item.cell.col, item.cell.row)}
+        >
           🔋
         </div>
       ))}
