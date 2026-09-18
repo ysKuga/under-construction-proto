@@ -98,6 +98,10 @@ type UseFindPathTickReturn = {
  *   異なり、実行全体を 1 周期として on/off するため tick 単位のちらつきが起きない
  * - `options.face`(省略可、box-bot-01 の face action dispatcher)を渡すと、1 tick
  *   消化ごとに bot を進行方向へ向ける
+ * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は EN 切れで
+ *   トグル発火(直立 → 予防姿勢)し、以後の回復発生時（tick 停止後の再「実行」で
+ *   回復アイテムのマスへ到達した場合も含む）に再度トグル発火して復帰させる
+ *   （issue #181、`outOfEnergyRef` で発火中かを追跡）
  *
  * @param options walking/face/energyOut の dispatcher(いずれも省略可)
  */
@@ -122,6 +126,14 @@ export const useFindPathTick = (
   const subscriptionRef = useRef<null | Subscription>(null)
   /** 歩行 action の on/off 状態(トグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
+  /**
+   * EN 切れ演出(予防姿勢)が発火中か(トグル方式のため呼び出し側で追跡する)
+   *
+   * - EN 切れで `energyOut()` を dispatch した後 true。次に回復が発生した時点
+   *   （直後の tick とは限らない。tick 停止後の再「実行」で回復アイテムのマスへ
+   *   到達した場合も含む）で再度 dispatch して復帰させ、false へ戻す
+   */
+  const outOfEnergyRef = useRef(false)
 
   /** 消化済み tick 数。`execute` 開始時に 0 へ戻す。+1 が消化したセルの `order` と一致する */
   const consumedCountRef = useRef(0)
@@ -206,6 +218,11 @@ export const useFindPathTick = (
 
       if (consumed) {
         energy.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
+
+        if (energyOut && outOfEnergyRef.current) {
+          outOfEnergyRef.current = false
+          void energyOut()
+        }
       }
     }
 
@@ -230,7 +247,10 @@ export const useFindPathTick = (
         void walking()
       }
 
-      if (energyOut && outOfEnergy) void energyOut()
+      if (energyOut && outOfEnergy) {
+        outOfEnergyRef.current = true
+        void energyOut()
+      }
     } else {
       // 同じセルが経路上でまだ後に残っていれば、その番号を最前面へ昇格させる。
       // 残っていなければ通常のフェードアウトのみ
