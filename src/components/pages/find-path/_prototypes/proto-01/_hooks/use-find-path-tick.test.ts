@@ -17,7 +17,14 @@ import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-0
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
-import { GOAL_POSITION, OBSTACLE_CELLS, TICK_MS } from '../constants'
+import { useItemStoreApi } from '../_stores/items'
+import {
+  GOAL_POSITION,
+  OBSTACLE_CELLS,
+  RECOVERY_ITEM_CELLS,
+  RECOVERY_SPOT_CELLS,
+  TICK_MS,
+} from '../constants'
 
 import { useFindPathTick } from './use-find-path-tick'
 
@@ -40,6 +47,7 @@ const renderTick = () =>
     () => ({
       energy: useEnergyStoreApi(),
       gameClock: useGameClockStoreApi(),
+      items: useItemStoreApi(),
       plannedPath: usePlannedPathStoreApi(),
       registry: useActorNodeRegistry(),
       tick: useFindPathTick(),
@@ -217,6 +225,48 @@ test('再度「実行」すると reachedGoal がリセットされる', () => {
   seedPlanned(result, [{ col: 1, row: 0 }])
   act(() => result.current.tick.execute())
   expect(result.current.tick.reachedGoal).toBe(false)
+})
+
+test('回復アイテムのマスに到達すると EN が回復する', () => {
+  const { result } = renderTick()
+  const item = RECOVERY_ITEM_CELLS[0]
+
+  act(() => {
+    result.current.energy.getState().consume(PLAYER_ACTOR_ID, 5)
+  })
+
+  seedPlanned(result, [{ col: 1, row: 0 }, item])
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS * 2))
+
+  // 5(初期消費) + 2(移動2手分の消費) - 3(回復量) = 4 減
+  expect(
+    result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
+  ).toBe(10 - 5 - 2 + item.amount)
+  // 使い切りのため store から削除される
+  expect(result.current.items.getState().getItemAtCell(item)).toBeUndefined()
+})
+
+test('回復スポットは指定回数のみ回復し、枯渇後は回復しない', () => {
+  const { result } = renderTick()
+  const spot = RECOVERY_SPOT_CELLS[0]
+  const adjacent = { col: spot.col, row: spot.row - 1 }
+
+  act(() => {
+    result.current.energy.getState().consume(PLAYER_ACTOR_ID, 9)
+  })
+
+  // spot と隣接マスを往復し、stock(2回)を超えて3回踏む
+  seedPlanned(result, [spot, adjacent, spot, adjacent, spot])
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS * 5))
+
+  // 1: current=1→(+2→3)→consume→2 / 2: 2→1 / 3: 1→(+2→3)→consume→2
+  // 4: 2→1 / 5(枯渇後、回復なし): 1→consume→0
+  expect(
+    result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
+  ).toBe(0)
+  expect(result.current.items.getState().getItemAtCell(spot)).toBeUndefined()
 })
 
 test('エネルギーが尽きると tick ループが停止する（ゴール未達）', () => {

@@ -30,6 +30,29 @@ test('consume は current を 0 未満にしない', () => {
   expect(store.getState().getEnergyInfo(ACTOR_ID).current).toBe(0)
 })
 
+test('recover で current が増える', () => {
+  const store = createEnergyStore()
+
+  store.getState().consume(ACTOR_ID, 5)
+  store.getState().recover(ACTOR_ID, 2)
+
+  expect(store.getState().getEnergyInfo(ACTOR_ID)).toEqual({
+    ...DEFAULT_ENERGY_INFO,
+    current: DEFAULT_ENERGY_INFO.current - 5 + 2,
+  })
+})
+
+test('recover は current を max より増やさない', () => {
+  const store = createEnergyStore()
+
+  store.getState().consume(ACTOR_ID, 1)
+  store.getState().recover(ACTOR_ID, 100)
+
+  expect(store.getState().getEnergyInfo(ACTOR_ID).current).toBe(
+    DEFAULT_ENERGY_INFO.max,
+  )
+})
+
 test('reset で初期状態に戻る', () => {
   const store = createEnergyStore()
 
