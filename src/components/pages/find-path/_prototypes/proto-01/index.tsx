@@ -93,6 +93,8 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  *   （`useFindPathTick` へ dispatcher を渡す。stage-07 と同じ考え方）
  * - energyOut action(EN 切れ演出)は EN 切れでこれ以上進めなくなった tick でトグル発火する
  *   （`useFindPathTick` へ dispatcher を渡す。issue #181）
+ * - 回復アイテムは踏んでも即時回復せず携行する。`useCarriedItem`（`ActionBar` の
+ *   「使用」ボタン）で任意タイミングに使用する（issue #181）
  * - 初期表示時は `useInitialFacing` に `INITIAL_FACING_SCREEN_ANGLE`(右下)を
  *   明示指定し、その向きへ固定する（自動算出だと右向きになり顔が見えないため）
  */
@@ -105,7 +107,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
     [faceAction, walkingAction, energyOutAction],
   )
 
-  const { execute, isRunning, reachedGoal } = useFindPathTick({
+  const { execute, isRunning, reachedGoal, useCarriedItem } = useFindPathTick({
     energyOut,
     face,
     walking,
@@ -146,6 +148,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
         execute={execute}
         isRunning={isRunning}
         reachedGoal={reachedGoal}
+        useCarriedItem={useCarriedItem}
       />
     </div>
   )

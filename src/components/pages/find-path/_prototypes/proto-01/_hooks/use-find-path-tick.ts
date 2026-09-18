@@ -25,6 +25,7 @@ import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { isObstacleCell } from '../_lib/obstacle'
+import { useCarriedItemStoreApi } from '../_stores/carried-items'
 import { useItemStoreApi } from '../_stores/items'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
@@ -76,6 +77,13 @@ type UseFindPathTickReturn = {
   isRunning: boolean
   /** bot が `GOAL_POSITION` に到達済みか */
   reachedGoal: boolean
+  /**
+   * 携行中の回復アイテムを1つ使用する
+   *
+   * - 最古のものから消費し、その回復量ぶん EN を回復する。携行中アイテムが
+   *   なければ何もしない
+   */
+  useCarriedItem: () => void
 }
 
 /**
@@ -98,6 +106,9 @@ type UseFindPathTickReturn = {
  *   異なり、実行全体を 1 周期として on/off するため tick 単位のちらつきが起きない
  * - `options.face`(省略可、box-bot-01 の face action dispatcher)を渡すと、1 tick
  *   消化ごとに bot を進行方向へ向ける
+ * - 回復アイテム（`ItemInstance.stock` 未指定）は踏んでも即時回復せず携行する
+ *   （`CarriedItemStore`、上限に達していればその場に残る）。回復スポットは据置型
+ *   のため対象外、従来通り即時回復。携行アイテムの使用は `useCarriedItem`（issue #181）
  *
  * @param options walking/face/energyOut の dispatcher(いずれも省略可)
  */
@@ -111,6 +122,7 @@ export const useFindPathTick = (
   const plannedPath = usePlannedPathStoreApi()
   const energy = useEnergyStoreApi()
   const items = useItemStoreApi()
+  const carriedItems = useCarriedItemStoreApi()
   const { getActorPosition, moveActor } = useActorNodeRegistry()
   const { fadeOutCell, fadeOutStep, resetAllSteps } =
     usePlannedPathCellRegistry()
@@ -202,10 +214,19 @@ export const useFindPathTick = (
       moveActor(PLAYER_ACTOR_ID, target)
 
       const item = items.getState().getItemAtCell(target)
-      const consumed = item && items.getState().consumeItem(item.id)
 
-      if (consumed) {
-        energy.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
+      if (item && item.stock === undefined) {
+        // 回復アイテム: 即時回復せず携行する。上限に達していればその場に残す
+        if (carriedItems.getState().pickUp(item)) {
+          items.getState().consumeItem(item.id)
+        }
+      } else if (item) {
+        // 回復スポット（据置型）: 従来通り即時回復
+        const consumed = items.getState().consumeItem(item.id)
+
+        if (consumed) {
+          energy.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
+        }
       }
     }
 
@@ -265,6 +286,7 @@ export const useFindPathTick = (
     energy,
     gameClock,
     items,
+    carriedItems,
     path,
     plannedPath,
     fadeOutCell,
@@ -388,5 +410,13 @@ export const useFindPathTick = (
     })
   }, [applyNextStep, getActorPosition, path, plannedPath, timeScale$, walking])
 
-  return { execute, isRunning, reachedGoal }
+  const useCarriedItem = useCallback(() => {
+    const item = carriedItems.getState().useItem()
+
+    if (item) {
+      energy.getState().recover(PLAYER_ACTOR_ID, item.amount)
+    }
+  }, [carriedItems, energy])
+
+  return { execute, isRunning, reachedGoal, useCarriedItem }
 }
