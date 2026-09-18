@@ -4,5 +4,3 @@
   - (design.md 懸念・リスク)
 - [ ] 経路計画時に EN 切れが見えない UX の妥当性を検討
   - (design.md 懸念・リスク)
-- [ ] actor（box-bot）へ EN 回復ロジックを実装（proto-01、回復アイテム/回復スポット、別 PR）
-  - (decision-records.md 2026-09-16)
