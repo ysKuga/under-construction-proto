@@ -2,6 +2,8 @@
 
 find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page 実装は未着手。
 
+試作の優先対象は proto-03（hex グリッド版、issue #162）。矩形グリッド版（stage-06、proto-01/02）より最終的なゲームデザインに近いため。新規機能はまず proto-03 へ実装する。
+
 ## 構成
 
 - `_stores/energy`: proto-01/02/03 共有の EnergyStore（issue #181）。`createStoreContext` パターン。find-path ページ自体は route/page 未実装のため、`_prototypes` の外（page 直下）へはまだ出さない（PR-B 2026-09-17、issue-181-en decision-records.md 参照）
