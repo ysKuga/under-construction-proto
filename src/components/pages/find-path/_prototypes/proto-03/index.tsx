@@ -72,6 +72,9 @@ type EnterGuard = {
  * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費する。予定経路・tick
  *   駆動の「実行」は proto-01 と異なり導入しない（1 マスごとの隣接クリック移動の
  *   まま）ため、`canEnterCell` へ残量判定を加え移動成立時に直接消費する
+ * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
+ *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
+ *   `GeoLayer` のセル本体（`Stage07` の `cellTitle` prop）へ `title` を持たせる
  */
 const FindPathProto03 = () => {
   return (
@@ -137,6 +140,9 @@ const FindPathProto03Content = () => {
       <Stage07
         botSize={56}
         canEnterCell={canEnterCell}
+        cellTitle={(cell) =>
+          isObstacleCell(cell) ? '障害物（通行不可）' : undefined
+        }
         cols={GRID.cols}
         enableWalking={enableWalking}
         hexSize={HEX_SIZE}
