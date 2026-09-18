@@ -25,6 +25,12 @@ type GeoLayerProps = {
    *   呼び出し元（`useHexMove`）が行う
    */
   canEnterCell?: (cell: HexCell) => boolean
+  /**
+   * セルの hover 説明文（`title` 属性、省略時は付与しない）
+   *
+   * - 障害物等マス上オブジェクトの説明表示に使う（issue #137）
+   */
+  cellTitle?: (cell: HexCell) => string | undefined
   /** 列数 */
   cols: number
   /** 現在地セル。隣接セルの選択可能表示・強調表示に使う */
@@ -68,6 +74,7 @@ type GeoLayerProps = {
 export const GeoLayer = (props: GeoLayerProps) => {
   const {
     canEnterCell,
+    cellTitle,
     cols,
     currentCell,
     hexSize,
@@ -124,6 +131,7 @@ export const GeoLayer = (props: GeoLayerProps) => {
             onClick={() => onCellClick(axial)}
             ref={(el) => registerVisibilityNode?.(axial, el)}
             style={{ ...cellStyle, cursor: selectable ? 'pointer' : 'default' }}
+            title={cellTitle?.(axial)}
             type="button"
           >
             {hexagon}

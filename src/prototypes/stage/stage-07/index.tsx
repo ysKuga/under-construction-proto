@@ -39,6 +39,12 @@ type Stage07Props = PropsWithChildren<{
    *   障害物セル判定等）。`useHexMove` へそのまま渡す
    */
   canEnterCell?: (cell: HexCell) => boolean
+  /**
+   * セルの hover 説明文（`title` 属性、省略時は付与しない）
+   *
+   * - 障害物等マス上オブジェクトの説明表示に使う（issue #137）。`GeoLayer` へそのまま渡す
+   */
+  cellTitle?: (cell: HexCell) => string | undefined
   /** 列数 */
   cols: number
   /**
@@ -133,6 +139,7 @@ export const Stage07 = (props: Stage07Props) => {
   const {
     botSize,
     canEnterCell,
+    cellTitle,
     children,
     cols,
     enableWalking = false,
@@ -260,6 +267,7 @@ export const Stage07 = (props: Stage07Props) => {
         <div ref={floorRef} style={floorStyle}>
           <GeoLayer
             canEnterCell={canEnterCell}
+            cellTitle={cellTitle}
             cols={cols}
             currentCell={currentCell}
             hexSize={hexSize}
