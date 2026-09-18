@@ -8,6 +8,7 @@ import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-re
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 import { isObstacleCell } from '../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../_lib/one-way'
+import { useTickStatusStore } from '../../_stores/tick-status'
 
 type PlannedPathLayerProps = {
   /**
@@ -19,13 +20,6 @@ type PlannedPathLayerProps = {
   allowDuplicateSelection?: boolean
   /** 列数 */
   cols: number
-  /**
-   * tick 走行中か
-   *
-   * - 走行中はセル選択（`appendStep`）を無効化する。走行中に追加した指定は
-   *   実行用の残り経路（path store）へ反映されず「消化されない指定」になるため
-   */
-  isRunning: boolean
   /** 行数 */
   rows: number
   /**
@@ -119,21 +113,18 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  * - 予定経路に含まれるセルには積んだ順番（1 始まり）を表示する。同じセルを複数回
  *   選択した場合の表示は `variant` で切り替える（list = 列挙 / stacked = 重ねる）。
  *   `allowDuplicateSelection=false` なら重複選択自体を無効化する
- * - tick 走行中（`isRunning`）はセル選択を disabled にする
- * - planned-path store のみ購読。bot の移動（path / position）では再レンダリングしない
+ * - tick 走行中（`isRunning`）はセル選択を disabled にする。`TickStatusStore` を
+ *   直接 selector 購読する（props 経由にすると値変更のたび親（`FindPathContent`）
+ *   ごと再レンダリングされるため）
+ * - planned-path / tick-status store を購読。bot の移動（path / position）では
+ *   再レンダリングしない
  * - 番号（`order`）ごとに個別の DOM を `PlannedPathCellRegistryProvider` へ登録する。
  *   到達済み番号のフェードアウト（`useFindPathTick`）はここを経由して opacity を\
  *   直書きする（再レンダリングなし）。`order` は経路計画中つねに新しい値が発行される\
  *   ため、フェードアウト済み番号の巻き戻し（旧 `resetCell`）は不要
  */
 export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
-  const {
-    allowDuplicateSelection = true,
-    cols,
-    isRunning,
-    rows,
-    variant = 'list',
-  } = props
+  const { allowDuplicateSelection = true, cols, rows, variant = 'list' } = props
 
   const { appendStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const { registerCellNode, registerStepNode } = usePlannedPathCellRegistry()
@@ -141,6 +132,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
+  const isRunning = useTickStatusStore((state) => state.isRunning)
 
   /** "col,row" → 積んだ順番（1 始まり）の一覧。同じセルを複数回選択すると複数持つ */
   const ordersByCell = new Map<string, number[]>()

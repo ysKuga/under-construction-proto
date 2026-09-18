@@ -18,6 +18,7 @@ import {
 
 import { ItemStoreProvider } from '../../_stores/items'
 import { ItemInstance } from '../../_stores/items/types'
+import { TickStatusStoreProvider } from '../../_stores/tick-status'
 import { RECOVERY_ITEM_CELLS, RECOVERY_SPOT_CELLS } from '../../constants'
 
 /**
@@ -51,7 +52,10 @@ const INITIAL_ITEMS: ItemInstance[] = [
  *   ゲームデザイン上の資源管理概念で時間管理ロジックの tc-03 へは持ち込まない
  * - item（回復アイテム/回復スポット、issue #181）は proto-01 固有の汎用アイテム
  *   store。energy store とは責務を分け、将来の種類拡張（`ItemKind`）に備える
- * - 5 store は相互依存なし。セル単位・単一 bot と噛み合わない position / intent は持ち込まない
+ * - tick-status（`isRunning`/`reachedGoal`、issue #137）は `useFindPathTick` の
+ *   走行状態。`FindPathContent` の `useState` に持たせると値変更のたび配下ツリー
+ *   全体（`Stage06` 含む）が再レンダリングされるため、選択購読可能な store へ分離した
+ * - 6 store は相互依存なし。セル単位・単一 bot と噛み合わない position / intent は持ち込まない
  * - tick はまだ載せない（PR-C）。ここは store 生成と Context 配布のみ
  */
 export const FindPathStoresProvider = (props: PropsWithChildren) => {
@@ -67,7 +71,7 @@ export const FindPathStoresProvider = (props: PropsWithChildren) => {
         <PlannedPathStoreContext.Provider value={plannedPathStore}>
           <EnergyStoreProvider>
             <ItemStoreProvider initialItems={INITIAL_ITEMS}>
-              {children}
+              <TickStatusStoreProvider>{children}</TickStatusStoreProvider>
             </ItemStoreProvider>
           </EnergyStoreProvider>
         </PlannedPathStoreContext.Provider>
