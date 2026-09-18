@@ -25,6 +25,7 @@ import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { isObstacleCell } from '../_lib/obstacle'
+import { useItemStoreApi } from '../_stores/items'
 import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
 /**
@@ -109,6 +110,7 @@ export const useFindPathTick = (
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
   const energy = useEnergyStoreApi()
+  const items = useItemStoreApi()
   const { getActorPosition, moveActor } = useActorNodeRegistry()
   const { fadeOutCell, fadeOutStep, resetAllSteps } =
     usePlannedPathCellRegistry()
@@ -198,6 +200,13 @@ export const useFindPathTick = (
 
     if (!blocked) {
       moveActor(PLAYER_ACTOR_ID, target)
+
+      const item = items.getState().getItemAtCell(target)
+      const consumed = item && items.getState().consumeItem(item.id)
+
+      if (consumed) {
+        energy.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
+      }
     }
 
     energy.getState().consume(PLAYER_ACTOR_ID, 1)
@@ -255,6 +264,7 @@ export const useFindPathTick = (
   }, [
     energy,
     gameClock,
+    items,
     path,
     plannedPath,
     fadeOutCell,

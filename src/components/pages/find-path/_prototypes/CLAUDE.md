@@ -2,6 +2,8 @@
 
 find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page 実装は未着手。
 
+試作の優先対象は proto-03（hex グリッド版、issue #162）。矩形グリッド版（stage-06、proto-01/02）より最終的なゲームデザインに近いため。新規機能はまず proto-03 へ実装する。
+
 ## 構成
 
 - `_stores/energy`: proto-01/02/03 共有の EnergyStore（issue #181）。`createStoreContext` パターン。find-path ページ自体は route/page 未実装のため、`_prototypes` の外（page 直下）へはまだ出さない（PR-B 2026-09-17、issue-181-en decision-records.md 参照）
@@ -15,6 +17,9 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `_components/one-way-layer/`: `ONE_WAY_CELLS` セルへ進入禁止方向（`exitDirection` の反対側）の辺だけ赤いバリア線を表示する非対話レイヤー（`ObstacleLayer` 同型）。矢印（退出方向を指す表示）は「その方向にしか行けない」ように見え実際の判定と食い違うため不採用（issue #137 決定事項）
   - `_components/goal-marker-layer/`: `GOAL_POSITION` セルに旗マーカーを表示する非対話レイヤー
   - `_components/obstacle-layer/`: `OBSTACLE_CELLS` セルを塗りつぶす非対話レイヤー。選択拒否自体は `PlannedPathLayer` 側の判定で行う
+  - `_stores/items`: proto-01 固有の汎用アイテム store（issue #181）。energy store とは責務を分け、回復アイテム/回復スポットの状態（未回収フラグ・スポット残量）を保持する。`ItemInstance.stock` の有無で「回復アイテム」（未指定、1個ずつ使い切り）と「回復スポット」（指定、指定回数で枯渇しうる）を区別する。`kind`（`ItemKind`）は将来のアイテム種類拡張用（issue #181 時点では `energy-recovery` のみ）。`ItemInstance.cell` は `ActorNodeRegistry` の `GridPosition` 型をそのまま使う
+  - `constants.ts` の `RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS`: 回復アイテム/回復スポットの初期配置一覧（座標・回復量・stock は仮値、design.md 懸念・リスク）
+  - `_components/recovery-item-layer/`・`_components/recovery-spot-layer/`: `ItemStore` を購読し、未消費（消費済みは store から削除済み）のアイテム/スポットのみ表示する非対話レイヤー（`ObstacleLayer` 同型）。回復処理自体は `use-find-path-tick` の `applyNextStep`（`moveActor` 実行後・`energy.consume` 実行前）が行う
 - `proto-02`: 試作。proto-01 とは別方式のゲーム内容比較用。隣接セルをクリックするたびに 1 手ずつ即時移動する逐次型 (`planned-path` 積み上げ・tick ループなし)
   - `_hooks/use-adjacent-move.ts`: `currentCell`(state) を軸に隣接判定 → (確認チェックボックス ON なら確認ダイアログ) → `moveActor`(DOM 直書き) を都度実行。「戻る」(直前セルへの逆戻り) も隣接クリックとして自然に許容され、proto-01 の重複選択問題が発生しない
   - `_components/adjacent-move-layer/`: 隣接セルのみ点線枠で選択可能を明示するクリックレイヤー

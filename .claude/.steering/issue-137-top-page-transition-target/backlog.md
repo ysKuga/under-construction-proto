@@ -10,3 +10,7 @@
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
 - [ ] `isRunning` state による `FindPathContent` 配下全体（`Stage06` 含む）の再レンダリングを解消（Context 化等）
   - (design.md 懸念・リスク、decision-records.md 2026-09-18)
+- [ ] マス上オブジェクト（障害物・回復アイテム・回復スポット等）へ `title` 属性で説明表示 + className 付与
+  - (design.md 懸念・リスク)
+- [ ] マスホバー/選択時の内包要素一覧表示を検討
+  - (design.md 懸念・リスク)

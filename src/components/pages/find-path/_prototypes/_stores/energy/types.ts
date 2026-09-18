@@ -17,8 +17,6 @@ export type EnergyInfo = {
 
 /**
  * actor ごとのエネルギー残量を保持する store
- *
- * - 回復（アイテム/スポット）ロジックは別 PR。ここは保持・消費のみ
  */
 export type EnergyState = {
   /** エネルギーを消費する（0 未満にはならない） */
@@ -27,6 +25,8 @@ export type EnergyState = {
   energyById: Record<ActorId, EnergyInfo>
   /** actor のエネルギー情報を取得する（未設定時はデフォルト値を返す） */
   getEnergyInfo: (actorId: ActorId) => EnergyInfo
+  /** エネルギーを回復する（上限を超えない） */
+  recover: (actorId: ActorId, amount: number) => void
   /** エネルギーを初期状態に戻す */
   reset: () => void
 }
