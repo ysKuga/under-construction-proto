@@ -30,7 +30,8 @@ const cellStyle = (col: number, row: number): CSSProperties => ({
  *   `ItemStore` 中の `stock` 未指定（1個ずつ使い切り）のアイテムを表示する
  *   非対話層。消費済み（store から削除済み）のアイテムは表示されない
  * - `pointerEvents: none` でクリックを下層（`PlannedPathLayer`）へ通す。実際の
- *   回復処理は `use-find-path-tick` の `applyNextStep` が行う
+ *   携行処理（即時回復でなく `CarriedItemStore` へ pickup）は `use-find-path-tick`
+ *   の `applyNextStep` が行う（issue #181）
  */
 export const RecoveryItemLayer = (props: RecoveryItemLayerProps) => {
   const { cols, rows } = props

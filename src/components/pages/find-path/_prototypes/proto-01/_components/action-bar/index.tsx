@@ -5,14 +5,19 @@ import { useGameClockStore } from '@/prototypes/time-control/time-control-03/_st
 import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
+import { useCarriedItemStore } from '../../_stores/carried-items'
+import { useItemStore } from '../../_stores/items'
+import { RECOVERY_SPOT_CELLS } from '../../constants'
 
 type ActionBarProps = {
   /** 「実行」。`useFindPathTick` から親経由で受け取る */
   execute: () => void
-  /** tick 走行中か。走行中は「実行」「1 手戻す」を disabled にする */
+  /** tick 走行中か。走行中は「実行」「1 手戻す」「使用」を disabled にする */
   isRunning: boolean
   /** bot が `GOAL_POSITION` に到達済みか */
   reachedGoal: boolean
+  /** 携行中の回復アイテムを1つ使用する。`useFindPathTick` から親経由で受け取る */
+  useCarriedItem: () => void
 }
 
 /**
@@ -24,9 +29,13 @@ type ActionBarProps = {
  * - 速度スライダー: `timeScale` を game-clock store へ書き込む（0 でポーズ）。
  *   非制御。tick ドライバ側が store を購読して反映する
  * - EN 残量表示: `EN: x/y`（画面表示のみ略称。実装識別子は `energy` のまま、issue #181）
+ * - 「使用」: 携行中の回復アイテムを最古のものから1つ使用する。携行数 0、または
+ *   走行中は disabled
+ * - 携行数表示: `携行: n/上限`。スタンド残り表示: `スタンド: n/初期在庫`（`RECOVERY_SPOT_CELLS`
+ *   は現状1箇所のみのため単一表示。複数箇所になった場合は再設計が要る）
  */
 export const ActionBar = (props: ActionBarProps) => {
-  const { execute, isRunning, reachedGoal } = props
+  const { execute, isRunning, reachedGoal, useCarriedItem } = props
 
   const { popStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const setTimeScale = useGameClockStore((state) => state.setTimeScale)
@@ -36,6 +45,11 @@ export const ActionBar = (props: ActionBarProps) => {
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
+  const carriedCount = useCarriedItemStore((state) => state.carriedItems.length)
+  const carriedCapacity = useCarriedItemStore((state) => state.capacity)
+  const spotStock = useItemStore((state) =>
+    Object.values(state.itemsById).find((item) => item.stock !== undefined),
+  )?.stock
   const editDisabled = !hasPlannedPath || isRunning
 
   return (
@@ -67,6 +81,22 @@ export const ActionBar = (props: ActionBarProps) => {
       <span>
         EN: {energyInfo.current}/{energyInfo.max}
       </span>
+      <span>
+        携行: {carriedCount}/{carriedCapacity}
+      </span>
+      <Button
+        disabled={isRunning || carriedCount === 0}
+        onClick={useCarriedItem}
+        type="button"
+        variant="outline"
+      >
+        使用
+      </Button>
+      {spotStock !== undefined && (
+        <span>
+          スタンド: {spotStock}/{RECOVERY_SPOT_CELLS[0].stock}
+        </span>
+      )}
       {reachedGoal && <span>🎉 ゴール到達</span>}
     </div>
   )
