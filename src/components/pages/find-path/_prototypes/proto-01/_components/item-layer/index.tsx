@@ -1,8 +1,9 @@
 import { CSSProperties } from 'react'
 
+import { getItemPresentation } from '../../_lib/item-presentation'
 import { useItemStore } from '../../_stores/items'
 
-type RecoverySpotLayerProps = {
+type ItemLayerProps = {
   /** 列数 */
   cols: number
   /** 行数 */
@@ -24,21 +25,22 @@ const cellStyle = (col: number, row: number): CSSProperties => ({
 })
 
 /**
- * 回復スポットの表示レイヤー
+ * アイテムの表示レイヤー
  *
  * - `Stage06` の floor(grid) へ children として重ねる絶対配置オーバーレイ。
- *   `ItemStore` 中の `stock` 指定（指定回数で枯渇しうる）アイテムを表示する
- *   非対話層。枯渇済み（store から削除済み）のスポットは表示されない
+ *   `ItemStore` の全アイテムを種類問わず表示する非対話層。消費済み（store から
+ *   削除済み）のアイテムは表示されない
+ * - 表示（絵文字・className）は `getItemPresentation`（`ItemKind` ベースの辞書、
+ *   `_lib/item-presentation.ts`）で解決する。新しい種類のアイテムが増えても辞書へ
+ *   追記するだけで対応でき、このレイヤー自体を種類ごとに増やす必要はない
+ *   （旧 `RecoveryItemLayer`/`RecoverySpotLayer` を統合、issue #137）
  * - `pointerEvents: none` でクリックを下層（`PlannedPathLayer`）へ通す。実際の
  *   回復処理は `use-find-path-tick` の `applyNextStep` が行う
  */
-export const RecoverySpotLayer = (props: RecoverySpotLayerProps) => {
+export const ItemLayer = (props: ItemLayerProps) => {
   const { cols, rows } = props
 
   const items = useItemStore((state) => state.itemsById)
-  const recoverySpots = Object.values(items).filter(
-    (item) => item.stock !== undefined,
-  )
 
   const overlayStyle: CSSProperties = {
     display: 'grid',
@@ -52,15 +54,19 @@ export const RecoverySpotLayer = (props: RecoverySpotLayerProps) => {
 
   return (
     <div style={overlayStyle}>
-      {recoverySpots.map((item) => (
-        <div
-          className="ui-term-energy-recovery-spot"
-          key={item.id}
-          style={cellStyle(item.cell.col, item.cell.row)}
-        >
-          ⛽
-        </div>
-      ))}
+      {Object.values(items).map((item) => {
+        const presentation = getItemPresentation(item)
+
+        return (
+          <div
+            className={presentation.className}
+            key={item.id}
+            style={cellStyle(item.cell.col, item.cell.row)}
+          >
+            {presentation.emoji}
+          </div>
+        )
+      })}
     </div>
   )
 }
