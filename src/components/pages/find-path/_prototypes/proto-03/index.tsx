@@ -10,6 +10,7 @@ import {
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-07/_contexts/actor-node-registry'
+import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
@@ -74,7 +75,9 @@ type EnterGuard = {
  *   まま）ため、`canEnterCell` へ残量判定を加え移動成立時に直接消費する
  * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
  *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
- *   `GeoLayer` のセル本体（`Stage07` の `cellTitle` prop）へ `title` を持たせる
+ *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
+ *   持たないため、`CellTitleProvider`（`stage-07/_contexts/cell-title`）で
+ *   `getCellTitle` の中身（障害物判定）を注入する（PR #196 レビュー対応）
  */
 const FindPathProto03 = () => {
   return (
@@ -137,55 +140,58 @@ const FindPathProto03Content = () => {
       <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
         Find Path (proto-03 / hex)
       </h1>
-      <Stage07
-        botSize={56}
-        canEnterCell={canEnterCell}
-        cellTitle={(cell) =>
+      <CellTitleProvider
+        getCellTitle={(cell) =>
           isObstacleCell(cell) ? '障害物（通行不可）' : undefined
         }
-        cols={GRID.cols}
-        enableWalking={enableWalking}
-        hexSize={HEX_SIZE}
-        initialTiltDeg={55}
-        onCellChange={handleCellChange}
-        registerCellVisibilityNode={(cell, el) =>
-          registerVisibilityNode(cell, 'floor', el)
-        }
-        rows={GRID.rows}
       >
-        <GoalMarkerLayer
+        <Stage07
+          botSize={56}
+          canEnterCell={canEnterCell}
           cols={GRID.cols}
+          enableWalking={enableWalking}
           hexSize={HEX_SIZE}
-          registerVisibilityNode={(cell, el) =>
-            registerVisibilityNode(cell, 'marker', el)
+          initialTiltDeg={55}
+          onCellChange={handleCellChange}
+          registerCellVisibilityNode={(cell, el) =>
+            registerVisibilityNode(cell, 'floor', el)
           }
           rows={GRID.rows}
-        />
-        <ObstacleLayer
-          cols={GRID.cols}
-          hexSize={HEX_SIZE}
-          registerVisibilityNode={(cell, el) =>
-            registerVisibilityNode(cell, 'marker', el)
-          }
-          rows={GRID.rows}
-        />
-        <OneWayLayer
-          cols={GRID.cols}
-          hexSize={HEX_SIZE}
-          registerVisibilityNode={(cell, el) =>
-            registerVisibilityNode(cell, 'marker', el)
-          }
-          rows={GRID.rows}
-        />
-        <MoveTargetLayer
-          canEnterCell={canEnterCellPerceived}
-          cols={GRID.cols}
-          currentCell={currentCell}
-          hexSize={HEX_SIZE}
-          mode={displayMode}
-          rows={GRID.rows}
-        />
-      </Stage07>
+        >
+          <GoalMarkerLayer
+            cols={GRID.cols}
+            hexSize={HEX_SIZE}
+            registerVisibilityNode={(cell, el) =>
+              registerVisibilityNode(cell, 'marker', el)
+            }
+            rows={GRID.rows}
+          />
+          <ObstacleLayer
+            cols={GRID.cols}
+            hexSize={HEX_SIZE}
+            registerVisibilityNode={(cell, el) =>
+              registerVisibilityNode(cell, 'marker', el)
+            }
+            rows={GRID.rows}
+          />
+          <OneWayLayer
+            cols={GRID.cols}
+            hexSize={HEX_SIZE}
+            registerVisibilityNode={(cell, el) =>
+              registerVisibilityNode(cell, 'marker', el)
+            }
+            rows={GRID.rows}
+          />
+          <MoveTargetLayer
+            canEnterCell={canEnterCellPerceived}
+            cols={GRID.cols}
+            currentCell={currentCell}
+            hexSize={HEX_SIZE}
+            mode={displayMode}
+            rows={GRID.rows}
+          />
+        </Stage07>
+      </CellTitleProvider>
       <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
         <label>
           <input
