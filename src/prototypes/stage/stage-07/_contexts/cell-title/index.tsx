@@ -23,8 +23,8 @@ const CellTitleContext = createContext<CellTitleContextValue | undefined>(
 /**
  * `getCellTitle` を Context 経由で配布する
  *
- * - 省略可能な機能のため Provider なしでも動作する（`useCellTitle` が
- *   `undefined` を返す）
+ * - 省略可能な機能のため Provider なしでも動作する（`useGetCellTitle` が
+ *   `undefined` を返す関数を返す）
  */
 export const CellTitleProvider = (
   props: PropsWithChildren<CellTitleContextValue>,
@@ -44,5 +44,5 @@ export const CellTitleProvider = (
  * - hook 自体は cell を受け取らない。呼び出し側（`GeoLayer`）はセルのループ内で
  *   hook を呼べないため、ループの外で1度だけ呼び出し、戻り値の関数をループ内で使う
  */
-export const useCellTitle = (): ((cell: HexCell) => string | undefined) =>
+export const useGetCellTitle = (): ((cell: HexCell) => string | undefined) =>
   useContext(CellTitleContext)?.getCellTitle ?? (() => undefined)

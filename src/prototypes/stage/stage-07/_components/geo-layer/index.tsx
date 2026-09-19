@@ -1,6 +1,6 @@
 import { CSSProperties } from 'react'
 
-import { useCellTitle } from '../../_contexts/cell-title'
+import { useGetCellTitle } from '../../_contexts/cell-title'
 import { colRowToAxial, HexCell, isHexAdjacent } from '../../_lib/hex'
 import {
   computeHexGridBounds,
@@ -82,7 +82,7 @@ export const GeoLayer = (props: GeoLayerProps) => {
     rows,
   } = props
 
-  const getCellTitle = useCellTitle()
+  const getCellTitle = useGetCellTitle()
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   const cells = Array.from({ length: rows }).flatMap((_, row) =>
