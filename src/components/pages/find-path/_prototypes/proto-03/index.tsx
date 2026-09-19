@@ -14,6 +14,7 @@ import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-ti
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
+import { ItemLayer } from './_components/item-layer'
 import {
   MoveTargetDisplayMode,
   MoveTargetLayer,
@@ -24,9 +25,18 @@ import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
+import { describeCellContent } from './_lib/describe-cell-content'
+import { getCellContents } from './_lib/get-cell-contents'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
-import { GOAL_POSITION, START_POSITION } from './constants'
+import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
+import { ItemInstance } from './_stores/items/types'
+import {
+  GOAL_POSITION,
+  RECOVERY_ITEM_CELLS,
+  RECOVERY_SPOT_CELLS,
+  START_POSITION,
+} from './constants'
 
 /** グリッド形状 */
 const GRID = { cols: 5, rows: 5 } as const
@@ -35,6 +45,28 @@ const HEX_SIZE = 40
 
 /** axial セルの一致判定 */
 const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
+
+/**
+ * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
+ *
+ * - 回復アイテムは `stock` 未指定（1個ずつ使い切り）、回復スポットは `stock` 指定
+ *   （指定回数で枯渇しうる）で区別する（proto-01 と同型）
+ */
+const INITIAL_ITEMS: ItemInstance[] = [
+  ...RECOVERY_ITEM_CELLS.map((cell, index): ItemInstance => ({
+    amount: cell.amount,
+    cell: { q: cell.q, r: cell.r },
+    id: `recovery-item-${index}`,
+    kind: 'energy-recovery',
+  })),
+  ...RECOVERY_SPOT_CELLS.map((cell, index): ItemInstance => ({
+    amount: cell.amount,
+    cell: { q: cell.q, r: cell.r },
+    id: `recovery-spot-${index}`,
+    kind: 'energy-recovery',
+    stock: cell.stock,
+  })),
+]
 
 /**
  * 進入拒否条件を1件表す
@@ -77,16 +109,23 @@ type EnterGuard = {
  *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
  *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
  *   持たないため、`CellTitleProvider`（`stage-07/_contexts/cell-title`）で
- *   `getCellTitle` の中身（障害物判定）を注入する（PR #196 レビュー対応）
+ *   `getCellTitle` の中身（障害物・アイテムの説明、`getCellContents`/
+ *   `describeCellContent`）を注入する（PR #196 レビュー対応）
+ * - 回復アイテム/回復スポット（issue #181、proto-01 から移植）: proto-01 と同じ
+ *   `ItemStore` を axial 座標へ移植した固有実装（`_stores/items`）。proto-03 は
+ *   予定経路・tick 駆動を持たないため即時使用のまま（携行可能化は対象外、別途検討）。
+ *   `handleCellChange` で移動先セルのアイテムを消費し即時回復する
  */
 const FindPathProto03 = () => {
   return (
     <EnergyStoreProvider>
-      <ActorNodeRegistryProvider initialCell={START_POSITION}>
-        <VisibilityRegistryProvider>
-          <FindPathProto03Content />
-        </VisibilityRegistryProvider>
-      </ActorNodeRegistryProvider>
+      <ItemStoreProvider initialItems={INITIAL_ITEMS}>
+        <ActorNodeRegistryProvider initialCell={START_POSITION}>
+          <VisibilityRegistryProvider>
+            <FindPathProto03Content />
+          </VisibilityRegistryProvider>
+        </ActorNodeRegistryProvider>
+      </ItemStoreProvider>
     </EnergyStoreProvider>
   )
 }
@@ -104,10 +143,19 @@ const FindPathProto03Content = () => {
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
+  const itemStoreApi = useItemStoreApi()
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
     markVisited(cell)
+
+    const item = itemStoreApi.getState().getItemAtCell(cell)
+    const consumed = item && itemStoreApi.getState().consumeItem(item.id)
+
+    if (consumed) {
+      energyStoreApi.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
+    }
+
     energyStoreApi.getState().consume(PLAYER_ACTOR_ID, 1)
 
     if (isSameCell(cell, GOAL_POSITION)) {
@@ -141,9 +189,11 @@ const FindPathProto03Content = () => {
         Find Path (proto-03 / hex)
       </h1>
       <CellTitleProvider
-        getCellTitle={(cell) =>
-          isObstacleCell(cell) ? '障害物（通行不可）' : undefined
-        }
+        getCellTitle={(cell) => {
+          const contents = getCellContents(cell, itemStoreApi.getState())
+
+          return contents[0] && describeCellContent(contents[0])
+        }}
       >
         <Stage07
           botSize={56}
@@ -175,6 +225,14 @@ const FindPathProto03Content = () => {
             rows={GRID.rows}
           />
           <OneWayLayer
+            cols={GRID.cols}
+            hexSize={HEX_SIZE}
+            registerVisibilityNode={(cell, el) =>
+              registerVisibilityNode(cell, 'marker', el)
+            }
+            rows={GRID.rows}
+          />
+          <ItemLayer
             cols={GRID.cols}
             hexSize={HEX_SIZE}
             registerVisibilityNode={(cell, el) =>
