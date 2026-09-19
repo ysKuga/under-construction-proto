@@ -18,7 +18,11 @@ import {
 
 import { ItemStoreProvider } from '../../_stores/items'
 import { ItemInstance } from '../../_stores/items/types'
-import { RECOVERY_ITEM_CELLS, RECOVERY_SPOT_CELLS } from '../../constants'
+import {
+  OBSTACLE_CELLS,
+  RECOVERY_ITEM_CELLS,
+  RECOVERY_SPOT_CELLS,
+} from '../../constants'
 
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
@@ -50,7 +54,9 @@ const INITIAL_ITEMS: ItemInstance[] = [
  * - energy（画面表示は EN 表記、issue #181）は find-path 固有の store。\
  *   ゲームデザイン上の資源管理概念で時間管理ロジックの tc-03 へは持ち込まない
  * - item（回復アイテム/回復スポット、issue #181）は proto-01 固有の汎用アイテム
- *   store。energy store とは責務を分け、将来の種類拡張（`ItemKind`）に備える
+ *   store。energy store とは責務を分け、将来の種類拡張（`ItemKind`）に備える。
+ *   障害物（`OBSTACLE_CELLS`）も統合し、セル上の要素を種類問わず取得できる窓口
+ *   （`getContentsAtCell`）を一本化する（issue #137、PR #196 レビュー対応）
  * - 5 store は相互依存なし。セル単位・単一 bot と噛み合わない position / intent は持ち込まない
  * - tick はまだ載せない（PR-C）。ここは store 生成と Context 配布のみ
  */
@@ -66,7 +72,10 @@ export const FindPathStoresProvider = (props: PropsWithChildren) => {
       <PathStoreContext.Provider value={pathStore}>
         <PlannedPathStoreContext.Provider value={plannedPathStore}>
           <EnergyStoreProvider>
-            <ItemStoreProvider initialItems={INITIAL_ITEMS}>
+            <ItemStoreProvider
+              initialItems={INITIAL_ITEMS}
+              obstacleCells={[...OBSTACLE_CELLS]}
+            >
               {children}
             </ItemStoreProvider>
           </EnergyStoreProvider>
