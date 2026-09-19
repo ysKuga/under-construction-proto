@@ -6,8 +6,11 @@ import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_
 
 import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-registry'
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
+import { describeCellContent } from '../../_lib/describe-cell-content'
+import { getCellContents } from '../../_lib/get-cell-contents'
 import { isObstacleCell } from '../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../_lib/one-way'
+import { useItemStore } from '../../_stores/items'
 
 type PlannedPathLayerProps = {
   /**
@@ -120,7 +123,14 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  *   選択した場合の表示は `variant` で切り替える（list = 列挙 / stacked = 重ねる）。
  *   `allowDuplicateSelection=false` なら重複選択自体を無効化する
  * - tick 走行中（`isRunning`）はセル選択を disabled にする
- * - planned-path store のみ購読。bot の移動（path / position）では再レンダリングしない
+ * - planned-path / item store を購読。bot の移動（path / position）では再レンダリングしない
+ * - セル本体（`button`）へ `title` を付与し、障害物・回復アイテム・回復スポットの
+ *   説明を hover 表示する（issue #137）。対応する表示レイヤー（`ObstacleLayer` 等）は
+ *   `pointerEvents: none` の非対話オーバーレイで hover を受け取れないため、実際に
+ *   マウスオーバーを受けるここへ持たせる。説明対象は `getCellContents`（障害物・
+ *   アイテムを横断的に問い合わせる pure function、PR #196 レビュー対応）から取得し、
+ *   文言は `describeCellContent`（`ItemKind` ベースの辞書）で解決する。新しい種類の
+ *   アイテムが増えても辞書へ追記するだけで対応できる
  * - 番号（`order`）ごとに個別の DOM を `PlannedPathCellRegistryProvider` へ登録する。
  *   到達済み番号のフェードアウト（`useFindPathTick`）はここを経由して opacity を\
  *   直書きする（再レンダリングなし）。`order` は経路計画中つねに新しい値が発行される\
@@ -141,6 +151,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
+  const itemStore = useItemStore((state) => state)
 
   /** "col,row" → 積んだ順番（1 始まり）の一覧。同じセルを複数回選択すると複数持つ */
   const ordersByCell = new Map<string, number[]>()
@@ -173,6 +184,8 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
           const isBlocked =
             isObstacleCell({ col, row }) ||
             isBlockedByOneWay(precedingCell, { col, row })
+          const contents = getCellContents({ col, row }, itemStore)
+          const title = contents[0] && describeCellContent(contents[0])
 
           return (
             <button
@@ -188,6 +201,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
               }}
               ref={(el) => registerCellNode({ col, row }, el)}
               style={cellStyle(orders.length > 0, variant, isBlocked)}
+              title={title}
               type="button"
             >
               {variant === 'stacked' ? (

@@ -14,11 +14,10 @@ import { useInitialFacing } from '@/prototypes/stage/stage-06/_hooks/use-initial
 
 import { ActionBar } from './_components/action-bar'
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
+import { ItemLayer } from './_components/item-layer'
 import { ObstacleLayer } from './_components/obstacle-layer'
 import { OneWayLayer } from './_components/one-way-layer'
 import { PlannedPathLayer } from './_components/planned-path-layer'
-import { RecoveryItemLayer } from './_components/recovery-item-layer'
-import { RecoverySpotLayer } from './_components/recovery-spot-layer'
 import { FindPathStoresProvider } from './_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from './_contexts/planned-path-cell-registry'
 import { useFindPathTick } from './_hooks/use-find-path-tick'
@@ -132,8 +131,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
         <GoalMarkerLayer cols={GRID.cols} rows={GRID.rows} />
         <ObstacleLayer cols={GRID.cols} rows={GRID.rows} />
         <OneWayLayer cols={GRID.cols} rows={GRID.rows} />
-        <RecoveryItemLayer cols={GRID.cols} rows={GRID.rows} />
-        <RecoverySpotLayer cols={GRID.cols} rows={GRID.rows} />
+        <ItemLayer cols={GRID.cols} rows={GRID.rows} />
         <PlannedPathLayer
           allowDuplicateSelection={plannedPathAllowDuplicateSelection}
           cols={GRID.cols}
