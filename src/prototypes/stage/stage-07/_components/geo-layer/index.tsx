@@ -1,5 +1,6 @@
 import { CSSProperties } from 'react'
 
+import { useCellTitle } from '../../_contexts/cell-title'
 import { colRowToAxial, HexCell, isHexAdjacent } from '../../_lib/hex'
 import {
   computeHexGridBounds,
@@ -25,12 +26,6 @@ type GeoLayerProps = {
    *   呼び出し元（`useHexMove`）が行う
    */
   canEnterCell?: (cell: HexCell) => boolean
-  /**
-   * セルの hover 説明文（`title` 属性、省略時は付与しない）
-   *
-   * - 障害物等マス上オブジェクトの説明表示に使う（issue #137）
-   */
-  cellTitle?: (cell: HexCell) => string | undefined
   /** 列数 */
   cols: number
   /** 現在地セル。隣接セルの選択可能表示・強調表示に使う */
@@ -70,11 +65,14 @@ type GeoLayerProps = {
  *   ここでは隣接セルの `cursor: pointer` のみ付与する
  * - `interactive=false` のセルは非対話の `<div>` で描画する（stage-06 の
  *   `GeoLayer` と同じ方針）
+ * - hover 説明文（`title` 属性）は `CellTitleContext` から取得する（props ではない、
+ *   issue #137、PR #196 レビュー対応）。stage-07 自体は find-path 固有の概念
+ *   （障害物・アイテム等）を持たないため、実体は呼び出し元（`CellTitleProvider`）
+ *   が注入する。Provider がなければ何も付与しない
  */
 export const GeoLayer = (props: GeoLayerProps) => {
   const {
     canEnterCell,
-    cellTitle,
     cols,
     currentCell,
     hexSize,
@@ -84,6 +82,7 @@ export const GeoLayer = (props: GeoLayerProps) => {
     rows,
   } = props
 
+  const getCellTitle = useCellTitle()
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   const cells = Array.from({ length: rows }).flatMap((_, row) =>
@@ -131,7 +130,7 @@ export const GeoLayer = (props: GeoLayerProps) => {
             onClick={() => onCellClick(axial)}
             ref={(el) => registerVisibilityNode?.(axial, el)}
             style={{ ...cellStyle, cursor: selectable ? 'pointer' : 'default' }}
-            title={cellTitle?.(axial)}
+            title={getCellTitle(axial)}
             type="button"
           >
             {hexagon}
