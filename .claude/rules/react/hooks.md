@@ -7,6 +7,15 @@
 - カスタムフックとして切り出す
 - 配置先: `.hooks` サフィックスファイル、または `_hooks/` ディレクトリ
 - 戻り値の名前: `use` 除いた部分 基本的に使用する。ライブラリ等で公式の使用法がある場合はそちらに合わせる
+- hook 自体の命名: 戻り値を単一の変数でそのまま受ける想定なら、`use` を除いた部分が変数名としてそのまま自然になるよう名付ける。戻り値が値(名詞)でなく関数の場合、hook 名にも動詞を含める(例: `useCellTitle` ではなく `useGetCellTitle` → `const getCellTitle = useGetCellTitle()`)
+
+```ts
+// 悪い例: 戻り値が関数なのに hook 名は名詞
+const getCellTitle = useCellTitle()
+
+// 良い例: hook 名に動詞を含め、use を除いた名前がそのまま変数名になる
+const getCellTitle = useGetCellTitle()
+```
 
 ### 構成分割 (index.tsx / index.hooks.ts / index.types.ts)
 
