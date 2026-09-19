@@ -6,44 +6,10 @@ import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_
 
 import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-registry'
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
+import { describeCellContent } from '../../_lib/describe-cell-content'
 import { isObstacleCell } from '../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../_lib/one-way'
 import { useItemStore } from '../../_stores/items'
-import { ItemInstance } from '../../_stores/items/types'
-
-/**
- * セル上の要素(障害物・回復アイテム・回復スポット)の説明文言
- *
- * - 対応する表示レイヤー(`ObstacleLayer`/`RecoveryItemLayer`/`RecoverySpotLayer`)は
- *   `pointerEvents: none` の非対話オーバーレイのため hover を受け取れない。実際に
- *   マウスオーバーを受けるセル本体(このコンポーネントの `button`)へ `title` として
- *   付与する
- *
- * @param col セルの列
- * @param row セルの行
- * @param items `ItemStore` の `itemsById`
- */
-const cellTitle = (
-  col: number,
-  row: number,
-  items: Record<string, ItemInstance>,
-): string | undefined => {
-  if (isObstacleCell({ col, row })) {
-    return '障害物（通行不可）'
-  }
-
-  const item = Object.values(items).find(
-    (candidate) => candidate.cell.col === col && candidate.cell.row === row,
-  )
-
-  if (!item) {
-    return undefined
-  }
-
-  return item.stock !== undefined
-    ? '回復スポット（到達するとエネルギー回復、在庫が尽きるまで複数回）'
-    : '回復アイテム（踏むとエネルギー回復、1個限り）'
-}
 
 type PlannedPathLayerProps = {
   /**
@@ -160,7 +126,10 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  * - セル本体（`button`）へ `title` を付与し、障害物・回復アイテム・回復スポットの
  *   説明を hover 表示する（issue #137）。対応する表示レイヤー（`ObstacleLayer` 等）は
  *   `pointerEvents: none` の非対話オーバーレイで hover を受け取れないため、実際に
- *   マウスオーバーを受けるここへ持たせる（`cellTitle`）
+ *   マウスオーバーを受けるここへ持たせる。説明対象は `ItemStore.getContentsAtCell`
+ *   （障害物・アイテムを統合した位置ベースの問い合わせ、PR #196 レビュー対応）から
+ *   取得し、文言は `describeCellContent`（`ItemKind` ベースの辞書）で解決する。
+ *   新しい種類のアイテムが増えても辞書へ追記するだけで対応できる
  * - 番号（`order`）ごとに個別の DOM を `PlannedPathCellRegistryProvider` へ登録する。
  *   到達済み番号のフェードアウト（`useFindPathTick`）はここを経由して opacity を\
  *   直書きする（再レンダリングなし）。`order` は経路計画中つねに新しい値が発行される\
@@ -181,7 +150,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
-  const items = useItemStore((state) => state.itemsById)
+  const items = useItemStore((state) => state)
 
   /** "col,row" → 積んだ順番（1 始まり）の一覧。同じセルを複数回選択すると複数持つ */
   const ordersByCell = new Map<string, number[]>()
@@ -214,6 +183,8 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
           const isBlocked =
             isObstacleCell({ col, row }) ||
             isBlockedByOneWay(precedingCell, { col, row })
+          const contents = items.getContentsAtCell({ col, row })
+          const title = contents[0] && describeCellContent(contents[0])
 
           return (
             <button
@@ -229,7 +200,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
               }}
               ref={(el) => registerCellNode({ col, row }, el)}
               style={cellStyle(orders.length > 0, variant, isBlocked)}
-              title={cellTitle(col, row, items)}
+              title={title}
               type="button"
             >
               {variant === 'stacked' ? (
