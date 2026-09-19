@@ -19,7 +19,7 @@ const RECOVERY_SPOT: ItemInstance = {
 }
 
 test('getItemAtCell で cell 上のアイテムを返す', () => {
-  const store = createItemStore([RECOVERY_ITEM], [])
+  const store = createItemStore([RECOVERY_ITEM])
 
   expect(store.getState().getItemAtCell({ col: 2, row: 0 })).toEqual(
     RECOVERY_ITEM,
@@ -28,7 +28,7 @@ test('getItemAtCell で cell 上のアイテムを返す', () => {
 })
 
 test('consumeItem で stock 未指定のアイテムは削除される', () => {
-  const store = createItemStore([RECOVERY_ITEM], [])
+  const store = createItemStore([RECOVERY_ITEM])
 
   expect(store.getState().consumeItem('item-1')).toEqual(RECOVERY_ITEM)
   expect(store.getState().getItemAtCell({ col: 2, row: 0 })).toBeUndefined()
@@ -36,7 +36,7 @@ test('consumeItem で stock 未指定のアイテムは削除される', () => {
 })
 
 test('consumeItem で stock 指定のアイテムは1減り、0で枯渇する', () => {
-  const store = createItemStore([RECOVERY_SPOT], [])
+  const store = createItemStore([RECOVERY_SPOT])
 
   expect(store.getState().consumeItem('spot-1')).toEqual({
     ...RECOVERY_SPOT,
@@ -56,7 +56,7 @@ test('consumeItem で stock 指定のアイテムは1減り、0で枯渇する',
 })
 
 test('reset で初期状態に戻る', () => {
-  const store = createItemStore([RECOVERY_ITEM], [])
+  const store = createItemStore([RECOVERY_ITEM])
 
   store.getState().consumeItem('item-1')
   store.getState().reset()
@@ -64,24 +64,4 @@ test('reset で初期状態に戻る', () => {
   expect(store.getState().getItemAtCell({ col: 2, row: 0 })).toEqual(
     RECOVERY_ITEM,
   )
-})
-
-test('getContentsAtCell は障害物・アイテムを種類問わず返す', () => {
-  const store = createItemStore([RECOVERY_ITEM], [{ col: 1, row: 1 }])
-
-  expect(store.getState().getContentsAtCell({ col: 1, row: 1 })).toEqual([
-    { kind: 'obstacle' },
-  ])
-  expect(store.getState().getContentsAtCell({ col: 2, row: 0 })).toEqual([
-    { item: RECOVERY_ITEM, kind: 'item' },
-  ])
-  expect(store.getState().getContentsAtCell({ col: 3, row: 3 })).toEqual([])
-})
-
-test('getContentsAtCell は消費済みアイテムを返さない', () => {
-  const store = createItemStore([RECOVERY_ITEM], [])
-
-  store.getState().consumeItem('item-1')
-
-  expect(store.getState().getContentsAtCell({ col: 2, row: 0 })).toEqual([])
 })

@@ -7,6 +7,7 @@ import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_
 import { usePlannedPathCellRegistry } from '../../_contexts/planned-path-cell-registry'
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 import { describeCellContent } from '../../_lib/describe-cell-content'
+import { getCellContents } from '../../_lib/get-cell-contents'
 import { isObstacleCell } from '../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../_lib/one-way'
 import { useItemStore } from '../../_stores/items'
@@ -126,10 +127,10 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  * - セル本体（`button`）へ `title` を付与し、障害物・回復アイテム・回復スポットの
  *   説明を hover 表示する（issue #137）。対応する表示レイヤー（`ObstacleLayer` 等）は
  *   `pointerEvents: none` の非対話オーバーレイで hover を受け取れないため、実際に
- *   マウスオーバーを受けるここへ持たせる。説明対象は `ItemStore.getContentsAtCell`
- *   （障害物・アイテムを統合した位置ベースの問い合わせ、PR #196 レビュー対応）から
- *   取得し、文言は `describeCellContent`（`ItemKind` ベースの辞書）で解決する。
- *   新しい種類のアイテムが増えても辞書へ追記するだけで対応できる
+ *   マウスオーバーを受けるここへ持たせる。説明対象は `getCellContents`（障害物・
+ *   アイテムを横断的に問い合わせる pure function、PR #196 レビュー対応）から取得し、
+ *   文言は `describeCellContent`（`ItemKind` ベースの辞書）で解決する。新しい種類の
+ *   アイテムが増えても辞書へ追記するだけで対応できる
  * - 番号（`order`）ごとに個別の DOM を `PlannedPathCellRegistryProvider` へ登録する。
  *   到達済み番号のフェードアウト（`useFindPathTick`）はここを経由して opacity を\
  *   直書きする（再レンダリングなし）。`order` は経路計画中つねに新しい値が発行される\
@@ -183,7 +184,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
           const isBlocked =
             isObstacleCell({ col, row }) ||
             isBlockedByOneWay(precedingCell, { col, row })
-          const contents = itemStore.getContentsAtCell({ col, row })
+          const contents = getCellContents({ col, row }, itemStore)
           const title = contents[0] && describeCellContent(contents[0])
 
           return (
