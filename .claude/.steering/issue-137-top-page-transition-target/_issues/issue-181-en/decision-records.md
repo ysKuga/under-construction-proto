@@ -29,3 +29,4 @@
 - 2026-09-17: `ItemInstance.stock` の有無で「回復アイテム」（未指定、1個ずつ使い切り）と「回復スポット」（指定、指定回数で枯渇しうる）を区別する。`kind` は種類(`'energy-recovery'`)の判別用に別途持つ（将来の種類拡張用、今回は1種類のみ）
 - 2026-09-17: `ItemStore` は proto-01 固有に配置（`proto-01/_stores/items`）。EnergyStore も PR #183 時点では proto-01 固有で作られ、proto-03 対応（PR-B）で共有層へ移設された経緯を踏襲。今回は proto-01 のみ対象のため同じ順序とし、共有が必要になった時点で移設する
 - 2026-09-17: 回復判定は `use-find-path-tick` の `applyNextStep` 内、`moveActor` 実行後・`energy.consume` 実行前に挿入（実際にそのセルへ進入できた場合のみ回収、障害物で進めない場合は回収しない）
+- 2026-09-18: box-bot 側 EN 回復ロジック（見た目演出）を実装。既存 `energyOutAction`（EN 切れ→予防姿勢、issue #181 2026-09-17）はトグル式で「予防姿勢で静止中に再発火すると復帰」まで実装済みだったが、`use-find-path-tick` 側は EN 切れ時の発火のみ配線されており、回復時の復帰発火が欠けていた。`outOfEnergyRef`（発火中フラグ）を追加し、EN 切れで true・以後の回復発生時（tick 停止後の再「実行」で回復アイテムのマスへ到達した場合も含む）に再度 `energyOut()` を dispatch して false に戻す方式で配線。ユニットテスト3件追加、Storybook + Playwright で EN 切れ時の前傾姿勢・回復後の直立復帰を実機確認

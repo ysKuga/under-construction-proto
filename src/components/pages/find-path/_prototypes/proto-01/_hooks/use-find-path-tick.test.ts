@@ -41,8 +41,12 @@ const wrapper = ({ children }: PropsWithChildren) =>
     ),
   )
 
-/** hook 本体 + 検証に使う store / registry API を同じ Provider 下で取得する */
-const renderTick = () =>
+/**
+ * hook 本体 + 検証に使う store / registry API を同じ Provider 下で取得する
+ *
+ * @param energyOut EN 切れ演出の dispatcher（省略可、発火検証時のみ渡す）
+ */
+const renderTick = (energyOut?: () => Promise<void>) =>
   renderHook(
     () => ({
       energy: useEnergyStoreApi(),
@@ -50,7 +54,7 @@ const renderTick = () =>
       items: useItemStoreApi(),
       plannedPath: usePlannedPathStoreApi(),
       registry: useActorNodeRegistry(),
-      tick: useFindPathTick(),
+      tick: useFindPathTick({ energyOut }),
     }),
     { wrapper },
   )
@@ -297,4 +301,57 @@ test('エネルギーが尽きると tick ループが停止する（ゴール�
   expect(
     result.current.plannedPath.getState().getPlannedPath(PLAYER_ACTOR_ID),
   ).toEqual([])
+})
+
+test('EN 切れで energyOut が発火する', () => {
+  const energyOut = vi.fn<() => Promise<void>>(() => Promise.resolve())
+  const { result } = renderTick(energyOut)
+
+  seedPlanned(result, [{ col: 1, row: 0 }])
+  act(() => {
+    result.current.energy
+      .getState()
+      .consume(PLAYER_ACTOR_ID, DEFAULT_ENERGY_INFO.current - 1)
+  })
+
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS))
+
+  expect(energyOut).toHaveBeenCalledTimes(1)
+})
+
+test('通常の回復（EN 切れを経ていない）では energyOut は発火しない', () => {
+  const energyOut = vi.fn<() => Promise<void>>(() => Promise.resolve())
+  const { result } = renderTick(energyOut)
+  const item = RECOVERY_ITEM_CELLS[0]
+
+  seedPlanned(result, [item])
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS))
+
+  expect(energyOut).not.toHaveBeenCalled()
+})
+
+test('EN 切れ後、回復アイテムへ到達すると energyOut が再度発火する（復帰）', () => {
+  const energyOut = vi.fn<() => Promise<void>>(() => Promise.resolve())
+  const { result } = renderTick(energyOut)
+  const item = RECOVERY_ITEM_CELLS[0]
+
+  seedPlanned(result, [{ col: 1, row: 0 }])
+  act(() => {
+    result.current.energy
+      .getState()
+      .consume(PLAYER_ACTOR_ID, DEFAULT_ENERGY_INFO.current - 1)
+  })
+
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS))
+  expect(energyOut).toHaveBeenCalledTimes(1)
+
+  // 停止後、別経路で回復アイテムのマスへ向けて再度「実行」する
+  seedPlanned(result, [item])
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS))
+
+  expect(energyOut).toHaveBeenCalledTimes(2)
 })
