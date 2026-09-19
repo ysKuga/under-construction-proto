@@ -79,12 +79,12 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
 }
 
 /**
- * `useFindPathTick` を Provider 群の内側で呼び、`ActionBar` と `PlannedPathLayer`
- * 双方へ props で配布する
+ * `useFindPathTick` を Provider 群の内側で呼び、`execute` を `ActionBar` へ配布する
  *
- * - `isRunning`: tick 走行中は `PlannedPathLayer` のセル選択を止める。走行中に
- *   追加した指定は実行用の残り経路（path store）へ反映されず「消化されない指定」に
- *   なってしまうため
+ * - `isRunning`/`reachedGoal` は `TickStatusStore` 経由（`ActionBar`/`PlannedPathLayer`
+ *   が直接 selector 購読する）。props にすると値変更のたびここ（`FindPathContent`）
+ *   ごと再レンダリングされ配下ツリー全体（`Stage06` 含む）へ波及するため（issue #137
+ *   design.md 懸念・リスク）
  * - walking action(歩行モーション)は「実行」開始 〜 歩き切りを 1 周期として on/off
  *   する（`useFindPathTick` へ dispatcher を渡す）。複数マスを連続で歩く tick 駆動と
  *   相性がよい（1 マスごとの隣接クリック移動、stage-07 とは異なる粒度）
@@ -104,7 +104,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
     [faceAction, walkingAction, energyOutAction],
   )
 
-  const { execute, isRunning, reachedGoal } = useFindPathTick({
+  const { execute } = useFindPathTick({
     energyOut,
     face,
     walking,
@@ -135,16 +135,11 @@ const FindPathContent = (props: FindPathProto01Props) => {
         <PlannedPathLayer
           allowDuplicateSelection={plannedPathAllowDuplicateSelection}
           cols={GRID.cols}
-          isRunning={isRunning}
           rows={GRID.rows}
           variant={plannedPathVariant}
         />
       </Stage06>
-      <ActionBar
-        execute={execute}
-        isRunning={isRunning}
-        reachedGoal={reachedGoal}
-      />
+      <ActionBar execute={execute} />
     </div>
   )
 }

@@ -5,14 +5,11 @@ import { useGameClockStore } from '@/prototypes/time-control/time-control-03/_st
 import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
+import { useTickStatusStore } from '../../_stores/tick-status'
 
 type ActionBarProps = {
   /** 「実行」。`useFindPathTick` から親経由で受け取る */
   execute: () => void
-  /** tick 走行中か。走行中は「実行」「1 手戻す」を disabled にする */
-  isRunning: boolean
-  /** bot が `GOAL_POSITION` に到達済みか */
-  reachedGoal: boolean
 }
 
 /**
@@ -24,9 +21,11 @@ type ActionBarProps = {
  * - 速度スライダー: `timeScale` を game-clock store へ書き込む（0 でポーズ）。
  *   非制御。tick ドライバ側が store を購読して反映する
  * - EN 残量表示: `EN: x/y`（画面表示のみ略称。実装識別子は `energy` のまま、issue #181）
+ * - `isRunning`/`reachedGoal` は `TickStatusStore` を直接 selector 購読する（props
+ *   経由にすると値変更のたび親（`FindPathContent`）ごと再レンダリングされるため）
  */
 export const ActionBar = (props: ActionBarProps) => {
-  const { execute, isRunning, reachedGoal } = props
+  const { execute } = props
 
   const { popStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const setTimeScale = useGameClockStore((state) => state.setTimeScale)
@@ -36,6 +35,8 @@ export const ActionBar = (props: ActionBarProps) => {
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
+  const isRunning = useTickStatusStore((state) => state.isRunning)
+  const reachedGoal = useTickStatusStore((state) => state.reachedGoal)
   const editDisabled = !hasPlannedPath || isRunning
 
   return (
