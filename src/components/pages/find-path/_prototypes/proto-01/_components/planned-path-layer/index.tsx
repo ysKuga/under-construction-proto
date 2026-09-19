@@ -122,7 +122,7 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  *   選択した場合の表示は `variant` で切り替える（list = 列挙 / stacked = 重ねる）。
  *   `allowDuplicateSelection=false` なら重複選択自体を無効化する
  * - tick 走行中（`isRunning`）はセル選択を disabled にする
- * - planned-path / items store を購読。bot の移動（path / position）では再レンダリングしない
+ * - planned-path / item store を購読。bot の移動（path / position）では再レンダリングしない
  * - セル本体（`button`）へ `title` を付与し、障害物・回復アイテム・回復スポットの
  *   説明を hover 表示する（issue #137）。対応する表示レイヤー（`ObstacleLayer` 等）は
  *   `pointerEvents: none` の非対話オーバーレイで hover を受け取れないため、実際に
@@ -150,7 +150,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
   const planned = usePlannedPathStore((state) =>
     state.getPlannedPath(PLAYER_ACTOR_ID),
   )
-  const items = useItemStore((state) => state)
+  const itemStore = useItemStore((state) => state)
 
   /** "col,row" → 積んだ順番（1 始まり）の一覧。同じセルを複数回選択すると複数持つ */
   const ordersByCell = new Map<string, number[]>()
@@ -183,7 +183,7 @@ export const PlannedPathLayer = (props: PlannedPathLayerProps) => {
           const isBlocked =
             isObstacleCell({ col, row }) ||
             isBlockedByOneWay(precedingCell, { col, row })
-          const contents = items.getContentsAtCell({ col, row })
+          const contents = itemStore.getContentsAtCell({ col, row })
           const title = contents[0] && describeCellContent(contents[0])
 
           return (
