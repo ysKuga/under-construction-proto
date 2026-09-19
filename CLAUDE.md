@@ -32,6 +32,8 @@ const actorPosition = useActorPosition()
 
 複数プロパティ 分割代入で受ける場合(`const { dispatchMoveIntent, gridSize } = useActorControl()` 等)は対象外、各プロパティ名そのまま使用。
 
+hook 自体の命名も上記と対応させる。戻り値を単一の変数でそのまま受ける想定なら、`use` 除いた部分が変数名としてそのまま自然になるよう名付ける。戻り値が値(名詞)でなく関数の場合、hook 名にも動詞含める(`useCellTitle` でなく `useGetCellTitle` → `const getCellTitle = useGetCellTitle()`)。詳細は [react/hooks.md](.claude/rules/react/hooks.md)。
+
 ### JSDoc 構成
 
 ホバー表示は Markdown 解釈される。タイトル(簡潔な要約) → 1行空け → 詳細(箇条書き) の構成にする。
