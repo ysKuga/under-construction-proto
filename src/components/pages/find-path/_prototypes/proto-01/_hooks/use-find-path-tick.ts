@@ -27,7 +27,12 @@ import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-regis
 import { isObstacleCell } from '../_lib/obstacle'
 import { useItemStoreApi } from '../_stores/items'
 import { useTickStatusStoreApi } from '../_stores/tick-status'
-import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
+import {
+  ENERGY_OUT_DELAY_MS,
+  GOAL_POSITION,
+  REALTIME_STEP_MS,
+  TICK_MS,
+} from '../constants'
 
 /**
  * 区間 `index` を消化するための待機時間 (ms)
@@ -54,6 +59,16 @@ type UseFindPathTickOptions = {
   face?: (override: { rad: number }) => Promise<void>
   /** box-bot-01 の walking action dispatcher(省略時は歩行モーション再生しない) */
   walking?: () => Promise<void>
+  /**
+   * box-bot-01 の walkingReset action dispatcher(省略時は歩行の脚・腕を即座に戻さない)
+   *
+   * - EN 切れ時、`walking`(トグル OFF)だけだと脚・腕が `settleRate`/`speedApproachRate`
+   *   による自然減衰で戻る。角速度の減衰(`speedApproachRate`)が遅く、実測で 1 秒以上
+   *   歩き続けて見えるため、`energyOut` の前傾と同時に「全体が傾いて見え、その後脚だけ
+   *   垂直に戻る」演出崩れが起きる。`walkingReset`(引数省略で即時スナップ)を同時に
+   *   呼び、脚・腕を即座に規定位置へ戻してから前傾させる
+   */
+  walkingReset?: (durationMs?: number) => Promise<void>
 }
 
 type UseFindPathTickReturn = {
@@ -93,14 +108,16 @@ type UseFindPathTickReturn = {
  * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は EN 切れで
  *   トグル発火(直立 → 予防姿勢)し、以後の回復発生時（tick 停止後の再「実行」で
  *   回復アイテムのマスへ到達した場合も含む）に再度トグル発火して復帰させる
- *   （issue #181、`outOfEnergyRef` で発火中かを追跡）
+ *   （issue #181、`outOfEnergyRef` で発火中かを追跡）。EN 切れ時の発火は
+ *   `walkingReset` 実行後 `ENERGY_OUT_DELAY_MS` だけ遅らせる（演出上のタメ。脚は
+ *   `walkingReset` で既にスナップ済みのため、遅延中に振れたまま残る心配はない）
  *
- * @param options walking/face/energyOut の dispatcher(いずれも省略可)
+ * @param options walking/walkingReset/face/energyOut の dispatcher(いずれも省略可)
  */
 export const useFindPathTick = (
   options: UseFindPathTickOptions = {},
 ): UseFindPathTickReturn => {
-  const { energyOut, face, walking } = options
+  const { energyOut, face, walking, walkingReset } = options
 
   const gameClock = useGameClockStoreApi()
   const path = usePathStoreApi()
@@ -235,11 +252,16 @@ export const useFindPathTick = (
       if (walking && isWalkingRef.current) {
         isWalkingRef.current = false
         void walking()
+        // walking OFF の自然減衰(角速度の approach)は 1 秒以上かかり、EN 切れ演出の
+        // 前傾と同時進行すると脚がまだ振れたまま見える。即座にスナップさせる
+        void walkingReset?.()
       }
 
       if (energyOut && outOfEnergy) {
         outOfEnergyRef.current = true
-        void energyOut()
+        // walkingReset が脚・腕を即座にスナップ済みのため、ここは演出上のタメの
+        // ためだけの遅延(脚が振れたまま前傾が始まる心配はない)
+        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
       }
     } else {
       // 同じセルが経路上でまだ後に残っていれば、その番号を最前面へ昇格させる。
@@ -286,6 +308,7 @@ export const useFindPathTick = (
     energyOut,
     face,
     walking,
+    walkingReset,
   ])
 
   const execute = useCallback(() => {
