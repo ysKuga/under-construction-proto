@@ -53,3 +53,10 @@ export const RECOVERY_ITEM_CELLS = [{ amount: 3, col: 2, row: 0 }] as const
 export const RECOVERY_SPOT_CELLS = [
   { amount: 2, col: 4, row: 2, stock: 2 },
 ] as const
+
+/**
+ * 携行可能な回復アイテムの上限数
+ *
+ * - 仮値（design.md 懸念・リスク、後日バランス調整）
+ */
+export const CARRIED_ITEM_CAPACITY = 3

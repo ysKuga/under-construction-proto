@@ -17,6 +17,7 @@ import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-0
 
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
+import { useCarriedItemStoreApi } from '../_stores/carried-items'
 import { useItemStoreApi } from '../_stores/items'
 import { useTickStatusStoreApi } from '../_stores/tick-status'
 import {
@@ -50,6 +51,7 @@ const wrapper = ({ children }: PropsWithChildren) =>
 const renderTick = (energyOut?: () => Promise<void>) =>
   renderHook(
     () => ({
+      carriedItems: useCarriedItemStoreApi(),
       energy: useEnergyStoreApi(),
       gameClock: useGameClockStoreApi(),
       items: useItemStoreApi(),
@@ -233,7 +235,7 @@ test('再度「実行」すると reachedGoal がリセットされる', () => {
   expect(result.current.tickStatus.getState().reachedGoal).toBe(false)
 })
 
-test('回復アイテムのマスに到達すると EN が回復する', () => {
+test('回復アイテムのマスに到達すると携行する（即時回復しない）', () => {
   const { result } = renderTick()
   const item = RECOVERY_ITEM_CELLS[0]
 
@@ -245,12 +247,44 @@ test('回復アイテムのマスに到達すると EN が回復する', () => {
   act(() => result.current.tick.execute())
   act(() => vi.advanceTimersByTime(TICK_MS * 2))
 
-  // 5(初期消費) + 2(移動2手分の消費) - 3(回復量) = 4 減
+  // 5(初期消費) + 2(移動2手分の消費) = 7 減。回復アイテムでは回復しない
+  expect(
+    result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
+  ).toBe(10 - 5 - 2)
+  // 携行済みのため店には残らない（床のアイテムとしては消費される）
+  expect(result.current.items.getState().getItemAtCell(item)).toBeUndefined()
+  expect(result.current.carriedItems.getState().carriedItems).toHaveLength(1)
+})
+
+test('useCarriedItem で携行中アイテムを使用すると EN が回復する', () => {
+  const { result } = renderTick()
+  const item = RECOVERY_ITEM_CELLS[0]
+
+  act(() => {
+    result.current.energy.getState().consume(PLAYER_ACTOR_ID, 5)
+  })
+
+  seedPlanned(result, [{ col: 1, row: 0 }, item])
+  act(() => result.current.tick.execute())
+  act(() => vi.advanceTimersByTime(TICK_MS * 2))
+
+  act(() => result.current.tick.useCarriedItem())
+
+  // 7 減った状態から回復量ぶん回復する
   expect(
     result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
   ).toBe(10 - 5 - 2 + item.amount)
-  // 使い切りのため store から削除される
-  expect(result.current.items.getState().getItemAtCell(item)).toBeUndefined()
+  expect(result.current.carriedItems.getState().carriedItems).toHaveLength(0)
+})
+
+test('携行アイテムが空のとき useCarriedItem を呼んでも何も起きない', () => {
+  const { result } = renderTick()
+
+  act(() => result.current.tick.useCarriedItem())
+
+  expect(
+    result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
+  ).toBe(DEFAULT_ENERGY_INFO.current)
 })
 
 test('回復スポットは指定回数のみ回復し、枯渇後は回復しない', () => {
