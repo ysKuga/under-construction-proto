@@ -18,6 +18,7 @@ import { usePlannedPathStoreApi } from '@/prototypes/time-control/time-control-0
 import { FindPathStoresProvider } from '../_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from '../_contexts/planned-path-cell-registry'
 import { useItemStoreApi } from '../_stores/items'
+import { useTickStatusStoreApi } from '../_stores/tick-status'
 import {
   GOAL_POSITION,
   OBSTACLE_CELLS,
@@ -55,6 +56,7 @@ const renderTick = (energyOut?: () => Promise<void>) =>
       plannedPath: usePlannedPathStoreApi(),
       registry: useActorNodeRegistry(),
       tick: useFindPathTick({ energyOut }),
+      tickStatus: useTickStatusStoreApi(),
     }),
     { wrapper },
   )
@@ -154,13 +156,13 @@ test('走行中は isRunning が true になり、歩き切ると false に戻�
   const { result } = renderTick()
 
   seedPlanned(result, [{ col: 1, row: 0 }])
-  expect(result.current.tick.isRunning).toBe(false)
+  expect(result.current.tickStatus.getState().isRunning).toBe(false)
 
   act(() => result.current.tick.execute())
-  expect(result.current.tick.isRunning).toBe(true)
+  expect(result.current.tickStatus.getState().isRunning).toBe(true)
 
   act(() => vi.advanceTimersByTime(TICK_MS))
-  expect(result.current.tick.isRunning).toBe(false)
+  expect(result.current.tickStatus.getState().isRunning).toBe(false)
 })
 
 test('予定経路が空なら execute しても何もしない', () => {
@@ -179,11 +181,11 @@ test('ゴールセルに到達すると reachedGoal が true になる', () => {
   seedPlanned(result, [{ col: 1, row: 0 }, GOAL_POSITION])
 
   act(() => result.current.tick.execute())
-  expect(result.current.tick.reachedGoal).toBe(false)
+  expect(result.current.tickStatus.getState().reachedGoal).toBe(false)
 
   act(() => vi.advanceTimersByTime(TICK_MS * 2))
   expect(cellOf(result)).toEqual(GOAL_POSITION)
-  expect(result.current.tick.reachedGoal).toBe(true)
+  expect(result.current.tickStatus.getState().reachedGoal).toBe(true)
 })
 
 test('次マスが障害物なら moveActor をスキップするが、経路自体は消化される', () => {
@@ -224,11 +226,11 @@ test('再度「実行」すると reachedGoal がリセットされる', () => {
   seedPlanned(result, [GOAL_POSITION])
   act(() => result.current.tick.execute())
   act(() => vi.advanceTimersByTime(TICK_MS))
-  expect(result.current.tick.reachedGoal).toBe(true)
+  expect(result.current.tickStatus.getState().reachedGoal).toBe(true)
 
   seedPlanned(result, [{ col: 1, row: 0 }])
   act(() => result.current.tick.execute())
-  expect(result.current.tick.reachedGoal).toBe(false)
+  expect(result.current.tickStatus.getState().reachedGoal).toBe(false)
 })
 
 test('回復アイテムのマスに到達すると EN が回復する', () => {
@@ -293,8 +295,8 @@ test('エネルギーが尽きると tick ループが停止する（ゴール�
 
   // 残エネルギー=1 のため 1 マスだけ消化して停止する
   expect(cellOf(result)).toEqual({ col: 1, row: 0 })
-  expect(result.current.tick.isRunning).toBe(false)
-  expect(result.current.tick.reachedGoal).toBe(false)
+  expect(result.current.tickStatus.getState().isRunning).toBe(false)
+  expect(result.current.tickStatus.getState().reachedGoal).toBe(false)
   expect(
     result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
   ).toBe(0)

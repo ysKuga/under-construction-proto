@@ -54,7 +54,11 @@ export const ObstacleLayer = (props: ObstacleLayerProps) => {
           }
 
           return (
-            <div key={`${row}-${col}`} style={cellStyle(col, row)}>
+            <div
+              className="ui-term-obstacle"
+              key={`${row}-${col}`}
+              style={cellStyle(col, row)}
+            >
               🪨
             </div>
           )
