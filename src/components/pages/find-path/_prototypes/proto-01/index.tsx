@@ -7,6 +7,7 @@ import {
   faceAction,
   useBoxBotActionDispatcher,
   walkingAction,
+  walkingResetAction,
 } from '@/components/theater/figure/box-bot'
 import { Stage06 } from '@/prototypes/stage/stage-06'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
@@ -99,15 +100,16 @@ const FindPathContent = (props: FindPathProto01Props) => {
   const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
-  const { energyOut, face, walking } = useBoxBotActionDispatcher(
+  const { energyOut, face, walking, walkingReset } = useBoxBotActionDispatcher(
     actorEventTarget,
-    [faceAction, walkingAction, energyOutAction],
+    [faceAction, walkingAction, walkingResetAction, energyOutAction],
   )
 
   const { execute } = useFindPathTick({
     energyOut,
     face,
     walking,
+    walkingReset,
   })
 
   useInitialFacing(face, GRID, INITIAL_FACING_SCREEN_ANGLE)
@@ -118,7 +120,12 @@ const FindPathContent = (props: FindPathProto01Props) => {
         Find Path
       </h1>
       <Stage06
-        actorActions={[faceAction, walkingAction, energyOutAction]}
+        actorActions={[
+          faceAction,
+          walkingAction,
+          walkingResetAction,
+          energyOutAction,
+        ]}
         actorEventTarget={actorEventTarget}
         botSize={56}
         cols={GRID.cols}
