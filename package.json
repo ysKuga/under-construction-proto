@@ -18,7 +18,7 @@
     "generate": "plop",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "chromatic": "chromatic"
+    "chromatic": "node --env-file-if-exists=.env.chromatic node_modules/.bin/chromatic"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
