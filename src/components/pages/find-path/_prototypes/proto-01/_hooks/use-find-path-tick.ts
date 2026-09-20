@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import {
   BehaviorSubject,
   mergeMap,
@@ -26,7 +26,13 @@ import { ActionLogEntry } from '@/prototypes/time-control/time-control-03/types'
 import { usePlannedPathCellRegistry } from '../_contexts/planned-path-cell-registry'
 import { isObstacleCell } from '../_lib/obstacle'
 import { useItemStoreApi } from '../_stores/items'
-import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
+import { useTickStatusStoreApi } from '../_stores/tick-status'
+import {
+  ENERGY_OUT_DELAY_MS,
+  GOAL_POSITION,
+  REALTIME_STEP_MS,
+  TICK_MS,
+} from '../constants'
 
 /**
  * 区間 `index` を消化するための待機時間 (ms)
@@ -53,6 +59,16 @@ type UseFindPathTickOptions = {
   face?: (override: { rad: number }) => Promise<void>
   /** box-bot-01 の walking action dispatcher(省略時は歩行モーション再生しない) */
   walking?: () => Promise<void>
+  /**
+   * box-bot-01 の walkingReset action dispatcher(省略時は歩行の脚・腕を即座に戻さない)
+   *
+   * - EN 切れ時、`walking`(トグル OFF)だけだと脚・腕が `settleRate`/`speedApproachRate`
+   *   による自然減衰で戻る。角速度の減衰(`speedApproachRate`)が遅く、実測で 1 秒以上
+   *   歩き続けて見えるため、`energyOut` の前傾と同時に「全体が傾いて見え、その後脚だけ
+   *   垂直に戻る」演出崩れが起きる。`walkingReset`(引数省略で即時スナップ)を同時に
+   *   呼び、脚・腕を即座に規定位置へ戻してから前傾させる
+   */
+  walkingReset?: (durationMs?: number) => Promise<void>
 }
 
 type UseFindPathTickReturn = {
@@ -66,16 +82,6 @@ type UseFindPathTickReturn = {
    * - 1 マス消化するごとにエネルギーを 1 消費し、0 になったらそこで打ち切る（ゴール未達）
    */
   execute: () => void
-  /**
-   * tick ループが走行中か
-   *
-   * - 走行中は予定経路の編集（セル選択・1 手戻す）を止めるためのフラグ。
-   *   編集しても実行中の残り経路（path store）には反映されず「消化されない
-   *   指定」になってしまうため
-   */
-  isRunning: boolean
-  /** bot が `GOAL_POSITION` に到達済みか */
-  reachedGoal: boolean
 }
 
 /**
@@ -91,37 +97,50 @@ type UseFindPathTickReturn = {
  *   所要時間ぴったりで次 tick が発火するため、経路の継ぎ目で静止せず等速で動き続ける
  * - 1 tick の処理: game-clock へ log → path を pop → `moveActor`（DOM 直書き、
  *   再レンダリングなし）
- * - 到達後の bot 移動（`moveActor`）自体は再レンダリングを起こさないが、`reachedGoal`
- *   はクリア表示のための単発 state。ゴール到達は tick 進行中に高々 1 回しか起きない
+ * - `isRunning`/`reachedGoal` は `TickStatusStore` で保持する。`useState` に持たせると
+ *   値変更のたび呼び出し元（`FindPathContent`）配下ツリー全体（`Stage06` 含む）が
+ *   再レンダリングされるため、選択購読可能な store へ分離した（issue #137）
  * - `options.walking`(省略可、box-bot-01 の walking action トグル dispatcher)を渡すと、
  *   「実行」開始で on、歩き切りで off にする。1 マスごとの隣接クリック移動(stage-07)と
  *   異なり、実行全体を 1 周期として on/off するため tick 単位のちらつきが起きない
  * - `options.face`(省略可、box-bot-01 の face action dispatcher)を渡すと、1 tick
  *   消化ごとに bot を進行方向へ向ける
+ * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は EN 切れで
+ *   トグル発火(直立 → 予防姿勢)し、以後の回復発生時（tick 停止後の再「実行」で
+ *   回復アイテムのマスへ到達した場合も含む）に再度トグル発火して復帰させる
+ *   （issue #181、`outOfEnergyRef` で発火中かを追跡）。EN 切れ時の発火は
+ *   `walkingReset` 実行後 `ENERGY_OUT_DELAY_MS` だけ遅らせる（演出上のタメ。脚は
+ *   `walkingReset` で既にスナップ済みのため、遅延中に振れたまま残る心配はない）
  *
- * @param options walking/face/energyOut の dispatcher(いずれも省略可)
+ * @param options walking/walkingReset/face/energyOut の dispatcher(いずれも省略可)
  */
 export const useFindPathTick = (
   options: UseFindPathTickOptions = {},
 ): UseFindPathTickReturn => {
-  const { energyOut, face, walking } = options
+  const { energyOut, face, walking, walkingReset } = options
 
   const gameClock = useGameClockStoreApi()
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
   const energy = useEnergyStoreApi()
   const items = useItemStoreApi()
+  const tickStatus = useTickStatusStoreApi()
   const { getActorPosition, moveActor } = useActorNodeRegistry()
   const { fadeOutCell, fadeOutStep, resetAllSteps } =
     usePlannedPathCellRegistry()
-
-  const [reachedGoal, setReachedGoal] = useState(false)
-  const [isRunning, setIsRunning] = useState(false)
 
   /** 走行中の tick ループ */
   const subscriptionRef = useRef<null | Subscription>(null)
   /** 歩行 action の on/off 状態(トグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
+  /**
+   * EN 切れ演出(予防姿勢)が発火中か(トグル方式のため呼び出し側で追跡する)
+   *
+   * - EN 切れで `energyOut()` を dispatch した後 true。次に回復が発生した時点
+   *   （直後の tick とは限らない。tick 停止後の再「実行」で回復アイテムのマスへ
+   *   到達した場合も含む）で再度 dispatch して復帰させ、false へ戻す
+   */
+  const outOfEnergyRef = useRef(false)
 
   /** 消化済み tick 数。`execute` 開始時に 0 へ戻す。+1 が消化したセルの `order` と一致する */
   const consumedCountRef = useRef(0)
@@ -206,6 +225,11 @@ export const useFindPathTick = (
 
       if (consumed) {
         energy.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
+
+        if (energyOut && outOfEnergyRef.current) {
+          outOfEnergyRef.current = false
+          void energyOut()
+        }
       }
     }
 
@@ -223,14 +247,22 @@ export const useFindPathTick = (
 
       plannedPath.getState().setPlannedPath(PLAYER_ACTOR_ID, [])
       resetAllSteps()
-      setIsRunning(false)
+      tickStatus.getState().setIsRunning(false)
 
       if (walking && isWalkingRef.current) {
         isWalkingRef.current = false
         void walking()
+        // walking OFF の自然減衰(角速度の approach)は 1 秒以上かかり、EN 切れ演出の
+        // 前傾と同時進行すると脚がまだ振れたまま見える。即座にスナップさせる
+        void walkingReset?.()
       }
 
-      if (energyOut && outOfEnergy) void energyOut()
+      if (energyOut && outOfEnergy) {
+        outOfEnergyRef.current = true
+        // walkingReset が脚・腕を即座にスナップ済みのため、ここは演出上のタメの
+        // ためだけの遅延(脚が振れたまま前傾が始まる心配はない)
+        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
+      }
     } else {
       // 同じセルが経路上でまだ後に残っていれば、その番号を最前面へ昇格させる。
       // 残っていなければ通常のフェードアウトのみ
@@ -259,7 +291,7 @@ export const useFindPathTick = (
       next.x === GOAL_POSITION.col &&
       next.y === GOAL_POSITION.row
     ) {
-      setReachedGoal(true)
+      tickStatus.getState().setReachedGoal(true)
     }
   }, [
     energy,
@@ -267,6 +299,7 @@ export const useFindPathTick = (
     items,
     path,
     plannedPath,
+    tickStatus,
     fadeOutCell,
     fadeOutStep,
     resetAllSteps,
@@ -275,6 +308,7 @@ export const useFindPathTick = (
     energyOut,
     face,
     walking,
+    walkingReset,
   ])
 
   const execute = useCallback(() => {
@@ -286,8 +320,8 @@ export const useFindPathTick = (
 
     // 予定経路を実行用の残り経路へコピー（planned-path 自体は歩き切るまで表示用に残す）
     path.getState().setPath(PLAYER_ACTOR_ID, planned)
-    setReachedGoal(false)
-    setIsRunning(true)
+    tickStatus.getState().setReachedGoal(false)
+    tickStatus.getState().setIsRunning(true)
     consumedCountRef.current = 0
     segmentIndexRef.current = 0
 
@@ -386,7 +420,15 @@ export const useFindPathTick = (
           },
         })
     })
-  }, [applyNextStep, getActorPosition, path, plannedPath, timeScale$, walking])
+  }, [
+    applyNextStep,
+    getActorPosition,
+    path,
+    plannedPath,
+    tickStatus,
+    timeScale$,
+    walking,
+  ])
 
-  return { execute, isRunning, reachedGoal }
+  return { execute }
 }
