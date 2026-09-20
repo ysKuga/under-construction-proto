@@ -63,6 +63,7 @@ export const ObstacleLayer = (props: ObstacleLayerProps) => {
 
         return (
           <div
+            className="ui-term-obstacle"
             key={`${cell.q},${cell.r}`}
             ref={(el) => registerVisibilityNode?.(cell, el)}
             style={style}

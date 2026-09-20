@@ -2,6 +2,17 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { GridPosition } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 
+/**
+ * セル上の要素（障害物 or アイテム）を統一的に表す
+ *
+ * - `PlannedPathLayer` の hover 説明表示（issue #137）向け。アイテム（この store）と
+ *   障害物（`_lib/obstacle.ts`、静的定数のまま独立管理）は責務を分けたまま、
+ *   `_lib/get-cell-contents.ts` の `getCellContents`（pure function）が両者を
+ *   横断的に問い合わせて返す戻り値の型（PR #196 レビュー対応）
+ */
+export type CellContent =
+  { item: ItemInstance; kind: 'item' } | { kind: 'obstacle' }
+
 /** グリッド上に配置されたアイテム1個の実体 */
 export type ItemInstance = {
   /** 種類ごとの効果量 */

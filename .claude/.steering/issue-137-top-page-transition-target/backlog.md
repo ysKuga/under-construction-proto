@@ -8,9 +8,5 @@
 - [ ] 到達済みマス表示 ON 時 or 視界制限不採用時、非隣接クリックで自動経路探索移動（旧 stage-04 の BFS 実装移植候補。[stage-04-pathfinding/design.md](../_closed/20260716-stage-04-pathfinding/design.md)）
 - [ ] ステージ上で動作する bot とは別に bot を独立表示し、「現在どちらを向いているか」を同期して表示する実装を検討
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
-- [ ] `isRunning` state による `FindPathContent` 配下全体（`Stage06` 含む）の再レンダリングを解消（Context 化等）
-  - (design.md 懸念・リスク、decision-records.md 2026-09-18)
-- [ ] マス上オブジェクト（障害物・回復アイテム・回復スポット等）へ `title` 属性で説明表示 + className 付与
-  - (design.md 懸念・リスク)
 - [ ] マスホバー/選択時の内包要素一覧表示を検討
   - (design.md 懸念・リスク)

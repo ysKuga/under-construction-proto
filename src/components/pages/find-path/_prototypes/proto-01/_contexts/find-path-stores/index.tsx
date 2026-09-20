@@ -19,6 +19,7 @@ import {
 import { CarriedItemStoreProvider } from '../../_stores/carried-items'
 import { ItemStoreProvider } from '../../_stores/items'
 import { ItemInstance } from '../../_stores/items/types'
+import { TickStatusStoreProvider } from '../../_stores/tick-status'
 import {
   CARRIED_ITEM_CAPACITY,
   RECOVERY_ITEM_CELLS,
@@ -55,11 +56,17 @@ const INITIAL_ITEMS: ItemInstance[] = [
  * - energy（画面表示は EN 表記、issue #181）は find-path 固有の store。\
  *   ゲームデザイン上の資源管理概念で時間管理ロジックの tc-03 へは持ち込まない
  * - item（回復アイテム/回復スポット、issue #181）は proto-01 固有の汎用アイテム
- *   store。energy store とは責務を分け、将来の種類拡張（`ItemKind`）に備える
+ *   store。energy store とは責務を分け、将来の種類拡張（`ItemKind`）に備える。
+ *   障害物（`_lib/obstacle.ts`、静的定数）とは別管理のまま、セル上の要素を種類問わず
+ *   取得する窓口は `_lib/get-cell-contents.ts`（pure function）が担う
+ *   （issue #137、PR #196 レビュー対応）
  * - carried-item（携行中の回復アイテム、issue #181）も proto-01 固有。回復アイテムは
  *   踏んでも即時回復せず携行し、任意タイミングで使用する方式（回復スポットは据置型の
  *   ため対象外、即時回復のまま）
- * - 6 store は相互依存なし。セル単位・単一 bot と噛み合わない position / intent は持ち込まない
+ * - tick-status（`isRunning`/`reachedGoal`、issue #137）は `useFindPathTick` の
+ *   走行状態。`FindPathContent` の `useState` に持たせると値変更のたび配下ツリー
+ *   全体（`Stage06` 含む）が再レンダリングされるため、選択購読可能な store へ分離した
+ * - 7 store は相互依存なし。セル単位・単一 bot と噛み合わない position / intent は持ち込まない
  * - tick はまだ載せない（PR-C）。ここは store 生成と Context 配布のみ
  */
 export const FindPathStoresProvider = (props: PropsWithChildren) => {
@@ -76,7 +83,7 @@ export const FindPathStoresProvider = (props: PropsWithChildren) => {
           <EnergyStoreProvider>
             <ItemStoreProvider initialItems={INITIAL_ITEMS}>
               <CarriedItemStoreProvider capacity={CARRIED_ITEM_CAPACITY}>
-                {children}
+                <TickStatusStoreProvider>{children}</TickStatusStoreProvider>
               </CarriedItemStoreProvider>
             </ItemStoreProvider>
           </EnergyStoreProvider>

@@ -7,15 +7,12 @@ import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 import { useCarriedItemStore } from '../../_stores/carried-items'
 import { useItemStore } from '../../_stores/items'
+import { useTickStatusStore } from '../../_stores/tick-status'
 import { RECOVERY_SPOT_CELLS } from '../../constants'
 
 type ActionBarProps = {
   /** 「実行」。`useFindPathTick` から親経由で受け取る */
   execute: () => void
-  /** tick 走行中か。走行中は「実行」「1 手戻す」「使用」を disabled にする */
-  isRunning: boolean
-  /** bot が `GOAL_POSITION` に到達済みか */
-  reachedGoal: boolean
   /** 携行中の回復アイテムを1つ使用する。`useFindPathTick` から親経由で受け取る */
   useCarriedItem: () => void
 }
@@ -33,9 +30,11 @@ type ActionBarProps = {
  *   走行中は disabled
  * - 携行数表示: `携行: n/上限`。スタンド残り表示: `スタンド: n/初期在庫`（`RECOVERY_SPOT_CELLS`
  *   は現状1箇所のみのため単一表示。複数箇所になった場合は再設計が要る）
+ * - `isRunning`/`reachedGoal` は `TickStatusStore` を直接 selector 購読する（props
+ *   経由にすると値変更のたび親（`FindPathContent`）ごと再レンダリングされるため）
  */
 export const ActionBar = (props: ActionBarProps) => {
-  const { execute, isRunning, reachedGoal, useCarriedItem } = props
+  const { execute, useCarriedItem } = props
 
   const { popStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const setTimeScale = useGameClockStore((state) => state.setTimeScale)
@@ -50,6 +49,8 @@ export const ActionBar = (props: ActionBarProps) => {
   const spotStock = useItemStore((state) =>
     Object.values(state.itemsById).find((item) => item.stock !== undefined),
   )?.stock
+  const isRunning = useTickStatusStore((state) => state.isRunning)
+  const reachedGoal = useTickStatusStore((state) => state.reachedGoal)
   const editDisabled = !hasPlannedPath || isRunning
 
   return (
