@@ -54,3 +54,9 @@ prepare-commit-msg:
       run: bash ./scripts/husky/prepare-commit-msg/prevent-main.sh {0}
     commit-prefix:
       run: sh ./scripts/husky/prepare-commit-msg/commit-prefix.sh {0}
+
+post-merge:
+  commands:
+    # マージされたブランチの削除
+    prune-gone-branches:
+      run: bash ./scripts/husky/post-merge/prune-gone-branches.sh
