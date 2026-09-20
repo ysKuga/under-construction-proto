@@ -21,6 +21,7 @@ import { OneWayLayer } from './_components/one-way-layer'
 import { PlannedPathLayer } from './_components/planned-path-layer'
 import { FindPathStoresProvider } from './_contexts/find-path-stores'
 import { PlannedPathCellRegistryProvider } from './_contexts/planned-path-cell-registry'
+import { FindPathEventProvider, useFindPathEventListener } from './_events'
 import { useFindPathTick } from './_hooks/use-find-path-tick'
 
 /** グリッド形状（provider の gridSize と Stage06 の cols/rows で共有する） */
@@ -65,16 +66,18 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
 
   return (
     <FindPathStoresProvider>
-      <ActorNodeRegistryProvider gridSize={GRID}>
-        <PlannedPathCellRegistryProvider variant={plannedPathVariant}>
-          <FindPathContent
-            plannedPathAllowDuplicateSelection={
-              plannedPathAllowDuplicateSelection
-            }
-            plannedPathVariant={plannedPathVariant}
-          />
-        </PlannedPathCellRegistryProvider>
-      </ActorNodeRegistryProvider>
+      <FindPathEventProvider>
+        <ActorNodeRegistryProvider gridSize={GRID}>
+          <PlannedPathCellRegistryProvider variant={plannedPathVariant}>
+            <FindPathContent
+              plannedPathAllowDuplicateSelection={
+                plannedPathAllowDuplicateSelection
+              }
+              plannedPathVariant={plannedPathVariant}
+            />
+          </PlannedPathCellRegistryProvider>
+        </ActorNodeRegistryProvider>
+      </FindPathEventProvider>
     </FindPathStoresProvider>
   )
 }
@@ -93,8 +96,10 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  *   （`useFindPathTick` へ dispatcher を渡す。stage-07 と同じ考え方）
  * - energyOut action(EN 切れ演出)は EN 切れでこれ以上進めなくなった tick でトグル発火する
  *   （`useFindPathTick` へ dispatcher を渡す。issue #181）
- * - 回復アイテムは踏んでも即時回復せず携行する。`useCarriedItem`（`ActionBar` の
- *   「使用」ボタン）で任意タイミングに使用する（issue #181）
+ * - 回復アイテムは踏んでも即時回復せず携行する。`ActionBar`「使用」ボタンは
+ *   `FindPath-use-carried-item` イベントを dispatch するのみ。`useCarriedItem`
+ *   （実処理）はここで `useFindPathEventListener` 購読して呼ぶ（issue #181、
+ *   `ActionBar` から `useFindPathTick` 内部関数への直接 props 依存を切るため）
  * - 初期表示時は `useInitialFacing` に `INITIAL_FACING_SCREEN_ANGLE`(右下)を
  *   明示指定し、その向きへ固定する（自動算出だと右向きになり顔が見えないため）
  */
@@ -113,6 +118,8 @@ const FindPathContent = (props: FindPathProto01Props) => {
     walking,
     walkingReset,
   })
+
+  useFindPathEventListener('FindPath-use-carried-item', useCarriedItem)
 
   useInitialFacing(face, GRID, INITIAL_FACING_SCREEN_ANGLE)
 
@@ -148,7 +155,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
           variant={plannedPathVariant}
         />
       </Stage06>
-      <ActionBar execute={execute} useCarriedItem={useCarriedItem} />
+      <ActionBar execute={execute} />
     </div>
   )
 }

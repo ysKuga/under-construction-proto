@@ -4,6 +4,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStore } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
 
+import { useFindPathEventDispatcher } from '../../_events'
 import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 import { useCarriedItemStore } from '../../_stores/carried-items'
 import { useItemStore } from '../../_stores/items'
@@ -13,8 +14,6 @@ import { RECOVERY_SPOT_CELLS } from '../../constants'
 type ActionBarProps = {
   /** 「実行」。`useFindPathTick` から親経由で受け取る */
   execute: () => void
-  /** 携行中の回復アイテムを1つ使用する。`useFindPathTick` から親経由で受け取る */
-  useCarriedItem: () => void
 }
 
 /**
@@ -26,16 +25,20 @@ type ActionBarProps = {
  * - 速度スライダー: `timeScale` を game-clock store へ書き込む（0 でポーズ）。
  *   非制御。tick ドライバ側が store を購読して反映する
  * - EN 残量表示: `EN: x/y`（画面表示のみ略称。実装識別子は `energy` のまま、issue #181）
- * - 「使用」: 携行中の回復アイテムを最古のものから1つ使用する。携行数 0、または
- *   走行中は disabled
+ * - 「使用」: `FindPath-use-carried-item` イベントを dispatch する（実処理は
+ *   `FindPathContent` が `useFindPathEventListener` 購読、issue #181）。携行数 0、
+ *   または走行中は disabled
  * - 携行数表示: `携行: n/上限`。スタンド残り表示: `スタンド: n/初期在庫`（`RECOVERY_SPOT_CELLS`
  *   は現状1箇所のみのため単一表示。複数箇所になった場合は再設計が要る）
  * - `isRunning`/`reachedGoal` は `TickStatusStore` を直接 selector 購読する（props
  *   経由にすると値変更のたび親（`FindPathContent`）ごと再レンダリングされるため）
  */
 export const ActionBar = (props: ActionBarProps) => {
-  const { execute, useCarriedItem } = props
+  const { execute } = props
 
+  const findPathEventDispatcher = useFindPathEventDispatcher()
+  const useCarriedItem: () => void =
+    findPathEventDispatcher['FindPath-use-carried-item']
   const { popStep } = usePlannedPathSteps(PLAYER_ACTOR_ID)
   const setTimeScale = useGameClockStore((state) => state.setTimeScale)
   const hasPlannedPath = usePlannedPathStore(
