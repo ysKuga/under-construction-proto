@@ -17,6 +17,10 @@ migration-storybook.log
 storybook.log
 storybook-static
 
+# chromatic
+/.chromatic/
+/build-storybook.log
+
 # production
 /dist
 

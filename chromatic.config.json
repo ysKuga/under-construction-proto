@@ -1,0 +1,5 @@
+{
+  "logFile": ".chromatic/chromatic.log",
+  "diagnosticsFile": ".chromatic/diagnostics.json",
+  "storybookLogFile": ".chromatic/storybook-build.log"
+}
