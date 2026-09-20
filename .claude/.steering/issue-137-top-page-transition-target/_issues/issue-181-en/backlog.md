@@ -2,7 +2,12 @@
 
 - [ ] EN 消費 → EN 切れ検知を event 経由の疎結合構成へリファクタ（`CONSUME_ENERGY`/`ENERGY_DEPLETED`、`_stores/energy/_event-hooks/` 新設）
   - (decision-records.md 2026-09-20)
-- [ ] EN 切れ等境界値テスト用に、EN 残量を調整できる UI・リセットボタンを prototype に用意する（proto-03 対象、find-path の変更主対象のため。issue-181-en 当 PR では対応不要）
+- [ ] 境界値テスト用、prototype に EN 残量調整 UI を用意
+  - 手段
+    - EN 残量調整 UI
+    - リセットボタン
+  - 対象: proto-03
+  - issue-181-en 当 PR では対応不要
   - (decision-records.md 2026-09-20)
 - [ ] 回復アイテムの配置を検討
   - (design.md 懸念・リスク)
