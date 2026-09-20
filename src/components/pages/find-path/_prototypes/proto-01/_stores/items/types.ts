@@ -23,7 +23,13 @@ export type ItemInstance = {
   id: string
   /** 種類 */
   kind: ItemKind
-  /** 残り使用回数（未指定は1回限り、指定時は指定回数で枯渇しうる） */
+  /**
+   * 残り使用回数
+   *
+   * - 未指定は1回限り（回復アイテム）、指定時は指定回数で枯渇しうる（回復スポット）
+   * - `use-find-path-tick` の `applyNextStep` はこの有無で「携行する（未指定）」
+   *   「即時回復する（指定）」を判別する（issue #181）
+   */
   stock?: number
 }
 
