@@ -13,6 +13,8 @@ import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-07/_contexts
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+import { EnergyDebugPanel } from '../_components/energy-debug-panel'
+
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import { ItemLayer } from './_components/item-layer'
 import {
@@ -285,6 +287,7 @@ const FindPathProto03Content = () => {
         </span>
         <span hidden={!goalReached}>🎉 ゴール到達</span>
       </div>
+      <EnergyDebugPanel />
     </div>
   )
 }
