@@ -38,7 +38,9 @@ export const List02 = (props: List02Props) => {
   return (
     <ListStoreContext.Provider value={store}>
       <TypingProbe />
-      <ul className="ui-container w-80">
+      {/* 500件フル描画だとページ高さが Chromatic のキャプチャ上限 (25,000,000px) を
+          超えるため、固定高さ + スクロールで抑える */}
+      <ul className="ui-container h-96 w-80 overflow-y-auto">
         {ids.map((id) => (
           <ListItem id={id} key={id} />
         ))}
