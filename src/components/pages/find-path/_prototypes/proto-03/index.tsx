@@ -198,10 +198,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // Energy-depleted（energy store 側の consume-listener が EN 消費後に発行）を
   // 購読し、EN 切れ演出（energyOut）を発火する
   useEnergyEventListener('Energy-depleted', (event) => {
-    if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID)) return
-
-    // 既に切れ状態なら無視（二重発火防止）。false のときだけトグル発火する
-    match(outOfEnergyRef.current).with(false, () => {
+    // 自分の actor 宛て・まだ切れていない場合のみ発火する
+    match({
+      isOwnActor: isEnergyEventForActor(event, PLAYER_ACTOR_ID),
+      outOfEnergy: outOfEnergyRef.current,
+    }).with({ isOwnActor: true, outOfEnergy: false }, () => {
       outOfEnergyRef.current = true
       void energyOut()
     })
@@ -210,10 +211,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
   // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
   useEnergyEventListener('Energy-recovered', (event) => {
-    if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID)) return
-
-    // 切れ状態でなければ無視。true のときだけ復帰トグルを発火する
-    match(outOfEnergyRef.current).with(true, () => {
+    // 自分の actor 宛て・切れ状態の場合のみ復帰させる
+    match({
+      isOwnActor: isEnergyEventForActor(event, PLAYER_ACTOR_ID),
+      outOfEnergy: outOfEnergyRef.current,
+    }).with({ isOwnActor: true, outOfEnergy: true }, () => {
       outOfEnergyRef.current = false
       void energyOut()
     })
