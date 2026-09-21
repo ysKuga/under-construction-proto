@@ -1,7 +1,5 @@
 # 実装計画（エネルギー）
 
-- [ ] EN 消費 → EN 切れ検知を event 経由の疎結合構成へリファクタ（`CONSUME_ENERGY`/`ENERGY_DEPLETED`、`_stores/energy/_event-hooks/` 新設）
-  - (decision-records.md 2026-09-20)
 - [ ] 境界値テスト用、prototype にゲーム全体のリセットボタンを用意（EN store 単体でなく全 store 対象。time-control-03 `ActionBar` の `resetAll` 相当）
   - (decision-records.md 2026-09-21)
 - [ ] proto-03 へ EN 切れ時の action（見た目演出）を実装
