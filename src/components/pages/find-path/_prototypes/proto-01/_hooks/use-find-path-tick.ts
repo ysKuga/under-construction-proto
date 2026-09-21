@@ -10,7 +10,11 @@ import {
   withLatestFrom,
 } from 'rxjs'
 
-import { useEnergyStoreApi } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import {
+  useEnergyEventDispatcher,
+  useEnergyEventListener,
+  useEnergyStoreApi,
+} from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { screenAngleToYaw } from '@/components/theater/figure/box-bot'
 import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 import { gridDirectionToScreenAngle } from '@/prototypes/stage/stage-06/_lib/direction'
@@ -48,7 +52,9 @@ type UseFindPathTickOptions = {
   /**
    * box-bot-01 の energyOut action dispatcher(省略時は EN 切れ演出を再生しない)
    *
-   * - EN 切れでこれ以上進めなくなった tick でトグル発火する(直立 → へたり込み)
+   * - EN 消費（`Energy-consume` イベント dispatch）後、energy store 側の
+   *   consume-listener が発行する `Energy-depleted` を購読してトグル発火する
+   *   (直立 → へたり込み。issue #181、tick 側は消費の実処理・閾値判定を持たない)
    */
   energyOut?: () => Promise<void>
   /**
@@ -116,12 +122,19 @@ type UseFindPathTickReturn = {
  * - 回復アイテム（`ItemInstance.stock` 未指定）は踏んでも即時回復せず携行する
  *   （`CarriedItemStore`、上限に達していればその場に残る）。回復スポットは据置型
  *   のため対象外、従来通り即時回復。携行アイテムの使用は `useCarriedItem`（issue #181）
- * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は EN 切れで
- *   トグル発火(直立 → 予防姿勢)し、以後の回復発生時（回復スポット到達 or
- *   携行アイテム使用のいずれか）に再度トグル発火して復帰させる
- *   （issue #181、`outOfEnergyRef` で発火中かを追跡）。EN 切れ時の発火は
- *   `walkingReset` 実行後 `ENERGY_OUT_DELAY_MS` だけ遅らせる（演出上のタメ。脚は
- *   `walkingReset` で既にスナップ済みのため、遅延中に振れたまま残る心配はない）
+ * - EN 消費は `Energy-consume` イベントを dispatch するだけにし、実消費・0 以下の
+ *   判定・`Energy-depleted` 発行は energy store 側の consume-listener
+ *   （`_stores/energy/_events/_event-listeners/use-consume-energy-event-listener`）
+ *   が担う（issue #181、tick 処理を box-bot action の直接呼出しから切り離す
+ *   密結合解消のリファクタ）。tick 継続可否の判定自体は「読むだけ」のため対象外、
+ *   引き続き `energy.getState().getEnergyInfo(...)` を直接読む
+ * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は
+ *   上記 `Energy-depleted` 購読でトグル発火(直立 → 予防姿勢)し、以後の回復発生時
+ *   （回復スポット到達 or 携行アイテム使用のいずれか）に再度トグル発火して復帰させる
+ *   （`outOfEnergyRef` で発火中かを追跡、回復側の呼出し経路は今回のリファクタ対象外）。
+ *   EN 切れ時の発火は `walkingReset` 実行後 `ENERGY_OUT_DELAY_MS` だけ遅らせる
+ *   （演出上のタメ。脚は `walkingReset` で既にスナップ済みのため、遅延中に振れた
+ *   まま残る心配はない）
  *
  * @param options walking/walkingReset/face/energyOut の dispatcher(いずれも省略可)
  */
@@ -134,6 +147,7 @@ export const useFindPathTick = (
   const path = usePathStoreApi()
   const plannedPath = usePlannedPathStoreApi()
   const energy = useEnergyStoreApi()
+  const energyDispatch = useEnergyEventDispatcher()
   const items = useItemStoreApi()
   const carriedItems = useCarriedItemStoreApi()
   const tickStatus = useTickStatusStoreApi()
@@ -196,6 +210,17 @@ export const useFindPathTick = (
     return () => subscriptionRef.current?.unsubscribe()
   }, [])
 
+  // Energy-depleted（energy store 側の consume-listener が EN 消費後に発行）を
+  // 購読し、EN 切れ演出（energyOut）を発火する。walking off/walkingReset（下記
+  // applyNextStep 側）より後に実行されても、setTimeout はマクロタスクのため
+  // 演出タイミングは変わらない
+  useEnergyEventListener('Energy-depleted', (event) => {
+    if (event.detail.actorId !== PLAYER_ACTOR_ID || !energyOut) return
+
+    outOfEnergyRef.current = true
+    setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
+  })
+
   /** path の次の 1 歩を消化する */
   const applyNextStep = useCallback(() => {
     const [next, ...rest] = path.getState().getPath(PLAYER_ACTOR_ID)
@@ -254,7 +279,12 @@ export const useFindPathTick = (
       }
     }
 
-    energy.getState().consume(PLAYER_ACTOR_ID, 1)
+    // 消費自体は Energy-consume イベント経由（energy store 側の consume-listener が
+    // 実処理・閾値判定を担う。EN 切れ演出発火は上記 Energy-depleted 購読側で行う）
+    void energyDispatch['Energy-consume']({
+      actorId: PLAYER_ACTOR_ID,
+      amount: 1,
+    })
     const outOfEnergy =
       energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current <= 0
 
@@ -276,13 +306,6 @@ export const useFindPathTick = (
         // walking OFF の自然減衰(角速度の approach)は 1 秒以上かかり、EN 切れ演出の
         // 前傾と同時進行すると脚がまだ振れたまま見える。即座にスナップさせる
         void walkingReset?.()
-      }
-
-      if (energyOut && outOfEnergy) {
-        outOfEnergyRef.current = true
-        // walkingReset が脚・腕を即座にスナップ済みのため、ここは演出上のタメの
-        // ためだけの遅延(脚が振れたまま前傾が始まる心配はない)
-        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
       }
     } else {
       // 同じセルが経路上でまだ後に残っていれば、その番号を最前面へ昇格させる。
@@ -316,6 +339,7 @@ export const useFindPathTick = (
     }
   }, [
     energy,
+    energyDispatch,
     gameClock,
     items,
     carriedItems,
