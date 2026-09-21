@@ -9,6 +9,7 @@ import {
   timer,
   withLatestFrom,
 } from 'rxjs'
+import { match } from 'ts-pattern'
 
 import {
   isEnergyEventForActor,
@@ -219,31 +220,31 @@ export const useFindPathTick = (
   // applyNextStep 側）より後に実行されても、setTimeout はマクロタスクのため
   // 演出タイミングは変わらない
   useEnergyEventListener('Energy-depleted', (event) => {
-    if (
-      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
-      !energyOut ||
-      outOfEnergyRef.current
-    ) {
-      return
-    }
+    if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID) || !energyOut) return
 
-    outOfEnergyRef.current = true
-    setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
+    // 既に切れ状態なら無視（二重発火防止）。false のときだけトグル発火する
+    match(outOfEnergyRef.current)
+      .with(false, () => {
+        outOfEnergyRef.current = true
+        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
+      })
+      .with(true, () => {})
+      .exhaustive()
   })
 
   // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
   // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
   useEnergyEventListener('Energy-recovered', (event) => {
-    if (
-      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
-      !energyOut ||
-      !outOfEnergyRef.current
-    ) {
-      return
-    }
+    if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID) || !energyOut) return
 
-    outOfEnergyRef.current = false
-    void energyOut()
+    // 切れ状態でなければ無視。true のときだけ復帰トグルを発火する
+    match(outOfEnergyRef.current)
+      .with(true, () => {
+        outOfEnergyRef.current = false
+        void energyOut()
+      })
+      .with(false, () => {})
+      .exhaustive()
   })
 
   /** path の次の 1 歩を消化する */

@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { match } from 'ts-pattern'
 
 import {
   EnergyStoreProvider,
@@ -197,29 +198,31 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // Energy-depleted（energy store 側の consume-listener が EN 消費後に発行）を
   // 購読し、EN 切れ演出（energyOut）を発火する
   useEnergyEventListener('Energy-depleted', (event) => {
-    if (
-      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
-      outOfEnergyRef.current
-    ) {
-      return
-    }
+    if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID)) return
 
-    outOfEnergyRef.current = true
-    void energyOut()
+    // 既に切れ状態なら無視（二重発火防止）。false のときだけトグル発火する
+    match(outOfEnergyRef.current)
+      .with(false, () => {
+        outOfEnergyRef.current = true
+        void energyOut()
+      })
+      .with(true, () => {})
+      .exhaustive()
   })
 
   // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
   // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
   useEnergyEventListener('Energy-recovered', (event) => {
-    if (
-      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
-      !outOfEnergyRef.current
-    ) {
-      return
-    }
+    if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID)) return
 
-    outOfEnergyRef.current = false
-    void energyOut()
+    // 切れ状態でなければ無視。true のときだけ復帰トグルを発火する
+    match(outOfEnergyRef.current)
+      .with(true, () => {
+        outOfEnergyRef.current = false
+        void energyOut()
+      })
+      .with(false, () => {})
+      .exhaustive()
   })
 
   const handleCellChange = (cell: HexCell) => {
