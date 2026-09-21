@@ -1,12 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import {
   EnergyStoreProvider,
   useEnergyStore,
   useEnergyStoreApi,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import {
+  energyOutAction,
+  useBoxBotActionDispatcher,
+} from '@/components/theater/figure/box-bot'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-07/_contexts/actor-node-registry'
@@ -107,6 +111,12 @@ type EnterGuard = {
  * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費する。予定経路・tick
  *   駆動の「実行」は proto-01 と異なり導入しない（1 マスごとの隣接クリック移動の
  *   まま）ため、`canEnterCell` へ残量判定を加え移動成立時に直接消費する
+ * - EN 切れ演出（予防姿勢、issue #181、proto-01 の `energyOutAction` 相当）:
+ *   `Stage07` が `actorEventTarget` prop 経由で bot と共有する EventTarget を公開
+ *   するようにし（stage-06 と同じ方式）、page 側で `useBoxBotActionDispatcher`
+ *   から `energyOut` dispatcher を得る。トグル方式の action のため、
+ *   `handleCellChange` で消費/回復後の最終残量と `outOfEnergyRef` の状態が
+ *   食い違った時点でのみ dispatch する
  * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
  *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
  *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
@@ -160,6 +170,19 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
   const itemStoreApi = useItemStoreApi()
 
+  const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
+  const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
+    energyOutAction,
+  ])
+  /**
+   * EN 切れ演出(予防姿勢)が発火中か(トグル方式のため呼び出し側で追跡する)
+   *
+   * - proto-01 の `outOfEnergyRef` と同じ役割。proto-03 は tick 駆動を持たないため
+   *   `handleCellChange` の消費/回復いずれも即時反映、最終的な残量とこの ref の
+   *   状態が食い違った時点で `energyOut()` を dispatch しトグルを合わせる
+   */
+  const outOfEnergyRef = useRef(false)
+
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
     markVisited(cell)
@@ -172,6 +195,14 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     }
 
     energyStoreApi.getState().consume(PLAYER_ACTOR_ID, 1)
+
+    const outOfEnergy =
+      energyStoreApi.getState().getEnergyInfo(PLAYER_ACTOR_ID).current <= 0
+
+    if (outOfEnergy !== outOfEnergyRef.current) {
+      outOfEnergyRef.current = outOfEnergy
+      void energyOut()
+    }
 
     if (isSameCell(cell, GOAL_POSITION)) {
       setGoalReached(true)
@@ -211,6 +242,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
         }}
       >
         <Stage07
+          actorEventTarget={actorEventTarget}
           botSize={56}
           canEnterCell={canEnterCell}
           cols={GRID.cols}

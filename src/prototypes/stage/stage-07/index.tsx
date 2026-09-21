@@ -30,6 +30,14 @@ import {
 } from './_lib/hex'
 
 type Stage07Props = PropsWithChildren<{
+  /**
+   * player bot と共有する EventTarget（省略可）
+   *
+   * - 省略時は box-bot-01 が instance 固有のものを内部生成する
+   * - EN 切れ演出(`energyOutAction`、issue #181)等、呼び出し元から直接 dispatch
+   *   したい action がある場合に渡す（stage-06 と同じ方式）
+   */
+  actorEventTarget?: EventTarget
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
   /**
@@ -131,6 +139,7 @@ const INITIAL_FACING_MAX_RETRY_FRAMES = 30
 
 export const Stage07 = (props: Stage07Props) => {
   const {
+    actorEventTarget,
     botSize,
     canEnterCell,
     children,
@@ -160,8 +169,13 @@ export const Stage07 = (props: Stage07Props) => {
    *
    * - lazy initializer で 1 度だけ生成する（`BoxBotEventProvider` と同じ手法）。
    *   `face` action(進行方向転換)を外部から発火するために `ActorsLayer` へ渡す
+   * - `actorEventTarget` prop が渡された場合はそれを使う。呼び出し元(find-path
+   *   proto-03 等)が `energyOutAction`(issue #181)のような、`Stage07` 自身が
+   *   知らない action を同じ bot へ直接 dispatch できるようにするため
    */
-  const [eventTarget] = useState<EventTarget>(() => new EventTarget())
+  const [eventTarget] = useState<EventTarget>(
+    () => actorEventTarget ?? new EventTarget(),
+  )
   const { face, walking, walkingReset } = useBoxBotActionDispatcher(
     eventTarget,
     [faceAction, walkingAction, walkingResetAction],

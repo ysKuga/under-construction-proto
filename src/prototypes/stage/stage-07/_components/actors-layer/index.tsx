@@ -2,6 +2,7 @@ import { CSSProperties, TransitionEvent } from 'react'
 
 import {
   BoxBot01,
+  energyOutAction,
   faceAction,
   walkingAction,
   walkingResetAction,
@@ -64,8 +65,8 @@ type ActorsLayerProps = {
  *   常に一定以上の頻度で動きが見えるようにする
  * - visibility registry・複数 actor・ref registry 化は対象外（試作スコープ、issue #162）
  */
-/** face / walking / walkingReset を有効化する(jump/spin 等は無効のまま) */
-const ACTIONS = [faceAction, walkingAction, walkingResetAction]
+/** face / walking / walkingReset / energyOut を有効化する(jump/spin 等は無効のまま) */
+const ACTIONS = [faceAction, walkingAction, walkingResetAction, energyOutAction]
 
 /**
  * 腕振り角の振幅(rad)。前後 90 度ずつ(合計可動域 180 度)に固定する
