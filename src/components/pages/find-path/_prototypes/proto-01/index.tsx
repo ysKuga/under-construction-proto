@@ -50,6 +50,11 @@ const INITIAL_FACING_SCREEN_ANGLE = Math.PI / 4
  * - ゴール到達判定は `useFindPathTick`（`ActionBar` 経由で使用）が tick 消化のたびに行う
  * - `PlannedPathCellRegistryProvider` は `PlannedPathLayer`（セル DOM 登録）と
  *   `useFindPathTick`（到達セルフェードアウト）双方から読めるよう `Stage06` の外側に置く
+ * - リセット（境界値テスト用、issue #181）: `resetKey` を `FindPathStoresProvider`
+ *   以下（position/tick 駆動含む）へ `key` として渡し、値更新で Provider 群ごと
+ *   丸ごと再マウントする。store 個別の `reset()` 呼び出しを積み上げる方式だと
+ *   store 追加のたび呼び忘れが起きうるため（time-control-03 の `resetAll` とは
+ *   異なる実現方式、`ActionBar`「リセット」ボタン相当）
  * - route (`/find-path`) / page 実装は未着手。確認は Storybook で行う
  */
 type FindPathProto01Props = {
@@ -66,12 +71,15 @@ type FindPathProto01Props = {
 const FindPathProto01 = (props: FindPathProto01Props) => {
   const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
 
+  const [resetKey, setResetKey] = useState(0)
+
   return (
-    <FindPathStoresProvider>
+    <FindPathStoresProvider key={resetKey}>
       <FindPathEventProvider>
         <ActorNodeRegistryProvider gridSize={GRID}>
           <PlannedPathCellRegistryProvider variant={plannedPathVariant}>
             <FindPathContent
+              onReset={() => setResetKey((key) => key + 1)}
               plannedPathAllowDuplicateSelection={
                 plannedPathAllowDuplicateSelection
               }
@@ -82,6 +90,11 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
       </FindPathEventProvider>
     </FindPathStoresProvider>
   )
+}
+
+type FindPathContentProps = FindPathProto01Props & {
+  /** 「リセット」。`FindPathProto01` から受け取り `ActionBar` へ配布する */
+  onReset: () => void
 }
 
 /**
@@ -105,8 +118,9 @@ const FindPathProto01 = (props: FindPathProto01Props) => {
  * - 初期表示時は `useInitialFacing` に `INITIAL_FACING_SCREEN_ANGLE`(右下)を
  *   明示指定し、その向きへ固定する（自動算出だと右向きになり顔が見えないため）
  */
-const FindPathContent = (props: FindPathProto01Props) => {
-  const { plannedPathAllowDuplicateSelection, plannedPathVariant } = props
+const FindPathContent = (props: FindPathContentProps) => {
+  const { onReset, plannedPathAllowDuplicateSelection, plannedPathVariant } =
+    props
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
   const { energyOut, face, walking, walkingReset } = useBoxBotActionDispatcher(
@@ -157,7 +171,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
           variant={plannedPathVariant}
         />
       </Stage06>
-      <ActionBar execute={execute} />
+      <ActionBar execute={execute} onReset={onReset} />
       <EnergyDebugPanel />
     </div>
   )
