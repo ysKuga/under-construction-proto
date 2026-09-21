@@ -130,8 +130,11 @@ type UseFindPathTickReturn = {
  *   引き続き `energy.getState().getEnergyInfo(...)` を直接読む
  * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は
  *   上記 `Energy-depleted` 購読でトグル発火(直立 → 予防姿勢)し、以後の回復発生時
- *   （回復スポット到達 or 携行アイテム使用のいずれか）に再度トグル発火して復帰させる
- *   （`outOfEnergyRef` で発火中かを追跡、回復側の呼出し経路は今回のリファクタ対象外）。
+ *   （回復スポット到達 or 携行アイテム使用 or `EnergyDebugPanel` の `+1`）に
+ *   再度トグル発火して復帰させる。回復スポット/携行アイテムは直接 `recover` 呼出し
+ *   後に呼び出し元で `outOfEnergyRef` を直接判定（回復側の呼出し経路自体は今回の
+ *   リファクタ対象外）、`+1` は `Energy-recover` イベント経由のため recover-listener
+ *   が発行する `Energy-recovered` を別途購読して同じ判定を行う。
  *   EN 切れ時の発火は `walkingReset` 実行後 `ENERGY_OUT_DELAY_MS` だけ遅らせる
  *   （演出上のタメ。脚は `walkingReset` で既にスナップ済みのため、遅延中に振れた
  *   まま残る心配はない）
@@ -215,10 +218,31 @@ export const useFindPathTick = (
   // applyNextStep 側）より後に実行されても、setTimeout はマクロタスクのため
   // 演出タイミングは変わらない
   useEnergyEventListener('Energy-depleted', (event) => {
-    if (event.detail.actorId !== PLAYER_ACTOR_ID || !energyOut) return
+    if (
+      event.detail.actorId !== PLAYER_ACTOR_ID ||
+      !energyOut ||
+      outOfEnergyRef.current
+    ) {
+      return
+    }
 
     outOfEnergyRef.current = true
     setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
+  })
+
+  // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
+  // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
+  useEnergyEventListener('Energy-recovered', (event) => {
+    if (
+      event.detail.actorId !== PLAYER_ACTOR_ID ||
+      !energyOut ||
+      !outOfEnergyRef.current
+    ) {
+      return
+    }
+
+    outOfEnergyRef.current = false
+    void energyOut()
   })
 
   /** path の次の 1 歩を消化する */

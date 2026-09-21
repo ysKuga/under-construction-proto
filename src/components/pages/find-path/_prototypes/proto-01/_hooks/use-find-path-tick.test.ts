@@ -368,7 +368,7 @@ test('通常の回復（EN 切れを経ていない）では energyOut は発火
   expect(energyOut).not.toHaveBeenCalled()
 })
 
-test('EN 切れ後、回復アイテムへ到達すると energyOut が再度発火する（復帰）', () => {
+test('EN 切れ後、携行アイテムを使用すると energyOut が再度発火する（復帰）', () => {
   const energyOut = vi.fn<() => Promise<void>>(() => Promise.resolve())
   const { result } = renderTick(energyOut)
   const item = RECOVERY_ITEM_CELLS[0]
@@ -384,10 +384,14 @@ test('EN 切れ後、回復アイテムへ到達すると energyOut が再度発
   act(() => vi.advanceTimersByTime(TICK_MS))
   expect(energyOut).toHaveBeenCalledTimes(1)
 
-  // 停止後、別経路で回復アイテムのマスへ向けて再度「実行」する
+  // 停止後、別経路で回復アイテムのマスへ向けて再度「実行」し携行する
+  // （回復アイテムは即時回復せず携行のみのため、この時点ではまだ復帰しない）
   seedPlanned(result, [item])
   act(() => result.current.tick.execute())
   act(() => vi.advanceTimersByTime(TICK_MS))
+  expect(energyOut).toHaveBeenCalledTimes(1)
 
+  // useCarriedItem で使用して初めて EN が回復し、復帰する
+  act(() => result.current.tick.useCarriedItem())
   expect(energyOut).toHaveBeenCalledTimes(2)
 })
