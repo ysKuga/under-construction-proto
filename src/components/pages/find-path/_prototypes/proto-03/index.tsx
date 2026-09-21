@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 
 import {
   EnergyStoreProvider,
+  isEnergyEventForActor,
   useEnergyEventDispatcher,
   useEnergyEventListener,
   useEnergyStore,
@@ -196,7 +197,10 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // Energy-depleted（energy store 側の consume-listener が EN 消費後に発行）を
   // 購読し、EN 切れ演出（energyOut）を発火する
   useEnergyEventListener('Energy-depleted', (event) => {
-    if (event.detail.actorId !== PLAYER_ACTOR_ID || outOfEnergyRef.current) {
+    if (
+      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
+      outOfEnergyRef.current
+    ) {
       return
     }
 
@@ -207,7 +211,10 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
   // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
   useEnergyEventListener('Energy-recovered', (event) => {
-    if (event.detail.actorId !== PLAYER_ACTOR_ID || !outOfEnergyRef.current) {
+    if (
+      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
+      !outOfEnergyRef.current
+    ) {
       return
     }
 

@@ -11,6 +11,7 @@ import {
 } from 'rxjs'
 
 import {
+  isEnergyEventForActor,
   useEnergyEventDispatcher,
   useEnergyEventListener,
   useEnergyStoreApi,
@@ -219,7 +220,7 @@ export const useFindPathTick = (
   // 演出タイミングは変わらない
   useEnergyEventListener('Energy-depleted', (event) => {
     if (
-      event.detail.actorId !== PLAYER_ACTOR_ID ||
+      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
       !energyOut ||
       outOfEnergyRef.current
     ) {
@@ -234,7 +235,7 @@ export const useFindPathTick = (
   // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
   useEnergyEventListener('Energy-recovered', (event) => {
     if (
-      event.detail.actorId !== PLAYER_ACTOR_ID ||
+      !isEnergyEventForActor(event, PLAYER_ACTOR_ID) ||
       !energyOut ||
       !outOfEnergyRef.current
     ) {
