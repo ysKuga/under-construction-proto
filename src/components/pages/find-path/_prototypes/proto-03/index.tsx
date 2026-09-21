@@ -117,14 +117,21 @@ type EnterGuard = {
  *   `ItemStore` を axial 座標へ移植した固有実装（`_stores/items`）。proto-03 は
  *   予定経路・tick 駆動を持たないため即時使用のまま（携行可能化は対象外、別途検討）。
  *   `handleCellChange` で移動先セルのアイテムを消費し即時回復する
+ * - リセット（境界値テスト用、issue #181）: `resetKey` を `EnergyStoreProvider`
+ *   以下（position 含む）へ `key` として渡し、値更新で Provider 群ごと丸ごと
+ *   再マウントする（proto-01 と同じ方式）
  */
 const FindPathProto03 = () => {
+  const [resetKey, setResetKey] = useState(0)
+
   return (
-    <EnergyStoreProvider>
+    <EnergyStoreProvider key={resetKey}>
       <ItemStoreProvider initialItems={INITIAL_ITEMS}>
         <ActorNodeRegistryProvider initialCell={START_POSITION}>
           <VisibilityRegistryProvider>
-            <FindPathProto03Content />
+            <FindPathProto03Content
+              onReset={() => setResetKey((key) => key + 1)}
+            />
           </VisibilityRegistryProvider>
         </ActorNodeRegistryProvider>
       </ItemStoreProvider>
@@ -132,8 +139,14 @@ const FindPathProto03 = () => {
   )
 }
 
+type FindPathProto03ContentProps = {
+  /** 「リセット」。全 store（position/items 等）を初期状態に戻す */
+  onReset: () => void
+}
+
 /** `useVisibilityRegistry` を Provider の内側で呼び、UI へ配布する */
-const FindPathProto03Content = () => {
+const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
+  const { onReset } = props
   const [currentCell, setCurrentCell] = useState<HexCell>(START_POSITION)
   const [displayMode, setDisplayMode] =
     useState<MoveTargetDisplayMode>('scatter')
@@ -285,6 +298,9 @@ const FindPathProto03Content = () => {
         <span>
           EN: {energyInfo.current}/{energyInfo.max}
         </span>
+        <button onClick={onReset} type="button">
+          リセット
+        </button>
         <span hidden={!goalReached}>🎉 ゴール到達</span>
       </div>
       <EnergyDebugPanel />
