@@ -1,20 +1,22 @@
 'use client'
 
 import { PropsWithChildren, useState } from 'react'
-import { StoreApi } from 'zustand/vanilla'
 
-import { createStoreContext } from '@/stores/utils/create-store-context'
-
+import { EnergyStoreContext } from './_contexts/store-context'
+import { EnergyEventListeners } from './_events/_event-listeners'
+import { EnergyEventProvider } from './_events/index.contexts'
 import { createEnergyStore } from './store'
-import { EnergyState } from './types'
 
-const { StoreContext, useStoreApi, useStoreSelector } =
-  createStoreContext<EnergyState>('Energy')
+export { useEnergyStore, useEnergyStoreApi } from './_contexts/store-context'
+export { EnergyStoreContext } from './_contexts/store-context'
 
-/** Energy store 用 Context */
-export const EnergyStoreContext = StoreContext
-
-/** Energy store を生成し Context 経由で配布する */
+/**
+ * Energy store を生成し Context 経由で配布する
+ *
+ * - EN 消費・EN 切れ検知（issue #181）の event 機構（`EnergyEventProvider`/\
+ *   `EnergyEventListeners`）を内側にまとめて配線する。利用側（各 proto の\
+ *   `index.tsx`）は `EnergyStoreProvider` を置くだけでよい
+ */
 export const EnergyStoreProvider = (props: PropsWithChildren) => {
   const { children } = props
 
@@ -22,19 +24,10 @@ export const EnergyStoreProvider = (props: PropsWithChildren) => {
 
   return (
     <EnergyStoreContext.Provider value={energyStore}>
-      {children}
+      <EnergyEventProvider>
+        <EnergyEventListeners />
+        {children}
+      </EnergyEventProvider>
     </EnergyStoreContext.Provider>
   )
 }
-
-/** Energy store を selector 購読する */
-export const useEnergyStore = <T,>(
-  ...args: Parameters<typeof useStoreSelector<T>>
-): T => useStoreSelector(...args)
-
-/**
- * 生の store を返す
- *
- * - tick ドライバ等、selector を経由せず `getState()` / `consume()` を直接叩く用途向け
- */
-export const useEnergyStoreApi = (): StoreApi<EnergyState> => useStoreApi()
