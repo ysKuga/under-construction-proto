@@ -10,8 +10,8 @@ import { useEnergyStore, useEnergyStoreApi } from '../../_stores/energy'
  *
  * - 境界値テスト用（issue-181-en backlog）。EN 残量を 1 ずつ増減し、\
  *   EN 切れ等の任意の残量を作れる
- * - 「リセット」で EN store を初期状態に戻す（各 proto の `EnergyStoreProvider`\
- *   スコープ内のみ、proto-01/03 で個別に効く）
+ * - リセットは対象外。ゲーム全体のリセットボタン（別途用意予定）が担う範囲で、\
+ *   EN store 単体のリセットは想定しない
  * - proto-01/03 共通。単一の親に属さないため `_prototypes/_components/` へ配置
  */
 export const EnergyDebugPanel = () => {
@@ -38,13 +38,6 @@ export const EnergyDebugPanel = () => {
         variant="outline"
       >
         +1
-      </Button>
-      <Button
-        onClick={() => energyStoreApi.getState().reset()}
-        type="button"
-        variant="destructive"
-      >
-        リセット
       </Button>
     </div>
   )
