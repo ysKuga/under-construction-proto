@@ -223,13 +223,10 @@ export const useFindPathTick = (
     if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID) || !energyOut) return
 
     // 既に切れ状態なら無視（二重発火防止）。false のときだけトグル発火する
-    match(outOfEnergyRef.current)
-      .with(false, () => {
-        outOfEnergyRef.current = true
-        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
-      })
-      .with(true, () => {})
-      .exhaustive()
+    match(outOfEnergyRef.current).with(false, () => {
+      outOfEnergyRef.current = true
+      setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
+    })
   })
 
   // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
@@ -238,13 +235,10 @@ export const useFindPathTick = (
     if (!isEnergyEventForActor(event, PLAYER_ACTOR_ID) || !energyOut) return
 
     // 切れ状態でなければ無視。true のときだけ復帰トグルを発火する
-    match(outOfEnergyRef.current)
-      .with(true, () => {
-        outOfEnergyRef.current = false
-        void energyOut()
-      })
-      .with(false, () => {})
-      .exhaustive()
+    match(outOfEnergyRef.current).with(true, () => {
+      outOfEnergyRef.current = false
+      void energyOut()
+    })
   })
 
   /** path の次の 1 歩を消化する */
