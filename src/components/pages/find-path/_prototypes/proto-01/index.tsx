@@ -13,6 +13,8 @@ import { Stage06 } from '@/prototypes/stage/stage-06'
 import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
 import { useInitialFacing } from '@/prototypes/stage/stage-06/_hooks/use-initial-facing'
 
+import { EnergyDebugPanel } from '../_components/energy-debug-panel'
+
 import { ActionBar } from './_components/action-bar'
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import { ItemLayer } from './_components/item-layer'
@@ -156,6 +158,7 @@ const FindPathContent = (props: FindPathProto01Props) => {
         />
       </Stage06>
       <ActionBar execute={execute} />
+      <EnergyDebugPanel />
     </div>
   )
 }
