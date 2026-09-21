@@ -12,7 +12,6 @@ import {
 import { match, P } from 'ts-pattern'
 
 import {
-  isEnergyEventForActor,
   useEnergyEventDispatcher,
   useEnergyEventListener,
   useEnergyStoreApi,
@@ -221,12 +220,12 @@ export const useFindPathTick = (
   // 演出タイミングは変わらない
   useEnergyEventListener('Energy-depleted', (event) => {
     // 自分の actor 宛て・energyOut dispatcher あり・まだ切れていない場合のみ発火する
-    match({
-      energyOut,
-      isOwnActor: isEnergyEventForActor(event, PLAYER_ACTOR_ID),
-      outOfEnergy: outOfEnergyRef.current,
-    }).with(
-      { energyOut: P.nonNullable, isOwnActor: true, outOfEnergy: false },
+    match({ energyOut, event, outOfEnergyRef }).with(
+      {
+        energyOut: P.nonNullable,
+        event: { detail: { actorId: PLAYER_ACTOR_ID } },
+        outOfEnergyRef: { current: false },
+      },
       ({ energyOut }) => {
         outOfEnergyRef.current = true
         setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
@@ -238,12 +237,12 @@ export const useFindPathTick = (
   // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
   useEnergyEventListener('Energy-recovered', (event) => {
     // 自分の actor 宛て・energyOut dispatcher あり・切れ状態の場合のみ復帰させる
-    match({
-      energyOut,
-      isOwnActor: isEnergyEventForActor(event, PLAYER_ACTOR_ID),
-      outOfEnergy: outOfEnergyRef.current,
-    }).with(
-      { energyOut: P.nonNullable, isOwnActor: true, outOfEnergy: true },
+    match({ energyOut, event, outOfEnergyRef }).with(
+      {
+        energyOut: P.nonNullable,
+        event: { detail: { actorId: PLAYER_ACTOR_ID } },
+        outOfEnergyRef: { current: true },
+      },
       ({ energyOut }) => {
         outOfEnergyRef.current = false
         void energyOut()
