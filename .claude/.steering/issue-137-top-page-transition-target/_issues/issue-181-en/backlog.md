@@ -10,3 +10,5 @@
   - (design.md 懸念・リスク)
 - [ ] actor（box-bot）へ EN 回復ロジックを実装（proto-01、回復アイテム/回復スポット、別 PR）
   - (decision-records.md 2026-09-16)
+- [ ] proto-03 へ EN 切れ時の action（見た目演出）を実装
+  - proto-01 の `energyOutAction` 相当。proto-03 は EN 消費配線のみ済み、演出は未着手
