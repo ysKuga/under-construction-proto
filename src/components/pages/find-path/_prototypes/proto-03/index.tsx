@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   EnergyStoreProvider,
@@ -185,6 +185,20 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // ため、呼び出し側で ref を直接操作する必要はない
   useOutOfEnergyRef({ actorId: PLAYER_ACTOR_ID, energyOut })
 
+  /** `GoalMarkerLayer`/`ObstacleLayer`/`OneWayLayer`/`ItemLayer` の DOM をvisibility registry へ登録する（`kind: 'marker'` 固定） */
+  const registerMarkerVisibilityNode = useCallback(
+    (cell: HexCell, el: HTMLElement | null) =>
+      registerVisibilityNode(cell, 'marker', el),
+    [registerVisibilityNode],
+  )
+
+  /** `Stage07`（hex タイル）の DOM を visibility registry へ登録する（`kind: 'floor'` 固定） */
+  const registerFloorVisibilityNode = useCallback(
+    (cell: HexCell, el: HTMLElement | null) =>
+      registerVisibilityNode(cell, 'floor', el),
+    [registerVisibilityNode],
+  )
+
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
     markVisited(cell)
@@ -213,25 +227,46 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     }
   }
 
-  /** 進入拒否条件一覧（`EnterGuard`） */
-  const enterGuards: EnterGuard[] = [
-    { check: () => energyInfo.current > 0, kind: 'perceived' },
-    { check: (cell) => !isObstacleCell(cell), kind: 'perceived' },
-    {
-      check: (cell) => !isBlockedByOneWay(currentCell, cell),
-      kind: 'perceived',
-    },
-  ]
+  /**
+   * 進入拒否条件一覧（`EnterGuard`。EN 残量チェックは含まない）
+   *
+   * - EN 残量チェックは `MoveTargetLayer` 自身が EN store を直接購読して適用する
+   *   ため、ここでは対象外（issue-181-en backlog: `EnergyDebugPanel` 操作で
+   *   `Stage07` 配下ツリー全体が再レンダリングされる問題の解消）
+   */
+  const enterGuards: EnterGuard[] = useMemo(
+    () => [
+      { check: (cell) => !isObstacleCell(cell), kind: 'perceived' },
+      {
+        check: (cell) => !isBlockedByOneWay(currentCell, cell),
+        kind: 'perceived',
+      },
+    ],
+    [currentCell],
+  )
 
-  /** 移動可能マスガイド等、表示に使う進入可否（`perceived` ガードのみ） */
-  const canEnterCellPerceived = (cell: HexCell) =>
-    enterGuards
-      .filter((guard) => guard.kind === 'perceived')
-      .every((guard) => guard.check(cell))
+  /**
+   * `MoveTargetLayer` へ渡す進入可否（`perceived` ガードのみ、EN 残量チェックは除く）
+   *
+   * - EN 残量チェックを含めると EN 変化のたびこの関数が新しい参照になり、
+   *   `MoveTargetLayer` の `React.memo` が効かなくなる
+   */
+  const canEnterCellPerceived = useCallback(
+    (cell: HexCell) =>
+      enterGuards
+        .filter((guard) => guard.kind === 'perceived')
+        .every((guard) => guard.check(cell)),
+    [enterGuards],
+  )
 
-  /** 実際の移動判定に使う進入可否（全ガード） */
-  const canEnterCell = (cell: HexCell) =>
-    enterGuards.every((guard) => guard.check(cell))
+  /** EN 残量。`energyInfo.current` を直接 `useCallback` の依存配列に入れると意図せず不安定化するため、プリミティブ値へ切り出す */
+  const energyCurrent = energyInfo.current
+
+  /** `Stage07` へ渡す進入可否（実際の移動判定・選択可能表示用。EN 残量チェック込みの全ガード） */
+  const canEnterCell = useCallback(
+    (cell: HexCell) => canEnterCellPerceived(cell) && energyCurrent > 0,
+    [canEnterCellPerceived, energyCurrent],
+  )
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -254,41 +289,31 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           hexSize={HEX_SIZE}
           initialTiltDeg={55}
           onCellChange={handleCellChange}
-          registerCellVisibilityNode={(cell, el) =>
-            registerVisibilityNode(cell, 'floor', el)
-          }
+          registerCellVisibilityNode={registerFloorVisibilityNode}
           rows={GRID.rows}
         >
           <GoalMarkerLayer
             cols={GRID.cols}
             hexSize={HEX_SIZE}
-            registerVisibilityNode={(cell, el) =>
-              registerVisibilityNode(cell, 'marker', el)
-            }
+            registerVisibilityNode={registerMarkerVisibilityNode}
             rows={GRID.rows}
           />
           <ObstacleLayer
             cols={GRID.cols}
             hexSize={HEX_SIZE}
-            registerVisibilityNode={(cell, el) =>
-              registerVisibilityNode(cell, 'marker', el)
-            }
+            registerVisibilityNode={registerMarkerVisibilityNode}
             rows={GRID.rows}
           />
           <OneWayLayer
             cols={GRID.cols}
             hexSize={HEX_SIZE}
-            registerVisibilityNode={(cell, el) =>
-              registerVisibilityNode(cell, 'marker', el)
-            }
+            registerVisibilityNode={registerMarkerVisibilityNode}
             rows={GRID.rows}
           />
           <ItemLayer
             cols={GRID.cols}
             hexSize={HEX_SIZE}
-            registerVisibilityNode={(cell, el) =>
-              registerVisibilityNode(cell, 'marker', el)
-            }
+            registerVisibilityNode={registerMarkerVisibilityNode}
             rows={GRID.rows}
           />
           <MoveTargetLayer

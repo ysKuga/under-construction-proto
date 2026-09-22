@@ -55,11 +55,13 @@ export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
+  /** `energyInfo.current` を直接 `useCallback` の依存配列に入れると意図せず不安定化するため、プリミティブ値へ切り出す */
+  const energyCurrent = energyInfo.current
 
   /** `canEnterCell`（EN を除く、props 由来）に EN 残量チェックを合成する */
   const canEnterCellWithEnergy = useCallback(
-    (cell: HexCell) => (canEnterCell?.(cell) ?? true) && energyInfo.current > 0,
-    [canEnterCell, energyInfo],
+    (cell: HexCell) => (canEnterCell?.(cell) ?? true) && energyCurrent > 0,
+    [canEnterCell, energyCurrent],
   )
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
