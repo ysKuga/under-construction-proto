@@ -6,7 +6,6 @@ import {
   EnergyStoreProvider,
   useEnergyEventDispatcher,
   useEnergyStore,
-  useEnergyStoreApi,
   useOutOfEnergyRef,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import {
@@ -110,19 +109,19 @@ type EnterGuard = {
  * - `ActorNodeRegistryProvider`（hex 版）は actor の現在セルを保持する Provider。
  *   `Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の追加に備え、外部から
  *   クリックを介さず actor を動かせるようにするため）
- * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費する。予定経路・tick
- *   駆動の「実行」は proto-01 と異なり導入しない（1 マスごとの隣接クリック移動の
- *   まま）ため、`canEnterCell` へ残量判定を加え、移動成立時に `Energy-consume`
- *   イベントを dispatch する（実消費・0 以下の判定・`Energy-depleted` 発行は
- *   energy store 側の consume-listener が担う。proto-01 の `use-find-path-tick`
+ * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費、アイテム回復量ぶん
+ *   回復する。予定経路・tick 駆動の「実行」は proto-01 と異なり導入しない（1 マス
+ *   ごとの隣接クリック移動のまま）ため、`canEnterCell` へ残量判定を加え、移動成立時
+ *   に `Energy-consume`/`Energy-recover` イベントを dispatch する（実消費・実回復・
+ *   0 以下/より大きくなった判定・`Energy-depleted`/`Energy-recovered` 発行は energy
+ *   store 側の consume/recover-listener が担う。proto-01 の `use-find-path-tick`
  *   と同じ経路）
  * - EN 切れ演出（予防姿勢、issue #181、proto-01 の `energyOutAction` 相当）:
  *   `Stage07` が `actorEventTarget` prop 経由で bot と共有する EventTarget を公開
  *   するようにし（stage-06 と同じ方式）、page 側で `useBoxBotActionDispatcher`
- *   から `energyOut` dispatcher を得る。`Energy-depleted`/`Energy-recovered`
- *   購読によるトグル発火・復帰は `useOutOfEnergyRef`（`_stores/energy`、proto-01と
- *   共通化）が担う。回復アイテムによる復帰（`handleCellChange` の即時回復、今回の
- *   リファクタ対象外）のみ呼び出し側で `outOfEnergyRef` を直接判定する
+ *   から `energyOut` dispatcher を得る。トグル発火・復帰は `useOutOfEnergyRef`
+ *   （`_stores/energy`、proto-01 と共通化）が `Energy-depleted`/`Energy-recovered`
+ *   購読で完結して担うため、呼び出し側で ref を直接操作する必要はない
  * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
  *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
  *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
@@ -170,7 +169,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const [goalReached, setGoalReached] = useState(false)
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
-  const energyStoreApi = useEnergyStoreApi()
   const energyDispatch = useEnergyEventDispatcher()
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
@@ -181,19 +179,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
     energyOutAction,
   ])
-  /**
-   * EN 切れ演出(予防姿勢)の発火中フラグ
-   *
-   * - `Energy-depleted`/`Energy-recovered` 購読による発火・復帰は `useOutOfEnergyRef`
-   *   （`_stores/energy`、proto-01 と共通化。issue-181-en）側で完結する
-   * - 回復アイテムによる復帰（`handleCellChange` の即時回復）は energy store 側
-   *   イベントを経由しないため、この ref を直接操作する（proto-01 と同じ分担、
-   *   今回のリファクタ対象外）
-   */
-  const outOfEnergyRef = useOutOfEnergyRef({
-    actorId: PLAYER_ACTOR_ID,
-    energyOut,
-  })
+  // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyRef`（`_stores/energy`、
+  // proto-01 と共通化。issue-181-en）が Energy-depleted/Energy-recovered 購読で
+  // 担う。消費・回復とも Energy-consume/Energy-recover イベント経由に統一した
+  // ため、呼び出し側で ref を直接操作する必要はない
+  useOutOfEnergyRef({ actorId: PLAYER_ACTOR_ID, energyOut })
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
@@ -202,18 +192,17 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     const item = itemStoreApi.getState().getItemAtCell(cell)
     const consumed = item && itemStoreApi.getState().consumeItem(item.id)
 
+    // 消費・回復とも energy store 側の consume/recover-listener が実処理・閾値判定・
+    // Energy-depleted/Energy-recovered 発行を担う（proto-01 の `use-find-path-tick`
+    // と同じ経路）。EN 切れ演出の発火・復帰は `useOutOfEnergyRef` 側が担うため、
+    // ここでは dispatch するだけでよい
     if (consumed) {
-      energyStoreApi.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
-
-      if (outOfEnergyRef.current) {
-        outOfEnergyRef.current = false
-        void energyOut()
-      }
+      void energyDispatch['Energy-recover']({
+        actorId: PLAYER_ACTOR_ID,
+        amount: consumed.amount,
+      })
     }
 
-    // 消費自体は Energy-consume イベント経由（energy store 側の consume-listener が
-    // 実処理・閾値判定・Energy-depleted 発行を担う。proto-01 の `use-find-path-tick`
-    // と同じ経路）
     void energyDispatch['Energy-consume']({
       actorId: PLAYER_ACTOR_ID,
       amount: 1,
