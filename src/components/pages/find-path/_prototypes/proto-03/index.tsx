@@ -41,6 +41,7 @@ import { isBlockedByOneWay } from './_lib/one-way'
 import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import {
+  ENERGY_OUT_DELAY_MS,
   GOAL_POSITION,
   RECOVERY_ITEM_CELLS,
   RECOVERY_SPOT_CELLS,
@@ -195,7 +196,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const outOfEnergyRef = useRef(false)
 
   // Energy-depleted（energy store 側の consume-listener が EN 消費後に発行）を
-  // 購読し、EN 切れ演出（energyOut）を発火する
+  // 購読し、EN 切れ演出（energyOut）を発火する。ENERGY_OUT_DELAY_MS だけ遅らせる
+  // （演出上のタメ、proto-01 と同じ狙い）
   useEnergyEventListener('Energy-depleted', (event) => {
     // 自分の actor 宛て・まだ切れていない場合のみ発火する
     match({ event, outOfEnergyRef }).with(
@@ -205,7 +207,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       },
       () => {
         outOfEnergyRef.current = true
-        void energyOut()
+        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
       },
     )
   })

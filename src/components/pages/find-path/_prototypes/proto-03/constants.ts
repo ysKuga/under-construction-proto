@@ -1,5 +1,8 @@
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+/** EN 切れ演出（予防姿勢）発火までの遅延（ms、演出上のタメ。proto-01 と同じ値） */
+export const ENERGY_OUT_DELAY_MS = 300
+
 /** bot の初期セル（axial 原点） */
 export const START_POSITION: HexCell = { q: 0, r: 0 }
 
