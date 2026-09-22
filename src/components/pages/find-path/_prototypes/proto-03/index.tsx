@@ -14,9 +14,9 @@ import {
 } from '@/components/theater/figure/box-bot'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
-import { ActorNodeRegistryProvider } from '@/prototypes/stage/stage-07/_contexts/actor-node-registry'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { EnergyDebugPanel } from '../_components/energy-debug-panel'
 
@@ -106,9 +106,10 @@ type EnterGuard = {
  *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、
  *   1 マスごとの隣接クリック移動でも到着後に行進が続く不自然さが解消したため既定有効化。
  *   無効化との比較用にチェックボックスは残す
- * - `ActorNodeRegistryProvider`（hex 版）は actor の現在セルを保持する Provider。
- *   `Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の追加に備え、外部から
- *   クリックを介さず actor を動かせるようにするため）
+ * - `ActorsStoreProvider`（hex 版、zustand store）は actorId ごとの現在セルを
+ *   保持する Provider。`Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の
+ *   追加に備え、外部からクリックを介さず actor を動かせるようにするため）。
+ *   player・mob を区別せず一元管理する（issue #215）
  * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費、アイテム回復量ぶん
  *   回復する。予定経路・tick 駆動の「実行」は proto-01 と異なり導入しない（1 マス
  *   ごとの隣接クリック移動のまま）ため、`canEnterCell` へ残量判定を加え、移動成立時
@@ -143,13 +144,15 @@ const FindPathProto03 = () => {
   return (
     <EnergyStoreProvider key={resetKey}>
       <ItemStoreProvider initialItems={INITIAL_ITEMS}>
-        <ActorNodeRegistryProvider initialCell={START_POSITION}>
+        <ActorsStoreProvider
+          initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
+        >
           <VisibilityRegistryProvider>
             <FindPathProto03Content
               onReset={() => setResetKey((key) => key + 1)}
             />
           </VisibilityRegistryProvider>
-        </ActorNodeRegistryProvider>
+        </ActorsStoreProvider>
       </ItemStoreProvider>
     </EnergyStoreProvider>
   )

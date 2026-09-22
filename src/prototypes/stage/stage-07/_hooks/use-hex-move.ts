@@ -8,12 +8,12 @@ type UseHexMoveReturn = {
 /**
  * hex グリッド上の隣接クリック移動を管理する
  *
- * - 現在セルは `ActorNodeRegistryProvider` が保持する（`Stage07` の外側）。ここでは
- *   クリック検証（隣接判定・進入可否）と facing 算出のみ行い、実際の位置更新は
+ * - 現在セルは `ActorsStoreProvider`(zustand store)が保持する（`Stage07` の外側）。
+ *   ここではクリック検証（隣接判定・進入可否）と facing 算出のみ行い、実際の位置更新は
  *   引数の `moveActor` へ委ねる
  *
- * @param currentCell 現在地セル(`useActorNodeRegistry` から取得)
- * @param moveActor 検証を通過したセルへ actor を移動する(`useActorNodeRegistry` の同名 API)
+ * @param currentCell 現在地セル(`useActorsStore` の `actors[actorId]` から取得)
+ * @param moveActor 検証を通過したセルへ actor を移動する(呼び出し側で actorId を bind する)
  * @param onCellChange 現在地セル変更時（省略可）
  * @param onFacingChange 移動方向の画面角度(rad、atan2 基準)算出時（省略可）。box-bot-01 の
  *   yaw への変換・dispatch は呼び出し側(`Stage07`)が持つため、ここでは画面角度を渡すのみ

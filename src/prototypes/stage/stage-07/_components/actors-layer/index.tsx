@@ -8,14 +8,14 @@ import {
   walkingResetAction,
 } from '@/components/theater/figure/box-bot'
 
+import { PLAYER_ACTOR_ID } from '../../../stage-06/constants'
 import { HexCell } from '../../_lib/hex'
 import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
+import { useActorsStore } from '../../_stores/actors'
 
 type ActorsLayerProps = {
   /** 列数 */
   cols: number
-  /** 現在地セル */
-  currentCell: HexCell
   /**
    * player bot と共有する EventTarget
    *
@@ -32,12 +32,6 @@ type ActorsLayerProps = {
    * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
    */
   maxWalkCycleSec?: number
-  /**
-   * player とは別に静止表示する mob 一覧（省略時は表示なし）
-   *
-   * - 自己移動・walking/face 等の action は持たない、指定セルへの静的配置のみ(issue #215)
-   */
-  mobs?: { cell: HexCell; id: string }[]
   /** セル間移動アニメーションの所要時間(ms)（省略時は `150`） */
   moveDurationMs?: number
   /**
@@ -58,6 +52,12 @@ type ActorsLayerProps = {
 /**
  * hex グリッド上の actor (box-bot-01) 表示
  *
+ * - `useActorsStore`(zustand store)を直接 selector 購読し、`actors` map の変化(player
+ *   移動・mob の spawn/despawn)のたびこのコンポーネントのみ再レンダリングする。呼び出し元
+ *   (`Stage07`)を経由しないため、mob の動的追加/削除で `Stage07` 以下全体が再レンダリング
+ *   されることはない(issue #215)
+ * - `PLAYER_ACTOR_ID` のセルへ walking/face 対応の bot を、それ以外の actorId には
+ *   `actions=[]`・`interactive=false` の静的 bot を描画する
  * - 現在地セル中心へ絶対配置する。座標計算は `GeoLayer` と同じ `hexCellCenter`/
  *   `computeHexGridBounds` を共有し、セルの見た目位置とズレないようにする
  * - 床の rotateX を打ち消す逆 rotateX で、傾いた床の上でも直立させる（stage-06 の
@@ -70,9 +70,6 @@ type ActorsLayerProps = {
  *   ため振れているかどうか視認しづらくなる。歩幅は変えず、周期の伸びだけ頭打ちにして
  *   常に一定以上の頻度で動きが見えるようにする
  * - visibility registry・ref registry 化は対象外（試作スコープ、issue #162）
- * - `mobs` は player とは別の静的配置のみ（issue #215）。自己移動・EN 等の動的な
- *   挙動は持たない。座標計算は player と同じ `hexCellCenter`/`computeHexGridBounds`
- *   を共有し、`interactive={false}`・`actions={[]}` で対話/action 双方を無効化する
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
  *   安定化すること
@@ -99,20 +96,27 @@ const ARM_SWING_ANGLE = Math.PI / 2
  */
 const BASE_SPEED_APPROACH_RATE = 3
 
+/** store に `PLAYER_ACTOR_ID` が未設定(Provider 設定漏れ)なときのフォールバックセル */
+const DEFAULT_CELL: HexCell = { q: 0, r: 0 }
+
 export const ActorsLayer = memo((props: ActorsLayerProps) => {
   const {
     cols,
-    currentCell,
     eventTarget,
     hexSize,
     legSwingAngle,
     maxWalkCycleSec = 1.2,
-    mobs = [],
     moveDurationMs = 150,
     onArrived,
     rows,
     size,
   } = props
+
+  const actors = useActorsStore((state) => state.actors)
+  const currentCell = actors[PLAYER_ACTOR_ID] ?? DEFAULT_CELL
+  const mobs = Object.entries(actors).filter(
+    ([actorId]) => actorId !== PLAYER_ACTOR_ID,
+  )
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const center = hexCellCenter(currentCell, hexSize, bounds)
@@ -178,8 +182,8 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
           style={{ height: size, width: size }}
         />
       </div>
-      {mobs.map((mob) => (
-        <div key={mob.id} style={mobStyle(mob.cell)}>
+      {mobs.map(([actorId, cell]) => (
+        <div key={actorId} style={mobStyle(cell)}>
           <BoxBot01
             actions={[]}
             interactive={false}
