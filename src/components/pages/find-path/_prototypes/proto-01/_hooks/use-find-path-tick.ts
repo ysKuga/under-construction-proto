@@ -13,7 +13,7 @@ import {
 import {
   useEnergyEventDispatcher,
   useEnergyStoreApi,
-  useOutOfEnergyRef,
+  useRegisterEnergyOut,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { screenAngleToYaw } from '@/components/theater/figure/box-bot'
 import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
@@ -124,10 +124,11 @@ type UseFindPathTickReturn = {
  *   リファクタ）。tick 継続可否の判定自体は「読むだけ」のため対象外、引き続き
  *   `energy.getState().getEnergyInfo(...)` を直接読む
  * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は
- *   `useOutOfEnergyRef`（`_stores/energy`、proto-03 と共通化。issue-181-en）が
- *   `Energy-depleted`/`Energy-recovered` 購読でトグル発火(直立 ⇄ 予防姿勢)する。
- *   消費・回復ともイベント経由に統一したため、呼び出し元（`applyNextStep`/
- *   `useCarriedItem`）で ref を直接操作する必要はない
+ *   `useRegisterEnergyOut`（`_stores/energy`、proto-03 と共通化。issue-181-en）で
+ *   actorId キー付きレジストリへ登録するだけでよい。`Energy-depleted`/
+ *   `Energy-recovered` 購読でのトグル発火(直立 ⇄ 予防姿勢)は
+ *   `useOutOfEnergyEventListener`（scope 全体で 1 回だけ）が一元的に担うため、
+ *   呼び出し元（`applyNextStep`/`useCarriedItem`）で ref を直接操作する必要はない
  *
  * @param options walking/walkingReset/face/energyOut の dispatcher(いずれも省略可)
  */
@@ -152,10 +153,10 @@ export const useFindPathTick = (
   const subscriptionRef = useRef<null | Subscription>(null)
   /** 歩行 action の on/off 状態(トグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
-  // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyRef` が Energy-depleted/
-  // Energy-recovered 購読で担う。消費・回復とも Energy-consume/Energy-recover
-  // イベント経由に統一したため、呼び出し側で ref を直接操作する必要はない
-  useOutOfEnergyRef({ actorId: PLAYER_ACTOR_ID, energyOut })
+  // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyEventListener`（scope 全体で
+  // 1 回だけ）が Energy-depleted/Energy-recovered 購読で一元的に担う。ここでは
+  // 自分の energyOut dispatcher を actorId キーで登録するだけでよい
+  useRegisterEnergyOut({ actorId: PLAYER_ACTOR_ID, energyOut })
 
   /** 消化済み tick 数。`execute` 開始時に 0 へ戻す。+1 が消化したセルの `order` と一致する */
   const consumedCountRef = useRef(0)

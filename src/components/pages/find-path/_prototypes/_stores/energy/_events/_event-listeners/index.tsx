@@ -1,4 +1,5 @@
 import { useConsumeEnergyEventListener } from './use-consume-energy-event-listener'
+import { useOutOfEnergyEventListener } from './use-out-of-energy-event-listener'
 import { useRecoverEnergyEventListener } from './use-recover-energy-event-listener'
 
 /**
@@ -9,6 +10,7 @@ import { useRecoverEnergyEventListener } from './use-recover-energy-event-listen
 export const EnergyEventListeners = () => {
   useConsumeEnergyEventListener()
   useRecoverEnergyEventListener()
+  useOutOfEnergyEventListener()
 
   return null
 }
