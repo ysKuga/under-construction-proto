@@ -1,7 +1,9 @@
 'use client'
 
-import { CSSProperties } from 'react'
+import { CSSProperties, memo, useCallback } from 'react'
 
+import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HEX_INSET_RATIO } from '@/prototypes/stage/stage-07/_components/geo-layer'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
@@ -14,7 +16,13 @@ import { MoveTargetDisplayMode, useMoveTargetLayer } from './index.hooks'
 export type { MoveTargetDisplayMode }
 
 type MoveTargetLayerProps = {
-  /** 対象セルへ進入可能か（省略時は常に進入可能）。障害物セル等を除外する */
+  /**
+   * 対象セルへ進入可能か（省略時は常に進入可能）。障害物セル等を除外する
+   *
+   * - EN 残量チェックは含まない。EN 残量は `MoveTargetLayer` 自身が EN store を
+   *   直接購読して適用する（issue-181-en backlog: `EnergyDebugPanel` 操作で
+   *   `Stage07` 配下ツリー全体が再レンダリングされる問題の解消）
+   */
   canEnterCell?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
@@ -37,9 +45,22 @@ type MoveTargetLayerProps = {
  *   （詳細は同フックの JSDoc 参照）。ここでは渡された位置・不透明度・拡大率へ
  *   `GeoLayer` と同じ点線六角形（選択可能マスの見た目）を CSS transition で
  *   描画するだけ
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量は props 経由でなく
+ *   `useEnergyStore` を直接購読して判定に合成するため、EN 変化時は親を経由せず
+ *   自分自身のみが再レンダリングされる
  */
-export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
+export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
   const { canEnterCell, cols, currentCell, hexSize, mode, rows } = props
+
+  const energyInfo = useEnergyStore((state) =>
+    state.getEnergyInfo(PLAYER_ACTOR_ID),
+  )
+
+  /** `canEnterCell`（EN を除く、props 由来）に EN 残量チェックを合成する */
+  const canEnterCellWithEnergy = useCallback(
+    (cell: HexCell) => (canEnterCell?.(cell) ?? true) && energyInfo.current > 0,
+    [canEnterCell, energyInfo],
+  )
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const moveTargetLayer = useMoveTargetLayer(
@@ -48,7 +69,7 @@ export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
     hexSize,
     mode,
     rows,
-    canEnterCell,
+    canEnterCellWithEnergy,
   )
 
   return (
@@ -83,4 +104,6 @@ export const MoveTargetLayer = (props: MoveTargetLayerProps) => {
       })}
     </>
   )
-}
+})
+
+MoveTargetLayer.displayName = 'MoveTargetLayer'
