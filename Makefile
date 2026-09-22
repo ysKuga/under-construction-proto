@@ -33,6 +33,9 @@ build-storybook:
 check-types:
 	yarn check-types
 
+chromatic:
+	yarn chromatic
+
 dev:
 	yarn dev
 
