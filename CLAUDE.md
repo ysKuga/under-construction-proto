@@ -20,6 +20,12 @@
 - [ideas/](docs/concept/ideas/README.md) — あいであ (issue #4)
 - [implementation/](docs/concept/implementation/README.md) — 実装方針
 
+## パフォーマンスについて
+
+実装に当たり軽量さや速度などのパフォーマンスに気を付ける。
+
+@docs/performance/README.md
+
 ## コーディング規約
 
 ### hooks 変数命名
@@ -90,6 +96,7 @@ export const reducePointerState = (
 @.claude/rules/react/hooks.md
 @.claude/rules/react/ref-naming.md
 @.claude/rules/react/r3f-state.md
+@.claude/rules/react/game-state.md
 @.claude/rules/react/component-nesting.md
 @.claude/rules/react/props-with-children.md
 @.claude/rules/react/stories.md

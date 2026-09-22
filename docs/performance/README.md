@@ -22,6 +22,15 @@
 - 派生した boolean (しきい値超え判定) のみを state 化し、累積は ref で持つ。
 - 累積の更新時に、境界を通過した時だけ `setState` する。
 
+## ゲームロジック本体の方針
+
+actor 移動・進入判定・EN 等、ゲームの仕組み本体を成す値は `useState` を既定で避け、`ref` または store 直接購読で持つ。`useState` は「JSX の出力に直接使う値」のみ例外的に許容する。
+
+- 理由: ゲームロジックは頻繁に値が変化する。`useState` で持つと React の再レンダリングサイクルに乗ってしまい、値と無関係な子 component まで巻き込んで再レンダリングされやすい (下記事例の `Stage07` 配下ツリー全体再レンダリング問題が典型)。
+- 上記「`useState` を使うかの判断」の基準の中でも、ゲームロジック本体は「見た目に直接効く値」の判定をより厳格に (「このコンポーネント自身の JSX が直接その値を出力するか」まで絞って) 適用する。
+- 現状は努力目標。既存実装が全面準拠しているわけではなく、新規実装・改修時に優先的に適用する位置づけ ([.claude/rules/react/game-state.md](../../.claude/rules/react/game-state.md))。
+
 ## 個別事例
 
 - [home-box-bot-interaction/](home-box-bot-interaction/README.md) — トップページ box-bot の操作 state が UI を再レンダリングさせる
+- find-path proto-03 (issue-181-en backlog, PR #212) — `EnergyDebugPanel` 操作で `FindPathProto03Content` が EN store を購読し再レンダリング、`Stage07` 配下の全レイヤーへ波及していた問題。`MoveTargetLayer` を `useEnergyStore` の直接購読へ切替え、周辺レイヤーを `React.memo` 化して解消

@@ -1,19 +1,5 @@
 # 実装計画（issue #137）
 
-- [ ] 「1 手戻す」と「戻る」を別枠操作として分離検討。インセンティブ設計未確立（design.md 懸念・リスク）
-- [ ] 障害物 / 歩数制限 / 一方通行セル（パズル性、「挑戦」「工夫」実現の中心方針）
-  - 衝突判定はセル境界のみで判定する方針確定済み（decision-records.md 2026-09-16）
-  - 要素ごとに個別 steering へ分割
-    - [障害物](20260916-obstacles/design.md)
-    - [エネルギー](_closed/issue-181-en/design.md)
-      - 歩数制限から改称（decision-records.md 2026-09-16）
-      - サブ issue #181 化済み
-      - EN 実装完了により close 済み
-    - [一方通行セル](_closed/pr-180-one-way-cell/design.md)
-  - 実装状況
-    - 障害物: proto-01（PR #176）・proto-03（[20260916-proto03-obstacles/decision-records.md](20260916-proto03-obstacles/decision-records.md) 2026-09-16）で実装済み
-    - 一方通行セル: proto-01・proto-03 双方に実装済み（PR #180）
-    - エネルギー: 実装済み（サブ issue #181、close 済み）
 - [ ] proto-03（`FindPathProto03Content`）の `EnergyDebugPanel` 操作で `Stage07` 込みのツリー全体が再レンダリングされる
   - `MoveTargetLayer`（移動可能マス表示）が `canEnterCellPerceived` 経由で EN 残量を参照しており、表示更新を親の再レンダリングに頼っている
   - 直すには `Stage07` 配下レイヤー群の `React.memo` 化 + `MoveTargetLayer` 自身の EN store 直接購読への切替が必要（規模が大きいため見送り、issue-181-en 2026-09-21）
