@@ -171,6 +171,12 @@ const fovForScale = (baseSize: number, canvasSize: number) =>
  *   下記の独立 bot(升目制約なし)は回帰確認用に残している
  */
 export const Grid3D: Story = {
+  parameters: {
+    // Canvas(r3f) 16 個同時マウントのため Chromatic の 15 秒 load timeout を
+    // 超過する(GPU 無し software rendering、ローカル実測で全 Canvas 揃うまで
+    // 約 11 秒)。visual regression 対象から除外する
+    chromatic: { disable: true },
+  },
   render: () => {
     const cols = 5
     const rows = 3
