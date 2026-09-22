@@ -6,7 +6,7 @@ import {
   EnergyStoreProvider,
   useEnergyEventDispatcher,
   useEnergyStore,
-  useOutOfEnergyRef,
+  useRegisterEnergyOut,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import {
   energyOutAction,
@@ -119,9 +119,10 @@ type EnterGuard = {
  * - EN 切れ演出（予防姿勢、issue #181、proto-01 の `energyOutAction` 相当）:
  *   `Stage07` が `actorEventTarget` prop 経由で bot と共有する EventTarget を公開
  *   するようにし（stage-06 と同じ方式）、page 側で `useBoxBotActionDispatcher`
- *   から `energyOut` dispatcher を得る。トグル発火・復帰は `useOutOfEnergyRef`
- *   （`_stores/energy`、proto-01 と共通化）が `Energy-depleted`/`Energy-recovered`
- *   購読で完結して担うため、呼び出し側で ref を直接操作する必要はない
+ *   から `energyOut` dispatcher を得る。`useRegisterEnergyOut`（`_stores/energy`、
+ *   proto-01 と共通化）へ登録するだけでよく、トグル発火・復帰は
+ *   `useOutOfEnergyEventListener`（scope 全体で 1 回だけ）が
+ *   `Energy-depleted`/`Energy-recovered` 購読で一元的に担う
  * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
  *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
  *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
@@ -179,11 +180,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
     energyOutAction,
   ])
-  // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyRef`（`_stores/energy`、
-  // proto-01 と共通化。issue-181-en）が Energy-depleted/Energy-recovered 購読で
-  // 担う。消費・回復とも Energy-consume/Energy-recover イベント経由に統一した
-  // ため、呼び出し側で ref を直接操作する必要はない
-  useOutOfEnergyRef({ actorId: PLAYER_ACTOR_ID, energyOut })
+  // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyEventListener`（`_stores/energy`、
+  // scope 全体で 1 回だけマウント。issue-181-en）が Energy-depleted/Energy-recovered
+  // 購読で一元的に担う。ここでは自分の energyOut dispatcher を actorId キーで
+  // 登録するだけでよい
+  useRegisterEnergyOut({ actorId: PLAYER_ACTOR_ID, energyOut })
 
   /** `GoalMarkerLayer`/`ObstacleLayer`/`OneWayLayer`/`ItemLayer` の DOM をvisibility registry へ登録する（`kind: 'marker'` 固定） */
   const registerMarkerVisibilityNode = useCallback(
@@ -208,8 +209,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
 
     // 消費・回復とも energy store 側の consume/recover-listener が実処理・閾値判定・
     // Energy-depleted/Energy-recovered 発行を担う（proto-01 の `use-find-path-tick`
-    // と同じ経路）。EN 切れ演出の発火・復帰は `useOutOfEnergyRef` 側が担うため、
-    // ここでは dispatch するだけでよい
+    // と同じ経路）。EN 切れ演出の発火・復帰は `useOutOfEnergyEventListener` 側が
+    // 担うため、ここでは dispatch するだけでよい
     if (consumed) {
       void energyDispatch['Energy-recover']({
         actorId: PLAYER_ACTOR_ID,
