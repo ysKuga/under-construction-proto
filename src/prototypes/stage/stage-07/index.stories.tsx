@@ -30,3 +30,11 @@ export const Default: Story = {
     rows: 5,
   },
 }
+
+export const WithMob: Story = {
+  args: {
+    ...Default.args,
+    // col=2, row=2 の axial 座標(5x5 グリッドの中央付近、`colRowToAxial` 参照)
+    mobs: [{ cell: { q: 2, r: 1 }, id: 'mob-1' }],
+  },
+}

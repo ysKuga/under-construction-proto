@@ -79,6 +79,13 @@ type Stage07Props = PropsWithChildren<{
    *   （find-path の予定経路レイヤー等）へ委ねるとき使う
    */
   interactive?: boolean
+  /**
+   * player とは別に静止表示する mob 一覧（省略時は表示なし）
+   *
+   * - `ActorsLayer` の `mobs` prop へそのまま渡す。自己移動・walking/face 等の
+   *   action は持たない、指定セルへの静的配置のみ(issue #215)
+   */
+  mobs?: ComponentProps<typeof ActorsLayer>['mobs']
   /** 現在地セル変更時（省略可） */
   onCellChange?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
@@ -106,7 +113,8 @@ type Stage07Props = PropsWithChildren<{
  * - actor の現在セルは外側の `ActorNodeRegistryProvider`（hex 版）が保持する。
  *   `useHexMove` はクリック検証（隣接判定・進入可否）と facing 算出のみ行い、
  *   位置更新は registry の `moveActor` へ委ねる（tick 駆動実行時、外部からクリックを
- *   介さず `moveActor` を直接呼べるようにするため）。複数 actor 対応は対象外（別途検討）
+ *   介さず `moveActor` を直接呼べるようにするため）。registry・`useHexMove` を通した
+ *   複数 actor(自己移動)対応は対象外（別途検討）。`mobs`(静止配置のみ)は対応済み(issue #215)
  * - `interactive`（既定 `true`）を `false` にすると `GeoLayer` は非対話になる。
  *   クリックを外側のレイヤー（tick 駆動実行時の予定経路レイヤー等）へ委ねる
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
@@ -152,6 +160,7 @@ export const Stage07 = (props: Stage07Props) => {
     initialMoveDurationMs = 150,
     initialTiltDeg = 0,
     interactive = true,
+    mobs,
     onCellChange,
     perspectivePx = 800,
     registerCellVisibilityNode,
@@ -304,6 +313,7 @@ export const Stage07 = (props: Stage07Props) => {
             hexSize={hexSize}
             legSwingAngle={legSwingAngle}
             maxWalkCycleSec={maxWalkCycleSec}
+            mobs={mobs}
             moveDurationMs={moveDurationMs}
             onArrived={handleArrived}
             rows={rows}
