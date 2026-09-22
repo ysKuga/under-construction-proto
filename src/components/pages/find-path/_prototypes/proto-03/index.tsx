@@ -1,14 +1,13 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { match } from 'ts-pattern'
+import { useState } from 'react'
 
 import {
   EnergyStoreProvider,
   useEnergyEventDispatcher,
-  useEnergyEventListener,
   useEnergyStore,
   useEnergyStoreApi,
+  useOutOfEnergyRef,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import {
   energyOutAction,
@@ -41,7 +40,6 @@ import { isBlockedByOneWay } from './_lib/one-way'
 import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import {
-  ENERGY_OUT_DELAY_MS,
   GOAL_POSITION,
   RECOVERY_ITEM_CELLS,
   RECOVERY_SPOT_CELLS,
@@ -121,11 +119,10 @@ type EnterGuard = {
  * - EN 切れ演出（予防姿勢、issue #181、proto-01 の `energyOutAction` 相当）:
  *   `Stage07` が `actorEventTarget` prop 経由で bot と共有する EventTarget を公開
  *   するようにし（stage-06 と同じ方式）、page 側で `useBoxBotActionDispatcher`
- *   から `energyOut` dispatcher を得る。トグル方式の action のため、
- *   `Energy-depleted` 購読で発火した後は `outOfEnergyRef` で発火中かを追跡し、
- *   回復発生時（`handleCellChange` の即時回復（今回のリファクタ対象外）または
- *   `EnergyDebugPanel` の `+1`（`Energy-recovered` 購読）のいずれか）に
- *   再度 dispatch して復帰させる
+ *   から `energyOut` dispatcher を得る。`Energy-depleted`/`Energy-recovered`
+ *   購読によるトグル発火・復帰は `useOutOfEnergyRef`（`_stores/energy`、proto-01と
+ *   共通化）が担う。回復アイテムによる復帰（`handleCellChange` の即時回復、今回の
+ *   リファクタ対象外）のみ呼び出し側で `outOfEnergyRef` を直接判定する
  * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
  *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
  *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
@@ -185,47 +182,17 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     energyOutAction,
   ])
   /**
-   * EN 切れ演出(予防姿勢)が発火中か(トグル方式のため呼び出し側で追跡する)
+   * EN 切れ演出(予防姿勢)の発火中フラグ
    *
-   * - proto-01 の `outOfEnergyRef` と同じ役割。EN 切れ検知(`Energy-depleted`)・\
-   *   `EnergyDebugPanel` の `+1` による復帰検知(`Energy-recovered`)は energy
-   *   store 側の consume/recover-listener が担うため下記 `useEnergyEventListener`
-   *   で購読する。回復アイテムによる復帰（`handleCellChange` の即時回復）は
-   *   今回のリファクタ対象外のまま、直接判定で false に戻す（proto-01 と同じ分担）
+   * - `Energy-depleted`/`Energy-recovered` 購読による発火・復帰は `useOutOfEnergyRef`
+   *   （`_stores/energy`、proto-01 と共通化。issue-181-en）側で完結する
+   * - 回復アイテムによる復帰（`handleCellChange` の即時回復）は energy store 側
+   *   イベントを経由しないため、この ref を直接操作する（proto-01 と同じ分担、
+   *   今回のリファクタ対象外）
    */
-  const outOfEnergyRef = useRef(false)
-
-  // Energy-depleted（energy store 側の consume-listener が EN 消費後に発行）を
-  // 購読し、EN 切れ演出（energyOut）を発火する。ENERGY_OUT_DELAY_MS だけ遅らせる
-  // （演出上のタメ、proto-01 と同じ狙い）
-  useEnergyEventListener('Energy-depleted', (event) => {
-    // 自分の actor 宛て・まだ切れていない場合のみ発火する
-    match({ event, outOfEnergyRef }).with(
-      {
-        event: { detail: { actorId: PLAYER_ACTOR_ID } },
-        outOfEnergyRef: { current: false },
-      },
-      () => {
-        outOfEnergyRef.current = true
-        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
-      },
-    )
-  })
-
-  // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
-  // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
-  useEnergyEventListener('Energy-recovered', (event) => {
-    // 自分の actor 宛て・切れ状態の場合のみ復帰させる
-    match({ event, outOfEnergyRef }).with(
-      {
-        event: { detail: { actorId: PLAYER_ACTOR_ID } },
-        outOfEnergyRef: { current: true },
-      },
-      () => {
-        outOfEnergyRef.current = false
-        void energyOut()
-      },
-    )
+  const outOfEnergyRef = useOutOfEnergyRef({
+    actorId: PLAYER_ACTOR_ID,
+    energyOut,
   })
 
   const handleCellChange = (cell: HexCell) => {

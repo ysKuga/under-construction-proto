@@ -9,12 +9,11 @@ import {
   timer,
   withLatestFrom,
 } from 'rxjs'
-import { match, P } from 'ts-pattern'
 
 import {
   useEnergyEventDispatcher,
-  useEnergyEventListener,
   useEnergyStoreApi,
+  useOutOfEnergyRef,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { screenAngleToYaw } from '@/components/theater/figure/box-bot'
 import { useActorNodeRegistry } from '@/prototypes/stage/stage-06/_contexts/actor-node-registry'
@@ -33,12 +32,7 @@ import { isObstacleCell } from '../_lib/obstacle'
 import { useCarriedItemStoreApi } from '../_stores/carried-items'
 import { useItemStoreApi } from '../_stores/items'
 import { useTickStatusStoreApi } from '../_stores/tick-status'
-import {
-  ENERGY_OUT_DELAY_MS,
-  GOAL_POSITION,
-  REALTIME_STEP_MS,
-  TICK_MS,
-} from '../constants'
+import { GOAL_POSITION, REALTIME_STEP_MS, TICK_MS } from '../constants'
 
 /**
  * 区間 `index` を消化するための待機時間 (ms)
@@ -130,15 +124,11 @@ type UseFindPathTickReturn = {
  *   密結合解消のリファクタ）。tick 継続可否の判定自体は「読むだけ」のため対象外、
  *   引き続き `energy.getState().getEnergyInfo(...)` を直接読む
  * - `options.energyOut`(省略可、box-bot-01 の energyOut action dispatcher)は
- *   上記 `Energy-depleted` 購読でトグル発火(直立 → 予防姿勢)し、以後の回復発生時
- *   （回復スポット到達 or 携行アイテム使用 or `EnergyDebugPanel` の `+1`）に
- *   再度トグル発火して復帰させる。回復スポット/携行アイテムは直接 `recover` 呼出し
- *   後に呼び出し元で `outOfEnergyRef` を直接判定（回復側の呼出し経路自体は今回の
- *   リファクタ対象外）、`+1` は `Energy-recover` イベント経由のため recover-listener
- *   が発行する `Energy-recovered` を別途購読して同じ判定を行う。
- *   EN 切れ時の発火は `walkingReset` 実行後 `ENERGY_OUT_DELAY_MS` だけ遅らせる
- *   （演出上のタメ。脚は `walkingReset` で既にスナップ済みのため、遅延中に振れた
- *   まま残る心配はない）
+ *   `useOutOfEnergyRef`（`_stores/energy`、proto-03 と共通化。issue-181-en）が
+ *   `Energy-depleted`/`Energy-recovered` 購読でトグル発火(直立 ⇄ 予防姿勢)する。
+ *   回復スポット到達・携行アイテム使用は energy store 側イベントを経由しないため、
+ *   呼び出し元（下記 `applyNextStep`/`useCarriedItem`）が `outOfEnergyRef` を直接
+ *   判定して復帰させる（回復側の呼出し経路自体は今回のリファクタ対象外）
  *
  * @param options walking/walkingReset/face/energyOut の dispatcher(いずれも省略可)
  */
@@ -164,13 +154,17 @@ export const useFindPathTick = (
   /** 歩行 action の on/off 状態(トグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
   /**
-   * EN 切れ演出(予防姿勢)が発火中か(トグル方式のため呼び出し側で追跡する)
+   * EN 切れ演出(予防姿勢)の発火中フラグ
    *
-   * - EN 切れで `energyOut()` を dispatch した後 true。次に回復が発生した時点
-   *   （直後の tick とは限らない。tick 停止後の再「実行」で回復アイテムのマスへ
-   *   到達した場合も含む）で再度 dispatch して復帰させ、false へ戻す
+   * - `Energy-depleted`/`Energy-recovered` 購読による発火・復帰は `useOutOfEnergyRef`
+   *   側で完結する。回復スポット到達・携行アイテム使用（下記 `applyNextStep`/
+   *   `useCarriedItem`）は energy store 側イベントを経由しないため、この ref を
+   *   直接操作して復帰させる（今回のリファクタ対象外）
    */
-  const outOfEnergyRef = useRef(false)
+  const outOfEnergyRef = useOutOfEnergyRef({
+    actorId: PLAYER_ACTOR_ID,
+    energyOut,
+  })
 
   /** 消化済み tick 数。`execute` 開始時に 0 へ戻す。+1 が消化したセルの `order` と一致する */
   const consumedCountRef = useRef(0)
@@ -213,42 +207,6 @@ export const useFindPathTick = (
     // アンマウント時に走行中の tick ループを止める
     return () => subscriptionRef.current?.unsubscribe()
   }, [])
-
-  // Energy-depleted（energy store 側の consume-listener が EN 消費後に発行）を
-  // 購読し、EN 切れ演出（energyOut）を発火する。walking off/walkingReset（下記
-  // applyNextStep 側）より後に実行されても、setTimeout はマクロタスクのため
-  // 演出タイミングは変わらない
-  useEnergyEventListener('Energy-depleted', (event) => {
-    // 自分の actor 宛て・energyOut dispatcher あり・まだ切れていない場合のみ発火する
-    match({ energyOut, event, outOfEnergyRef }).with(
-      {
-        energyOut: P.nonNullable,
-        event: { detail: { actorId: PLAYER_ACTOR_ID } },
-        outOfEnergyRef: { current: false },
-      },
-      ({ energyOut }) => {
-        outOfEnergyRef.current = true
-        setTimeout(() => void energyOut(), ENERGY_OUT_DELAY_MS)
-      },
-    )
-  })
-
-  // Energy-recovered（energy store 側の recover-listener が EN 回復後に発行。
-  // EnergyDebugPanel の +1 経由）を購読し、EN 切れ演出から復帰させる
-  useEnergyEventListener('Energy-recovered', (event) => {
-    // 自分の actor 宛て・energyOut dispatcher あり・切れ状態の場合のみ復帰させる
-    match({ energyOut, event, outOfEnergyRef }).with(
-      {
-        energyOut: P.nonNullable,
-        event: { detail: { actorId: PLAYER_ACTOR_ID } },
-        outOfEnergyRef: { current: true },
-      },
-      ({ energyOut }) => {
-        outOfEnergyRef.current = false
-        void energyOut()
-      },
-    )
-  })
 
   /** path の次の 1 歩を消化する */
   const applyNextStep = useCallback(() => {
@@ -384,6 +342,7 @@ export const useFindPathTick = (
     face,
     walking,
     walkingReset,
+    outOfEnergyRef,
   ])
 
   const execute = useCallback(() => {
@@ -516,7 +475,7 @@ export const useFindPathTick = (
         void energyOut()
       }
     }
-  }, [carriedItems, energy, energyOut])
+  }, [carriedItems, energy, energyOut, outOfEnergyRef])
 
   return { execute, useCarriedItem }
 }
