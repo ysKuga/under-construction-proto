@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { useEventDispatcher } from '@/hooks/event'
 
 import {
@@ -34,12 +36,20 @@ export const useBoxBotActionDispatcher = <
   actions: T = BOX_BOT_ACTIONS as unknown as T,
 ): BoxBotActionDispatchers<T> => {
   const dispatch = useEventDispatcher(eventTarget)
+  // 呼び出し側が actions を毎回新規配列リテラルで渡すため、参照でなく
+  // action 名の列(内容)を dep にして不要な再生成を防ぐ
+  const actionsKey = actions.map((action) => action.name).join('|')
 
-  return Object.fromEntries(
-    actions.map((action) => [
-      action.name,
-      (override?: unknown) =>
-        dispatch(new CustomEvent(action.event, { detail: override })),
-    ]),
-  ) as BoxBotActionDispatchers<T>
+  return useMemo(
+    () =>
+      Object.fromEntries(
+        actions.map((action) => [
+          action.name,
+          (override?: unknown) =>
+            dispatch(new CustomEvent(action.event, { detail: override })),
+        ]),
+      ) as BoxBotActionDispatchers<T>,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, actionsKey],
+  )
 }
