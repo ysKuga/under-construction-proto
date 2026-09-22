@@ -2,17 +2,16 @@
 
 ## 目的
 
-`ActorsLayer`(stage-07 配下)の単一 actor 限定設計を複数 actor 対応へ変更し、プレイヤー以外の actor(mob)を画面へ配置できるようにする。
+`ActorsLayer`(stage-07 配下)の単一 actor 限定設計を拡張し、プレイヤー以外の actor(mob)を画面へ静止配置できるようにする。
 
 ## 背景・制約
 
-- `ActorsLayer`(`src/prototypes/stage/stage-07/_components/actors-layer/index.tsx`)は `currentCell: HexCell` を単一値で持ち、map/loop なしで `BoxBot01` を1体だけ描画する設計。複数 actor 対応は #162 で対象外と明記済み
-- EN(エネルギー)個別化(`outOfEnergyRef` の actorId キー付き化、`energyOut` dispatcher のレジストリ化)は対応済み(PR #213)。mob 側は `useRegisterEnergyOut(actorId, energyOut)` を呼ぶだけで個別の EN 切れ演出が動く状態
-- `EnergyDebugPanel`/`canEnterCell`(`proto-03/index.tsx`)の EN 判定は依然 `PLAYER_ACTOR_ID` 決め打ちのまま
-- stage-06 系(proto-01/02 が依存)にも同様の `PLAYER_ACTOR_ID` 決め打ちが複数箇所ある(`use-initial-facing.ts`、`geo-layer/index.tsx`、`actors-layer/index.tsx` 等)。本 issue のスコープは stage-07/proto-03 側、stage-06 系は対象外
-- `src/prototypes/CLAUDE.md` のバージョン間依存ルール(番号付き実装は小さい番号からのみ import 可)に従う。stage-07 側の変更が stage-06 側の既存 import 関係を壊さないこと
+- `ActorsLayer`(`src/prototypes/stage/stage-07/_components/actors-layer/index.tsx`)は `currentCell: HexCell` を単一値で持ち、map/loop なしで player 用 `BoxBot01` を1体だけ描画する設計。複数 actor 対応は #162 で対象外と明記済み
+- 当初「複数 actor 対応」で検討したが、実装前調査で `useActorNodeRegistry`(単一 `currentCell`/`moveActor`)・`useHexMove`・`Stage07` まで player 前提で一直線に繋がっており、registry の複数 actor 化は大規模になると判明(decision-records.md 2026-09-22)
+- ユーザーと協議の上、本 issue のスコープを「mob は静止表示のみ(自己移動・EN 等の動的挙動なし)」に確定。mob は `ActorsLayer` へ座標を渡すだけの新規 `mobs` prop で実現し、registry・`useHexMove` は変更しない
+- EN 個別化(`outOfEnergyRef` の actorId キー付き化、`energyOut` dispatcher のレジストリ化)は対応済み(PR #213)だが、mob が動的挙動を持たない本スコープでは使用しない。`EnergyDebugPanel`/`canEnterCell` の `PLAYER_ACTOR_ID` 決め打ち解消は対象外(mob が自律移動する段階で再検討)
+- `src/prototypes/CLAUDE.md` のバージョン間依存ルール(番号付き実装は小さい番号からのみ import 可)に従う。stage-06 系(proto-01/02 が依存)は変更しない
 
 ## 懸念・リスク
 
-- `ActorsLayer` の型変更(`currentCell: HexCell` → 複数 actor 対応)は `Stage07`・`GeoLayer`・visibility registry への波及を伴う。影響範囲の洗い出しを実装前に行う
-- EN 個別化時(2026-09-22)、mob 未実装の段階での型設計先行は投機的抽象化になりうるとユーザーと合意済み。本 issue 着手時点で mob の実際の配置要件(何体、どう動くか)が固まっているか要確認
+なし（静止表示スコープに確定、decision-records.md 2026-09-22 参照）
