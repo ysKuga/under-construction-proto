@@ -4,6 +4,7 @@ import {
   ComponentProps,
   CSSProperties,
   PropsWithChildren,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -186,10 +187,17 @@ export const Stage07 = (props: Stage07Props) => {
   const isWalkingRef = useRef(false)
   /** 初期向き調整(下記 useEffect)で最新の `face` を読むための ref */
   const faceRef = useRef(face)
+  /** `handleArrived`(useCallback 依存配列空)で最新の enableWalking を読むための ref */
+  const enableWalkingRef = useRef(enableWalking)
+  /** `handleArrived`(useCallback 依存配列空)で最新の walkingReset を読むための ref */
+  const walkingResetRef = useRef(walkingReset)
 
   useEffect(() => {
-    // 毎レンダー最新の face を ref へ反映する(react-hooks/refs: render 中の書込み禁止)
+    // 毎レンダー最新の face/enableWalking/walkingReset を ref へ反映する
+    // (react-hooks/refs: render 中の書込み禁止)
     faceRef.current = face
+    enableWalkingRef.current = enableWalking
+    walkingResetRef.current = walkingReset
   })
 
   useEffect(() => {
@@ -242,13 +250,20 @@ export const Stage07 = (props: Stage07Props) => {
   )
   const { floorRef, setTilt } = usePerspectiveControl()
 
-  /** セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする */
-  const handleArrived = () => {
-    if (!enableWalking || !isWalkingRef.current) return
+  /**
+   * セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする
+   *
+   * - `ActorsLayer`（`React.memo` 化済み、issue-181-en backlog）の `onArrived`
+   *   prop が毎レンダー新規関数だと memo が効かなくなるため `useCallback`
+   *   （依存配列空）で参照を固定する。`enableWalking`/`walkingReset` は ref
+   *   経由で最新値を読む
+   */
+  const handleArrived = useCallback(() => {
+    if (!enableWalkingRef.current || !isWalkingRef.current) return
 
     isWalkingRef.current = false
-    void walkingReset(WALKING_RESET_DURATION_MS)
-  }
+    void walkingResetRef.current(WALKING_RESET_DURATION_MS)
+  }, [])
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
   const sceneStyle: CSSProperties = {

@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, memo } from 'react'
 
 import { useGetCellTitle } from '../../_contexts/cell-title'
 import { colRowToAxial, HexCell, isHexAdjacent } from '../../_lib/hex'
@@ -69,8 +69,11 @@ type GeoLayerProps = {
  *   issue #137、PR #196 レビュー対応）。stage-07 自体は find-path 固有の概念
  *   （障害物・アイテム等）を持たないため、実体は呼び出し元（`CellTitleProvider`）
  *   が注入する。Provider がなければ何も付与しない
+ * - `React.memo` 化済み（issue-181-en backlog）。`canEnterCell`/`onCellClick` は
+ *   呼び出し元の状態（EN 残量等）に依存し毎レンダー新規参照になりうるため、
+ *   現状は memo 化の効果が限定的
  */
-export const GeoLayer = (props: GeoLayerProps) => {
+export const GeoLayer = memo((props: GeoLayerProps) => {
   const {
     canEnterCell,
     cols,
@@ -151,4 +154,6 @@ export const GeoLayer = (props: GeoLayerProps) => {
       })}
     </div>
   )
-}
+})
+
+GeoLayer.displayName = 'GeoLayer'

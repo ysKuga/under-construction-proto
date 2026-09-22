@@ -1,4 +1,4 @@
-import { CSSProperties, TransitionEvent } from 'react'
+import { CSSProperties, memo, TransitionEvent } from 'react'
 
 import {
   BoxBot01,
@@ -64,6 +64,9 @@ type ActorsLayerProps = {
  *   ため振れているかどうか視認しづらくなる。歩幅は変えず、周期の伸びだけ頭打ちにして
  *   常に一定以上の頻度で動きが見えるようにする
  * - visibility registry・複数 actor・ref registry 化は対象外（試作スコープ、issue #162）
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
+ *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
+ *   安定化すること
  */
 /** face / walking / walkingReset / energyOut を有効化する(jump/spin 等は無効のまま) */
 const ACTIONS = [faceAction, walkingAction, walkingResetAction, energyOutAction]
@@ -87,7 +90,7 @@ const ARM_SWING_ANGLE = Math.PI / 2
  */
 const BASE_SPEED_APPROACH_RATE = 3
 
-export const ActorsLayer = (props: ActorsLayerProps) => {
+export const ActorsLayer = memo((props: ActorsLayerProps) => {
   const {
     cols,
     currentCell,
@@ -150,4 +153,6 @@ export const ActorsLayer = (props: ActorsLayerProps) => {
       />
     </div>
   )
-}
+})
+
+ActorsLayer.displayName = 'ActorsLayer'
