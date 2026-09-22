@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, memo } from 'react'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
@@ -35,8 +35,10 @@ type GoalMarkerLayerProps = {
  * - `registerVisibilityNode` 経由でゴールセルの DOM を visibility registry へ登録する
  *   （渡された場合のみ）。可視状態の反映は registry 側の DOM 直書きに任せるため、
  *   ここでは再レンダリングを起こさない
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
+ *   状態変化に巻き込まれて再レンダリングしない
  */
-export const GoalMarkerLayer = (props: GoalMarkerLayerProps) => {
+export const GoalMarkerLayer = memo((props: GoalMarkerLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
@@ -64,4 +66,6 @@ export const GoalMarkerLayer = (props: GoalMarkerLayerProps) => {
       🚩
     </div>
   )
-}
+})
+
+GoalMarkerLayer.displayName = 'GoalMarkerLayer'

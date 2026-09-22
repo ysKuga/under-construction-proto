@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, memo } from 'react'
 
 import { HEX_INSET_RATIO } from '@/prototypes/stage/stage-07/_components/geo-layer'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
@@ -66,8 +66,10 @@ const hexVertex = (index: number, hexSize: number) => {
  *   見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。選択拒否自体は
  *   `Stage07` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
+ *   状態変化に巻き込まれて再レンダリングしない
  */
-export const OneWayLayer = (props: OneWayLayerProps) => {
+export const OneWayLayer = memo((props: OneWayLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
@@ -113,4 +115,6 @@ export const OneWayLayer = (props: OneWayLayerProps) => {
       })}
     </>
   )
-}
+})
+
+OneWayLayer.displayName = 'OneWayLayer'

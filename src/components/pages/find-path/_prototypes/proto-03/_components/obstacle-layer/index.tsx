@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, memo } from 'react'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
@@ -34,8 +34,10 @@ type ObstacleLayerProps = {
  *   `Stage07` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
  * - `registerVisibilityNode` 経由で障害物セルの DOM を visibility registry へ登録する
  *   （渡された場合のみ）。未到達マスの岩が視界外から見えてしまうのを防ぐ
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
+ *   状態変化に巻き込まれて再レンダリングしない
  */
-export const ObstacleLayer = (props: ObstacleLayerProps) => {
+export const ObstacleLayer = memo((props: ObstacleLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
@@ -74,4 +76,6 @@ export const ObstacleLayer = (props: ObstacleLayerProps) => {
       })}
     </>
   )
-}
+})
+
+ObstacleLayer.displayName = 'ObstacleLayer'

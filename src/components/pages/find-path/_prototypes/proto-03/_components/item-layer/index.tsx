@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, memo } from 'react'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
@@ -38,8 +38,11 @@ type ItemLayerProps = {
  *   共有し、見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。実際の回復処理は
  *   `index.tsx` の `handleCellChange` が行う
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
+ *   状態変化に巻き込まれて再レンダリングしない（アイテム変化自体は `useItemStore`
+ *   の直接購読により従来通り反応する）
  */
-export const ItemLayer = (props: ItemLayerProps) => {
+export const ItemLayer = memo((props: ItemLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
   const items = useItemStore((state) => state.itemsById)
@@ -78,4 +81,6 @@ export const ItemLayer = (props: ItemLayerProps) => {
       })}
     </>
   )
-}
+})
+
+ItemLayer.displayName = 'ItemLayer'
