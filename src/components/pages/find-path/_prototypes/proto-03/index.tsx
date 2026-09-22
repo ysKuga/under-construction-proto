@@ -1,11 +1,12 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 import {
   EnergyStoreProvider,
+  useEnergyEventDispatcher,
   useEnergyStore,
-  useEnergyStoreApi,
+  useOutOfEnergyRef,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import {
   energyOutAction,
@@ -108,15 +109,19 @@ type EnterGuard = {
  * - `ActorNodeRegistryProvider`（hex 版）は actor の現在セルを保持する Provider。
  *   `Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の追加に備え、外部から
  *   クリックを介さず actor を動かせるようにするため）
- * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費する。予定経路・tick
- *   駆動の「実行」は proto-01 と異なり導入しない（1 マスごとの隣接クリック移動の
- *   まま）ため、`canEnterCell` へ残量判定を加え移動成立時に直接消費する
+ * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費、アイテム回復量ぶん
+ *   回復する。予定経路・tick 駆動の「実行」は proto-01 と異なり導入しない（1 マス
+ *   ごとの隣接クリック移動のまま）ため、`canEnterCell` へ残量判定を加え、移動成立時
+ *   に `Energy-consume`/`Energy-recover` イベントを dispatch する（実消費・実回復・
+ *   0 以下/より大きくなった判定・`Energy-depleted`/`Energy-recovered` 発行は energy
+ *   store 側の consume/recover-listener が担う。proto-01 の `use-find-path-tick`
+ *   と同じ経路）
  * - EN 切れ演出（予防姿勢、issue #181、proto-01 の `energyOutAction` 相当）:
  *   `Stage07` が `actorEventTarget` prop 経由で bot と共有する EventTarget を公開
  *   するようにし（stage-06 と同じ方式）、page 側で `useBoxBotActionDispatcher`
- *   から `energyOut` dispatcher を得る。トグル方式の action のため、
- *   `handleCellChange` で消費/回復後の最終残量と `outOfEnergyRef` の状態が
- *   食い違った時点でのみ dispatch する
+ *   から `energyOut` dispatcher を得る。トグル発火・復帰は `useOutOfEnergyRef`
+ *   （`_stores/energy`、proto-01 と共通化）が `Energy-depleted`/`Energy-recovered`
+ *   購読で完結して担うため、呼び出し側で ref を直接操作する必要はない
  * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
  *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
  *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
@@ -164,7 +169,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const [goalReached, setGoalReached] = useState(false)
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
-  const energyStoreApi = useEnergyStoreApi()
+  const energyDispatch = useEnergyEventDispatcher()
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
@@ -174,14 +179,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
     energyOutAction,
   ])
-  /**
-   * EN 切れ演出(予防姿勢)が発火中か(トグル方式のため呼び出し側で追跡する)
-   *
-   * - proto-01 の `outOfEnergyRef` と同じ役割。proto-03 は tick 駆動を持たないため
-   *   `handleCellChange` の消費/回復いずれも即時反映、最終的な残量とこの ref の
-   *   状態が食い違った時点で `energyOut()` を dispatch しトグルを合わせる
-   */
-  const outOfEnergyRef = useRef(false)
+  // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyRef`（`_stores/energy`、
+  // proto-01 と共通化。issue-181-en）が Energy-depleted/Energy-recovered 購読で
+  // 担う。消費・回復とも Energy-consume/Energy-recover イベント経由に統一した
+  // ため、呼び出し側で ref を直接操作する必要はない
+  useOutOfEnergyRef({ actorId: PLAYER_ACTOR_ID, energyOut })
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
@@ -190,19 +192,21 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     const item = itemStoreApi.getState().getItemAtCell(cell)
     const consumed = item && itemStoreApi.getState().consumeItem(item.id)
 
+    // 消費・回復とも energy store 側の consume/recover-listener が実処理・閾値判定・
+    // Energy-depleted/Energy-recovered 発行を担う（proto-01 の `use-find-path-tick`
+    // と同じ経路）。EN 切れ演出の発火・復帰は `useOutOfEnergyRef` 側が担うため、
+    // ここでは dispatch するだけでよい
     if (consumed) {
-      energyStoreApi.getState().recover(PLAYER_ACTOR_ID, consumed.amount)
+      void energyDispatch['Energy-recover']({
+        actorId: PLAYER_ACTOR_ID,
+        amount: consumed.amount,
+      })
     }
 
-    energyStoreApi.getState().consume(PLAYER_ACTOR_ID, 1)
-
-    const outOfEnergy =
-      energyStoreApi.getState().getEnergyInfo(PLAYER_ACTOR_ID).current <= 0
-
-    if (outOfEnergy !== outOfEnergyRef.current) {
-      outOfEnergyRef.current = outOfEnergy
-      void energyOut()
-    }
+    void energyDispatch['Energy-consume']({
+      actorId: PLAYER_ACTOR_ID,
+      amount: 1,
+    })
 
     if (isSameCell(cell, GOAL_POSITION)) {
       setGoalReached(true)

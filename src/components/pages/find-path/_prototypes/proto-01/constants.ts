@@ -17,14 +17,6 @@ export const REALTIME_STEP_MS = 10
 /** ゴールセル */
 export const GOAL_POSITION = { col: 3, row: 3 } as const
 
-/**
- * EN 切れ演出（予防姿勢）発火までの遅延（ms、演出上の「タメ」、試験値）
- *
- * - 歩行停止 → 一拍おいて予防姿勢、という間を作る。`walkingReset` が脚・腕を
- *   即座にスナップさせるため、この遅延中に脚が振れたまま残る心配はない
- */
-export const ENERGY_OUT_DELAY_MS = 300
-
 /** 障害物セル一覧（通行不可） */
 export const OBSTACLE_CELLS = [
   { col: 1, row: 1 },

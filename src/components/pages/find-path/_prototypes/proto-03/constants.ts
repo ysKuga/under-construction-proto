@@ -23,8 +23,12 @@ export const ONE_WAY_CELLS = [
  * 回復アイテム一覧（踏むと回復、1個ずつ使い切り）
  *
  * - 配置・回復量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
+ * - `(1,1)`: 当初 `(0,1)` だったが、START `(0,0)` の隣接セルで実際に表示される
+ *   のは障害物 `(1,0)` とこのマスのみ（座標変換の関係で他の隣接は画面外）だった
+ *   ため、EN デバッグ操作で EN 切れを作ろうとしても必ず回復アイテムを踏んでしまい
+ *   検証できなかった。START 隣接から外すため移動（issue-181-en）
  */
-export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 0, r: 1 }] as const
+export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
 
 /**
  * 回復スポット一覧（踏むたび回復、指定回数で枯渇しうる）

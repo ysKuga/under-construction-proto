@@ -10,4 +10,8 @@ export type EnergyEventMap = {
   'Energy-consume': { actorId: ActorId; amount: number }
   /** EN が尽きた（消費後の残量が 0 以下になった） */
   'Energy-depleted': { actorId: ActorId }
+  /** EN を回復する */
+  'Energy-recover': { actorId: ActorId; amount: number }
+  /** EN が回復した（回復後の残量が 0 より大きくなった） */
+  'Energy-recovered': { actorId: ActorId }
 }

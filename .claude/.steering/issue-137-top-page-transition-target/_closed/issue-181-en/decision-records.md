@@ -45,4 +45,30 @@
 - 2026-09-21: proto-03（hex）へ `energyOutAction` を実装（proto-01 相当、backlog 先頭項目）。`Stage07` に `actorEventTarget` prop を新設し（stage-06 と同名・同方式）、bot と共有する EventTarget を呼び出し元（`FindPathProto03Content`）へ公開できるようにした。`ActorsLayer`（stage-07）の固定 `ACTIONS` 配列へ `energyOutAction` を追加（find-path 固有の概念ではなく box-bot 一般アクションのため、Stage06 の `actorActions` prop 化はせず固定のまま）。page 側は `useBoxBotActionDispatcher(actorEventTarget, [energyOutAction])` で `energyOut` dispatcher を取得し、`handleCellChange`（即時消費/回復、tick 駆動なし）の最後で最終残量と `outOfEnergyRef` の食い違いを見て dispatch する（proto-01 の `outOfEnergyRef` と同じ役割だが、tick 駆動を持たないため「消費/回復後の最終状態」で判定する形に簡略化）。Storybook + Playwright で隣接セルを10手移動して EN 0 に到達 → 上半身前傾・腕を垂らす予防姿勢の発火をスクリーンショットで確認
 - 2026-09-21: 「経路計画時にエネルギー切れが見えない UX の妥当性」（design.md 懸念・リスク）を検討し結論を出した（design.md からは削除）。proto-01（予定経路型）は複数手を事前に積んでから「実行」する方式だが、EN 消費予測（経路が何 EN 分か・現残量で足りるか）は表示しない。EN 現在値（`EN: x/y`）は ActionBar に常時表示されるため、プレイヤーが目算する形になる。これは「事前判定型は不採用」（2026-09-16、実行してみないと分からない）という当初からの設計意図そのものであり、EN 残量自体は可視のため目算可能 → 不親切でなく意図した緊張感/パズル要素と判断。proto-03（逐次移動型）は予定経路の概念自体がなく1手ごと即時消費・即時表示更新のため、この懸念の前提（計画時に見えない）が構造的に発生せず対象外。結論: 現状 UX のまま追加実装不要
 - 2026-09-21: 「回復アイテムの配置」（design.md 懸念・リスク）を検討し、今回は対応不要と結論（design.md からは削除、配置は現状の仮値のまま据え置き）。BFS 実測で proto-03 の現状配置は EN 切れがほぼ発生しない設計（最短距離5・EN上限10）と判明。配置設計の論点（ローグライク/パズル性）は `docs/concept/ideas/README.md`「資源(回復アイテム等)の配置とゲーム性」へ記載
-- 2026-09-21: `EnergyDebugPanel` の `-1` を `Energy-consume` イベント経由へ変更（proto-01 分）。consume 実処理・`Energy-depleted` 発行は consume-listener が担うため、`use-find-path-tick` と同じ経路になり、デバッグパネル操作でも EN 切れ演出（予防姿勢）を検証可能になった。proto-03 は `Energy-depleted` 購読自体が未導入（`handleCellChange` の自前差分判定のまま）のため今回は対象外、backlog.md へ残す。Storybook + Playwright で `EN 調整: 10/10` → `-1` 連打で `0/10` への反映を確認
+- 2026-09-21: `EnergyDebugPanel` の `-1` を `Energy-consume` イベント経由へ変更（proto-01 分）
+  - consume 実処理・`Energy-depleted` 発行は consume-listener が担うため、`use-find-path-tick` と同じ経路になり、デバッグパネル操作でも EN 切れ演出（予防姿勢）を検証可能になった
+  - proto-03 は `Energy-depleted` 購読自体が未導入（`handleCellChange` の自前差分判定のまま）のため今回は対象外、backlog.md へ残す
+  - Storybook + Playwright で `EN 調整: 10/10` → `-1` 連打で `0/10` への反映を確認
+- 2026-09-21: proto-03 へ Energy-consume/Energy-depleted 経由の仕組みを導入（backlog 最後の項目）
+  - 変更: `handleCellChange` の EN 消費を `energyStoreApi.getState().consume(...)` 直接呼出しから `Energy-consume` イベント dispatch へ変更、`Energy-depleted` 購読（`outOfEnergyRef` を true にして `energyOut()` dispatch）を component 内へ追加
+  - 分担: proto-01 の `use-find-path-tick` と同じ（消費の実処理・閾値判定・`Energy-depleted` 発行は consume-listener、回復側の復帰トグルは今回のリファクタ対象外のまま `handleCellChange` に残置）
+  - 効果: `energy-debug-panel` の `-1` は proto-01/03 どちらでも EN 切れ演出の検証に使える
+  - Storybook + Playwright で `-1` 連打による `0/10` 反映・予防姿勢の発火・リセット後の `10/10` 復帰を確認
+- 2026-09-21: close 後、実際の検証で3件の問題を発見・対応（PR #211 継続）
+  - proto-03 の回復アイテム配置バグ
+    - 原因: START(0,0) の隣接で実際に表示されるのは障害物 (1,0) と回復アイテム (0,1) のみ（座標変換の関係で他の隣接は画面外）
+    - 影響: EN デバッグ操作で EN 切れを作ろうとしても必ず回復アイテムを踏んでしまい検証できなかった
+    - 対応: 回復アイテムを (1,1) へ移動
+  - `Energy-depleted` 購読の二重発火バグ
+    - 原因: 既に切れ状態でも無条件に `energyOut()` をトグルする実装だったため、EN 0 のまま `-1` を連打すると予防姿勢と直立が交互に切り替わってしまっていた
+    - 対応: 「既に切れ状態なら無視」ガードを proto-01/03 両方の購読へ追加
+    - 副次的発見: 既存テスト「EN 切れ後、回復アイテムへ到達すると energyOut が再度発火する（復帰）」が二重発火バグに依存した偽陽性だったと判明（回復アイテムは即時回復せず携行のみのため、本来 `energyOut` は再発火しない）
+    - テスト修正: 携行 → `useCarriedItem` 使用経由の検証へ差し替え
+  - `EnergyDebugPanel` の `+1` で EN 切れ状態から復帰しない
+    - 原因: `+1` が store 直接 `recover` 呼出しのままで、`Energy-consume`/`Energy-depleted` 経由の仕組みに乗っていなかった
+    - 対応: 対称の `Energy-recover`/`Energy-recovered` イベントを新設（recover-listener が実処理・0 より大きくなった判定を担う）、`+1` をこの経由に変更、proto-01/03 双方へ `Energy-recovered` 購読を追加
+    - 既存のアイテム回復（`handleCellChange`/`use-find-path-tick` の直接 `recover` 呼出し）は今回も対象外のまま据え置き
+  - 副次的に発見: proto-03 の `EnergyDebugPanel` 操作で `FindPathProto03Content`（`Stage07` 込み）全体が再レンダリングされる
+    - 原因: `MoveTargetLayer` が `canEnterCellPerceived` 経由で EN 残量を参照し、表示更新を親の再レンダリングに頼っている（EN 0 到達時に移動可能マス表示が消えることを実際に確認）
+    - 対応方針: `Stage07` 配下レイヤー群の `React.memo` 化 + `MoveTargetLayer` 自身の EN store 直接購読への切替が必要、規模が大きいため今回は見送り
+    - issue-137 backlog.md へ課題として記録
