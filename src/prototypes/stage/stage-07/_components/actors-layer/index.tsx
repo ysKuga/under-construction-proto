@@ -32,6 +32,12 @@ type ActorsLayerProps = {
    * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
    */
   maxWalkCycleSec?: number
+  /**
+   * player とは別に静止表示する mob 一覧（省略時は表示なし）
+   *
+   * - 自己移動・walking/face 等の action は持たない、指定セルへの静的配置のみ(issue #215)
+   */
+  mobs?: { cell: HexCell; id: string }[]
   /** セル間移動アニメーションの所要時間(ms)（省略時は `150`） */
   moveDurationMs?: number
   /**
@@ -63,7 +69,10 @@ type ActorsLayerProps = {
  *   `moveDurationMs`（3000ms 等）で周期が数秒に伸び、歩幅(`swingAngle`)は変わらない
  *   ため振れているかどうか視認しづらくなる。歩幅は変えず、周期の伸びだけ頭打ちにして
  *   常に一定以上の頻度で動きが見えるようにする
- * - visibility registry・複数 actor・ref registry 化は対象外（試作スコープ、issue #162）
+ * - visibility registry・ref registry 化は対象外（試作スコープ、issue #162）
+ * - `mobs` は player とは別の静的配置のみ（issue #215）。自己移動・EN 等の動的な
+ *   挙動は持たない。座標計算は player と同じ `hexCellCenter`/`computeHexGridBounds`
+ *   を共有し、`interactive={false}`・`actions={[]}` で対話/action 双方を無効化する
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
  *   安定化すること
@@ -98,6 +107,7 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     hexSize,
     legSwingAngle,
     maxWalkCycleSec = 1.2,
+    mobs = [],
     moveDurationMs = 150,
     onArrived,
     rows,
@@ -124,6 +134,21 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     onArrived?.()
   }
 
+  /** mob(静止配置)の位置スタイル。移動しないため transition は持たない */
+  const mobStyle = (cell: HexCell): CSSProperties => {
+    const mobCenter = hexCellCenter(cell, hexSize, bounds)
+
+    return {
+      height: size,
+      left: mobCenter.x,
+      position: 'absolute',
+      top: mobCenter.y,
+      transform: 'translate(-50%, -53%) rotateX(calc(-1 * var(--floor-tilt)))',
+      transformOrigin: 'center bottom',
+      width: size,
+    }
+  }
+
   /**
    * walking の 1 周期(両脚 1 往復 = 2 歩)を、1 マス移動(片脚 1 歩)の 2 マスぶんとみなし、
    * 移動時間の 2 倍を周期にする（`maxWalkCycleSec` で頭打ち）
@@ -134,24 +159,36 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
   const speedApproachRate = BASE_SPEED_APPROACH_RATE / cycleSec
 
   return (
-    <div onTransitionEnd={handleTransitionEnd} style={style}>
-      <BoxBot01
-        actionConfig={{
-          walking: {
-            armSwingAngle: ARM_SWING_ANGLE,
-            cycleSec,
-            speedApproachRate,
-            // defineAction が {...defaults, ...override} でマージするため、
-            // undefined を明示的に含めると既定値を上書きしてしまう。省略する
-            ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
-          },
-        }}
-        actions={ACTIONS}
-        eventTarget={eventTarget}
-        orbit={false}
-        style={{ height: size, width: size }}
-      />
-    </div>
+    <>
+      <div onTransitionEnd={handleTransitionEnd} style={style}>
+        <BoxBot01
+          actionConfig={{
+            walking: {
+              armSwingAngle: ARM_SWING_ANGLE,
+              cycleSec,
+              speedApproachRate,
+              // defineAction が {...defaults, ...override} でマージするため、
+              // undefined を明示的に含めると既定値を上書きしてしまう。省略する
+              ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
+            },
+          }}
+          actions={ACTIONS}
+          eventTarget={eventTarget}
+          orbit={false}
+          style={{ height: size, width: size }}
+        />
+      </div>
+      {mobs.map((mob) => (
+        <div key={mob.id} style={mobStyle(mob.cell)}>
+          <BoxBot01
+            actions={[]}
+            interactive={false}
+            orbit={false}
+            style={{ height: size, width: size }}
+          />
+        </div>
+      ))}
+    </>
   )
 })
 
