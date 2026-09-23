@@ -244,7 +244,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const [enableWalking, setEnableWalking] = useState(true)
   const [goalReached, setGoalReached] = useState(false)
   /** 非隣接クリックで選んだ経路の目標セル（経路プレビュー中のみ） */
-  const [goalCell, setGoalCell] = useState<HexCell>()
+  const [objectiveCell, setObjectiveCell] = useState<HexCell>()
   const [waypointFlowState, setWaypointFlowState] =
     useState<WaypointFlowState>('idle')
   const [waypoints, setWaypoints] = useState<HexCell[]>([])
@@ -317,29 +317,32 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   /**
-   * `PathPreviewLayer` へ表示する経路（中継点を最近傍順に経由し `goalCell` へ至る）
+   * `PathPreviewLayer` へ表示する経路（中継点を最近傍順に経由し `objectiveCell` へ至る）
    *
-   * - 到達不能になる `goalCell`/`waypoints` は設定時点で弾くため、ここでの
+   * - 到達不能になる `objectiveCell`/`waypoints` は設定時点で弾くため、ここでの
    *   `undefined` は想定外（空配列へ倒す）
    */
   const previewPath = useMemo(
     () =>
-      (goalCell &&
+      (objectiveCell &&
         findHexPathViaWaypoints(
           currentCell,
           waypoints,
-          goalCell,
+          objectiveCell,
           GRID.cols,
           GRID.rows,
           canEnterForPath,
         )) ??
       [],
-    [currentCell, goalCell, waypoints],
+    [currentCell, objectiveCell, waypoints],
   )
 
   /**
-   * 非隣接セルをクリックした時。BFS で経路を求め `PathPreviewLayer` へ表示する
-   * （自動移動は吹き出しの「実行」で開始する、issue #226）
+   * 非隣接セルをクリックした時。クリックしたセルを目標とし、BFS で経路を求め
+   * `PathPreviewLayer` へ表示する（自動移動は吹き出しの「実行」で開始する、issue #226）
+   *
+   * - `Stage07` は find-path 固有の概念（目標）を持たないため、prop 名は
+   *   `onNonAdjacentClick`（クリックの種類）のまま受ける
    */
   const handleNonAdjacentClick = useCallback(
     (cell: HexCell) => {
@@ -358,13 +361,13 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           title: `(${cell.q}, ${cell.r}) へは到達できません`,
           type: 'info',
         })
-        setGoalCell(undefined)
+        setObjectiveCell(undefined)
         setWaypointFlowState('idle')
 
         return
       }
 
-      setGoalCell(cell)
+      setObjectiveCell(cell)
       setWaypointFlowState('proposing')
     },
     [addNotification, currentCell, waypoints],
@@ -383,7 +386,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   /**
    * 「実行」吹き出しクリック時。表示中の経路に沿って自動移動を開始する
    *
-   * - 中継点フローは終了する（`goalCell`/`waypoints` は最初の 1 マス移動時に
+   * - 中継点フローは終了する（`objectiveCell`/`waypoints` は最初の 1 マス移動時に
    *   `handleCellChange` がクリアする）
    * - 自動移動中は `Stage07` を非対話化し、クリックによる割込みを防ぐ
    */
@@ -440,11 +443,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
 
       const next = [...waypoints, cell]
       const path =
-        goalCell &&
+        objectiveCell &&
         findHexPathViaWaypoints(
           currentCell,
           next,
-          goalCell,
+          objectiveCell,
           GRID.cols,
           GRID.rows,
           canEnterForPath,
@@ -462,12 +465,12 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
 
       setWaypoints(next)
     },
-    [addNotification, currentCell, goalCell, waypoints],
+    [addNotification, currentCell, objectiveCell, waypoints],
   )
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
-    setGoalCell(undefined)
+    setObjectiveCell(undefined)
     setWaypointFlowState('idle')
     setWaypoints([])
     markVisited(cell)
