@@ -37,3 +37,22 @@ test('despawnActor で actor が取り除かれる', () => {
 
   expect(store.getState().actors).toEqual({ player: { q: 0, r: 0 } })
 })
+
+test('registerOverlayContainer で actorId ごとにコンテナ DOM を登録できる', () => {
+  const store = createActorsStore({ player: { q: 0, r: 0 } })
+  const el = document.createElement('div')
+
+  store.getState().registerOverlayContainer('player', el)
+
+  expect(store.getState().overlayContainers.player).toBe(el)
+})
+
+test('registerOverlayContainer に el=null を渡すと登録が解除される', () => {
+  const store = createActorsStore({ player: { q: 0, r: 0 } })
+  const el = document.createElement('div')
+
+  store.getState().registerOverlayContainer('player', el)
+  store.getState().registerOverlayContainer('player', null)
+
+  expect(store.getState().overlayContainers).toEqual({})
+})
