@@ -1,7 +1,7 @@
 import { CSSProperties, memo } from 'react'
 
 import { useGetCellTitle } from '../../_contexts/cell-title'
-import { colRowToAxial, HexCell, isHexAdjacent } from '../../_lib/hex'
+import { colRowToAxial, HexCell } from '../../_lib/hex'
 import {
   computeHexGridBounds,
   hexCellCenter,
@@ -28,8 +28,6 @@ type GeoLayerProps = {
   canEnterCell?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
-  /** 現在地セル。隣接セルの選択可能表示・強調表示に使う */
-  currentCell: HexCell
   /** 六角形の外接円半径 (px) */
   hexSize: number
   /**
@@ -62,7 +60,8 @@ type GeoLayerProps = {
  *   辺の角度によって線の実効太さが変わりセル間の隙間が不均一に見えたため、
  *   幾何学的に正確な頂点座標を計算する SVG 方式へ変更（issue #162）
  * - 選択可能マスの点線枠表示は `MoveTargetLayer`（find-path proto-03）へ委譲する。
- *   ここでは隣接セルの `cursor: pointer` のみ付与する
+ *   ここでは進入可能セル（`canEnterCell`、隣接/非隣接問わず）の `cursor: pointer`
+ *   のみ付与する（issue #137、非隣接クリックの経路探索は今後実装）
  * - `interactive=false` のセルは非対話の `<div>` で描画する（stage-06 の
  *   `GeoLayer` と同じ方針）
  * - hover 説明文（`title` 属性）は `CellTitleContext` から取得する（props ではない、
@@ -77,7 +76,6 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
   const {
     canEnterCell,
     cols,
-    currentCell,
     hexSize,
     interactive,
     onCellClick,
@@ -101,8 +99,7 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
   return (
     <div style={containerStyle}>
       {cells.map((axial) => {
-        const selectable =
-          isHexAdjacent(currentCell, axial) && (canEnterCell?.(axial) ?? true)
+        const selectable = canEnterCell?.(axial) ?? true
         const center = hexCellCenter(axial, hexSize, bounds)
 
         const cellStyle: CSSProperties = {
