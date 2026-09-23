@@ -6,6 +6,19 @@ import { HexCell } from '../../_lib/hex'
 
 import { ActorsState, ActorsStore } from './types'
 
+/** actorId → DOM の map へ el を登録する(`el=null` なら登録解除) */
+const registerElement = (
+  elements: Partial<Record<ActorId, HTMLDivElement>>,
+  actorId: ActorId,
+  el: HTMLDivElement | null,
+): Partial<Record<ActorId, HTMLDivElement>> => {
+  if (el !== null) return { ...elements, [actorId]: el }
+
+  return Object.fromEntries(
+    Object.entries(elements).filter(([id]) => id !== actorId),
+  )
+}
+
 /**
  * actor 位置 store を生成する
  *
@@ -28,23 +41,21 @@ export const createActorsStore = (
         actors: { ...state.actors, [actorId]: target },
       }))
     },
+    overlayAnchors: {},
     overlayContainers: {},
+    registerOverlayAnchor: (actorId, el) => {
+      set((state) => ({
+        overlayAnchors: registerElement(state.overlayAnchors, actorId, el),
+      }))
+    },
     registerOverlayContainer: (actorId, el) => {
-      set((state) => {
-        if (el === null) {
-          return {
-            overlayContainers: Object.fromEntries(
-              Object.entries(state.overlayContainers).filter(
-                ([id]) => id !== actorId,
-              ),
-            ),
-          }
-        }
-
-        return {
-          overlayContainers: { ...state.overlayContainers, [actorId]: el },
-        }
-      })
+      set((state) => ({
+        overlayContainers: registerElement(
+          state.overlayContainers,
+          actorId,
+          el,
+        ),
+      }))
     },
     spawnActor: (actorId, cell) => {
       set((state) => ({

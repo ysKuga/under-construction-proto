@@ -18,18 +18,34 @@ export type ActorsState = {
   /** actor を target セルへ移動する */
   moveActor: (actorId: ActorId, target: HexCell) => void
   /**
+   * actorId ごとのオーバーレイ追従先(アンカー) DOM
+   *
+   * - `ActorsLayer` が actor の位置決め div 内に用意し、`registerOverlayAnchor`
+   *   で登録する。`ActorOverlayLayer` がこの DOM の画面上の位置を読み、
+   *   `overlayContainers` の各コンテナを追従させる
+   */
+  overlayAnchors: Partial<Record<ActorId, HTMLDivElement>>
+  /**
    * actorId ごとのオーバーレイ注入用コンテナ DOM
    *
-   * - `ActorsLayer` が actor の位置決め div 内に用意し、`registerOverlayContainer`
-   *   で登録する。呼び出し側はこの DOM へ `createPortal` で任意の要素（bot 頭上に
-   *   表示したい UI 等）を注入できる。actor に紐づく実装のため、props drilling
-   *   （`Stage07`→`ActorsLayer`）でなく store 経由にした（issue #137）
+   * - `ActorOverlayLayer` が floor の 3D 空間(`preserve-3d`)外に用意し、
+   *   `registerOverlayContainer` で登録する。呼び出し側はこの DOM へ
+   *   `createPortal` で任意の要素（bot 頭上に表示したい UI 等）を注入できる。
+   *   actor に紐づく実装のため、props drilling でなく store 経由にした（issue #137）
+   * - 3D 空間外に置くのは、floor 内だとブラウザの奥行きヒットテストで
+   *   `GeoLayer` のセルにクリックを奪われるため（issue #137）
    */
   overlayContainers: Partial<Record<ActorId, HTMLDivElement>>
   /**
-   * actorId の位置決め div 内のオーバーレイ注入用コンテナ DOM を登録する
+   * actorId のオーバーレイ追従先(アンカー) DOM を登録する
    *
    * - `ActorsLayer` の ref コールバックから呼ぶ。unmount 時は `el=null` で呼ばれる
+   */
+  registerOverlayAnchor: (actorId: ActorId, el: HTMLDivElement | null) => void
+  /**
+   * actorId のオーバーレイ注入用コンテナ DOM を登録する
+   *
+   * - `ActorOverlayLayer` の ref コールバックから呼ぶ。unmount 時は `el=null` で呼ばれる
    *   （`registerVisibilityNode` 等と同じパターン）
    */
   registerOverlayContainer: (

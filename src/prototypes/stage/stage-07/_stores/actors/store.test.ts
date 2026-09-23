@@ -56,3 +56,16 @@ test('registerOverlayContainer に el=null を渡すと登録が解除される'
 
   expect(store.getState().overlayContainers).toEqual({})
 })
+
+test('registerOverlayAnchor で actorId ごとにアンカー DOM を登録・解除できる', () => {
+  const store = createActorsStore({ player: { q: 0, r: 0 } })
+  const el = document.createElement('div')
+
+  store.getState().registerOverlayAnchor('player', el)
+
+  expect(store.getState().overlayAnchors.player).toBe(el)
+
+  store.getState().registerOverlayAnchor('player', null)
+
+  expect(store.getState().overlayAnchors).toEqual({})
+})
