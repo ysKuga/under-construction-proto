@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import {
@@ -36,8 +36,9 @@ import { ObstacleLayer } from './_components/obstacle-layer'
 import { OneWayLayer } from './_components/one-way-layer'
 import { PathPreviewLayer } from './_components/path-preview-layer'
 import {
-  WAYPOINT_BUBBLE_POSITION_CLASS_NAME,
+  WAYPOINT_BUBBLE_OFFSET,
   WaypointBubble,
+  WaypointBubbleHandle,
 } from './_components/waypoint-bubble'
 import { WaypointSelectLayer } from './_components/waypoint-select-layer'
 import { WaypointSelectingIndicator } from './_components/waypoint-selecting-indicator'
@@ -139,8 +140,9 @@ type EnterGuard = {
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
  *   通知する（issue #137 backlog、自動移動の実行は次段階）
  * - 中継点の設定（issue #137 backlog）: 経路が求まると bot 頭上に `WaypointBubble`
- *   （思考吹き出し）を表示し（`waypointFlowState === 'proposing'`）、クリックで
- *   中継点選択モード（`'selecting'`）へ移行する。`WaypointBubble` は自身では
+ *   （思考吹き出し）を表示し（`waypointFlowState !== 'idle'`、クリックで移行する
+ *   選択モード中も表示を継続）、クリックで中継点選択モード（`'selecting'`）へ
+ *   移行する。`WaypointBubble` は自身では
  *   座標計算を持たないため、`useActorsStore` の `overlayContainers` が公開する、
  *   player bot の位置決め div 内のコンテナ DOM（`playerOverlayContainer`）へ
  *   `createPortal` で注入する。これにより bot の現在地追従・floor の tilt 打ち消し
@@ -242,6 +244,12 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     useState<WaypointFlowState>('idle')
   const [waypoints, setWaypoints] = useState<HexCell[]>([])
   /**
+   * `WaypointBubble` の imperative API。`selectable`(思考吹き出し⇔発言吹き出し
+   * の切替)を props でなくこの ref 経由で命令する（`WaypointBubbleHandle`
+   * 内コメント参照）
+   */
+  const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
+  /**
    * `useActorsStore` の `overlayContainers` が公開する、player bot の位置決め
    * div 内のコンテナ DOM。`WaypointBubble` をここへ `createPortal` で注入する
    * （issue #137、bot 頭上への追従・tilt 打ち消しを bot 要素側の transform に
@@ -336,6 +344,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const handleWaypointBubbleClick = useCallback(() => {
     setWaypointFlowState('selecting')
   }, [])
+
+  // waypointFlowState の変化を WaypointBubble の selectable(imperative) へ同期する
+  useEffect(() => {
+    waypointBubbleRef.current?.setSelectable(waypointFlowState === 'selecting')
+  }, [waypointFlowState])
 
   /**
    * 「完了」クリック時。中継点選択モードを終了し通常状態へ戻る
@@ -509,10 +522,10 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       {playerOverlayContainer &&
         createPortal(
           <WaypointBubble
-            className={WAYPOINT_BUBBLE_POSITION_CLASS_NAME}
+            offset={WAYPOINT_BUBBLE_OFFSET}
             onClick={handleWaypointBubbleClick}
-            selectable={false}
-            visible={waypointFlowState === 'proposing'}
+            ref={waypointBubbleRef}
+            visible={waypointFlowState !== 'idle'}
           />,
           playerOverlayContainer,
         )}

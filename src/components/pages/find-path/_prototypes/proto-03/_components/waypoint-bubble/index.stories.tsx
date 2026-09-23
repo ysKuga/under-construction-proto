@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { CSSProperties, PropsWithChildren, useState } from 'react'
+import { CSSProperties, PropsWithChildren, useRef, useState } from 'react'
 
 import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import {
@@ -9,7 +9,8 @@ import {
 
 import {
   WaypointBubble as StoryComponent,
-  WAYPOINT_BUBBLE_POSITION_CLASS_NAME,
+  WAYPOINT_BUBBLE_OFFSET,
+  WaypointBubbleHandle,
 } from '.'
 
 const GRID = { cols: 5, rows: 5 } as const
@@ -108,9 +109,8 @@ const BubbleStage = (props: PropsWithChildren) => {
 
 const meta: Meta<typeof StoryComponent> = {
   args: {
-    className: WAYPOINT_BUBBLE_POSITION_CLASS_NAME,
+    offset: WAYPOINT_BUBBLE_OFFSET,
     onClick: () => {},
-    selectable: false,
   },
   component: StoryComponent,
 }
@@ -129,17 +129,31 @@ export const Default: Story = {
   ),
 }
 
-/** 中継点選択モードが選択可能な状態(store 接続後を想定)。枠線が点線になる */
+/**
+ * 中継点選択モードが選択可能な状態。三角形のしっぽ + 文言「中継点！」になる
+ *
+ * - `selectable` は ref 経由の imperative 命令のため、mount 直後に
+ *   `WaypointBubbleHandle.setSelectable(true)` を呼んで再現する
+ */
 export const Selectable: Story = {
   args: {
-    selectable: true,
     visible: true,
   },
-  render: (args) => (
-    <BubbleStage>
-      <StoryComponent {...args} />
-    </BubbleStage>
-  ),
+  render: (args) => {
+    const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
+
+    return (
+      <BubbleStage>
+        <StoryComponent
+          {...args}
+          ref={(handle) => {
+            waypointBubbleRef.current = handle
+            handle?.setSelectable(true)
+          }}
+        />
+      </BubbleStage>
+    )
+  },
 }
 
 export const Hidden: Story = {
@@ -153,11 +167,18 @@ export const Hidden: Story = {
   ),
 }
 
-/** ボタンで `visible`/`selectable` を切替え、表示状態の変化を都度確認できる */
+/**
+ * ボタンで `visible`/`selectable` を切替え、表示状態の変化を都度確認できる
+ *
+ * - `offset` スライダーで本体の表示位置を動かし、bot 方向コネクタ(丸の弧・
+ *   三角形のしっぽ)が offset に追従して bot の方を向き続けることを確認する
+ */
 export const Interactive: Story = {
   render: (args) => {
+    const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
     const [visible, setVisible] = useState(true)
     const [selectable, setSelectable] = useState(false)
+    const [offset, setOffset] = useState(WAYPOINT_BUBBLE_OFFSET)
 
     return (
       <>
@@ -169,14 +190,61 @@ export const Interactive: Story = {
             表示: {visible ? 'ON' : 'OFF'}
           </button>
           <button
-            onClick={() => setSelectable((current) => !current)}
+            onClick={() =>
+              setSelectable((current) => {
+                const next = !current
+
+                waypointBubbleRef.current?.setSelectable(next)
+
+                return next
+              })
+            }
             type="button"
           >
             選択可能: {selectable ? 'ON' : 'OFF'}
           </button>
         </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <label>
+            offset.x{' '}
+            <input
+              max={80}
+              min={-80}
+              onChange={(event) =>
+                setOffset((current) => ({
+                  ...current,
+                  x: Number(event.target.value),
+                }))
+              }
+              type="range"
+              value={offset.x}
+            />{' '}
+            {offset.x}
+          </label>
+          <label>
+            offset.y{' '}
+            <input
+              max={80}
+              min={-80}
+              onChange={(event) =>
+                setOffset((current) => ({
+                  ...current,
+                  y: Number(event.target.value),
+                }))
+              }
+              type="range"
+              value={offset.y}
+            />{' '}
+            {offset.y}
+          </label>
+        </div>
         <BubbleStage>
-          <StoryComponent {...args} selectable={selectable} visible={visible} />
+          <StoryComponent
+            {...args}
+            offset={offset}
+            ref={waypointBubbleRef}
+            visible={visible}
+          />
         </BubbleStage>
       </>
     )
