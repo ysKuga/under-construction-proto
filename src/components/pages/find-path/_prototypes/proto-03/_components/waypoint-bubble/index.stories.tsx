@@ -1,4 +1,5 @@
 import { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import { useState } from 'react'
 
 import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import {
@@ -91,5 +92,33 @@ export const Selectable: Story = {
 export const Hidden: Story = {
   args: {
     visible: false,
+  },
+}
+
+/** ボタンで `visible`/`selectable` を切替え、表示状態の変化を都度確認できる */
+export const Interactive: Story = {
+  render: (args) => {
+    const [visible, setVisible] = useState(true)
+    const [selectable, setSelectable] = useState(false)
+
+    return (
+      <>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <button
+            onClick={() => setVisible((current) => !current)}
+            type="button"
+          >
+            表示: {visible ? 'ON' : 'OFF'}
+          </button>
+          <button
+            onClick={() => setSelectable((current) => !current)}
+            type="button"
+          >
+            選択可能: {selectable ? 'ON' : 'OFF'}
+          </button>
+        </div>
+        <StoryComponent {...args} selectable={selectable} visible={visible} />
+      </>
+    )
   },
 }
