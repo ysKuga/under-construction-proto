@@ -18,7 +18,6 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
-import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
 import {
   ActorsStoreProvider,
   useActorsStore,
@@ -47,6 +46,7 @@ import {
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
 import { describeCellContent } from './_lib/describe-cell-content'
+import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
@@ -160,7 +160,8 @@ type EnterGuard = {
  *   いずれも表示制御（`useCssToggle`）込みで自己完結したコンポーネントへ切り出し
  *   済み、親からは `visible` prop のみで駆動する（このコンポーネントは
  *   `waypointFlowState` を保持し各コンポーネントへ分配するだけでよい）。
- *   経由順の最近傍接続・経路への統合は次段階
+ *   設置した中継点は最近傍順に経由する経路として `PathPreviewLayer` へ反映する
+ *   （`findHexPathViaWaypoints`、issue #226）。自動移動の実行は次段階
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。可視判定は「視界（現在地基準の6近傍）」または「到達済み表示ONかつ
  *   到達済みセル」（`setShowVisited` で切替可能、既定 ON）。`Stage07`（hex タイルの
@@ -236,7 +237,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     useState<MoveTargetDisplayMode>('scatter')
   const [enableWalking, setEnableWalking] = useState(true)
   const [goalReached, setGoalReached] = useState(false)
-  const [previewPath, setPreviewPath] = useState<HexCell[]>([])
+  /** 非隣接クリックで選んだ経路の目標セル（経路プレビュー中のみ） */
+  const [goalCell, setGoalCell] = useState<HexCell>()
   const [waypointFlowState, setWaypointFlowState] =
     useState<WaypointFlowState>('idle')
   const [waypoints, setWaypoints] = useState<HexCell[]>([])
@@ -305,13 +307,35 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   /**
+   * `PathPreviewLayer` へ表示する経路（中継点を最近傍順に経由し `goalCell` へ至る）
+   *
+   * - 到達不能になる `goalCell`/`waypoints` は設定時点で弾くため、ここでの
+   *   `undefined` は想定外（空配列へ倒す）
+   */
+  const previewPath = useMemo(
+    () =>
+      (goalCell &&
+        findHexPathViaWaypoints(
+          currentCell,
+          waypoints,
+          goalCell,
+          GRID.cols,
+          GRID.rows,
+          canEnterForPath,
+        )) ??
+      [],
+    [currentCell, goalCell, waypoints],
+  )
+
+  /**
    * 非隣接セルをクリックした時。BFS で経路を求め `PathPreviewLayer` へ表示する
-   * （issue #137 backlog、自動移動の実行は次段階）
+   * （自動移動の実行は次段階、issue #226）
    */
   const handleNonAdjacentClick = useCallback(
     (cell: HexCell) => {
-      const path = findHexPath(
+      const path = findHexPathViaWaypoints(
         currentCell,
+        waypoints,
         cell,
         GRID.cols,
         GRID.rows,
@@ -324,16 +348,16 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           title: `(${cell.q}, ${cell.r}) へは到達できません`,
           type: 'info',
         })
-        setPreviewPath([])
+        setGoalCell(undefined)
         setWaypointFlowState('idle')
 
         return
       }
 
-      setPreviewPath(path)
+      setGoalCell(cell)
       setWaypointFlowState('proposing')
     },
-    [addNotification, currentCell],
+    [addNotification, currentCell, waypoints],
   )
 
   /** 思考吹き出しクリック時。中継点選択モードへ移行する */
@@ -358,19 +382,51 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   /**
    * 中継点選択モード中のセルクリック時。中継点を設置/除去する
    *
-   * - 経由順の最近傍接続は次段階（issue #137 backlog）
+   * - 経由順は設置順でなく最近傍順（`findHexPathViaWaypoints` 内で決める）
+   * - 設置により経路が到達不能になる場合（障害物セル等）は通知して設置しない
    */
-  const handleWaypointCellClick = useCallback((cell: HexCell) => {
-    setWaypoints((prev) => {
-      const index = prev.findIndex((waypoint) => isSameCell(waypoint, cell))
+  const handleWaypointCellClick = useCallback(
+    (cell: HexCell) => {
+      const index = waypoints.findIndex((waypoint) =>
+        isSameCell(waypoint, cell),
+      )
 
-      return index === -1 ? [...prev, cell] : prev.filter((_, i) => i !== index)
-    })
-  }, [])
+      if (index !== -1) {
+        setWaypoints(waypoints.filter((_, i) => i !== index))
+
+        return
+      }
+
+      const next = [...waypoints, cell]
+      const path =
+        goalCell &&
+        findHexPathViaWaypoints(
+          currentCell,
+          next,
+          goalCell,
+          GRID.cols,
+          GRID.rows,
+          canEnterForPath,
+        )
+
+      if (!path) {
+        addNotification({
+          options: { autoDismiss: true },
+          title: `(${cell.q}, ${cell.r}) を経由できません`,
+          type: 'info',
+        })
+
+        return
+      }
+
+      setWaypoints(next)
+    },
+    [addNotification, currentCell, goalCell, waypoints],
+  )
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
-    setPreviewPath([])
+    setGoalCell(undefined)
     setWaypointFlowState('idle')
     setWaypoints([])
     markVisited(cell)
