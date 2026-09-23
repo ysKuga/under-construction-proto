@@ -94,6 +94,7 @@ export const WaypointBubble = memo(
 
       const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
       const selectableCheckboxRef = useRef<HTMLInputElement>(null)
+      const rippleRef = useRef<HTMLSpanElement>(null)
 
       useEffect(() => {
         setVisible(visible)
@@ -106,6 +107,20 @@ export const WaypointBubble = memo(
       }, [])
 
       useImperativeHandle(ref, () => ({ setSelectable }), [setSelectable])
+
+      /** クリック時。波紋アニメーションを最初から再生し直してから onClick を呼ぶ */
+      const handleClick = useCallback(() => {
+        const rippleEl = rippleRef.current
+
+        if (rippleEl) {
+          rippleEl.style.animation = 'none'
+          // reflow を挟むことで CSS アニメーションを最初から再生させる
+          void rippleEl.offsetHeight
+          rippleEl.style.animation = `${styles.rippleSpread} 0.5s ease-out`
+        }
+
+        onClick()
+      }, [onClick])
 
       const { dots, trianglePoints } = computeConnectorGeometry(offset)
 
@@ -133,11 +148,12 @@ export const WaypointBubble = memo(
             <button
               aria-label="中継点選択モードへ移行"
               className={styles.bubbleButton}
-              onClick={onClick}
+              onClick={handleClick}
               type="button"
             >
               <span className={styles.thoughtText}>中継点？</span>
               <span className={styles.speechText}>中継点！</span>
+              <span className={styles.ripple} ref={rippleRef} />
             </button>
             <svg
               className={styles.connectorSvg}

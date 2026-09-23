@@ -19,26 +19,47 @@ const float = keyframes({
 })
 
 /**
+ * 背景の帯が右から左へ一方向に流れるアニメーション
+ *
+ * - 未選択・非 hover 時、bubble の存在を目立たせるために常時流し続ける
+ * - 往復でなく一方向ループ(`100%` フレーム到達後、瞬時に `0%` へ戻り
+ *   流れ続ける)。`linear` と組み合わせて等速に保つ
+ */
+const gradientShift = keyframes({
+  '0%': { backgroundPosition: '200% 50%' },
+  '100%': { backgroundPosition: '-100% 50%' },
+})
+
+/**
  * 吹き出し本体(button)
  *
  * - 文言の出し分けセレクター基点も兼ねる
  * - 回転の中心を下端(bot・コネクタ側)にし、ふわふわ揺れてもコネクタとの
  *   接続点が安定して見えるようにする
- * - 枠線は既定で dotted、hover 時のみ solid にする
- * - `selectable` 選択時はふわふわ揺れを止め、枠線も常時 solid にする
- *   (発言中は静止させ、思考中(未選択時)と見た目で区別する)
+ * - 枠線は既定で dotted、hover 時のみ solid にする。hover 中はふわふわ揺れ・
+ *   背景グラデーションも一時停止する(揺れたままだとカーソルが要素から外れ
+ *   hover が安定しない)
+ * - `selectable` 選択時はふわふわ揺れ・背景グラデーションを止め、枠線も常時
+ *   solid にする(発言中は静止させ、思考中(未選択時)と見た目で区別する)
+ * - `overflow: hidden` はクリック時の `ripple`(`_components/waypoint-bubble`
+ *   内 `<span>`)がこの角丸からはみ出さないための指定
  */
 export const bubbleButton = style({
   ':hover': {
+    animationPlayState: 'paused',
     borderStyle: 'solid',
   },
-  animation: `${float} 2.4s ease-in-out infinite`,
-  background: '#fff',
+  animation: `${float} 2.4s ease-in-out infinite, ${gradientShift} 2.2s linear infinite`,
+  background:
+    'linear-gradient(120deg, #fff 0%, #fff 46%, rgba(156, 163, 175, 0.5) 50%, #fff 54%, #fff 100%)',
+  backgroundSize: '300% 100%',
   border: '2px dotted #9ca3af',
   borderRadius: 8,
   cursor: 'pointer',
   fontSize: 12,
+  overflow: 'hidden',
   padding: '2px 6px',
+  position: 'relative',
   selectors: {
     [`${selectableCheckbox}:checked ~ &`]: {
       animation: 'none',
@@ -47,6 +68,38 @@ export const bubbleButton = style({
   },
   transformOrigin: 'bottom center',
   whiteSpace: 'nowrap',
+})
+
+/**
+ * クリック時、中心から広がって消える波紋アニメーション
+ *
+ * - `ripple` クラス自体には `animation` を持たせない。`index.tsx` がクリック
+ *   のたびインライン `style.animation` へこの名前を直接設定して再生する
+ *   (CSS クラス側に `animation` を持たせると、reflow トリックでインライン
+ *   style をリセットした際に CSS 側の値へ戻ってしまい、2 回目以降の
+ *   クリックで再生されなくなる)
+ */
+export const rippleSpread = keyframes({
+  '0%': { opacity: 0.5, transform: 'scale(0)' },
+  '100%': { opacity: 0, transform: 'scale(2.5)' },
+})
+
+/**
+ * クリック時の波紋(`bubbleButton` 内、`index.tsx` が ref 経由でアニメーション
+ * を再生する)
+ *
+ * - 既定は `opacity: 0`(非表示)。`animation` を持たないため、
+ *   `index.tsx` がインライン style で `rippleSpread` を設定した時だけ
+ *   再生され、終了後は既定値(`opacity: 0`)へ自然に戻る
+ */
+export const ripple = style({
+  background:
+    'radial-gradient(circle, rgba(107, 114, 128, 0.85), transparent 70%)',
+  borderRadius: '9999px',
+  inset: 0,
+  opacity: 0,
+  pointerEvents: 'none',
+  position: 'absolute',
 })
 
 /** 文言「中継？」(`selectable` 未選択時のみ表示) */
@@ -89,17 +142,21 @@ const dotFloat = keyframes({
 /**
  * 丸1個(bot と吹き出し本体をつなぐ弧上に配置。`selectable` 未選択時のみ表示)
  *
+ * - 白背景 + グレー枠線。吹き出し本体(button)と同じ配色にし塗りつぶしの
+ *   丸より馴染ませる
  * - `transformBox: 'fill-box'` で丸自身の中心を回転/移動の基準にする
  *   (指定しないと SVG viewport 原点基準になり、丸ごとに動きがズレる)
  */
 export const connectorDot = style({
   animation: `${dotFloat} 1.2s ease-in-out infinite`,
-  fill: '#9ca3af',
+  fill: '#fff',
   selectors: {
     [`${selectableCheckbox}:checked ~ ${connectorSvg} &`]: {
       display: 'none',
     },
   },
+  stroke: '#9ca3af',
+  strokeWidth: 1.5,
   transformBox: 'fill-box',
   transformOrigin: 'center',
 })
