@@ -14,7 +14,7 @@ import { HEX_DIRECTIONS, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { START_POSITION } from '../../constants'
 
 /** 表示切替対象 DOM の用途 */
-type NodeKind = 'floor' | 'marker'
+type NodeKind = 'floor' | 'marker' | 'waypoint'
 
 /** セルキー ("q,r") を組み立てる */
 const cellKey = (cell: HexCell): string => `${cell.q},${cell.r}`
@@ -52,7 +52,9 @@ type VisibilityRegistryValue = {
    *
    * - JSX の `ref` コールバックから呼ぶ。unmount 時は el=null で解除
    * - `kind` ごとに別 DOM を持てる（`GeoLayer`（stage-07）の hex タイル =
-   *   `floor`、`GoalMarkerLayer` の旗表示 = `marker`）
+   *   `floor`、`GoalMarkerLayer` 等の疎な配置マーカー = `marker`、全セルに
+   *   存在する `WaypointSelectLayer` は `marker` と同一セルで衝突しうるため
+   *   独立した `waypoint`）
    * - 登録時、その cell の現在の可視状態を DOM へ即反映する（再マウント復帰用）
    */
   registerVisibilityNode: (

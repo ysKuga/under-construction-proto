@@ -139,6 +139,13 @@ type Stage07Props = PropsWithChildren<{
  *   自身は find-path 固有の概念（通知表示等）を持たないため、呼び出し側へ通知するのみ
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
+ * - player bot 頭上へのオーバーレイ注入用コンテナは `ActorsLayer` が
+ *   `useActorsStore` の `registerOverlayContainer` で登録する（props でなく
+ *   store 経由、actor に紐づく実装のため。`ActorsLayer` 内コメント参照）。
+ *   呼び出し側は同じ `useActorsStore` から `overlayContainers[actorId]` を
+ *   直接読み、`createPortal` で任意の要素（bot 頭上に表示したい吹き出し等、
+ *   複数可）を注入できる。`children`（floor 直下、セル座標基準の overlay）と
+ *   異なり、bot の現在地・tilt 打ち消しに自動で追従する点が違う
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
  *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)はいずれもスライダーで
  *   調整可能（`ActorsLayer` へ渡す。tilt と異なり操作頻度が低いため `useState`

@@ -73,6 +73,13 @@ type ActorsLayerProps = {
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
  *   安定化すること
+ * - player bot の位置決め div 内にオーバーレイ注入用コンテナ DOM を用意し、
+ *   `useActorsStore` の `registerOverlayContainer` で登録する（issue #137）。
+ *   当初は `Stage07`→`ActorsLayer` の props（`registerPlayerOverlayContainer`）
+ *   で渡していたが、actor に紐づく実装のため props drilling でなく store
+ *   経由に変更した。呼び出し元（find-path 側）は同じ `useActorsStore` から
+ *   `overlayContainers[actorId]` を直接読み、`createPortal` で任意の要素
+ *   （bot 頭上に表示したい UI 等、複数可）を注入できる
  */
 /** face / walking / walkingReset / energyOut を有効化する(jump/spin 等は無効のまま) */
 const ACTIONS = [faceAction, walkingAction, walkingResetAction, energyOutAction]
@@ -113,6 +120,9 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
   } = props
 
   const actors = useActorsStore((state) => state.actors)
+  const registerOverlayContainer = useActorsStore(
+    (state) => state.registerOverlayContainer,
+  )
   const currentCell = actors[PLAYER_ACTOR_ID] ?? DEFAULT_CELL
   const mobs = Object.entries(actors).filter(
     ([actorId]) => actorId !== PLAYER_ACTOR_ID,
@@ -180,6 +190,10 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
           eventTarget={eventTarget}
           orbit={false}
           style={{ height: size, width: size }}
+        />
+        <div
+          ref={(el) => registerOverlayContainer(PLAYER_ACTOR_ID, el)}
+          style={{ inset: 0, pointerEvents: 'none', position: 'absolute' }}
         />
       </div>
       {mobs.map(([actorId, cell]) => (

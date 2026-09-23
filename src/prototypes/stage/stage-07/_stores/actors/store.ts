@@ -28,6 +28,24 @@ export const createActorsStore = (
         actors: { ...state.actors, [actorId]: target },
       }))
     },
+    overlayContainers: {},
+    registerOverlayContainer: (actorId, el) => {
+      set((state) => {
+        if (el === null) {
+          return {
+            overlayContainers: Object.fromEntries(
+              Object.entries(state.overlayContainers).filter(
+                ([id]) => id !== actorId,
+              ),
+            ),
+          }
+        }
+
+        return {
+          overlayContainers: { ...state.overlayContainers, [actorId]: el },
+        }
+      })
+    },
     spawnActor: (actorId, cell) => {
       set((state) => ({
         actors: { ...state.actors, [actorId]: cell },
