@@ -43,21 +43,6 @@ type ActorsLayerProps = {
    *   `left`/`top` それぞれの `transitionend` で二重に呼ばれても安全な実装にすること
    */
   onArrived?: () => void
-  /**
-   * player bot の位置決め div 内にオーバーレイ注入用コンテナを用意し、その DOM を
-   * 公開する（省略時は用意しない）
-   *
-   * - `stage-07` は find-path 固有の概念（中継点選択の吹き出し等）を持たないため、
-   *   コンテナ DOM を渡すだけに留める。呼び出し側が `createPortal` でこの DOM へ
-   *   任意の要素（bot 頭上に表示したい UI）を注入する
-   * - コンテナ自体は 1 つの DOM のみを公開する。吹き出しを複数同時に表示したい場合
-   *   （例: 複数の候補を提示する等）は、呼び出し側がこのコンテナへ向けて
-   *   `createPortal` を必要な数だけ呼ぶ（各 portal は同じコンテナの子として共存
-   *   できる）。コンテナ側で 1 件に制限する仕組みは持たない
-   * - unmount 時は `el=null` で呼ばれる（`registerVisibilityNode` 等と同じ ref
-   *   コールバックパターン）
-   */
-  registerPlayerOverlayContainer?: (el: HTMLDivElement | null) => void
   /** 行数 */
   rows: number
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
@@ -88,6 +73,13 @@ type ActorsLayerProps = {
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
  *   安定化すること
+ * - player bot の位置決め div 内にオーバーレイ注入用コンテナ DOM を用意し、
+ *   `useActorsStore` の `registerOverlayContainer` で登録する（issue #137）。
+ *   当初は `Stage07`→`ActorsLayer` の props（`registerPlayerOverlayContainer`）
+ *   で渡していたが、actor に紐づく実装のため props drilling でなく store
+ *   経由に変更した。呼び出し元（find-path 側）は同じ `useActorsStore` から
+ *   `overlayContainers[actorId]` を直接読み、`createPortal` で任意の要素
+ *   （bot 頭上に表示したい UI 等、複数可）を注入できる
  */
 /** face / walking / walkingReset / energyOut を有効化する(jump/spin 等は無効のまま) */
 const ACTIONS = [faceAction, walkingAction, walkingResetAction, energyOutAction]
@@ -123,12 +115,14 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     maxWalkCycleSec = 1.2,
     moveDurationMs = 150,
     onArrived,
-    registerPlayerOverlayContainer,
     rows,
     size,
   } = props
 
   const actors = useActorsStore((state) => state.actors)
+  const registerOverlayContainer = useActorsStore(
+    (state) => state.registerOverlayContainer,
+  )
   const currentCell = actors[PLAYER_ACTOR_ID] ?? DEFAULT_CELL
   const mobs = Object.entries(actors).filter(
     ([actorId]) => actorId !== PLAYER_ACTOR_ID,
@@ -197,12 +191,10 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
           orbit={false}
           style={{ height: size, width: size }}
         />
-        {registerPlayerOverlayContainer && (
-          <div
-            ref={(el) => registerPlayerOverlayContainer(el)}
-            style={{ inset: 0, pointerEvents: 'none', position: 'absolute' }}
-          />
-        )}
+        <div
+          ref={(el) => registerOverlayContainer(PLAYER_ACTOR_ID, el)}
+          style={{ inset: 0, pointerEvents: 'none', position: 'absolute' }}
+        />
       </div>
       {mobs.map(([actorId, cell]) => (
         <div key={actorId} style={mobStyle(cell)}>
