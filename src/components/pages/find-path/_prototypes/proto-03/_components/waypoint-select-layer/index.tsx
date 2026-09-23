@@ -45,7 +45,8 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  *   経路探索）とは別イベントとして完全に分離する（issue #137、中継点機能の設計方針）
  * - `waypoints` に含まれるセルへ 📍 を重ねる。設置操作が見た目に反映されず
  *   「選択できていないように見える」というフィードバック不足の指摘を受けて追加
- *   （issue #137、当初は次段階予定だったが前倒し）。経由順の最近傍接続は次段階
+ *   （issue #137、当初は次段階予定だったが前倒し）。経由順（最近傍）は
+ *   `index.tsx` 側の `findHexPathViaWaypoints` が決める（issue #226）
  * - 表示/非表示は `useCssToggle`（`src/hooks/use-css-toggle`）で自己管理する
  *   （`WaypointBubble` と同型）。`visible` prop の変化を hidden checkbox の
  *   checked へ同期するだけで、React state による条件付きレンダリングは行わない

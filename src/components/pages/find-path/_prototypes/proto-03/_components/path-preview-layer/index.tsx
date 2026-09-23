@@ -33,7 +33,7 @@ type PathPreviewLayerProps = {
  *   ON/OFF に関わらず常時表示する（他レイヤーの「未到達マスは隠す」方針とは
  *   目的が異なるための意図的な例外）
  * - 中継点を経由した経路の連結も `index.tsx` 側（`findHexPathViaWaypoints`）で行う
- * - 自動移動の実行は次段階（issue #226）
+ * - 自動移動は `index.tsx` が表示中の経路を `Stage07Handle.followPath` へ渡して行う（issue #226）
  */
 export const PathPreviewLayer = memo((props: PathPreviewLayerProps) => {
   const { cols, hexSize, path, rows } = props
