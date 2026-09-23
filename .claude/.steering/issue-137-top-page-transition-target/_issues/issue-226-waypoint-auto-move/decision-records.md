@@ -22,3 +22,4 @@
 - 2026-09-24: 非隣接クリックで指定するセルの呼び名を「目標」(`objective`) とする（ユーザー判断）。「目的地」は「目的」が最終的・全体的なニュアンスを持つため不採用。`target` は `MoveTargetLayer` と衝突するため不採用（docs/terminology/strategy/objective）
 - 2026-09-24: `Stage07` の `onNonAdjacentClick` は「目標」へ改名しない。理由: `Stage07` は find-path 固有の概念を持たない（`CellTitleProvider` と同じ方針）。改名対象は proto-03 側（`objectiveCell` state、`findHexPathViaWaypoints` の引数）に限る
 - 2026-09-24: 目標マーカーは経路プレビューと同色（`#0284c7`）のリングとする（`ObjectiveMarkerLayer`）。理由: ゴールの 🚩・中継点の 📍 と見分けがつき、経路の終端であることが色で結び付く。ゴールセルを目標にした場合も旗を囲む形で重なり、どちらも読める
+  - リングは縮小 → 非表示 → 初期表示を繰り返す（ユーザー判断）
