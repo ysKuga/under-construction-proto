@@ -22,12 +22,18 @@ const float = keyframes({
  * 背景の帯が右から左へ一方向に流れるアニメーション
  *
  * - 未選択・非 hover 時、bubble の存在を目立たせるために常時流し続ける
+ * - hover 時の停止は CSS でなく `_hooks/use-gradient-hover-stop` が担う
+ *   (帯を途中で止めず流しきってから止めるため)
  * - 往復でなく一方向ループ(`100%` フレーム到達後、瞬時に `0%` へ戻り
  *   流れ続ける)。`linear` と組み合わせて等速に保つ
+ * - 背景は繰返し(`background-repeat` 既定)のため、`background-size: 300%` だと
+ *   `background-position` 150% 周期で同じ見た目になる。1 周を 1 周期ぶん
+ *   (帯 1 回の通過)にし、周の境目(`125%` ≡ `-25%`)を帯が見えない位置に置く。
+ *   hover 時にこの境目で止めるため(`_hooks/use-gradient-hover-stop`)
  */
-const gradientShift = keyframes({
-  '0%': { backgroundPosition: '200% 50%' },
-  '100%': { backgroundPosition: '-100% 50%' },
+export const gradientShift = keyframes({
+  '0%': { backgroundPosition: '125% 50%' },
+  '100%': { backgroundPosition: '-25% 50%' },
 })
 
 /**
@@ -36,9 +42,10 @@ const gradientShift = keyframes({
  * - 文言の出し分けセレクター基点も兼ねる
  * - 回転の中心を下端(bot・コネクタ側)にし、ふわふわ揺れてもコネクタとの
  *   接続点が安定して見えるようにする
- * - 枠線は既定で dotted、hover 時のみ solid にする。hover 中はふわふわ揺れ・
- *   背景グラデーションも一時停止する(揺れたままだとカーソルが要素から外れ
- *   hover が安定しない)
+ * - 枠線は既定で dotted、hover 時のみ solid にする。hover 中はふわふわ揺れを
+ *   一時停止する(揺れたままだとカーソルが要素から外れ hover が安定しない)。
+ *   `animation-play-state` は `animation` の並び順に対応し、背景グラデーション
+ *   (2 番目)は running のまま残す(停止は `_hooks/use-gradient-hover-stop`)
  * - `selectable` 選択時はふわふわ揺れ・背景グラデーションを止め、枠線も常時
  *   solid にする(発言中は静止させ、思考中(未選択時)と見た目で区別する)
  * - `overflow: hidden` はクリック時の `ripple`(`_components/waypoint-bubble`
@@ -46,10 +53,10 @@ const gradientShift = keyframes({
  */
 export const bubbleButton = style({
   ':hover': {
-    animationPlayState: 'paused',
+    animationPlayState: 'paused, running',
     borderStyle: 'solid',
   },
-  animation: `${float} 2.4s ease-in-out infinite, ${gradientShift} 2.2s linear infinite`,
+  animation: `${float} 2.4s ease-in-out infinite, ${gradientShift} 1.1s linear infinite`,
   background:
     'linear-gradient(120deg, #fff 0%, #fff 46%, rgba(156, 163, 175, 0.5) 50%, #fff 54%, #fff 100%)',
   backgroundSize: '300% 100%',

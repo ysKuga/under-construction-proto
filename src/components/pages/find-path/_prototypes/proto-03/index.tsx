@@ -144,16 +144,13 @@ type EnterGuard = {
  *   選択モード中も表示を継続）、クリックで中継点選択モード（`'selecting'`）へ
  *   移行する。`WaypointBubble` は自身では
  *   座標計算を持たないため、`useActorsStore` の `overlayContainers` が公開する、
- *   player bot の位置決め div 内のコンテナ DOM（`playerOverlayContainer`）へ
- *   `createPortal` で注入する。これにより bot の現在地追従・floor の tilt 打ち消し
- *   を bot 要素側の transform にそのまま乗せられる（`WaypointBubble` 内コメント
- *   参照）。位置は `WAYPOINT_BUBBLE_POSITION_CLASS_NAME`（bot 頭上の決め打ち
- *   オフセット）を渡す。`WaypointBubble` は現状、表示位置確認のための
+ *   player bot 用のコンテナ DOM（`playerOverlayContainer`、floor の 3D 空間外で
+ *   bot の画面上の位置へ追従する）へ `createPortal` で注入する。位置は
+ *   `WAYPOINT_BUBBLE_POSITION_CLASS_NAME`（bot 頭上の決め打ちオフセット）を渡す。`WaypointBubble` は現状、表示位置確認のための
  *   暫定実装（border 付き button）。`selectable` prop（枠線の実線/点線切替）は
  *   store で中継点選択モードを管理する想定の先行実装で、ここでは固定値 `false`
- *   を渡す（store 接続は次段階）。`rotateX` + `preserve-3d` 環境のブラウザ
- *   奥行きヒットテストに `GeoLayer` セルへクリックを奪われる問題への対処
- *   （`translateZ` 押し出し等）は見た目確定後に再検討する。選択モード中は
+ *   を渡す（store 接続は次段階）。コンテナが floor の 3D 空間外にあるため、
+ *   `GeoLayer` セルと重なってもクリックを奪われない。選択モード中は
  *   `Stage07` を `interactive={false}` にし、
  *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する
  *   （設置済みセルへ 📍 を表示）。通常モードのクリック（`useHexMove` 経由）とは
@@ -250,12 +247,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    */
   const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
   /**
-   * `useActorsStore` の `overlayContainers` が公開する、player bot の位置決め
-   * div 内のコンテナ DOM。`WaypointBubble` をここへ `createPortal` で注入する
-   * （issue #137、bot 頭上への追従・tilt 打ち消しを bot 要素側の transform に
-   * 乗せるため）。`ActorsLayer` が `registerOverlayContainer` で store へ登録
-   * する（props drilling でなく actor に紐づく store 経由、`ActorsLayer` 内
-   * コメント参照）
+   * `useActorsStore` の `overlayContainers` が公開する、player bot 用の
+   * コンテナ DOM。`WaypointBubble` をここへ `createPortal` で注入する
+   * （issue #137）。`Stage07` の `ActorOverlayLayer` が floor の 3D 空間外に
+   * 用意し、bot の画面上の位置へ追従させる（props drilling でなく actor に
+   * 紐づく store 経由）
    */
   const playerOverlayContainer = useActorsStore(
     (state) => state.overlayContainers[PLAYER_ACTOR_ID],

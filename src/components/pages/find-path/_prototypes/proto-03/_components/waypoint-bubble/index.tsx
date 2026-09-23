@@ -12,6 +12,7 @@ import {
 
 import { useCssToggle } from '@/hooks/use-css-toggle'
 
+import { useGradientHoverStop } from './_hooks/use-gradient-hover-stop'
 import { computeConnectorGeometry } from './_lib/compute-connector-geometry'
 import * as styles from './index.css'
 
@@ -26,11 +27,11 @@ const CONNECTOR_SVG_SIZE_PX = 80
 /**
  * bot 基準点(0, 0)から見た推奨表示位置(px)
  *
- * - `Stage07` の `registerPlayerOverlayContainer` が用意するコンテナ原点
- *   (bot 頭上の基準点)からの相対位置。呼び出し元がそのまま使うことを想定
+ * - `Stage07` の `ActorOverlayLayer` が用意するコンテナ原点
+ *   (bot の位置決め div の画面上の左上)からの相対位置。呼び出し元がそのまま使うことを想定
  *   するが、`offset` prop 自体は任意の値を受け付ける
  */
-export const WAYPOINT_BUBBLE_OFFSET = { x: 40, y: -36 }
+export const WAYPOINT_BUBBLE_OFFSET = { x: 24, y: -36 }
 
 /**
  * `WaypointBubble` が呼び出し元へ公開する imperative API
@@ -80,12 +81,11 @@ type WaypointBubbleProps = {
  *   bot 方向コネクタは `offset` から逆算するため、呼び出し元が `offset` を
  *   変えても自動的に bot とのつながりを保つ（座標計算自体は
  *   `_lib/compute-connector-geometry.ts` へ分離）
- * - 呼び出し元が `Stage07` の `registerPlayerOverlayContainer` が公開する
- *   コンテナへ `createPortal` で注入し（bot の位置決め div 内、複数の吹き出し
- *   を同時注入することも想定）、`offset`（既定は `WAYPOINT_BUBBLE_OFFSET`）で
- *   相対位置（bot 頭上等）を指定する想定（issue #137）。bot 要素側が floor の
- *   tilt 打ち消し（逆 `rotateX`）を既に適用しているため、この吹き出し自身は
- *   tilt を意識しなくてよい
+ * - 呼び出し元が `useActorsStore` の `overlayContainers` が公開するコンテナへ
+ *   `createPortal` で注入し（複数の吹き出しを同時注入することも想定）、
+ *   `offset`（既定は `WAYPOINT_BUBBLE_OFFSET`）で相対位置（bot 頭上等）を
+ *   指定する想定（issue #137）。コンテナは floor の 3D 空間外で bot の画面上の
+ *   位置へ追従するため、この吹き出し自身は tilt を意識しなくてよい
  */
 export const WaypointBubble = memo(
   forwardRef(
@@ -95,6 +95,11 @@ export const WaypointBubble = memo(
       const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
       const selectableCheckboxRef = useRef<HTMLInputElement>(null)
       const rippleRef = useRef<HTMLSpanElement>(null)
+      const {
+        handleAnimationIteration,
+        handlePointerEnter,
+        handlePointerLeave,
+      } = useGradientHoverStop()
 
       useEffect(() => {
         setVisible(visible)
@@ -148,7 +153,10 @@ export const WaypointBubble = memo(
             <button
               aria-label="中継点選択モードへ移行"
               className={styles.bubbleButton}
+              onAnimationIteration={handleAnimationIteration}
               onClick={handleClick}
+              onPointerEnter={handlePointerEnter}
+              onPointerLeave={handlePointerLeave}
               type="button"
             >
               <span className={styles.thoughtText}>中継点？</span>
