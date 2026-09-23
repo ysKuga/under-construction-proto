@@ -56,6 +56,10 @@ type WaypointBubbleProps = {
  *   並べると vanilla-extract の `~` セレクタが衝突する（Storybook
  *   `SharedScope` ストーリーが警告する既知の制約、実機検証で発覚）ため、
  *   専用の wrapper を持たせてスコープを分離する意図も兼ねる
+ * - `rotateX(calc(-1 * var(--floor-tilt, 0deg)))` で `Stage07` の floor の傾き
+ *   （tilt）を打ち消す。`ActorsLayer` の bot 本体と同じ手法（`Stage07` 内コメント
+ *   参照）。フォールバック値 `0deg` は Storybook 等 `--floor-tilt` 未定義の環境で
+ *   `transform` 自体が invalid にならないようにするため
  * - 見た目を作り込む前段階の暫定実装（issue #137）。枠線はグレー、`selectable`
  *   （選択可能な状態）時のみ点線にする。文言は仮で「中継？」。`rotateX` +
  *   `preserve-3d` 環境のブラウザ奥行きヒットテストに `GeoLayer` セルへクリックを
@@ -91,7 +95,7 @@ export const WaypointBubble = memo((props: WaypointBubbleProps) => {
     padding: '2px 6px',
     position: 'absolute',
     top: center.y,
-    transform: `translate(-50%, calc(-100% - ${botSize}px - ${MARGIN_ABOVE_BOT_PX}px))`,
+    transform: `translate(-50%, calc(-100% - ${botSize}px - ${MARGIN_ABOVE_BOT_PX}px)) rotateX(calc(-1 * var(--floor-tilt, 0deg)))`,
     whiteSpace: 'nowrap',
   }
 
