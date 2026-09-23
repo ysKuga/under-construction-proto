@@ -31,6 +31,9 @@ import {
 import { ObstacleLayer } from './_components/obstacle-layer'
 import { OneWayLayer } from './_components/one-way-layer'
 import { PathPreviewLayer } from './_components/path-preview-layer'
+import { WaypointBubble } from './_components/waypoint-bubble'
+import { WaypointSelectLayer } from './_components/waypoint-select-layer'
+import { WaypointSelectingIndicator } from './_components/waypoint-selecting-indicator'
 import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
@@ -52,6 +55,8 @@ import {
 const GRID = { cols: 5, rows: 5 } as const
 /** 六角形の外接円半径 (px) */
 const HEX_SIZE = 40
+/** bot(box-bot-01)の一辺 px */
+const BOT_SIZE = 56
 
 /** axial セルの一致判定 */
 const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
@@ -68,6 +73,17 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  */
 const canEnterForPath = (from: HexCell, to: HexCell): boolean =>
   !isObstacleCell(to) && !isBlockedByOneWay(from, to)
+
+/**
+ * 中継点フローの状態（issue #137 backlog「中継点の設定」）
+ *
+ * - `idle`: 通常状態。セルクリックは `useHexMove` 経由の隣接移動/非隣接経路探索
+ * - `proposing`: 非隣接クリックで経路が求まった直後。bot 頭上に `WaypointBubble`
+ *   （思考吹き出し）を表示する
+ * - `selecting`: `WaypointBubble` クリックで移行。`Stage07` を非対話化し
+ *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する
+ */
+type WaypointFlowState = 'idle' | 'proposing' | 'selecting'
 
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
@@ -115,6 +131,22 @@ type EnterGuard = {
  * - 非隣接セルクリック時は `onNonAdjacentClick` 経由で BFS 経路探索（`stage-07/_lib/hex-path`）
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
  *   通知する（issue #137 backlog、自動移動の実行は次段階）
+ * - 中継点の設定（issue #137 backlog）: 経路が求まると bot 頭上に `WaypointBubble`
+ *   （思考吹き出し、`Stage07` の 3D 空間内）を表示し（`waypointFlowState ===
+ *   'proposing'`）、クリックで中継点選択モード（`'selecting'`）へ移行する。
+ *   `WaypointBubble` は現状、表示位置確認のための暫定実装（border 付き div）。
+ *   `rotateX` + `preserve-3d` 環境のブラウザ奥行きヒットテストに `GeoLayer` セルへ
+ *   クリックを奪われる問題への対処（`translateZ` 押し出し等）は見た目確定後に
+ *   再検討する。選択モード中は `Stage07` を `interactive={false}` にし、
+ *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する
+ *   （設置済みセルへ 📍 を表示）。通常モードのクリック（`useHexMove` 経由）とは
+ *   完全に別イベントとして分離する設計方針。`WaypointSelectingIndicator`
+ *   （選択中インジケータ + 「完了」ボタン）で選択モードを終了し通常状態へ戻る。
+ *   `WaypointBubble`/`WaypointSelectLayer`/`WaypointSelectingIndicator` は
+ *   いずれも表示制御（`useCssToggle`）込みで自己完結したコンポーネントへ切り出し
+ *   済み、親からは `visible` prop のみで駆動する（このコンポーネントは
+ *   `waypointFlowState` を保持し各コンポーネントへ分配するだけでよい）。
+ *   経由順の最近傍接続・経路への統合は次段階
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。可視判定は「視界（現在地基準の6近傍）」または「到達済み表示ONかつ
  *   到達済みセル」（`setShowVisited` で切替可能、既定 ON）。`Stage07`（hex タイルの
@@ -191,6 +223,9 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const [enableWalking, setEnableWalking] = useState(true)
   const [goalReached, setGoalReached] = useState(false)
   const [previewPath, setPreviewPath] = useState<HexCell[]>([])
+  const [waypointFlowState, setWaypointFlowState] =
+    useState<WaypointFlowState>('idle')
+  const [waypoints, setWaypoints] = useState<HexCell[]>([])
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
   const energyDispatch = useEnergyEventDispatcher()
@@ -225,6 +260,21 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   /**
+   * `WaypointSelectLayer` の DOM を visibility registry へ登録する
+   * （`kind: 'waypoint'` 固定）
+   *
+   * - 全セルに存在するため `marker` と同一セルで衝突しうる（`marker` は
+   *   `Map<NodeKind, HTMLElement>` で kind ごとに 1 要素しか持てず、GoalMarkerLayer
+   *   等と同じセルに登録すると後勝ちで上書きされてしまう）ので独立した kind にする
+   * - 視界外セルへも中継点を設置できてしまう見た目の不整合（実機検証で発見）を防ぐ
+   */
+  const registerWaypointVisibilityNode = useCallback(
+    (cell: HexCell, el: HTMLElement | null) =>
+      registerVisibilityNode(cell, 'waypoint', el),
+    [registerVisibilityNode],
+  )
+
+  /**
    * 非隣接セルをクリックした時。BFS で経路を求め `PathPreviewLayer` へ表示する
    * （issue #137 backlog、自動移動の実行は次段階）
    */
@@ -245,18 +295,49 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           type: 'info',
         })
         setPreviewPath([])
+        setWaypointFlowState('idle')
 
         return
       }
 
       setPreviewPath(path)
+      setWaypointFlowState('proposing')
     },
     [addNotification, currentCell],
   )
 
+  /** 思考吹き出しクリック時。中継点選択モードへ移行する */
+  const handleWaypointBubbleClick = useCallback(() => {
+    setWaypointFlowState('selecting')
+  }, [])
+
+  /**
+   * 「完了」クリック時。中継点選択モードを終了し通常状態へ戻る
+   *
+   * - 設置済みの `waypoints` はクリアしない（次段階で経路計算に使う）
+   */
+  const handleWaypointDoneClick = useCallback(() => {
+    setWaypointFlowState('idle')
+  }, [])
+
+  /**
+   * 中継点選択モード中のセルクリック時。中継点を設置/除去する
+   *
+   * - 経由順の最近傍接続は次段階（issue #137 backlog）
+   */
+  const handleWaypointCellClick = useCallback((cell: HexCell) => {
+    setWaypoints((prev) => {
+      const index = prev.findIndex((waypoint) => isSameCell(waypoint, cell))
+
+      return index === -1 ? [...prev, cell] : prev.filter((_, i) => i !== index)
+    })
+  }, [])
+
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
     setPreviewPath([])
+    setWaypointFlowState('idle')
+    setWaypoints([])
     markVisited(cell)
 
     const item = itemStoreApi.getState().getItemAtCell(cell)
@@ -338,12 +419,13 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       >
         <Stage07
           actorEventTarget={actorEventTarget}
-          botSize={56}
+          botSize={BOT_SIZE}
           canEnterCell={canEnterCell}
           cols={GRID.cols}
           enableWalking={enableWalking}
           hexSize={HEX_SIZE}
           initialTiltDeg={55}
+          interactive={waypointFlowState !== 'selecting'}
           onCellChange={handleCellChange}
           onNonAdjacentClick={handleNonAdjacentClick}
           registerCellVisibilityNode={registerFloorVisibilityNode}
@@ -387,6 +469,24 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
             path={previewPath}
             rows={GRID.rows}
           />
+          <WaypointSelectLayer
+            cols={GRID.cols}
+            hexSize={HEX_SIZE}
+            onCellClick={handleWaypointCellClick}
+            registerVisibilityNode={registerWaypointVisibilityNode}
+            rows={GRID.rows}
+            visible={waypointFlowState === 'selecting'}
+            waypoints={waypoints}
+          />
+          <WaypointBubble
+            botSize={BOT_SIZE}
+            cols={GRID.cols}
+            currentCell={currentCell}
+            hexSize={HEX_SIZE}
+            onClick={handleWaypointBubbleClick}
+            rows={GRID.rows}
+            visible={waypointFlowState === 'proposing'}
+          />
         </Stage07>
       </CellTitleProvider>
       <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
@@ -426,6 +526,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           リセット
         </button>
         <span hidden={!goalReached}>🎉 ゴール到達</span>
+        <WaypointSelectingIndicator
+          onDoneClick={handleWaypointDoneClick}
+          visible={waypointFlowState === 'selecting'}
+        />
+        <span hidden={waypoints.length === 0}>中継点: {waypoints.length}</span>
       </div>
       <EnergyDebugPanel />
     </div>
