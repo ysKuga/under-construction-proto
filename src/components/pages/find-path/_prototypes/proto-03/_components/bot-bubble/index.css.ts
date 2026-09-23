@@ -1,16 +1,24 @@
 import { keyframes, style } from '@vanilla-extract/css'
 
 /**
- * 中継点選択モードが選択可能な状態(`selectable`)を伝える hidden checkbox
+ * 発言吹き出しへ切替えるか(`speech`)を伝える hidden checkbox
  *
  * - `useCssToggle`(`visible` 用)の hidden checkbox は全インスタンス共通クラス
  *   のため他 `.css.ts` から参照できず（`use-css-toggle.stories.tsx` の
- *   `SharedScope` 参照）、`selectable` 用はこのコンポーネント専用クラスを
+ *   `SharedScope` 参照）、`speech` 用はこのコンポーネント専用クラスを
  *   自前で用意し `index.tsx` から直接付与する
  */
-export const selectableCheckbox = style({
+export const speechCheckbox = style({
   display: 'none',
 })
+
+/**
+ * hover 中を発言吹き出しとして扱う修飾 class(`speechOnHover` 指定時のみ付与)
+ *
+ * - 本体(button)・コネクタ SVG の共通の親へ付与し、`speechCheckbox` 選択時と
+ *   同じ見た目を本体 hover 時にも適用するセレクター基点にする
+ */
+export const hoverSpeech = style({})
 
 /** 本体(button)がふわふわ揺れるアニメーション(上下 + 微小回転) */
 const float = keyframes({
@@ -39,17 +47,18 @@ export const gradientShift = keyframes({
 /**
  * 吹き出し本体(button)
  *
- * - 文言の出し分けセレクター基点も兼ねる
+ * - 文言の出し分け・コネクタ(hover 時)の表示切替セレクター基点も兼ねる
  * - 回転の中心を下端(bot・コネクタ側)にし、ふわふわ揺れてもコネクタとの
  *   接続点が安定して見えるようにする
  * - 枠線は既定で dotted、hover 時のみ solid にする。hover 中はふわふわ揺れを
  *   一時停止する(揺れたままだとカーソルが要素から外れ hover が安定しない)。
  *   `animation-play-state` は `animation` の並び順に対応し、背景グラデーション
  *   (2 番目)は running のまま残す(停止は `_hooks/use-gradient-hover-stop`)
- * - `selectable` 選択時はふわふわ揺れ・背景グラデーションを止め、枠線も常時
- *   solid にする(発言中は静止させ、思考中(未選択時)と見た目で区別する)
- * - `overflow: hidden` はクリック時の `ripple`(`_components/waypoint-bubble`
- *   内 `<span>`)がこの角丸からはみ出さないための指定
+ * - `speech` 選択時(`hoverSpeech` 付与時は hover 中も)はふわふわ揺れ・
+ *   背景グラデーションを止め、枠線も常時 solid にする(発言中は静止させ、
+ *   思考中と見た目で区別する)
+ * - `overflow: hidden` はクリック時の `ripple`(`index.tsx` 内
+ *   `<span>`)がこの角丸からはみ出さないための指定
  */
 export const bubbleButton = style({
   ':hover': {
@@ -68,7 +77,7 @@ export const bubbleButton = style({
   padding: '2px 6px',
   position: 'relative',
   selectors: {
-    [`${selectableCheckbox}:checked ~ &`]: {
+    [`${speechCheckbox}:checked ~ &, ${hoverSpeech} > &:hover`]: {
       animation: 'none',
       borderStyle: 'solid',
     },
@@ -109,31 +118,35 @@ export const ripple = style({
   position: 'absolute',
 })
 
-/** 文言「中継？」(`selectable` 未選択時のみ表示) */
+/** 思考中の文言(`speech` 未選択時のみ表示) */
 export const thoughtText = style({
   selectors: {
-    [`${selectableCheckbox}:checked ~ ${bubbleButton} &`]: {
-      display: 'none',
-    },
+    [`${speechCheckbox}:checked ~ ${bubbleButton} &, ${hoverSpeech} > ${bubbleButton}:hover &`]:
+      {
+        display: 'none',
+      },
   },
 })
 
-/** 文言「中継点！」(`selectable` 選択時のみ表示) */
+/** 発言の文言(`speech` 選択時のみ表示) */
 export const speechText = style({
   display: 'none',
   selectors: {
-    [`${selectableCheckbox}:checked ~ ${bubbleButton} &`]: {
-      display: 'inline',
-    },
+    [`${speechCheckbox}:checked ~ ${bubbleButton} &, ${hoverSpeech} > ${bubbleButton}:hover &`]:
+      {
+        display: 'inline',
+      },
   },
 })
 
 /**
  * bot 方向コネクタ(丸の弧・三角形のしっぽ)を描画する SVG
  *
- * - 丸/三角形の表示切替セレクター基点を兼ねる（`selectableCheckbox` と
+ * - 丸/三角形の表示切替セレクター基点を兼ねる（`speechCheckbox` と
  *   SVG 内の子要素は DOM 上別の親のため、直接の兄弟セレクターが使えず
  *   この class を経由する。`bubbleButton`/`thoughtText` と同型）
+ * - hover 時の切替も、本体(button)の後ろに兄弟として置くことで
+ *   `${bubbleButton}:hover ~` から辿る
  */
 export const connectorSvg = style({
   overflow: 'visible',
@@ -147,7 +160,7 @@ const dotFloat = keyframes({
 })
 
 /**
- * 丸1個(bot と吹き出し本体をつなぐ弧上に配置。`selectable` 未選択時のみ表示)
+ * 丸1個(bot と吹き出し本体をつなぐ弧上に配置。`speech` 未選択時のみ表示)
  *
  * - 白背景 + グレー枠線。吹き出し本体(button)と同じ配色にし塗りつぶしの
  *   丸より馴染ませる
@@ -158,9 +171,10 @@ export const connectorDot = style({
   animation: `${dotFloat} 1.2s ease-in-out infinite`,
   fill: '#fff',
   selectors: {
-    [`${selectableCheckbox}:checked ~ ${connectorSvg} &`]: {
-      display: 'none',
-    },
+    [`${speechCheckbox}:checked ~ ${connectorSvg} &, ${hoverSpeech} > ${bubbleButton}:hover ~ ${connectorSvg} &`]:
+      {
+        display: 'none',
+      },
   },
   stroke: '#9ca3af',
   strokeWidth: 1.5,
@@ -168,36 +182,14 @@ export const connectorDot = style({
   transformOrigin: 'center',
 })
 
-/** bot に向いた三角形のしっぽ(`selectable` 選択時のみ表示) */
+/** bot に向いた三角形のしっぽ(`speech` 選択時のみ表示) */
 export const connectorTail = style({
   display: 'none',
   fill: '#9ca3af',
   selectors: {
-    [`${selectableCheckbox}:checked ~ ${connectorSvg} &`]: {
-      display: 'block',
-    },
+    [`${speechCheckbox}:checked ~ ${connectorSvg} &, ${hoverSpeech} > ${bubbleButton}:hover ~ ${connectorSvg} &`]:
+      {
+        display: 'block',
+      },
   },
-})
-
-/**
- * 「実行」ボタン(経路に沿った自動移動を開始する)
- *
- * - 吹き出し本体(button)の右隣へ absolute 配置する。通常フローに置くと
- *   親の幅が変わり、`50%` 基準で配置しているコネクタ SVG の位置がずれるため
- * - 吹き出し本体と同じ配色・枠線(solid)にし、並べて馴染ませる
- */
-export const executeButton = style({
-  ':hover': {
-    backgroundColor: '#f3f4f6',
-  },
-  backgroundColor: '#fff',
-  border: '2px solid #9ca3af',
-  borderRadius: 8,
-  cursor: 'pointer',
-  fontSize: 12,
-  left: 'calc(100% + 4px)',
-  padding: '2px 6px',
-  position: 'absolute',
-  top: 0,
-  whiteSpace: 'nowrap',
 })

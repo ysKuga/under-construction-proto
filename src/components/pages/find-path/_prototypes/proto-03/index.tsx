@@ -25,6 +25,10 @@ import {
 
 import { EnergyDebugPanel } from '../_components/energy-debug-panel'
 
+import {
+  EXECUTE_BUBBLE_OFFSET,
+  ExecuteBubble,
+} from './_components/execute-bubble'
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import { ItemLayer } from './_components/item-layer'
 import {
@@ -161,8 +165,8 @@ type EnterGuard = {
  *   済み、親からは `visible` prop のみで駆動する（このコンポーネントは
  *   `waypointFlowState` を保持し各コンポーネントへ分配するだけでよい）。
  *   設置した中継点は最近傍順に経由する経路として `PathPreviewLayer` へ反映する
- *   （`findHexPathViaWaypoints`、issue #226）。吹き出しの「実行」で経路に沿って
- *   自動移動する（`Stage07Handle.followPath`）。EN 不足で進入できなくなったら
+ *   （`findHexPathViaWaypoints`、issue #226）。bot を挟んで反対側の
+ *   `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する（`Stage07Handle.followPath`）。EN 不足で進入できなくなったら
  *   その場で停止し、トーストで警告する
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。可視判定は「視界（現在地基準の6近傍）」または「到達済み表示ONかつ
@@ -377,13 +381,13 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   }, [waypointFlowState])
 
   /**
-   * 吹き出しの「実行」クリック時。表示中の経路に沿って自動移動を開始する
+   * 「実行」吹き出しクリック時。表示中の経路に沿って自動移動を開始する
    *
    * - 中継点フローは終了する（`goalCell`/`waypoints` は最初の 1 マス移動時に
    *   `handleCellChange` がクリアする）
    * - 自動移動中は `Stage07` を非対話化し、クリックによる割込みを防ぐ
    */
-  const handleWaypointExecuteClick = useCallback(() => {
+  const handleExecuteClick = useCallback(() => {
     if (previewPath.length === 0) return
 
     setWaypointFlowState('idle')
@@ -615,8 +619,16 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           <WaypointBubble
             offset={WAYPOINT_BUBBLE_OFFSET}
             onClick={handleWaypointBubbleClick}
-            onExecuteClick={handleWaypointExecuteClick}
             ref={waypointBubbleRef}
+            visible={waypointFlowState !== 'idle'}
+          />,
+          playerOverlayContainer,
+        )}
+      {playerOverlayContainer &&
+        createPortal(
+          <ExecuteBubble
+            offset={EXECUTE_BUBBLE_OFFSET}
+            onClick={handleExecuteClick}
             visible={waypointFlowState !== 'idle'}
           />,
           playerOverlayContainer,
