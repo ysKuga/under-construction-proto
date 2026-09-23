@@ -181,7 +181,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
   const itemStoreApi = useItemStoreApi()
-  const { addNotification } = useNotifications()
+  const addNotification = useNotifications((state) => state.addNotification)
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
