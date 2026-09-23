@@ -306,7 +306,6 @@ export const Stage07 = (props: Stage07Props) => {
           <GeoLayer
             canEnterCell={canEnterCell}
             cols={cols}
-            currentCell={currentCell}
             hexSize={hexSize}
             interactive={interactive}
             onCellClick={handleCellClick}
