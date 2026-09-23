@@ -28,7 +28,7 @@ type ExecuteBubbleProps = {
  * - bot を挟んで `WaypointBubble` の反対側(左)に置く（issue #226）。
  *   見た目・表示切替は `BotBubble` に委ねる
  * - 文言は hover 中のみ発言吹き出し「実行！」、それ以外は思考吹き出し「実行？」
- *   （`speechOnHover`、CSS のみで切替）
+ *   （`BotBubble` の hover 時の切替）
  * - 中継点の設置途中(`WaypointBubble` の `selectable` 選択時)でも押せ、
  *   表示中の経路で自動移動を開始する
  */
@@ -41,7 +41,6 @@ export const ExecuteBubble = memo((props: ExecuteBubbleProps) => {
       offset={offset}
       onClick={onClick}
       placement="left"
-      speechOnHover
       speechText="実行！"
       thoughtText="実行？"
       visible={visible}

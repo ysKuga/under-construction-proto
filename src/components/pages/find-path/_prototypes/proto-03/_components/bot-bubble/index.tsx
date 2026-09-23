@@ -12,7 +12,6 @@ import {
 
 import { useCssToggle } from '@/hooks/use-css-toggle'
 
-import { useGradientHoverStop } from './_hooks/use-gradient-hover-stop'
 import { computeConnectorGeometry } from './_lib/compute-connector-geometry'
 import * as styles from './index.css'
 
@@ -59,8 +58,6 @@ type BotBubbleProps = {
    *   コネクタも左右反転して bot の方を向ける
    */
   placement?: 'left' | 'right'
-  /** hover 中も発言吹き出しとして表示するか */
-  speechOnHover?: boolean
   /** 発言吹き出し時の文言 */
   speechText: string
   /** 思考吹き出し時の文言 */
@@ -82,7 +79,7 @@ type BotBubbleProps = {
  *   `ref`（`BotBubbleHandle.setSpeech`）経由の imperative な命令で hidden
  *   checkbox を直書きする。未選択時は「思考中」を表す丸のコネクタ + `thoughtText`、
  *   選択時は bot に向いた三角形のしっぽ + `speechText` へ切替わる。
- *   `speechOnHover` 指定時は本体 hover 中も同じ見た目にする（CSS のみで切替）
+ *   本体 hover 中も同じ見た目にする（CSS のみで切替）
  * - 本体(button)は `offset` に応じた位置へ固定表示しつつ常時ふわふわ揺れる。
  *   bot 方向コネクタは `offset` から逆算するため、呼び出し元が `offset` を
  *   変えても自動的に bot とのつながりを保つ（座標計算自体は
@@ -100,7 +97,6 @@ export const BotBubble = memo(
       offset,
       onClick,
       placement = 'right',
-      speechOnHover = false,
       speechText,
       thoughtText,
       visible,
@@ -109,8 +105,6 @@ export const BotBubble = memo(
     const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
     const speechCheckboxRef = useRef<HTMLInputElement>(null)
     const rippleRef = useRef<HTMLSpanElement>(null)
-    const { handleAnimationIteration, handlePointerEnter, handlePointerLeave } =
-      useGradientHoverStop()
 
     useEffect(() => {
       setVisible(visible)
@@ -155,10 +149,7 @@ export const BotBubble = memo(
         }}
       >
         {checkbox}
-        <div
-          className={`${toggledClassName}${speechOnHover ? ` ${styles.hoverSpeech}` : ''}`}
-          style={{ position: 'relative' }}
-        >
+        <div className={toggledClassName} style={{ position: 'relative' }}>
           <input
             aria-hidden
             className={styles.speechCheckbox}
@@ -171,10 +162,7 @@ export const BotBubble = memo(
           <button
             aria-label={ariaLabel}
             className={styles.bubbleButton}
-            onAnimationIteration={handleAnimationIteration}
             onClick={handleClick}
-            onPointerEnter={handlePointerEnter}
-            onPointerLeave={handlePointerLeave}
             type="button"
           >
             <span className={styles.thoughtText}>{thoughtText}</span>

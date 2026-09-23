@@ -12,14 +12,6 @@ export const speechCheckbox = style({
   display: 'none',
 })
 
-/**
- * hover 中を発言吹き出しとして扱う修飾 class(`speechOnHover` 指定時のみ付与)
- *
- * - 本体(button)・コネクタ SVG の共通の親へ付与し、`speechCheckbox` 選択時と
- *   同じ見た目を本体 hover 時にも適用するセレクター基点にする
- */
-export const hoverSpeech = style({})
-
 /** 本体(button)がふわふわ揺れるアニメーション(上下 + 微小回転) */
 const float = keyframes({
   '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
@@ -29,17 +21,14 @@ const float = keyframes({
 /**
  * 背景の帯が右から左へ一方向に流れるアニメーション
  *
- * - 未選択・非 hover 時、bubble の存在を目立たせるために常時流し続ける
- * - hover 時の停止は CSS でなく `_hooks/use-gradient-hover-stop` が担う
- *   (帯を途中で止めず流しきってから止めるため)
+ * - 思考中(`speech` 未選択・非 hover 時)、bubble の存在を目立たせるために常時流し続ける
  * - 往復でなく一方向ループ(`100%` フレーム到達後、瞬時に `0%` へ戻り
  *   流れ続ける)。`linear` と組み合わせて等速に保つ
  * - 背景は繰返し(`background-repeat` 既定)のため、`background-size: 300%` だと
  *   `background-position` 150% 周期で同じ見た目になる。1 周を 1 周期ぶん
- *   (帯 1 回の通過)にし、周の境目(`125%` ≡ `-25%`)を帯が見えない位置に置く。
- *   hover 時にこの境目で止めるため(`_hooks/use-gradient-hover-stop`)
+ *   (帯 1 回の通過)にし、周の境目(`125%` ≡ `-25%`)を帯が見えない位置に置く
  */
-export const gradientShift = keyframes({
+const gradientShift = keyframes({
   '0%': { backgroundPosition: '125% 50%' },
   '100%': { backgroundPosition: '-25% 50%' },
 })
@@ -50,21 +39,14 @@ export const gradientShift = keyframes({
  * - 文言の出し分け・コネクタ(hover 時)の表示切替セレクター基点も兼ねる
  * - 回転の中心を下端(bot・コネクタ側)にし、ふわふわ揺れてもコネクタとの
  *   接続点が安定して見えるようにする
- * - 枠線は既定で dotted、hover 時のみ solid にする。hover 中はふわふわ揺れを
- *   一時停止する(揺れたままだとカーソルが要素から外れ hover が安定しない)。
- *   `animation-play-state` は `animation` の並び順に対応し、背景グラデーション
- *   (2 番目)は running のまま残す(停止は `_hooks/use-gradient-hover-stop`)
- * - `speech` 選択時(`hoverSpeech` 付与時は hover 中も)はふわふわ揺れ・
- *   背景グラデーションを止め、枠線も常時 solid にする(発言中は静止させ、
- *   思考中と見た目で区別する)
+ * - `speech` 選択時・hover 中は発言吹き出しとして、ふわふわ揺れ・背景
+ *   グラデーションを即時止め、枠線を dotted から solid にする(発言中は静止させ、
+ *   思考中と見た目で区別する。hover 中は揺れたままだとカーソルが要素から外れ
+ *   hover が安定しない)
  * - `overflow: hidden` はクリック時の `ripple`(`index.tsx` 内
  *   `<span>`)がこの角丸からはみ出さないための指定
  */
 export const bubbleButton = style({
-  ':hover': {
-    animationPlayState: 'paused, running',
-    borderStyle: 'solid',
-  },
   animation: `${float} 2.4s ease-in-out infinite, ${gradientShift} 1.1s linear infinite`,
   background:
     'linear-gradient(120deg, #fff 0%, #fff 46%, rgba(156, 163, 175, 0.5) 50%, #fff 54%, #fff 100%)',
@@ -77,7 +59,7 @@ export const bubbleButton = style({
   padding: '2px 6px',
   position: 'relative',
   selectors: {
-    [`${speechCheckbox}:checked ~ &, ${hoverSpeech} > &:hover`]: {
+    [`${speechCheckbox}:checked ~ &, &:hover`]: {
       animation: 'none',
       borderStyle: 'solid',
     },
@@ -121,7 +103,7 @@ export const ripple = style({
 /** 思考中の文言(`speech` 未選択時のみ表示) */
 export const thoughtText = style({
   selectors: {
-    [`${speechCheckbox}:checked ~ ${bubbleButton} &, ${hoverSpeech} > ${bubbleButton}:hover &`]:
+    [`${speechCheckbox}:checked ~ ${bubbleButton} &, ${bubbleButton}:hover &`]:
       {
         display: 'none',
       },
@@ -132,7 +114,7 @@ export const thoughtText = style({
 export const speechText = style({
   display: 'none',
   selectors: {
-    [`${speechCheckbox}:checked ~ ${bubbleButton} &, ${hoverSpeech} > ${bubbleButton}:hover &`]:
+    [`${speechCheckbox}:checked ~ ${bubbleButton} &, ${bubbleButton}:hover &`]:
       {
         display: 'inline',
       },
@@ -145,7 +127,7 @@ export const speechText = style({
  * - 丸/三角形の表示切替セレクター基点を兼ねる（`speechCheckbox` と
  *   SVG 内の子要素は DOM 上別の親のため、直接の兄弟セレクターが使えず
  *   この class を経由する。`bubbleButton`/`thoughtText` と同型）
- * - hover 時の切替も、本体(button)の後ろに兄弟として置くことで
+ * - hover 時の切替は、本体(button)の後ろに兄弟として置くことで
  *   `${bubbleButton}:hover ~` から辿る
  */
 export const connectorSvg = style({
@@ -171,7 +153,7 @@ export const connectorDot = style({
   animation: `${dotFloat} 1.2s ease-in-out infinite`,
   fill: '#fff',
   selectors: {
-    [`${speechCheckbox}:checked ~ ${connectorSvg} &, ${hoverSpeech} > ${bubbleButton}:hover ~ ${connectorSvg} &`]:
+    [`${speechCheckbox}:checked ~ ${connectorSvg} &, ${bubbleButton}:hover ~ ${connectorSvg} &`]:
       {
         display: 'none',
       },
@@ -187,7 +169,7 @@ export const connectorTail = style({
   display: 'none',
   fill: '#9ca3af',
   selectors: {
-    [`${speechCheckbox}:checked ~ ${connectorSvg} &, ${hoverSpeech} > ${bubbleButton}:hover ~ ${connectorSvg} &`]:
+    [`${speechCheckbox}:checked ~ ${connectorSvg} &, ${bubbleButton}:hover ~ ${connectorSvg} &`]:
       {
         display: 'block',
       },
