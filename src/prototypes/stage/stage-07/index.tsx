@@ -19,16 +19,17 @@ import {
 } from '@/components/theater/figure/box-bot'
 
 import { usePerspectiveControl } from '../stage-05/_hooks/use-perspective-control'
+import { PLAYER_ACTOR_ID } from '../stage-06/constants'
 
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
-import { useActorNodeRegistry } from './_contexts/actor-node-registry'
 import { useHexMove } from './_hooks/use-hex-move'
 import {
   HexCell,
   hexDirectionToScreenAngle,
   pickInitialFacingTarget,
 } from './_lib/hex'
+import { useActorsStore } from './_stores/actors'
 
 type Stage07Props = PropsWithChildren<{
   /**
@@ -103,10 +104,13 @@ type Stage07Props = PropsWithChildren<{
  *   absolute 配置する（issue #162）
  * - 遠近表現（perspective + rotateX の台形床）は stage-05/06 と同一。傾きは
  *   `usePerspectiveControl`（stage-05 から import）が `--floor-tilt` を ref 直書き
- * - actor の現在セルは外側の `ActorNodeRegistryProvider`（hex 版）が保持する。
- *   `useHexMove` はクリック検証（隣接判定・進入可否）と facing 算出のみ行い、
- *   位置更新は registry の `moveActor` へ委ねる（tick 駆動実行時、外部からクリックを
- *   介さず `moveActor` を直接呼べるようにするため）。複数 actor 対応は対象外（別途検討）
+ * - actor(player・mob 共通)の位置は外側の `ActorsStoreProvider`（zustand store）が
+ *   `actorId` ごとに保持する。`useHexMove` はクリック検証（隣接判定・進入可否）と
+ *   facing 算出のみ行い、位置更新は store の `moveActor` へ委ねる（tick 駆動実行時、
+ *   外部からクリックを介さず `moveActor` を直接呼べるようにするため）。`Stage07` 自身は
+ *   `PLAYER_ACTOR_ID` の位置のみ扱う。mob(player 以外の actor)は `ActorsLayer` が
+ *   store を直接 selector 購読して描画するため props 経由では受け取らない(issue #215)。
+ *   spawn/despawn は呼び出し元が `useActorsStoreApi` 経由で store を直接操作する
  * - `interactive`（既定 `true`）を `false` にすると `GeoLayer` は非対話になる。
  *   クリックを外側のレイヤー（tick 駆動実行時の予定経路レイヤー等）へ委ねる
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
@@ -181,7 +185,9 @@ export const Stage07 = (props: Stage07Props) => {
     eventTarget,
     [faceAction, walkingAction, walkingResetAction],
   )
-  const { currentCell, moveActor } = useActorNodeRegistry()
+  /** player の現在セル。store は player・mob 共通で保持するため `PLAYER_ACTOR_ID` で引く */
+  const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
+  const moveActorTo = useActorsStore((state) => state.moveActor)
 
   /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
@@ -234,7 +240,7 @@ export const Stage07 = (props: Stage07Props) => {
 
   const { handleCellClick } = useHexMove(
     currentCell,
-    moveActor,
+    (cell) => moveActorTo(PLAYER_ACTOR_ID, cell),
     (cell) => {
       if (enableWalking && !isWalkingRef.current) {
         isWalkingRef.current = true
@@ -299,7 +305,6 @@ export const Stage07 = (props: Stage07Props) => {
           />
           <ActorsLayer
             cols={cols}
-            currentCell={currentCell}
             eventTarget={eventTarget}
             hexSize={hexSize}
             legSwingAngle={legSwingAngle}

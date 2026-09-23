@@ -8,14 +8,14 @@ import {
   walkingResetAction,
 } from '@/components/theater/figure/box-bot'
 
+import { PLAYER_ACTOR_ID } from '../../../stage-06/constants'
 import { HexCell } from '../../_lib/hex'
 import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
+import { useActorsStore } from '../../_stores/actors'
 
 type ActorsLayerProps = {
   /** 列数 */
   cols: number
-  /** 現在地セル */
-  currentCell: HexCell
   /**
    * player bot と共有する EventTarget
    *
@@ -52,6 +52,12 @@ type ActorsLayerProps = {
 /**
  * hex グリッド上の actor (box-bot-01) 表示
  *
+ * - `useActorsStore`(zustand store)を直接 selector 購読し、`actors` map の変化(player
+ *   移動・mob の spawn/despawn)のたびこのコンポーネントのみ再レンダリングする。呼び出し元
+ *   (`Stage07`)を経由しないため、mob の動的追加/削除で `Stage07` 以下全体が再レンダリング
+ *   されることはない(issue #215)
+ * - `PLAYER_ACTOR_ID` のセルへ walking/face 対応の bot を、それ以外の actorId には
+ *   `actions=[]`・`interactive=false` の静的 bot を描画する
  * - 現在地セル中心へ絶対配置する。座標計算は `GeoLayer` と同じ `hexCellCenter`/
  *   `computeHexGridBounds` を共有し、セルの見た目位置とズレないようにする
  * - 床の rotateX を打ち消す逆 rotateX で、傾いた床の上でも直立させる（stage-06 の
@@ -63,7 +69,7 @@ type ActorsLayerProps = {
  *   `moveDurationMs`（3000ms 等）で周期が数秒に伸び、歩幅(`swingAngle`)は変わらない
  *   ため振れているかどうか視認しづらくなる。歩幅は変えず、周期の伸びだけ頭打ちにして
  *   常に一定以上の頻度で動きが見えるようにする
- * - visibility registry・複数 actor・ref registry 化は対象外（試作スコープ、issue #162）
+ * - visibility registry・ref registry 化は対象外（試作スコープ、issue #162）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
  *   安定化すること
@@ -90,10 +96,12 @@ const ARM_SWING_ANGLE = Math.PI / 2
  */
 const BASE_SPEED_APPROACH_RATE = 3
 
+/** store に `PLAYER_ACTOR_ID` が未設定(Provider 設定漏れ)なときのフォールバックセル */
+const DEFAULT_CELL: HexCell = { q: 0, r: 0 }
+
 export const ActorsLayer = memo((props: ActorsLayerProps) => {
   const {
     cols,
-    currentCell,
     eventTarget,
     hexSize,
     legSwingAngle,
@@ -103,6 +111,12 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     rows,
     size,
   } = props
+
+  const actors = useActorsStore((state) => state.actors)
+  const currentCell = actors[PLAYER_ACTOR_ID] ?? DEFAULT_CELL
+  const mobs = Object.entries(actors).filter(
+    ([actorId]) => actorId !== PLAYER_ACTOR_ID,
+  )
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const center = hexCellCenter(currentCell, hexSize, bounds)
@@ -124,6 +138,21 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     onArrived?.()
   }
 
+  /** mob(静止配置)の位置スタイル。移動しないため transition は持たない */
+  const mobStyle = (cell: HexCell): CSSProperties => {
+    const mobCenter = hexCellCenter(cell, hexSize, bounds)
+
+    return {
+      height: size,
+      left: mobCenter.x,
+      position: 'absolute',
+      top: mobCenter.y,
+      transform: 'translate(-50%, -53%) rotateX(calc(-1 * var(--floor-tilt)))',
+      transformOrigin: 'center bottom',
+      width: size,
+    }
+  }
+
   /**
    * walking の 1 周期(両脚 1 往復 = 2 歩)を、1 マス移動(片脚 1 歩)の 2 マスぶんとみなし、
    * 移動時間の 2 倍を周期にする（`maxWalkCycleSec` で頭打ち）
@@ -134,24 +163,36 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
   const speedApproachRate = BASE_SPEED_APPROACH_RATE / cycleSec
 
   return (
-    <div onTransitionEnd={handleTransitionEnd} style={style}>
-      <BoxBot01
-        actionConfig={{
-          walking: {
-            armSwingAngle: ARM_SWING_ANGLE,
-            cycleSec,
-            speedApproachRate,
-            // defineAction が {...defaults, ...override} でマージするため、
-            // undefined を明示的に含めると既定値を上書きしてしまう。省略する
-            ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
-          },
-        }}
-        actions={ACTIONS}
-        eventTarget={eventTarget}
-        orbit={false}
-        style={{ height: size, width: size }}
-      />
-    </div>
+    <>
+      <div onTransitionEnd={handleTransitionEnd} style={style}>
+        <BoxBot01
+          actionConfig={{
+            walking: {
+              armSwingAngle: ARM_SWING_ANGLE,
+              cycleSec,
+              speedApproachRate,
+              // defineAction が {...defaults, ...override} でマージするため、
+              // undefined を明示的に含めると既定値を上書きしてしまう。省略する
+              ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
+            },
+          }}
+          actions={ACTIONS}
+          eventTarget={eventTarget}
+          orbit={false}
+          style={{ height: size, width: size }}
+        />
+      </div>
+      {mobs.map(([actorId, cell]) => (
+        <div key={actorId} style={mobStyle(cell)}>
+          <BoxBot01
+            actions={[]}
+            interactive={false}
+            orbit={false}
+            style={{ height: size, width: size }}
+          />
+        </div>
+      ))}
+    </>
   )
 })
 
