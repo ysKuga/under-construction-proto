@@ -60,6 +60,8 @@ type WaypointBubbleProps = {
    * クリック時。中継点選択モードへ移行する
    */
   onClick: () => void
+  /** 「実行」クリック時。経路に沿った自動移動を開始する */
+  onExecuteClick: () => void
   /** 表示するか（`waypointFlowState === 'proposing'`） */
   visible: boolean
 }
@@ -81,6 +83,8 @@ type WaypointBubbleProps = {
  *   bot 方向コネクタは `offset` から逆算するため、呼び出し元が `offset` を
  *   変えても自動的に bot とのつながりを保つ（座標計算自体は
  *   `_lib/compute-connector-geometry.ts` へ分離）
+ * - 右隣に「実行」ボタンを併設する（`onExecuteClick`、issue #226）。中継点の
+ *   設置途中(`selectable` 選択時)でも押せ、表示中の経路で自動移動を開始する
  * - 呼び出し元が `useActorsStore` の `overlayContainers` が公開するコンテナへ
  *   `createPortal` で注入し（複数の吹き出しを同時注入することも想定）、
  *   `offset`（既定は `WAYPOINT_BUBBLE_OFFSET`）で相対位置（bot 頭上等）を
@@ -90,7 +94,7 @@ type WaypointBubbleProps = {
 export const WaypointBubble = memo(
   forwardRef(
     (props: WaypointBubbleProps, ref: ForwardedRef<WaypointBubbleHandle>) => {
-      const { offset, onClick, visible } = props
+      const { offset, onClick, onExecuteClick, visible } = props
 
       const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
       const selectableCheckboxRef = useRef<HTMLInputElement>(null)
@@ -162,6 +166,13 @@ export const WaypointBubble = memo(
               <span className={styles.thoughtText}>中継点？</span>
               <span className={styles.speechText}>中継点！</span>
               <span className={styles.ripple} ref={rippleRef} />
+            </button>
+            <button
+              className={styles.executeButton}
+              onClick={onExecuteClick}
+              type="button"
+            >
+              実行
             </button>
             <svg
               className={styles.connectorSvg}
