@@ -17,6 +17,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
 import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { EnergyDebugPanel } from '../_components/energy-debug-panel'
@@ -29,6 +30,7 @@ import {
 } from './_components/move-target-layer'
 import { ObstacleLayer } from './_components/obstacle-layer'
 import { OneWayLayer } from './_components/one-way-layer'
+import { PathPreviewLayer } from './_components/path-preview-layer'
 import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
@@ -53,6 +55,19 @@ const HEX_SIZE = 40
 
 /** axial セルの一致判定 */
 const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
+
+/**
+ * 経路探索(BFS)用の進入可否判定（EN 残量チェックは含まない、静的な障害物・
+ * 一方通行のみ）
+ *
+ * - `enterGuards`（コンポーネント内、`currentCell` に固定された perceived ガード）
+ *   とは別に用意する。一方通行判定(`isBlockedByOneWay`)は移動元セルに依存するため、
+ *   探索中に動く `from` をそのまま受け取れる形にする必要がある
+ * - EN 残量は探索実行の瞬間の値でしかなく、経路の各手で消費されていく動的資源
+ *   のため経路の「形」自体には含めない（不足時の扱いは自動移動実装時に検討）
+ */
+const canEnterForPath = (from: HexCell, to: HexCell): boolean =>
+  !isObstacleCell(to) && !isBlockedByOneWay(from, to)
 
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
@@ -97,8 +112,9 @@ type EnterGuard = {
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
  *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）のため、
  *   ここでは `Stage07` のマウントとゴール到達判定のみを担う
- * - 非隣接セルクリック時は `onNonAdjacentClick` 経由で通知（`useNotifications`）を
- *   表示する（issue #137 backlog、経路探索による自動移動は次段階）
+ * - 非隣接セルクリック時は `onNonAdjacentClick` 経由で BFS 経路探索（`stage-07/_lib/hex-path`）
+ *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
+ *   通知する（issue #137 backlog、自動移動の実行は次段階）
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。可視判定は「視界（現在地基準の6近傍）」または「到達済み表示ONかつ
  *   到達済みセル」（`setShowVisited` で切替可能、既定 ON）。`Stage07`（hex タイルの
@@ -174,6 +190,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     useState<MoveTargetDisplayMode>('scatter')
   const [enableWalking, setEnableWalking] = useState(true)
   const [goalReached, setGoalReached] = useState(false)
+  const [previewPath, setPreviewPath] = useState<HexCell[]>([])
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
   const energyDispatch = useEnergyEventDispatcher()
@@ -207,20 +224,39 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     [registerVisibilityNode],
   )
 
-  /** 非隣接セルをクリックした時。まずは通知のみ（issue #137 backlog、経路探索は次段階） */
+  /**
+   * 非隣接セルをクリックした時。BFS で経路を求め `PathPreviewLayer` へ表示する
+   * （issue #137 backlog、自動移動の実行は次段階）
+   */
   const handleNonAdjacentClick = useCallback(
     (cell: HexCell) => {
-      addNotification({
-        options: { autoDismiss: true },
-        title: `対象 (${cell.q}, ${cell.r})`,
-        type: 'info',
-      })
+      const path = findHexPath(
+        currentCell,
+        cell,
+        GRID.cols,
+        GRID.rows,
+        canEnterForPath,
+      )
+
+      if (!path) {
+        addNotification({
+          options: { autoDismiss: true },
+          title: `(${cell.q}, ${cell.r}) へは到達できません`,
+          type: 'info',
+        })
+        setPreviewPath([])
+
+        return
+      }
+
+      setPreviewPath(path)
     },
-    [addNotification],
+    [addNotification, currentCell],
   )
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
+    setPreviewPath([])
     markVisited(cell)
 
     const item = itemStoreApi.getState().getItemAtCell(cell)
@@ -343,6 +379,12 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
             currentCell={currentCell}
             hexSize={HEX_SIZE}
             mode={displayMode}
+            rows={GRID.rows}
+          />
+          <PathPreviewLayer
+            cols={GRID.cols}
+            hexSize={HEX_SIZE}
+            path={previewPath}
             rows={GRID.rows}
           />
         </Stage07>
