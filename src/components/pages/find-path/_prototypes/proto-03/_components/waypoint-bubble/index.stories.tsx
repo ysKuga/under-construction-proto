@@ -7,14 +7,17 @@ import {
   hexCellCenter,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
-import { WaypointBubble as StoryComponent } from '.'
+import {
+  WaypointBubble as StoryComponent,
+  WAYPOINT_BUBBLE_POSITION_CLASS_NAME,
+} from '.'
 
 const GRID = { cols: 5, rows: 5 } as const
 /** 六角形の外接円半径 (px)。story 側の座標計算のみに使う */
 const HEX_SIZE = 40
 /** bot(box-bot-01)の一辺 px */
 const BOT_SIZE = 56
-/** bot を配置するセル。`WaypointBubble` の `currentCell` と揃える */
+/** bot を配置するセル */
 const CURRENT_CELL = { q: 2, r: 2 } as const
 /** `Stage07` の既定値(`initialTiltDeg`)と同じ、tilt スライダーの初期値(deg) */
 const DEFAULT_TILT_DEG = 55
@@ -95,8 +98,8 @@ const BubbleStage = (props: PropsWithChildren) => {
               orbit={false}
               style={{ height: BOT_SIZE, width: BOT_SIZE }}
             />
+            {children}
           </div>
-          {children}
         </div>
       </div>
     </div>
@@ -105,12 +108,8 @@ const BubbleStage = (props: PropsWithChildren) => {
 
 const meta: Meta<typeof StoryComponent> = {
   args: {
-    botSize: BOT_SIZE,
-    cols: GRID.cols,
-    currentCell: CURRENT_CELL,
-    hexSize: HEX_SIZE,
+    className: WAYPOINT_BUBBLE_POSITION_CLASS_NAME,
     onClick: () => {},
-    rows: GRID.rows,
     selectable: false,
   },
   component: StoryComponent,
