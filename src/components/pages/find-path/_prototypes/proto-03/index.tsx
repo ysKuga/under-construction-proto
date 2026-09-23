@@ -35,6 +35,7 @@ import {
   MoveTargetDisplayMode,
   MoveTargetLayer,
 } from './_components/move-target-layer'
+import { ObjectiveMarkerLayer } from './_components/objective-marker-layer'
 import { ObstacleLayer } from './_components/obstacle-layer'
 import { OneWayLayer } from './_components/one-way-layer'
 import { PathPreviewLayer } from './_components/path-preview-layer'
@@ -604,6 +605,12 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
             cols={GRID.cols}
             hexSize={HEX_SIZE}
             path={previewPath}
+            rows={GRID.rows}
+          />
+          <ObjectiveMarkerLayer
+            cols={GRID.cols}
+            hexSize={HEX_SIZE}
+            objectiveCell={objectiveCell}
             rows={GRID.rows}
           />
           <WaypointSelectLayer
