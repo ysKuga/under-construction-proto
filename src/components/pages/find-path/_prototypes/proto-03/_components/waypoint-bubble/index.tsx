@@ -12,6 +12,7 @@ import {
 
 import { useCssToggle } from '@/hooks/use-css-toggle'
 
+import { useGradientHoverStop } from './_hooks/use-gradient-hover-stop'
 import { computeConnectorGeometry } from './_lib/compute-connector-geometry'
 import * as styles from './index.css'
 
@@ -94,6 +95,11 @@ export const WaypointBubble = memo(
       const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
       const selectableCheckboxRef = useRef<HTMLInputElement>(null)
       const rippleRef = useRef<HTMLSpanElement>(null)
+      const {
+        handleAnimationIteration,
+        handlePointerEnter,
+        handlePointerLeave,
+      } = useGradientHoverStop()
 
       useEffect(() => {
         setVisible(visible)
@@ -147,7 +153,10 @@ export const WaypointBubble = memo(
             <button
               aria-label="中継点選択モードへ移行"
               className={styles.bubbleButton}
+              onAnimationIteration={handleAnimationIteration}
               onClick={handleClick}
+              onPointerEnter={handlePointerEnter}
+              onPointerLeave={handlePointerLeave}
               type="button"
             >
               <span className={styles.thoughtText}>中継点？</span>
