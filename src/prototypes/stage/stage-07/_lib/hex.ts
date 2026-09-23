@@ -87,7 +87,7 @@ export const colRowToAxial = (col: number, row: number): HexCell => {
  *
  * - `colRowToAxial` の逆変換(odd-q offset)で col/row を復元し、範囲内か確認する
  */
-const isHexCellInGrid = (
+export const isHexCellInGrid = (
   cell: HexCell,
   cols: number,
   rows: number,
