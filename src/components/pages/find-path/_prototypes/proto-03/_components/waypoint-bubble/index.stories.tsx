@@ -1,5 +1,5 @@
-import { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
-import { CSSProperties, useState } from 'react'
+import { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { CSSProperties, PropsWithChildren, useState } from 'react'
 
 import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import {
@@ -25,18 +25,23 @@ const PERSPECTIVE_PX = 800
 
 /**
  * `Stage07`/`ActorsLayer` と同じ位置計算(`hexCellCenter` + `translate(-50%,
- * -53%)`)で bot を配置し、その頭上へ吹き出しを重ねて確認する
+ * -53%)`)で bot を配置し、その頭上へ `children`（吹き出し）を重ねて確認する
  *
+ * - decorator でなく通常のコンポーネントとして各 story の `render` から呼ぶ
+ *   （issue #137、修正方針決定に伴い decorator 形式から書き換え）
  * - `WaypointBubble` はセル中心から bot の高さぶん上に自身を配置するだけで、
  *   実際に bot が同じ位置にいることは前提にしていない。組み合わせないと
- *   「bot 頭上」として正しい位置か判断できないため、単体表示から変更した
+ *   「bot 頭上」として正しい位置か判断できない
  * - `Stage07` の `floor`(`perspective` + `rotateX(var(--floor-tilt))`)を
  *   同じ構造で再現し、tilt スライダーで `--floor-tilt` を動的に変更できる
- *   ようにする（issue #137、吹き出しの位置調整を tilt 込みで確認したい要望）。
- *   bot 自体も `ActorsLayer` と同じ逆 `rotateX` で tilt を打ち消して直立させる
- *   （打ち消さないと tilt を動かすたび bot も一緒に傾いてしまい検証にならない）
+ *   ようにする。bot 自体も `ActorsLayer` と同じ逆 `rotateX` で tilt を打ち消して
+ *   直立させる（打ち消さないと tilt を動かすたび bot も一緒に傾いてしまい
+ *   検証にならない）
+ * - `children`（吹き出し）は floor 内、bot と同じ 3D 空間に配置する。表示切替
+ *   ボタン等 floor の外に置きたい UI は呼び出し側で `BubbleStage` の外側へ置く
  */
-const withBot: Decorator = (Story) => {
+const BubbleStage = (props: PropsWithChildren) => {
+  const { children } = props
   const [tilt, setTilt] = useState(DEFAULT_TILT_DEG)
 
   const bounds = computeHexGridBounds(GRID.cols, GRID.rows, HEX_SIZE)
@@ -91,7 +96,7 @@ const withBot: Decorator = (Story) => {
               style={{ height: BOT_SIZE, width: BOT_SIZE }}
             />
           </div>
-          <Story />
+          {children}
         </div>
       </div>
     </div>
@@ -109,7 +114,6 @@ const meta: Meta<typeof StoryComponent> = {
     selectable: false,
   },
   component: StoryComponent,
-  decorators: [withBot],
 }
 
 export default meta
@@ -119,6 +123,11 @@ export const Default: Story = {
   args: {
     visible: true,
   },
+  render: (args) => (
+    <BubbleStage>
+      <StoryComponent {...args} />
+    </BubbleStage>
+  ),
 }
 
 /** 中継点選択モードが選択可能な状態(store 接続後を想定)。枠線が点線になる */
@@ -127,12 +136,22 @@ export const Selectable: Story = {
     selectable: true,
     visible: true,
   },
+  render: (args) => (
+    <BubbleStage>
+      <StoryComponent {...args} />
+    </BubbleStage>
+  ),
 }
 
 export const Hidden: Story = {
   args: {
     visible: false,
   },
+  render: (args) => (
+    <BubbleStage>
+      <StoryComponent {...args} />
+    </BubbleStage>
+  ),
 }
 
 /** ボタンで `visible`/`selectable` を切替え、表示状態の変化を都度確認できる */
@@ -157,7 +176,9 @@ export const Interactive: Story = {
             選択可能: {selectable ? 'ON' : 'OFF'}
           </button>
         </div>
-        <StoryComponent {...args} selectable={selectable} visible={visible} />
+        <BubbleStage>
+          <StoryComponent {...args} selectable={selectable} visible={visible} />
+        </BubbleStage>
       </>
     )
   },
