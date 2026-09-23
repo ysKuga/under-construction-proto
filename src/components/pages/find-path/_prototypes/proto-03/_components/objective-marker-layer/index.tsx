@@ -44,7 +44,6 @@ export const ObjectiveMarkerLayer = memo((props: ObjectiveMarkerLayerProps) => {
     height: bounds.cellHeight * 0.7,
     left: center.x,
     top: center.y,
-    transform: 'translate(-50%, -50%)',
     width: bounds.cellHeight * 0.7,
   }
 
