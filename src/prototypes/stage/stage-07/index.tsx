@@ -82,6 +82,12 @@ type Stage07Props = PropsWithChildren<{
   interactive?: boolean
   /** 現在地セル変更時（省略可） */
   onCellChange?: (cell: HexCell) => void
+  /**
+   * 非隣接セルをクリックした時（省略可）
+   *
+   * - `useHexMove` へそのまま渡す。find-path proto-03 の通知表示等で使う
+   */
+  onNonAdjacentClick?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
   perspectivePx?: number
   /**
@@ -129,6 +135,8 @@ type Stage07Props = PropsWithChildren<{
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `canEnterCell` を渡すと `useHexMove` の隣接判定に加えてそのセルへの移動を
  *   拒否できる（find-path proto-03 の障害物セル判定で使用）
+ * - `onNonAdjacentClick` は非隣接セルをクリックした時に呼ばれる（省略可）。`Stage07`
+ *   自身は find-path 固有の概念（通知表示等）を持たないため、呼び出し側へ通知するのみ
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
@@ -157,6 +165,7 @@ export const Stage07 = (props: Stage07Props) => {
     initialTiltDeg = 0,
     interactive = true,
     onCellChange,
+    onNonAdjacentClick,
     perspectivePx = 800,
     registerCellVisibilityNode,
     rows,
@@ -253,6 +262,7 @@ export const Stage07 = (props: Stage07Props) => {
       void face({ rad: screenAngleToYaw(screenAngle) })
     },
     canEnterCell,
+    onNonAdjacentClick,
   )
   const { floorRef, setTilt } = usePerspectiveControl()
 
