@@ -12,6 +12,7 @@
   - `WaypointBubble` がマス(セル)と重なっているとクリックできない問題を解消する
     - 原因: bot 頭上の overlayContainer が Stage07 floor の preserve-3d 空間内にあり、奥行きヒットテストで GeoLayer 側のセルにクリックを奪われる(decision-records.md 2026-09-23)
     - 方針: overlayContainer を floor の 3D 空間外へ出す。bot 追従は CSS 継承でなく JS 側の座標計算に置き換える(decision-records.md 2026-09-23)
+    - 実装済み: `ActorOverlayLayer` を floor 外に新設、`ActorsLayer` のアンカー DOM へ rAF 実測で追従(decision-records.md 2026-09-23)
 - [ ] ステージ上で動作する bot とは別に bot を独立表示し、「現在どちらを向いているか」を同期して表示する実装を検討
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
 - [ ] マスホバー/選択時の内包要素一覧表示を検討
