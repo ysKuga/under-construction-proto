@@ -30,7 +30,7 @@ const CONNECTOR_SVG_SIZE_PX = 80
  *   (bot の位置決め div の画面上の左上)からの相対位置。呼び出し元がそのまま使うことを想定
  *   するが、`offset` prop 自体は任意の値を受け付ける
  */
-export const WAYPOINT_BUBBLE_OFFSET = { x: 40, y: -36 }
+export const WAYPOINT_BUBBLE_OFFSET = { x: 24, y: -36 }
 
 /**
  * `WaypointBubble` が呼び出し元へ公開する imperative API
