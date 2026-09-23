@@ -1,5 +1,5 @@
 import { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
-import { useState } from 'react'
+import { CSSProperties, useState } from 'react'
 
 import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import {
@@ -16,6 +16,12 @@ const HEX_SIZE = 40
 const BOT_SIZE = 56
 /** bot を配置するセル。`WaypointBubble` の `currentCell` と揃える */
 const CURRENT_CELL = { q: 2, r: 2 } as const
+/** `Stage07` の既定値(`initialTiltDeg`)と同じ、tilt スライダーの初期値(deg) */
+const DEFAULT_TILT_DEG = 55
+/** `Stage07` の tilt スライダーと同じ範囲(deg) */
+const TILT_RANGE = { max: 85, min: 0 } as const
+/** `Stage07` の `sceneStyle.perspective` と同じ値(px) */
+const PERSPECTIVE_PX = 800
 
 /**
  * `Stage07`/`ActorsLayer` と同じ位置計算(`hexCellCenter` + `translate(-50%,
@@ -24,36 +30,70 @@ const CURRENT_CELL = { q: 2, r: 2 } as const
  * - `WaypointBubble` はセル中心から bot の高さぶん上に自身を配置するだけで、
  *   実際に bot が同じ位置にいることは前提にしていない。組み合わせないと
  *   「bot 頭上」として正しい位置か判断できないため、単体表示から変更した
+ * - `Stage07` の `floor`(`perspective` + `rotateX(var(--floor-tilt))`)を
+ *   同じ構造で再現し、tilt スライダーで `--floor-tilt` を動的に変更できる
+ *   ようにする（issue #137、吹き出しの位置調整を tilt 込みで確認したい要望）。
+ *   bot 自体も `ActorsLayer` と同じ逆 `rotateX` で tilt を打ち消して直立させる
+ *   （打ち消さないと tilt を動かすたび bot も一緒に傾いてしまい検証にならない）
  */
 const withBot: Decorator = (Story) => {
+  const [tilt, setTilt] = useState(DEFAULT_TILT_DEG)
+
   const bounds = computeHexGridBounds(GRID.cols, GRID.rows, HEX_SIZE)
   const center = hexCellCenter(CURRENT_CELL, HEX_SIZE, bounds)
 
+  const floorStyle: CSSProperties = {
+    '--floor-tilt': `${tilt}deg`,
+    display: 'inline-block',
+    height: bounds.containerHeight,
+    position: 'relative',
+    transform: 'rotateX(var(--floor-tilt))',
+    transformOrigin: 'center bottom',
+    transformStyle: 'preserve-3d',
+    width: bounds.containerWidth,
+  } as CSSProperties
+
   return (
-    <div
-      style={{
-        height: bounds.containerHeight,
-        position: 'relative',
-        width: bounds.containerWidth,
-      }}
-    >
+    <div>
+      <label>
+        tilt{' '}
+        <input
+          max={TILT_RANGE.max}
+          min={TILT_RANGE.min}
+          onChange={(event) => setTilt(Number(event.target.value))}
+          type="range"
+          value={tilt}
+        />{' '}
+        {tilt}deg
+      </label>
       <div
         style={{
-          height: BOT_SIZE,
-          left: center.x,
-          position: 'absolute',
-          top: center.y,
-          transform: 'translate(-50%, -53%)',
-          width: BOT_SIZE,
+          display: 'inline-block',
+          perspective: PERSPECTIVE_PX,
+          perspectiveOrigin: 'center 30%',
         }}
       >
-        <BoxBot01
-          interactive={false}
-          orbit={false}
-          style={{ height: BOT_SIZE, width: BOT_SIZE }}
-        />
+        <div style={floorStyle}>
+          <div
+            style={{
+              height: BOT_SIZE,
+              left: center.x,
+              position: 'absolute',
+              top: center.y,
+              transform:
+                'translate(-50%, -53%) rotateX(calc(-1 * var(--floor-tilt, 0deg)))',
+              width: BOT_SIZE,
+            }}
+          >
+            <BoxBot01
+              interactive={false}
+              orbit={false}
+              style={{ height: BOT_SIZE, width: BOT_SIZE }}
+            />
+          </div>
+          <Story />
+        </div>
       </div>
-      <Story />
     </div>
   )
 }
