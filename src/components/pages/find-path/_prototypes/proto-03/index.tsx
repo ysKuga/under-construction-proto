@@ -208,12 +208,16 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   /** 非隣接セルをクリックした時。まずは通知のみ（issue #137 backlog、経路探索は次段階） */
-  const handleNonAdjacentClick = useCallback(() => {
-    addNotification({
-      title: '隣接マスのみ移動できます',
-      type: 'info',
-    })
-  }, [addNotification])
+  const handleNonAdjacentClick = useCallback(
+    (cell: HexCell) => {
+      addNotification({
+        options: { autoDismiss: true },
+        title: `対象 (${cell.q}, ${cell.r})`,
+        type: 'info',
+      })
+    },
+    [addNotification],
+  )
 
   const handleCellChange = (cell: HexCell) => {
     setCurrentCell(cell)
