@@ -140,8 +140,9 @@ type EnterGuard = {
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
  *   通知する（issue #137 backlog、自動移動の実行は次段階）
  * - 中継点の設定（issue #137 backlog）: 経路が求まると bot 頭上に `WaypointBubble`
- *   （思考吹き出し）を表示し（`waypointFlowState === 'proposing'`）、クリックで
- *   中継点選択モード（`'selecting'`）へ移行する。`WaypointBubble` は自身では
+ *   （思考吹き出し）を表示し（`waypointFlowState !== 'idle'`、クリックで移行する
+ *   選択モード中も表示を継続）、クリックで中継点選択モード（`'selecting'`）へ
+ *   移行する。`WaypointBubble` は自身では
  *   座標計算を持たないため、`useActorsStore` の `overlayContainers` が公開する、
  *   player bot の位置決め div 内のコンテナ DOM（`playerOverlayContainer`）へ
  *   `createPortal` で注入する。これにより bot の現在地追従・floor の tilt 打ち消し
@@ -524,7 +525,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
             offset={WAYPOINT_BUBBLE_OFFSET}
             onClick={handleWaypointBubbleClick}
             ref={waypointBubbleRef}
-            visible={waypointFlowState === 'proposing'}
+            visible={waypointFlowState !== 'idle'}
           />,
           playerOverlayContainer,
         )}
