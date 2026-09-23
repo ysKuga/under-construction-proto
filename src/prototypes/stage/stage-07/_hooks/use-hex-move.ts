@@ -3,6 +3,13 @@ import { HexCell, hexDirectionToScreenAngle, isHexAdjacent } from '../_lib/hex'
 type UseHexMoveReturn = {
   /** セルクリック時。隣接セルのみ移動する */
   handleCellClick: (cell: HexCell) => void
+  /**
+   * 隣接セルへの移動を試みる。移動したら `true`、隣接でない・進入不可なら `false`
+   *
+   * - クリックを介さない移動(経路に沿った自動移動等)で使う。非隣接でも
+   *   `onNonAdjacentClick` は呼ばない
+   */
+  tryMove: (cell: HexCell) => boolean
 }
 
 /**
@@ -30,16 +37,9 @@ export const useHexMove = (
   canEnter?: (cell: HexCell) => boolean,
   onNonAdjacentClick?: (cell: HexCell) => void,
 ): UseHexMoveReturn => {
-  const handleCellClick = (cell: HexCell) => {
-    if (!isHexAdjacent(currentCell, cell)) {
-      onNonAdjacentClick?.(cell)
-
-      return
-    }
-
-    if (canEnter && !canEnter(cell)) {
-      return
-    }
+  const tryMove = (cell: HexCell): boolean => {
+    if (!isHexAdjacent(currentCell, cell)) return false
+    if (canEnter && !canEnter(cell)) return false
 
     const screenAngle = hexDirectionToScreenAngle(currentCell, cell)
 
@@ -49,7 +49,19 @@ export const useHexMove = (
 
     moveActor(cell)
     onCellChange?.(cell)
+
+    return true
   }
 
-  return { handleCellClick }
+  const handleCellClick = (cell: HexCell) => {
+    if (!isHexAdjacent(currentCell, cell)) {
+      onNonAdjacentClick?.(cell)
+
+      return
+    }
+
+    tryMove(cell)
+  }
+
+  return { handleCellClick, tryMove }
 }

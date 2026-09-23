@@ -178,3 +178,26 @@ export const connectorTail = style({
     },
   },
 })
+
+/**
+ * 「実行」ボタン(経路に沿った自動移動を開始する)
+ *
+ * - 吹き出し本体(button)の右隣へ absolute 配置する。通常フローに置くと
+ *   親の幅が変わり、`50%` 基準で配置しているコネクタ SVG の位置がずれるため
+ * - 吹き出し本体と同じ配色・枠線(solid)にし、並べて馴染ませる
+ */
+export const executeButton = style({
+  ':hover': {
+    backgroundColor: '#f3f4f6',
+  },
+  backgroundColor: '#fff',
+  border: '2px solid #9ca3af',
+  borderRadius: 8,
+  cursor: 'pointer',
+  fontSize: 12,
+  left: 'calc(100% + 4px)',
+  padding: '2px 6px',
+  position: 'absolute',
+  top: 0,
+  whiteSpace: 'nowrap',
+})

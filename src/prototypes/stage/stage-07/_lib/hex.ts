@@ -114,3 +114,16 @@ export const pickInitialFacingTarget = (
     q: cell.q + direction.q,
     r: cell.r + direction.r,
   })).find((target) => isHexCellInGrid(target, cols, rows))
+
+/**
+ * 2セル間の hex 距離(隣接移動の最小歩数、障害物は考慮しない)を返す
+ *
+ * @param a セル1
+ * @param b セル2
+ */
+export const hexDistance = (a: HexCell, b: HexCell): number => {
+  const dq = b.q - a.q
+  const dr = b.r - a.r
+
+  return (Math.abs(dq) + Math.abs(dr) + Math.abs(dq + dr)) / 2
+}

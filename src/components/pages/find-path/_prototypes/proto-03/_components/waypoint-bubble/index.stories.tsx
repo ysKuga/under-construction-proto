@@ -111,6 +111,7 @@ const meta: Meta<typeof StoryComponent> = {
   args: {
     offset: WAYPOINT_BUBBLE_OFFSET,
     onClick: () => {},
+    onExecuteClick: () => {},
   },
   component: StoryComponent,
 }
