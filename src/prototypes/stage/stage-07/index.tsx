@@ -99,6 +99,14 @@ type Stage07Props = PropsWithChildren<{
   registerCellVisibilityNode?: ComponentProps<
     typeof GeoLayer
   >['registerVisibilityNode']
+  /**
+   * player bot の位置決め div 内にオーバーレイ注入用コンテナを用意し、その DOM を
+   * 公開する（省略時は用意しない）。`ActorsLayer` へそのまま渡す（同 prop の
+   * JSDoc 参照）
+   */
+  registerPlayerOverlayContainer?: ComponentProps<
+    typeof ActorsLayer
+  >['registerPlayerOverlayContainer']
   /** 行数 */
   rows: number
 }>
@@ -139,6 +147,11 @@ type Stage07Props = PropsWithChildren<{
  *   自身は find-path 固有の概念（通知表示等）を持たないため、呼び出し側へ通知するのみ
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
+ * - `registerPlayerOverlayContainer` を渡すと player bot の位置決め div 内に
+ *   コンテナ DOM が用意される。呼び出し側が `createPortal` でその DOM へ任意の
+ *   要素（bot 頭上に表示したい吹き出し等、複数可）を注入できる。`children`
+ *   （floor 直下、セル座標基準の overlay）と異なり、bot の現在地・tilt 打ち消し
+ *   に自動で追従する点が違う（`ActorsLayer` 内コメント参照）
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
  *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)はいずれもスライダーで
  *   調整可能（`ActorsLayer` へ渡す。tilt と異なり操作頻度が低いため `useState`
@@ -168,6 +181,7 @@ export const Stage07 = (props: Stage07Props) => {
     onNonAdjacentClick,
     perspectivePx = 800,
     registerCellVisibilityNode,
+    registerPlayerOverlayContainer,
     rows,
   } = props
 
@@ -320,6 +334,7 @@ export const Stage07 = (props: Stage07Props) => {
             maxWalkCycleSec={maxWalkCycleSec}
             moveDurationMs={moveDurationMs}
             onArrived={handleArrived}
+            registerPlayerOverlayContainer={registerPlayerOverlayContainer}
             rows={rows}
             size={botSize}
           />
