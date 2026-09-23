@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import {
@@ -36,8 +36,9 @@ import { ObstacleLayer } from './_components/obstacle-layer'
 import { OneWayLayer } from './_components/one-way-layer'
 import { PathPreviewLayer } from './_components/path-preview-layer'
 import {
-  WAYPOINT_BUBBLE_POSITION_CLASS_NAME,
+  WAYPOINT_BUBBLE_OFFSET,
   WaypointBubble,
+  WaypointBubbleHandle,
 } from './_components/waypoint-bubble'
 import { WaypointSelectLayer } from './_components/waypoint-select-layer'
 import { WaypointSelectingIndicator } from './_components/waypoint-selecting-indicator'
@@ -242,6 +243,12 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     useState<WaypointFlowState>('idle')
   const [waypoints, setWaypoints] = useState<HexCell[]>([])
   /**
+   * `WaypointBubble` の imperative API。`selectable`(思考吹き出し⇔発言吹き出し
+   * の切替)を props でなくこの ref 経由で命令する（`WaypointBubbleHandle`
+   * 内コメント参照）
+   */
+  const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
+  /**
    * `useActorsStore` の `overlayContainers` が公開する、player bot の位置決め
    * div 内のコンテナ DOM。`WaypointBubble` をここへ `createPortal` で注入する
    * （issue #137、bot 頭上への追従・tilt 打ち消しを bot 要素側の transform に
@@ -336,6 +343,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const handleWaypointBubbleClick = useCallback(() => {
     setWaypointFlowState('selecting')
   }, [])
+
+  // waypointFlowState の変化を WaypointBubble の selectable(imperative) へ同期する
+  useEffect(() => {
+    waypointBubbleRef.current?.setSelectable(waypointFlowState === 'selecting')
+  }, [waypointFlowState])
 
   /**
    * 「完了」クリック時。中継点選択モードを終了し通常状態へ戻る
@@ -509,9 +521,9 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       {playerOverlayContainer &&
         createPortal(
           <WaypointBubble
-            className={WAYPOINT_BUBBLE_POSITION_CLASS_NAME}
+            offset={WAYPOINT_BUBBLE_OFFSET}
             onClick={handleWaypointBubbleClick}
-            selectable={false}
+            ref={waypointBubbleRef}
             visible={waypointFlowState === 'proposing'}
           />,
           playerOverlayContainer,
