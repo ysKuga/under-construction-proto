@@ -4,8 +4,10 @@ import {
   ComponentProps,
   CSSProperties,
   PropsWithChildren,
+  Ref,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useRef,
   useState,
 } from 'react'
@@ -24,6 +26,7 @@ import { PLAYER_ACTOR_ID } from '../stage-06/constants'
 import { ActorOverlayLayer } from './_components/actor-overlay-layer'
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
+import { useFollowPath } from './_hooks/use-follow-path'
 import { useHexMove } from './_hooks/use-hex-move'
 import {
   HexCell,
@@ -31,6 +34,18 @@ import {
   pickInitialFacingTarget,
 } from './_lib/hex'
 import { useActorsStore } from './_stores/actors'
+
+/** `Stage07` が呼び出し元へ公開する imperative API */
+export type Stage07Handle = {
+  /**
+   * player を `path` に沿って 1 マスずつ自動移動させる
+   *
+   * - `path` は現在地セルを含まない隣接セルの連なり(`findHexPath` の戻り値と同形)
+   * - 各マスの移動はクリック移動と同じ検証(`canEnterCell`)を通す。進入不可なら
+   *   その場で停止する。終了は `onFollowPathEnd` で通知する
+   */
+  followPath: (path: HexCell[]) => void
+}
 
 type Stage07Props = PropsWithChildren<{
   /**
@@ -84,6 +99,13 @@ type Stage07Props = PropsWithChildren<{
   /** 現在地セル変更時（省略可） */
   onCellChange?: (cell: HexCell) => void
   /**
+   * `followPath` による自動移動の終了時（省略可）
+   *
+   * - 最終セル到着で終了した場合は引数なし。途中で進入不可(EN 切れ等)により
+   *   停止した場合は進入できなかったセルを渡す
+   */
+  onFollowPathEnd?: (blockedCell?: HexCell) => void
+  /**
    * 非隣接セルをクリックした時（省略可）
    *
    * - `useHexMove` へそのまま渡す。find-path proto-03 の通知表示等で使う
@@ -91,6 +113,8 @@ type Stage07Props = PropsWithChildren<{
   onNonAdjacentClick?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
   perspectivePx?: number
+  /** imperative API(`Stage07Handle`)の受け取り先（省略可） */
+  ref?: Ref<Stage07Handle>
   /**
    * `GeoLayer` の hex タイルの DOM を visibility registry 等へ登録する
    *
@@ -138,6 +162,9 @@ type Stage07Props = PropsWithChildren<{
  *   拒否できる（find-path proto-03 の障害物セル判定で使用）
  * - `onNonAdjacentClick` は非隣接セルをクリックした時に呼ばれる（省略可）。`Stage07`
  *   自身は find-path 固有の概念（通知表示等）を持たないため、呼び出し側へ通知するのみ
+ * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
+ *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
+ *   進入不可ならその場で停止して `onFollowPathEnd` へ通知する
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  * - player bot 頭上へのオーバーレイ注入用コンテナは `ActorOverlayLayer` が
@@ -174,8 +201,10 @@ export const Stage07 = (props: Stage07Props) => {
     initialTiltDeg = 0,
     interactive = true,
     onCellChange,
+    onFollowPathEnd,
     onNonAdjacentClick,
     perspectivePx = 800,
+    ref,
     registerCellVisibilityNode,
     rows,
   } = props
@@ -256,7 +285,7 @@ export const Stage07 = (props: Stage07Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const { handleCellClick } = useHexMove(
+  const { handleCellClick, tryMove } = useHexMove(
     currentCell,
     (cell) => moveActorTo(PLAYER_ACTOR_ID, cell),
     (cell) => {
@@ -276,19 +305,43 @@ export const Stage07 = (props: Stage07Props) => {
   const { floorRef, setTilt } = usePerspectiveControl()
 
   /**
-   * セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする
+   * 歩行を off にする(腕・脚を規定位置へ戻す)
    *
-   * - `ActorsLayer`（`React.memo` 化済み、issue-181-en backlog）の `onArrived`
-   *   prop が毎レンダー新規関数だと memo が効かなくなるため `useCallback`
-   *   （依存配列空）で参照を固定する。`enableWalking`/`walkingReset` は ref
-   *   経由で最新値を読む
+   * - `enableWalking`/`walkingReset` は ref 経由で最新値を読む（`handleArrived`
+   *   の参照固定のため依存配列空）
    */
-  const handleArrived = useCallback(() => {
+  const stopWalking = useCallback(() => {
     if (!enableWalkingRef.current || !isWalkingRef.current) return
 
     isWalkingRef.current = false
     void walkingResetRef.current(WALKING_RESET_DURATION_MS)
   }, [])
+
+  const { followPath, notifyArrived } = useFollowPath(
+    tryMove,
+    moveDurationMs,
+    (blockedCell) => {
+      stopWalking()
+      onFollowPathEnd?.(blockedCell)
+    },
+  )
+
+  useImperativeHandle(ref, () => ({ followPath }), [followPath])
+
+  /**
+   * セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする
+   *
+   * - `ActorsLayer`（`React.memo` 化済み、issue-181-en backlog）の `onArrived`
+   *   prop が毎レンダー新規関数だと memo が効かなくなるため `useCallback`
+   *   で参照を固定する
+   * - 自動移動(`followPath`)中は途中の到着で歩行を止めない。停止は
+   *   `useFollowPath` の終了通知側で行う
+   */
+  const handleArrived = useCallback(() => {
+    if (notifyArrived()) return
+
+    stopWalking()
+  }, [notifyArrived, stopWalking])
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
   const sceneStyle: CSSProperties = {
