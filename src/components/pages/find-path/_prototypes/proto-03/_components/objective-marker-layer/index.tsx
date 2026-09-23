@@ -6,6 +6,8 @@ import {
   hexCellCenter,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
+import * as styles from './index.css'
+
 type ObjectiveMarkerLayerProps = {
   /** 列数 */
   cols: number
@@ -25,6 +27,8 @@ type ObjectiveMarkerLayerProps = {
  *   どこか分からないため（issue #226）
  * - ゴールの旗（`GoalMarkerLayer`）・中継点の 📍 と見分けがつくよう、絵文字でなく
  *   リングにする。ゴールセルを目標にした場合も旗を囲む形で重なる
+ * - リングは縮小 → 非表示 → 初期表示を繰り返す（`index.css.ts`）。目標セルが
+ *   変わるたび `key` でマウントし直し、アニメーションを最初から再生する
  * - `registerVisibilityNode` は持たない（`PathPreviewLayer` と同じく、プレイヤーが
  *   選んだ移動先を示す表示のため常時表示）
  */
@@ -37,18 +41,20 @@ export const ObjectiveMarkerLayer = memo((props: ObjectiveMarkerLayerProps) => {
   const center = hexCellCenter(objectiveCell, hexSize, bounds)
 
   const style: CSSProperties = {
-    border: '3px solid #0284c7',
-    borderRadius: '50%',
     height: bounds.cellHeight * 0.7,
     left: center.x,
-    pointerEvents: 'none',
-    position: 'absolute',
     top: center.y,
     transform: 'translate(-50%, -50%)',
     width: bounds.cellHeight * 0.7,
   }
 
-  return <div style={style} />
+  return (
+    <div
+      className={styles.ring}
+      key={`${objectiveCell.q},${objectiveCell.r}`}
+      style={style}
+    />
+  )
 })
 
 ObjectiveMarkerLayer.displayName = 'ObjectiveMarkerLayer'
