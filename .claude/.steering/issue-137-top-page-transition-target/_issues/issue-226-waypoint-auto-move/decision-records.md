@@ -13,3 +13,10 @@
   - 各マスの移動はクリック移動と同じ検証（`useHexMove` の `tryMove`、`canEnterCell`）を通す。EN 判定を二重に持たない
   - 1 マスごとの間隔は到着（`transitionend`）でなく `moveDurationMs` のタイマーで刻む。到着駆動だと `left`/`top` の二重通知で 2 マス進んでしまう
   - 自動移動中は `Stage07` を非対話化する
+- 2026-09-24: 「実行」吹き出しの文言は中継点吹き出しと同じく末尾「？」「！」で切替え、切替条件は hover とする（ユーザー判断）。中継点吹き出しの `selectable` とは独立
+- 2026-09-24: 吹き出しの共通部（コネクタ描画・`useCssToggle` による表示切替・ふわふわ揺れ等のスタイル）を `BotBubble` へ切り出し、`WaypointBubble`/`ExecuteBubble` は文言・切替条件を渡すだけの薄い wrapper とする
+  - 左配置（`placement: 'left'`）は右配置の左右反転（本体は右端基準、コネクタは SVG `scale(-1, 1)`）
+  - 表示位置は bot 中心基準の厳密な左右対称だと 2 つの吹き出しが重なるため、4px 空けて非対称にする
+- 2026-09-24: hover 時の挙動を「実行」吹き出しに合わせ、中継点吹き出しも hover 中は発言吹き出し（「中継点！」）にする（ユーザー判断）
+  - 背景グラデーションは hover 時に即時消す（従来の「帯を流しきってから止める」`use-gradient-hover-stop` は廃止）
+- 2026-09-24: 非隣接クリックで指定するセルの呼び名を「目標」(`objective`) とする（ユーザー判断）。「目的地」は「目的」が最終的・全体的なニュアンスを持つため不採用。`target` は `MoveTargetLayer` と衝突するため不採用（docs/terminology/strategy/objective）
