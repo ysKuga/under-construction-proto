@@ -20,3 +20,4 @@
 - 2026-09-24: hover 時の挙動を「実行」吹き出しに合わせ、中継点吹き出しも hover 中は発言吹き出し（「中継点！」）にする（ユーザー判断）
   - 背景グラデーションは hover 時に即時消す（従来の「帯を流しきってから止める」`use-gradient-hover-stop` は廃止）
 - 2026-09-24: 非隣接クリックで指定するセルの呼び名を「目標」(`objective`) とする（ユーザー判断）。「目的地」は「目的」が最終的・全体的なニュアンスを持つため不採用。`target` は `MoveTargetLayer` と衝突するため不採用（docs/terminology/strategy/objective）
+- 2026-09-24: `Stage07` の `onNonAdjacentClick` は「目標」へ改名しない。理由: `Stage07` は find-path 固有の概念を持たない（`CellTitleProvider` と同じ方針）。改名対象は proto-03 側（`objectiveCell` state、`findHexPathViaWaypoints` の引数）に限る
