@@ -19,7 +19,10 @@ import { Stage07 } from '@/prototypes/stage/stage-07'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
-import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
+import {
+  ActorsStoreProvider,
+  useActorsStore,
+} from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { EnergyDebugPanel } from '../_components/energy-debug-panel'
 
@@ -138,12 +141,12 @@ type EnterGuard = {
  * - 中継点の設定（issue #137 backlog）: 経路が求まると bot 頭上に `WaypointBubble`
  *   （思考吹き出し）を表示し（`waypointFlowState === 'proposing'`）、クリックで
  *   中継点選択モード（`'selecting'`）へ移行する。`WaypointBubble` は自身では
- *   座標計算を持たないため、`Stage07` の `registerPlayerOverlayContainer` が
- *   公開する、player bot の位置決め div 内のコンテナ DOM（`playerOverlayContainer`
- *   state）へ `createPortal` で注入する。これにより bot の現在地追従・floor の
- *   tilt 打ち消しを bot 要素側の transform にそのまま乗せられる（`WaypointBubble`
- *   内コメント参照）。位置は `WAYPOINT_BUBBLE_POSITION_CLASS_NAME`（bot 頭上の
- *   決め打ちオフセット）を渡す。`WaypointBubble` は現状、表示位置確認のための
+ *   座標計算を持たないため、`useActorsStore` の `overlayContainers` が公開する、
+ *   player bot の位置決め div 内のコンテナ DOM（`playerOverlayContainer`）へ
+ *   `createPortal` で注入する。これにより bot の現在地追従・floor の tilt 打ち消し
+ *   を bot 要素側の transform にそのまま乗せられる（`WaypointBubble` 内コメント
+ *   参照）。位置は `WAYPOINT_BUBBLE_POSITION_CLASS_NAME`（bot 頭上の決め打ち
+ *   オフセット）を渡す。`WaypointBubble` は現状、表示位置確認のための
  *   暫定実装（border 付き button）。`selectable` prop（枠線の実線/点線切替）は
  *   store で中継点選択モードを管理する想定の先行実装で、ここでは固定値 `false`
  *   を渡す（store 接続は次段階）。`rotateX` + `preserve-3d` 環境のブラウザ
@@ -239,13 +242,16 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     useState<WaypointFlowState>('idle')
   const [waypoints, setWaypoints] = useState<HexCell[]>([])
   /**
-   * `Stage07` の `registerPlayerOverlayContainer` が公開する、player bot の
-   * 位置決め div 内のコンテナ DOM。`WaypointBubble` をここへ `createPortal` で
-   * 注入する（issue #137、bot 頭上への追従・tilt 打ち消しを bot 要素側の
-   * transform に乗せるため）
+   * `useActorsStore` の `overlayContainers` が公開する、player bot の位置決め
+   * div 内のコンテナ DOM。`WaypointBubble` をここへ `createPortal` で注入する
+   * （issue #137、bot 頭上への追従・tilt 打ち消しを bot 要素側の transform に
+   * 乗せるため）。`ActorsLayer` が `registerOverlayContainer` で store へ登録
+   * する（props drilling でなく actor に紐づく store 経由、`ActorsLayer` 内
+   * コメント参照）
    */
-  const [playerOverlayContainer, setPlayerOverlayContainer] =
-    useState<HTMLDivElement | null>(null)
+  const playerOverlayContainer = useActorsStore(
+    (state) => state.overlayContainers[PLAYER_ACTOR_ID],
+  )
   const { markVisited, registerVisibilityNode, setShowVisited } =
     useVisibilityRegistry()
   const energyDispatch = useEnergyEventDispatcher()
@@ -449,7 +455,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           onCellChange={handleCellChange}
           onNonAdjacentClick={handleNonAdjacentClick}
           registerCellVisibilityNode={registerFloorVisibilityNode}
-          registerPlayerOverlayContainer={setPlayerOverlayContainer}
           rows={GRID.rows}
         >
           <GoalMarkerLayer
