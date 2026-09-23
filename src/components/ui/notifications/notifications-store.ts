@@ -1,9 +1,13 @@
 import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 
+import { UseNotificationOptions } from './notification.hooks'
+
 export type Notification = {
   id: string
   message?: string
+  /** 自動フェードアウト・transition 時間の指定(省略可、`useNotification` へそのまま渡す) */
+  options?: UseNotificationOptions
   title: string
   type: 'error' | 'info' | 'success' | 'warning'
 }

@@ -12,6 +12,7 @@ import {
   energyOutAction,
   useBoxBotActionDispatcher,
 } from '@/components/theater/figure/box-bot'
+import { useNotifications } from '@/components/ui/notifications'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07 } from '@/prototypes/stage/stage-07'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
@@ -96,6 +97,8 @@ type EnterGuard = {
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
  *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）のため、
  *   ここでは `Stage07` のマウントとゴール到達判定のみを担う
+ * - 非隣接セルクリック時は `onNonAdjacentClick` 経由で通知（`useNotifications`）を
+ *   表示する（issue #137 backlog、経路探索による自動移動は次段階）
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。可視判定は「視界（現在地基準の6近傍）」または「到達済み表示ONかつ
  *   到達済みセル」（`setShowVisited` で切替可能、既定 ON）。`Stage07`（hex タイルの
@@ -178,6 +181,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
   const itemStoreApi = useItemStoreApi()
+  const addNotification = useNotifications((state) => state.addNotification)
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
@@ -201,6 +205,18 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     (cell: HexCell, el: HTMLElement | null) =>
       registerVisibilityNode(cell, 'floor', el),
     [registerVisibilityNode],
+  )
+
+  /** 非隣接セルをクリックした時。まずは通知のみ（issue #137 backlog、経路探索は次段階） */
+  const handleNonAdjacentClick = useCallback(
+    (cell: HexCell) => {
+      addNotification({
+        options: { autoDismiss: true },
+        title: `対象 (${cell.q}, ${cell.r})`,
+        type: 'info',
+      })
+    },
+    [addNotification],
   )
 
   const handleCellChange = (cell: HexCell) => {
@@ -293,6 +309,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           hexSize={HEX_SIZE}
           initialTiltDeg={55}
           onCellChange={handleCellChange}
+          onNonAdjacentClick={handleNonAdjacentClick}
           registerCellVisibilityNode={registerFloorVisibilityNode}
           rows={GRID.rows}
         >

@@ -19,6 +19,8 @@ type UseHexMoveReturn = {
  *   yaw への変換・dispatch は呼び出し側(`Stage07`)が持つため、ここでは画面角度を渡すのみ
  * @param canEnter 対象セルへ進入可能か（省略時は常に進入可能）。隣接判定に加えて
  *   このセルへの移動を拒否できる（find-path proto-03 の障害物セル判定等）
+ * @param onNonAdjacentClick 非隣接セルをクリックした時（省略可）。`useHexMove` 自身は
+ *   find-path 固有の概念（通知等）を持たないため、呼び出し側へ通知するのみ
  */
 export const useHexMove = (
   currentCell: HexCell,
@@ -26,9 +28,12 @@ export const useHexMove = (
   onCellChange?: (cell: HexCell) => void,
   onFacingChange?: (screenAngle: number) => void,
   canEnter?: (cell: HexCell) => boolean,
+  onNonAdjacentClick?: (cell: HexCell) => void,
 ): UseHexMoveReturn => {
   const handleCellClick = (cell: HexCell) => {
     if (!isHexAdjacent(currentCell, cell)) {
+      onNonAdjacentClick?.(cell)
+
       return
     }
 
