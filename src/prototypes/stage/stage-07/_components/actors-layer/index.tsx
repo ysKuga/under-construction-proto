@@ -1,4 +1,4 @@
-import { CSSProperties, memo, TransitionEvent } from 'react'
+import { CSSProperties, memo, TransitionEvent, useCallback } from 'react'
 
 import {
   BoxBot01,
@@ -73,13 +73,12 @@ type ActorsLayerProps = {
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
  *   安定化すること
- * - player bot の位置決め div 内にオーバーレイ注入用コンテナ DOM を用意し、
- *   `useActorsStore` の `registerOverlayContainer` で登録する（issue #137）。
- *   当初は `Stage07`→`ActorsLayer` の props（`registerPlayerOverlayContainer`）
- *   で渡していたが、actor に紐づく実装のため props drilling でなく store
- *   経由に変更した。呼び出し元（find-path 側）は同じ `useActorsStore` から
- *   `overlayContainers[actorId]` を直接読み、`createPortal` で任意の要素
- *   （bot 頭上に表示したい UI 等、複数可）を注入できる
+ * - player bot の位置決め div 内にオーバーレイ追従先(アンカー) DOM を用意し、
+ *   `useActorsStore` の `registerOverlayAnchor` で登録する（issue #137）。
+ *   注入用コンテナ自体は floor の 3D 空間外の `ActorOverlayLayer` が持ち、
+ *   このアンカーの画面上の位置へ追従させる。当初はこの位置決め div 内に
+ *   コンテナを置いていたが、floor の奥行きヒットテストで `GeoLayer` のセルに
+ *   クリックを奪われたため分離した
  */
 /** face / walking / walkingReset / energyOut を有効化する(jump/spin 等は無効のまま) */
 const ACTIONS = [faceAction, walkingAction, walkingResetAction, energyOutAction]
@@ -120,8 +119,18 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
   } = props
 
   const actors = useActorsStore((state) => state.actors)
-  const registerOverlayContainer = useActorsStore(
-    (state) => state.registerOverlayContainer,
+  const registerOverlayAnchor = useActorsStore(
+    (state) => state.registerOverlayAnchor,
+  )
+  /**
+   * player のアンカー DOM を登録する ref コールバック
+   *
+   * - 移動のたび再レンダリングされるため、参照を固定して登録解除→再登録の
+   *   繰返し(store 更新の連鎖)を避ける
+   */
+  const registerPlayerOverlayAnchor = useCallback(
+    (el: HTMLDivElement | null) => registerOverlayAnchor(PLAYER_ACTOR_ID, el),
+    [registerOverlayAnchor],
   )
   const currentCell = actors[PLAYER_ACTOR_ID] ?? DEFAULT_CELL
   const mobs = Object.entries(actors).filter(
@@ -192,7 +201,7 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
           style={{ height: size, width: size }}
         />
         <div
-          ref={(el) => registerOverlayContainer(PLAYER_ACTOR_ID, el)}
+          ref={registerPlayerOverlayAnchor}
           style={{ inset: 0, pointerEvents: 'none', position: 'absolute' }}
         />
       </div>
