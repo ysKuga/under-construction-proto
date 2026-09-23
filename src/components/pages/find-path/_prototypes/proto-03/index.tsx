@@ -28,6 +28,7 @@ import { EnergyDebugPanel } from '../_components/energy-debug-panel'
 import {
   EXECUTE_BUBBLE_OFFSET,
   ExecuteBubble,
+  ExecuteBubbleHandle,
 } from './_components/execute-bubble'
 import { GoalMarkerLayer } from './_components/goal-marker-layer'
 import { ItemLayer } from './_components/item-layer'
@@ -259,6 +260,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    * 内コメント参照）
    */
   const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
+  /** `ExecuteBubble` の imperative API。半透明化を ref 経由で命令する */
+  const executeBubbleRef = useRef<ExecuteBubbleHandle>(null)
   /**
    * `useActorsStore` の `overlayContainers` が公開する、player bot 用の
    * コンテナ DOM。`WaypointBubble` をここへ `createPortal` で注入する
@@ -379,9 +382,14 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     setWaypointFlowState('selecting')
   }, [])
 
-  // waypointFlowState の変化を WaypointBubble の selectable(imperative) へ同期する
+  // waypointFlowState の変化を吹き出しの selectable・半透明化(imperative) へ同期する。
+  // 中継点選択中は吹き出しが背後の経路を隠さないよう半透明にする（issue #226）
   useEffect(() => {
-    waypointBubbleRef.current?.setSelectable(waypointFlowState === 'selecting')
+    const isSelecting = waypointFlowState === 'selecting'
+
+    waypointBubbleRef.current?.setSelectable(isSelecting)
+    waypointBubbleRef.current?.setTranslucent(isSelecting)
+    executeBubbleRef.current?.setTranslucent(isSelecting)
   }, [waypointFlowState])
 
   /**
@@ -639,6 +647,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           <ExecuteBubble
             offset={EXECUTE_BUBBLE_OFFSET}
             onClick={handleExecuteClick}
+            ref={executeBubbleRef}
             visible={waypointFlowState !== 'idle'}
           />,
           playerOverlayContainer,

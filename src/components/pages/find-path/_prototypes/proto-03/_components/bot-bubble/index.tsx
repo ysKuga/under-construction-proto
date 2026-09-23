@@ -34,6 +34,8 @@ const CONNECTOR_SVG_SIZE_PX = 80
 export type BotBubbleHandle = {
   /** 思考吹き出し(丸のコネクタ)⇔発言吹き出し(三角形のコネクタ + 発言の文言)を切替える */
   setSpeech: (next: boolean) => void
+  /** 半透明にするか。hover 中は不透明に戻る */
+  setTranslucent: (next: boolean) => void
 }
 
 type BotBubbleProps = {
@@ -80,6 +82,8 @@ type BotBubbleProps = {
  *   checkbox を直書きする。未選択時は「思考中」を表す丸のコネクタ + `thoughtText`、
  *   選択時は bot に向いた三角形のしっぽ + `speechText` へ切替わる。
  *   本体 hover 中も同じ見た目にする（CSS のみで切替）
+ * - 半透明化（`BotBubbleHandle.setTranslucent`）も同じ仕組み。背後の経路を
+ *   隠さないために使う（issue #226）。hover 中は不透明に戻る（CSS のみで切替）
  * - 本体(button)は `offset` に応じた位置へ固定表示しつつ常時ふわふわ揺れる。
  *   bot 方向コネクタは `offset` から逆算するため、呼び出し元が `offset` を
  *   変えても自動的に bot とのつながりを保つ（座標計算自体は
@@ -104,6 +108,7 @@ export const BotBubble = memo(
 
     const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
     const speechCheckboxRef = useRef<HTMLInputElement>(null)
+    const translucentCheckboxRef = useRef<HTMLInputElement>(null)
     const rippleRef = useRef<HTMLSpanElement>(null)
 
     useEffect(() => {
@@ -116,7 +121,16 @@ export const BotBubble = memo(
       }
     }, [])
 
-    useImperativeHandle(ref, () => ({ setSpeech }), [setSpeech])
+    const setTranslucent = useCallback((next: boolean) => {
+      if (translucentCheckboxRef.current) {
+        translucentCheckboxRef.current.checked = next
+      }
+    }, [])
+
+    useImperativeHandle(ref, () => ({ setSpeech, setTranslucent }), [
+      setSpeech,
+      setTranslucent,
+    ])
 
     /** クリック時。波紋アニメーションを最初から再生し直してから onClick を呼ぶ */
     const handleClick = useCallback(() => {
@@ -149,7 +163,19 @@ export const BotBubble = memo(
         }}
       >
         {checkbox}
-        <div className={toggledClassName} style={{ position: 'relative' }}>
+        <input
+          aria-hidden
+          className={styles.translucentCheckbox}
+          defaultChecked={false}
+          readOnly
+          ref={translucentCheckboxRef}
+          tabIndex={-1}
+          type="checkbox"
+        />
+        <div
+          className={`${toggledClassName} ${styles.content}`}
+          style={{ position: 'relative' }}
+        >
           <input
             aria-hidden
             className={styles.speechCheckbox}

@@ -12,6 +12,33 @@ export const speechCheckbox = style({
   display: 'none',
 })
 
+/**
+ * 半透明にするか(`translucent`)を伝える hidden checkbox
+ *
+ * - `speechCheckbox` と同じ理由でこのコンポーネント専用クラスを用意する
+ */
+export const translucentCheckbox = style({
+  display: 'none',
+})
+
+/**
+ * 本体(button)とコネクタをまとめる要素
+ *
+ * - `translucent` 選択時は半透明にし、背後の経路を見せる（issue #226）
+ * - hover 中は不透明に戻し、文言を読める・押せることを示す
+ */
+export const content = style({
+  selectors: {
+    [`${translucentCheckbox}:checked ~ &:hover`]: {
+      opacity: 1,
+    },
+    [`${translucentCheckbox}:checked ~ &`]: {
+      opacity: 0.3,
+    },
+  },
+  transition: 'opacity 0.15s',
+})
+
 /** 本体(button)がふわふわ揺れるアニメーション(上下 + 微小回転) */
 const float = keyframes({
   '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },

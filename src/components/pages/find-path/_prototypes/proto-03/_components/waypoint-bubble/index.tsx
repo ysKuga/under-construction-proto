@@ -28,6 +28,8 @@ export const WAYPOINT_BUBBLE_OFFSET = { x: 24, y: -36 }
 export type WaypointBubbleHandle = {
   /** 思考吹き出し(文言「中継点？」)⇔発言吹き出し(文言「中継点！」)を切替える */
   setSelectable: (next: boolean) => void
+  /** 半透明にするか（`BotBubbleHandle.setTranslucent`） */
+  setTranslucent: (next: boolean) => void
 }
 
 type WaypointBubbleProps = {
@@ -61,6 +63,7 @@ export const WaypointBubble = memo(
         ref,
         () => ({
           setSelectable: (next) => botBubbleRef.current?.setSpeech(next),
+          setTranslucent: (next) => botBubbleRef.current?.setTranslucent(next),
         }),
         [],
       )

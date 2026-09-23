@@ -156,6 +156,28 @@ export const Selectable: Story = {
   },
 }
 
+/**
+ * 中継点選択中の見た目。`Selectable` に加えて半透明になり、hover 中は不透明に戻る
+ *
+ * - proto-03 は選択中、背後の経路を隠さないよう半透明にする（issue #226）
+ */
+export const Translucent: Story = {
+  args: {
+    visible: true,
+  },
+  render: (args) => (
+    <BubbleStage>
+      <StoryComponent
+        {...args}
+        ref={(handle) => {
+          handle?.setSelectable(true)
+          handle?.setTranslucent(true)
+        }}
+      />
+    </BubbleStage>
+  ),
+}
+
 export const Hidden: Story = {
   args: {
     visible: false,

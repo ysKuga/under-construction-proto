@@ -1,8 +1,14 @@
 'use client'
 
-import { memo } from 'react'
+import {
+  ForwardedRef,
+  forwardRef,
+  memo,
+  useImperativeHandle,
+  useRef,
+} from 'react'
 
-import { BotBubble } from '../bot-bubble'
+import { BotBubble, BotBubbleHandle } from '../bot-bubble'
 
 /**
  * bot 基準点(0, 0)から見た推奨表示位置(px)
@@ -12,6 +18,16 @@ import { BotBubble } from '../bot-bubble'
  *   中心 x=28)基準の厳密な左右対称(x=32)だと両者が重なるため
  */
 export const EXECUTE_BUBBLE_OFFSET = { x: 20, y: -36 }
+
+/**
+ * `ExecuteBubble` が呼び出し元へ公開する imperative API
+ *
+ * - `WaypointBubbleHandle` と同じく props でなく ref 経由の命令で伝える
+ */
+export type ExecuteBubbleHandle = {
+  /** 半透明にするか（`BotBubbleHandle.setTranslucent`） */
+  setTranslucent: (next: boolean) => void
+}
 
 type ExecuteBubbleProps = {
   /** bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照 */
@@ -32,20 +48,35 @@ type ExecuteBubbleProps = {
  * - 中継点の設置途中(`WaypointBubble` の `selectable` 選択時)でも押せ、
  *   表示中の経路で自動移動を開始する
  */
-export const ExecuteBubble = memo((props: ExecuteBubbleProps) => {
-  const { offset, onClick, visible } = props
+export const ExecuteBubble = memo(
+  forwardRef(
+    (props: ExecuteBubbleProps, ref: ForwardedRef<ExecuteBubbleHandle>) => {
+      const { offset, onClick, visible } = props
 
-  return (
-    <BotBubble
-      ariaLabel="経路に沿って自動移動を開始"
-      offset={offset}
-      onClick={onClick}
-      placement="left"
-      speechText="実行！"
-      thoughtText="実行？"
-      visible={visible}
-    />
-  )
-})
+      const botBubbleRef = useRef<BotBubbleHandle>(null)
+
+      useImperativeHandle(
+        ref,
+        () => ({
+          setTranslucent: (next) => botBubbleRef.current?.setTranslucent(next),
+        }),
+        [],
+      )
+
+      return (
+        <BotBubble
+          ariaLabel="経路に沿って自動移動を開始"
+          offset={offset}
+          onClick={onClick}
+          placement="left"
+          ref={botBubbleRef}
+          speechText="実行！"
+          thoughtText="実行？"
+          visible={visible}
+        />
+      )
+    },
+  ),
+)
 
 ExecuteBubble.displayName = 'ExecuteBubble'
