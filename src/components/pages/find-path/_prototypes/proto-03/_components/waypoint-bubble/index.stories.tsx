@@ -65,6 +65,7 @@ const meta: Meta<typeof StoryComponent> = {
     hexSize: HEX_SIZE,
     onClick: () => {},
     rows: GRID.rows,
+    selectable: false,
   },
   component: StoryComponent,
   decorators: [withBot],
@@ -75,6 +76,14 @@ type Story = StoryObj<typeof StoryComponent>
 
 export const Default: Story = {
   args: {
+    visible: true,
+  },
+}
+
+/** 中継点選択モードが選択可能な状態(store 接続後を想定)。枠線が点線になる */
+export const Selectable: Story = {
+  args: {
+    selectable: true,
     visible: true,
   },
 }

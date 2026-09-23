@@ -134,7 +134,9 @@ type EnterGuard = {
  * - 中継点の設定（issue #137 backlog）: 経路が求まると bot 頭上に `WaypointBubble`
  *   （思考吹き出し、`Stage07` の 3D 空間内）を表示し（`waypointFlowState ===
  *   'proposing'`）、クリックで中継点選択モード（`'selecting'`）へ移行する。
- *   `WaypointBubble` は現状、表示位置確認のための暫定実装（border 付き div）。
+ *   `WaypointBubble` は現状、表示位置確認のための暫定実装（border 付き button）。
+ *   `selectable` prop（枠線の実線/点線切替）は store で中継点選択モードを
+ *   管理する想定の先行実装で、ここでは固定値 `false` を渡す（store 接続は次段階）。
  *   `rotateX` + `preserve-3d` 環境のブラウザ奥行きヒットテストに `GeoLayer` セルへ
  *   クリックを奪われる問題への対処（`translateZ` 押し出し等）は見た目確定後に
  *   再検討する。選択モード中は `Stage07` を `interactive={false}` にし、
@@ -485,6 +487,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
             hexSize={HEX_SIZE}
             onClick={handleWaypointBubbleClick}
             rows={GRID.rows}
+            selectable={false}
             visible={waypointFlowState === 'proposing'}
           />
         </Stage07>

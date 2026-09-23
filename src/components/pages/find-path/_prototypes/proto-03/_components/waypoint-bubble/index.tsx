@@ -25,6 +25,13 @@ type WaypointBubbleProps = {
   onClick: () => void
   /** 行数 */
   rows: number
+  /**
+   * 中継点選択モードが選択可能な状態か。枠線を点線にする
+   *
+   * - store で中継点選択モードを管理する想定の props（issue #137、現状
+   *   `index.tsx` からは固定値で渡す。store 接続は次段階）
+   */
+  selectable: boolean
   /** 表示するか（`waypointFlowState === 'proposing'`） */
   visible: boolean
 }
@@ -49,13 +56,22 @@ type WaypointBubbleProps = {
  *   並べると vanilla-extract の `~` セレクタが衝突する（Storybook
  *   `SharedScope` ストーリーが警告する既知の制約、実機検証で発覚）ため、
  *   専用の wrapper を持たせてスコープを分離する意図も兼ねる
- * - 位置確認のための暫定実装。`border` を付けた `button` で表示位置のみ確認する
- *   （issue #137、見た目を作り込む前段階）。`rotateX` + `preserve-3d` 環境の
- *   ブラウザ奥行きヒットテストに `GeoLayer` セルへクリックを奪われる問題への
- *   対処（`translateZ` 押し出し等）は見た目確定後に再検討する
+ * - 見た目を作り込む前段階の暫定実装（issue #137）。枠線はグレー、`selectable`
+ *   （選択可能な状態）時のみ点線にする。文言は仮で「中継？」。`rotateX` +
+ *   `preserve-3d` 環境のブラウザ奥行きヒットテストに `GeoLayer` セルへクリックを
+ *   奪われる問題への対処（`translateZ` 押し出し等）は見た目確定後に再検討する
  */
 export const WaypointBubble = memo((props: WaypointBubbleProps) => {
-  const { botSize, cols, currentCell, hexSize, onClick, rows, visible } = props
+  const {
+    botSize,
+    cols,
+    currentCell,
+    hexSize,
+    onClick,
+    rows,
+    selectable,
+    visible,
+  } = props
 
   const { checkbox, set: setToggled, toggledClassName } = useCssToggle()
 
@@ -67,13 +83,16 @@ export const WaypointBubble = memo((props: WaypointBubbleProps) => {
   const center = hexCellCenter(currentCell, hexSize, bounds)
 
   const bubbleStyle: CSSProperties = {
-    border: '2px solid #0284c7',
-    height: 24,
+    background: '#fff',
+    border: `2px ${selectable ? 'dashed' : 'solid'} #9ca3af`,
+    borderRadius: 4,
+    fontSize: 12,
     left: center.x,
+    padding: '2px 6px',
     position: 'absolute',
     top: center.y,
     transform: `translate(-50%, calc(-100% - ${botSize}px - ${MARGIN_ABOVE_BOT_PX}px))`,
-    width: 24,
+    whiteSpace: 'nowrap',
   }
 
   return (
@@ -92,7 +111,9 @@ export const WaypointBubble = memo((props: WaypointBubbleProps) => {
         onClick={onClick}
         style={bubbleStyle}
         type="button"
-      />
+      >
+        中継？
+      </button>
     </div>
   )
 })
