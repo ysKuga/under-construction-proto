@@ -11,7 +11,11 @@ type PathPreviewLayerProps = {
   cols: number
   /** 六角形の外接円半径 (px)。`GeoLayer`/`ActorsLayer` と同じ値を渡し座標をズレさせない */
   hexSize: number
-  /** 表示する経路(現在地セルは含まない、通過セル列から対象セルまで) */
+  /**
+   * 表示する経路(現在地セルは含まない、通過セル列から対象セルまで)
+   *
+   * - 中継点経由の経路では同じセルを再訪しうる
+   */
   path: HexCell[]
   /** 行数 */
   rows: number
@@ -28,7 +32,8 @@ type PathPreviewLayerProps = {
  *   あるが、プレイヤーが選んだ移動先までの道筋を示す表示のため、到達済み表示の
  *   ON/OFF に関わらず常時表示する（他レイヤーの「未到達マスは隠す」方針とは
  *   目的が異なるための意図的な例外）
- * - 自動移動の実行は次段階（issue #137 backlog）
+ * - 中継点を経由した経路の連結も `index.tsx` 側（`findHexPathViaWaypoints`）で行う
+ * - 自動移動の実行は次段階（issue #226）
  */
 export const PathPreviewLayer = memo((props: PathPreviewLayerProps) => {
   const { cols, hexSize, path, rows } = props
@@ -37,7 +42,7 @@ export const PathPreviewLayer = memo((props: PathPreviewLayerProps) => {
 
   return (
     <>
-      {path.map((cell) => {
+      {path.map((cell, index) => {
         const center = hexCellCenter(cell, hexSize, bounds)
 
         const style: CSSProperties = {
@@ -52,7 +57,8 @@ export const PathPreviewLayer = memo((props: PathPreviewLayerProps) => {
           width: bounds.cellWidth * 0.25,
         }
 
-        return <div key={`${cell.q},${cell.r}`} style={style} />
+        // 同じセルを再訪しうるため、セル座標でなく経路上の順番をキーにする
+        return <div key={index} style={style} />
       })}
     </>
   )
