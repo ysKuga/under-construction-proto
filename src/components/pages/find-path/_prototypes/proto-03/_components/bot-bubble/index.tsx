@@ -34,7 +34,7 @@ const CONNECTOR_SVG_SIZE_PX = 80
 export type BotBubbleHandle = {
   /** 思考吹き出し(丸のコネクタ)⇔発言吹き出し(三角形のコネクタ + 発言の文言)を切替える */
   setSpeech: (next: boolean) => void
-  /** 半透明にするか。hover 中は不透明に戻る */
+  /** 周期的に半透明にするか。hover 中は不透明になる */
   setTranslucent: (next: boolean) => void
 }
 
@@ -83,7 +83,8 @@ type BotBubbleProps = {
  *   選択時は bot に向いた三角形のしっぽ + `speechText` へ切替わる。
  *   本体 hover 中も同じ見た目にする（CSS のみで切替）
  * - 半透明化（`BotBubbleHandle.setTranslucent`）も同じ仕組み。背後の経路を
- *   隠さないために使う（issue #226）。hover 中は不透明に戻る（CSS のみで切替）
+ *   隠さないために使う（issue #226）。濃淡を周期的に繰り返し、
+ *   hover 中は不透明になる（CSS のみで切替）
  * - 本体(button)は `offset` に応じた位置へ固定表示しつつ常時ふわふわ揺れる。
  *   bot 方向コネクタは `offset` から逆算するため、呼び出し元が `offset` を
  *   変えても自動的に bot とのつながりを保つ（座標計算自体は

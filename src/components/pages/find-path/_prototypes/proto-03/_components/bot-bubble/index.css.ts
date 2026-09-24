@@ -22,21 +22,34 @@ export const translucentCheckbox = style({
 })
 
 /**
+ * 濃い半透明⇔薄い半透明を周期的に繰り返すアニメーション
+ *
+ * - 常に薄いと吹き出しの存在に気付きにくく、常に濃いと背後の経路を隠すため、
+ *   両方を周期的に行き来させる。濃い側も完全な不透明にはしない
+ */
+const translucentPulse = keyframes({
+  '0%, 100%': { opacity: 0.8 },
+  '50%': { opacity: 0.2 },
+})
+
+/**
  * 本体(button)とコネクタをまとめる要素
  *
- * - `translucent` 選択時は半透明にし、背後の経路を見せる（issue #226）
- * - hover 中は不透明に戻し、文言を読める・押せることを示す
+ * - `translucent` 選択時は周期的に半透明にし、背後の経路を見せる（issue #226）
+ * - hover 中は不透明にし、文言を読める・押せることを示す
+ * - hover 中もアニメーション自体は止めず、`!important` で opacity のみ上書きする。
+ *   止めると hover 解除時に最初から再生し直され、同時に表示中の他の吹き出しと
+ *   周期がずれるため（`!important` の宣言はアニメーションの値より優先される）
  */
 export const content = style({
   selectors: {
     [`${translucentCheckbox}:checked ~ &:hover`]: {
-      opacity: 1,
+      opacity: '1 !important',
     },
     [`${translucentCheckbox}:checked ~ &`]: {
-      opacity: 0.3,
+      animation: `${translucentPulse} 2.4s ease-in-out infinite`,
     },
   },
-  transition: 'opacity 0.15s',
 })
 
 /** 本体(button)がふわふわ揺れるアニメーション(上下 + 微小回転) */
