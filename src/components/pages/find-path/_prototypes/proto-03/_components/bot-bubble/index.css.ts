@@ -1,4 +1,4 @@
-import { keyframes, style } from '@vanilla-extract/css'
+import { createVar, keyframes, style } from '@vanilla-extract/css'
 
 /**
  * 発言吹き出しへ切替えるか(`speech`)を伝える hidden checkbox
@@ -34,6 +34,29 @@ export const translucentCheckbox = style({
 })
 
 /**
+ * 本体(button)の背景(白の部分)の不透明度
+ *
+ * - `@property` として登録し(`syntax` 指定)、keyframes で補間できるようにする。
+ *   未登録のカスタムプロパティは補間されず、段階的に切替わってしまう
+ * - `content` のアニメーションで値を変え、本体へ継承させる
+ */
+const backgroundAlpha = createVar({
+  inherits: true,
+  initialValue: '1',
+  syntax: '<number>',
+})
+
+/**
+ * 本体の背景の濃淡を周期的に繰り返すアニメーション
+ *
+ * - 目標設置直後(思考吹き出し・非半透明時)、背後の経路をわずかに透かす
+ */
+const backgroundPulse = keyframes({
+  '0%, 100%': { vars: { [backgroundAlpha]: '0.8' } },
+  '50%': { vars: { [backgroundAlpha]: '0.6' } },
+})
+
+/**
  * 濃い半透明⇔薄い半透明を周期的に繰り返すアニメーション
  *
  * - 常に薄いと吹き出しの存在に気付きにくく、常に濃いと背後の経路を隠すため、
@@ -49,11 +72,14 @@ const translucentPulse = keyframes({
  *
  * - `translucent` 選択時は周期的に半透明にし、背後の経路を見せる（issue #226）
  * - hover 中は不透明にし、文言を読める・押せることを示す
+ * - 非 `translucent` 時は本体の背景のみ濃淡を繰り返す(`backgroundPulse`)。
+ *   `translucent` 時は要素全体の濃淡(`translucentPulse`)へ置き換わり、背景は不透明に戻る
  * - hover 中もアニメーション自体は止めず、`!important` で opacity のみ上書きする。
  *   止めると hover 解除時に最初から再生し直され、同時に表示中の他の吹き出しと
  *   周期がずれるため（`!important` の宣言はアニメーションの値より優先される）
  */
 export const content = style({
+  animation: `${backgroundPulse} 2.4s ease-in-out infinite`,
   selectors: {
     [`${translucentCheckbox}:checked ~ &:hover`]: {
       opacity: '1 !important',
@@ -95,13 +121,14 @@ const gradientShift = keyframes({
  *   グラデーションを即時止め、枠線を dotted から solid にする(発言中は静止させ、
  *   思考中と見た目で区別する。hover 中は揺れたままだとカーソルが要素から外れ
  *   hover が安定しない)
+ * - 背景の白の不透明度は `backgroundAlpha` に従う(`content` 参照)。発言中・hover
+ *   中は不透明に固定する
  * - `overflow: hidden` はクリック時の `ripple`(`index.tsx` 内
  *   `<span>`)がこの角丸からはみ出さないための指定
  */
 export const bubbleButton = style({
   animation: `${float} 2.4s ease-in-out infinite, ${gradientShift} 1.1s linear infinite`,
-  background:
-    'linear-gradient(120deg, #fff 0%, #fff 46%, rgba(156, 163, 175, 0.5) 50%, #fff 54%, #fff 100%)',
+  background: `linear-gradient(120deg, rgba(255, 255, 255, ${backgroundAlpha}) 0%, rgba(255, 255, 255, ${backgroundAlpha}) 46%, rgba(156, 163, 175, 0.5) 50%, rgba(255, 255, 255, ${backgroundAlpha}) 54%, rgba(255, 255, 255, ${backgroundAlpha}) 100%)`,
   backgroundSize: '300% 100%',
   border: '2px dotted #9ca3af',
   borderRadius: 8,
@@ -114,6 +141,7 @@ export const bubbleButton = style({
     [`${speechCheckbox}:checked ~ &, &:hover`]: {
       animation: 'none',
       borderStyle: 'solid',
+      vars: { [backgroundAlpha]: '1' },
     },
     // 発言中かつ hover を一度外す前は、クリックを無視するため押せる見た目にしない
     [`${speechCheckbox}:checked ~ ${speechHoverArmedCheckbox}:not(:checked) ~ &`]:
