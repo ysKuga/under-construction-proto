@@ -26,16 +26,21 @@ export const WAYPOINT_BUBBLE_OFFSET = { x: 24, y: -36 }
  *   命令で伝える（`BotBubbleHandle` と同じ理由）
  */
 export type WaypointBubbleHandle = {
-  /** 思考吹き出し(文言「中継点？」)⇔発言吹き出し(文言「中継点！」)を切替える */
+  /**
+   * 思考吹き出し(文言「中継点？」)⇔発言吹き出し(文言「中継点！」)を切替える
+   *
+   * - 発言吹き出し(選択中)の hover 時は文言「中継点🚫」になり、クリックで
+   *   選択モードを解除できることを示す
+   */
   setSelectable: (next: boolean) => void
+  /** 半透明にするか（`BotBubbleHandle.setTranslucent`） */
+  setTranslucent: (next: boolean) => void
 }
 
 type WaypointBubbleProps = {
   /** bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照 */
   offset: { x: number; y: number }
-  /**
-   * クリック時。中継点選択モードへ移行する
-   */
+  /** クリック時。中継点選択モードへ移行する（選択中なら解除する） */
   onClick: () => void
   /** 表示するか（`waypointFlowState !== 'idle'`） */
   visible: boolean
@@ -48,6 +53,7 @@ type WaypointBubbleProps = {
  * - `selectable`（中継点選択モードが選択可能な状態か）で思考吹き出し
  *   「中継点？」⇔発言吹き出し「中継点！」を切替える
  *   （`WaypointBubbleHandle.setSelectable`）。hover 中も「中継点！」になる
+ * - 選択中の hover 時は「中継点🚫」になり、クリックで選択モードを解除する
  * - bot を挟んだ反対側に `ExecuteBubble`（「実行」）が並ぶ想定（issue #226）
  */
 export const WaypointBubble = memo(
@@ -61,16 +67,18 @@ export const WaypointBubble = memo(
         ref,
         () => ({
           setSelectable: (next) => botBubbleRef.current?.setSpeech(next),
+          setTranslucent: (next) => botBubbleRef.current?.setTranslucent(next),
         }),
         [],
       )
 
       return (
         <BotBubble
-          ariaLabel="中継点選択モードへ移行"
+          ariaLabel="中継点選択モードの切替"
           offset={offset}
           onClick={onClick}
           ref={botBubbleRef}
+          speechHoverText="中継点🚫"
           speechText="中継点！"
           thoughtText="中継点？"
           visible={visible}
