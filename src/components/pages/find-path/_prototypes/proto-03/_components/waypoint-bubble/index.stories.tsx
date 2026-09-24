@@ -160,7 +160,7 @@ export const Selectable: Story = {
  * 中継点選択中の見た目。`Selectable` に加えて周期的に半透明になる
  *
  * - proto-03 は選択中、背後の経路を隠さないよう半透明にする（issue #226）
- * - hover 中は不透明になる
+ * - hover 中は不透明になり、文言が「中継点🚫」（クリックで選択モード解除）になる
  */
 export const Translucent: Story = {
   args: {

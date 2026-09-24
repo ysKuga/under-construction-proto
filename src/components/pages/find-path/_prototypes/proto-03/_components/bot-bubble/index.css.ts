@@ -150,7 +150,11 @@ export const thoughtText = style({
   },
 })
 
-/** 発言の文言(`speech` 選択時のみ表示) */
+/**
+ * 発言の文言(`speech` 選択時・hover 中に表示)
+ *
+ * - `speech` 選択中の hover 時は `speechHoverText` と入替わる
+ */
 export const speechText = style({
   display: 'none',
   selectors: {
@@ -158,6 +162,19 @@ export const speechText = style({
       {
         display: 'inline',
       },
+    [`${speechCheckbox}:checked ~ ${bubbleButton}:hover &`]: {
+      display: 'none',
+    },
+  },
+})
+
+/** 発言中 hover 時の文言(`speech` 選択中の hover 時のみ表示) */
+export const speechHoverText = style({
+  display: 'none',
+  selectors: {
+    [`${speechCheckbox}:checked ~ ${bubbleButton}:hover &`]: {
+      display: 'inline',
+    },
   },
 })
 

@@ -95,7 +95,8 @@ const canEnterForPath = (from: HexCell, to: HexCell): boolean =>
  * - `proposing`: 非隣接クリックで経路が求まった直後。bot 頭上に `WaypointBubble`
  *   （思考吹き出し）を表示する
  * - `selecting`: `WaypointBubble` クリックで移行。`Stage07` を非対話化し
- *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する
+ *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する。
+ *   再度 `WaypointBubble` をクリックすると `proposing` へ戻る
  */
 type WaypointFlowState = 'idle' | 'proposing' | 'selecting'
 
@@ -377,9 +378,16 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     [addNotification, currentCell, waypoints],
   )
 
-  /** 思考吹き出しクリック時。中継点選択モードへ移行する */
+  /**
+   * 中継点の吹き出しクリック時。中継点選択モードへ移行する
+   *
+   * - 選択中なら解除し、経路提示中(`proposing`)へ戻す。吹き出しは表示したままにし、
+   *   「実行」や再度の選択へつなげる
+   */
   const handleWaypointBubbleClick = useCallback(() => {
-    setWaypointFlowState('selecting')
+    setWaypointFlowState((current) =>
+      current === 'selecting' ? 'proposing' : 'selecting',
+    )
   }, [])
 
   // waypointFlowState の変化を吹き出しの selectable・半透明化(imperative) へ同期する。

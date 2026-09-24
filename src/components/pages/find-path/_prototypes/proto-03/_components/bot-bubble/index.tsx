@@ -60,6 +60,13 @@ type BotBubbleProps = {
    *   コネクタも左右反転して bot の方を向ける
    */
   placement?: 'left' | 'right'
+  /**
+   * 発言吹き出し時、hover 中の文言(既定 `speechText`)
+   *
+   * - 発言中のクリックが別の意味(選択モード解除等)を持つ場合に、押すと
+   *   どうなるかを示すために使う
+   */
+  speechHoverText?: string
   /** 発言吹き出し時の文言 */
   speechText: string
   /** 思考吹き出し時の文言 */
@@ -81,7 +88,8 @@ type BotBubbleProps = {
  *   `ref`（`BotBubbleHandle.setSpeech`）経由の imperative な命令で hidden
  *   checkbox を直書きする。未選択時は「思考中」を表す丸のコネクタ + `thoughtText`、
  *   選択時は bot に向いた三角形のしっぽ + `speechText` へ切替わる。
- *   本体 hover 中も同じ見た目にする（CSS のみで切替）
+ *   本体 hover 中も同じ見た目にする（CSS のみで切替）。発言中の hover 時は
+ *   文言のみ `speechHoverText` へ切替わる
  * - 半透明化（`BotBubbleHandle.setTranslucent`）も同じ仕組み。背後の経路を
  *   隠さないために使う（issue #226）。濃淡を周期的に繰り返し、
  *   hover 中は不透明になる（CSS のみで切替）
@@ -103,6 +111,7 @@ export const BotBubble = memo(
       onClick,
       placement = 'right',
       speechText,
+      speechHoverText = speechText,
       thoughtText,
       visible,
     } = props
@@ -194,6 +203,7 @@ export const BotBubble = memo(
           >
             <span className={styles.thoughtText}>{thoughtText}</span>
             <span className={styles.speechText}>{speechText}</span>
+            <span className={styles.speechHoverText}>{speechHoverText}</span>
             <span className={styles.ripple} ref={rippleRef} />
           </button>
           <svg
