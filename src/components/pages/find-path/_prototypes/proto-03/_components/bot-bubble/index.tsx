@@ -65,6 +65,7 @@ type BotBubbleProps = {
    *
    * - 発言中のクリックが別の意味(選択モード解除等)を持つ場合に、押すと
    *   どうなるかを示すために使う
+   * - クリック後、hover を一度外すまでは表示しない（下記 `BotBubble` 参照）
    */
   speechHoverText?: string
   /** 発言吹き出し時の文言 */
@@ -90,6 +91,9 @@ type BotBubbleProps = {
  *   選択時は bot に向いた三角形のしっぽ + `speechText` へ切替わる。
  *   本体 hover 中も同じ見た目にする（CSS のみで切替）。発言中の hover 時は
  *   文言のみ `speechHoverText` へ切替わる
+ * - クリック後は hover を一度外すまで `speechHoverText` を出さず、その間の
+ *   発言中クリックも無視する（表示と動作を一致させ、ダブルクリックによる
+ *   誤操作も防ぐ。issue #226）。hidden checkbox(`armed`)で CSS のみで切替える
  * - 半透明化（`BotBubbleHandle.setTranslucent`）も同じ仕組み。背後の経路を
  *   隠さないために使う（issue #226）。濃淡を周期的に繰り返し、
  *   hover 中は不透明になる（CSS のみで切替）
@@ -118,6 +122,7 @@ export const BotBubble = memo(
 
     const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
     const speechCheckboxRef = useRef<HTMLInputElement>(null)
+    const speechHoverArmedCheckboxRef = useRef<HTMLInputElement>(null)
     const translucentCheckboxRef = useRef<HTMLInputElement>(null)
     const rippleRef = useRef<HTMLSpanElement>(null)
 
@@ -142,8 +147,25 @@ export const BotBubble = memo(
       setTranslucent,
     ])
 
-    /** クリック時。波紋アニメーションを最初から再生し直してから onClick を呼ぶ */
+    /**
+     * クリック時。波紋アニメーションを最初から再生し直してから onClick を呼ぶ
+     *
+     * - 発言中かつ hover を一度外す前(`armed` 未選択)のクリックは無視する
+     */
     const handleClick = useCallback(() => {
+      const speechHoverArmedCheckboxEl = speechHoverArmedCheckboxRef.current
+
+      if (
+        speechCheckboxRef.current?.checked &&
+        !speechHoverArmedCheckboxEl?.checked
+      ) {
+        return
+      }
+
+      if (speechHoverArmedCheckboxEl) {
+        speechHoverArmedCheckboxEl.checked = false
+      }
+
       const rippleEl = rippleRef.current
 
       if (rippleEl) {
@@ -155,6 +177,13 @@ export const BotBubble = memo(
 
       onClick()
     }, [onClick])
+
+    /** hover を外した時。発言中 hover 時の `speechHoverText` 表示を許可する */
+    const handlePointerLeave = useCallback(() => {
+      if (speechHoverArmedCheckboxRef.current) {
+        speechHoverArmedCheckboxRef.current.checked = true
+      }
+    }, [])
 
     const isLeft = placement === 'left'
     const { dots, trianglePoints } = computeConnectorGeometry(offset)
@@ -195,10 +224,20 @@ export const BotBubble = memo(
             tabIndex={-1}
             type="checkbox"
           />
+          <input
+            aria-hidden
+            className={styles.speechHoverArmedCheckbox}
+            defaultChecked
+            readOnly
+            ref={speechHoverArmedCheckboxRef}
+            tabIndex={-1}
+            type="checkbox"
+          />
           <button
             aria-label={ariaLabel}
             className={styles.bubbleButton}
             onClick={handleClick}
+            onPointerLeave={handlePointerLeave}
             type="button"
           >
             <span className={styles.thoughtText}>{thoughtText}</span>

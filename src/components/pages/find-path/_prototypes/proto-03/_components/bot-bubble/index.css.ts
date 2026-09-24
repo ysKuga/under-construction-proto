@@ -13,6 +13,18 @@ export const speechCheckbox = style({
 })
 
 /**
+ * 発言中の hover で `speechHoverText` へ切替えてよいか(`armed`)を伝える hidden checkbox
+ *
+ * - `speechCheckbox` と同じ理由でこのコンポーネント専用クラスを用意する
+ * - クリック直後はまだカーソルが本体上にあるため未選択にし、hover を一度外した
+ *   時点で選択する。クリックで発言吹き出しへ切替わった直後に、hover 中の
+ *   `speechHoverText`(選択モード解除等)がすぐ出てしまうのを防ぐ（issue #226）
+ */
+export const speechHoverArmedCheckbox = style({
+  display: 'none',
+})
+
+/**
  * 半透明にするか(`translucent`)を伝える hidden checkbox
  *
  * - `speechCheckbox` と同じ理由でこのコンポーネント専用クラスを用意する
@@ -103,6 +115,11 @@ export const bubbleButton = style({
       animation: 'none',
       borderStyle: 'solid',
     },
+    // 発言中かつ hover を一度外す前は、クリックを無視するため押せる見た目にしない
+    [`${speechCheckbox}:checked ~ ${speechHoverArmedCheckbox}:not(:checked) ~ &`]:
+      {
+        cursor: 'default',
+      },
   },
   transformOrigin: 'bottom center',
   whiteSpace: 'nowrap',
@@ -153,7 +170,7 @@ export const thoughtText = style({
 /**
  * 発言の文言(`speech` 選択時・hover 中に表示)
  *
- * - `speech` 選択中の hover 時は `speechHoverText` と入替わる
+ * - `speech` 選択中の hover 時は、`armed` 選択時のみ `speechHoverText` と入替わる
  */
 export const speechText = style({
   display: 'none',
@@ -162,19 +179,21 @@ export const speechText = style({
       {
         display: 'inline',
       },
-    [`${speechCheckbox}:checked ~ ${bubbleButton}:hover &`]: {
-      display: 'none',
-    },
+    [`${speechCheckbox}:checked ~ ${speechHoverArmedCheckbox}:checked ~ ${bubbleButton}:hover &`]:
+      {
+        display: 'none',
+      },
   },
 })
 
-/** 発言中 hover 時の文言(`speech` 選択中の hover 時のみ表示) */
+/** 発言中 hover 時の文言(`speech`・`armed` 選択中の hover 時のみ表示) */
 export const speechHoverText = style({
   display: 'none',
   selectors: {
-    [`${speechCheckbox}:checked ~ ${bubbleButton}:hover &`]: {
-      display: 'inline',
-    },
+    [`${speechCheckbox}:checked ~ ${speechHoverArmedCheckbox}:checked ~ ${bubbleButton}:hover &`]:
+      {
+        display: 'inline',
+      },
   },
 })
 
