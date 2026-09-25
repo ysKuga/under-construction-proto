@@ -7,6 +7,7 @@ import {
   useStage07EventDispatcher,
 } from '@/prototypes/stage/stage-07/_events'
 
+import { useReachedCell } from '../_components/move-target-layer/_hooks/use-reached-cell'
 import {
   FollowPathStoreProvider,
   useFollowPathStoreApi,
@@ -68,5 +69,19 @@ describe('useAdvanceFollowPathOnCellReach', () => {
     await cellReach('mob-01')
 
     expect(followPathStoreApi.getState().followedCount).toBe(0)
+  })
+})
+
+describe('Stage07-cell-reach の多重購読', () => {
+  it('useReachedCell と同時に購読できる', () => {
+    expect(() =>
+      renderHook(
+        () => {
+          useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
+          useReachedCell(PLAYER_ACTOR_ID)
+        },
+        { wrapper: Wrapper },
+      ),
+    ).not.toThrow()
   })
 })

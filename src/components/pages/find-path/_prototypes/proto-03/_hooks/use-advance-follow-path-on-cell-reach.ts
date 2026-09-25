@@ -28,5 +28,7 @@ export const useAdvanceFollowPathOnCellReach = (actorId: ActorId) => {
       },
       [actorId, followPathStoreApi],
     ),
+    // 経路プレビュー（進行の記録）・移動可能マスの表示が同じイベントを購読するため
+    { allowMultiple: true },
   )
 }

@@ -28,6 +28,8 @@ export const useReachedCell = (actorId: ActorId): HexCell | undefined => {
       },
       [actorId],
     ),
+    // 経路プレビュー（進行の記録）・移動可能マスの表示が同じイベントを購読するため
+    { allowMultiple: true },
   )
 
   return reachedCell
