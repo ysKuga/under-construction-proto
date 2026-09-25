@@ -51,7 +51,7 @@ import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
-import { FindPathEventProvider } from './_events'
+import { FindPathEventProvider, useFindPathEventDispatcher } from './_events'
 import { describeCellContent } from './_lib/describe-cell-content'
 import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
@@ -287,6 +287,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
   const itemStoreApi = useItemStoreApi()
   const addNotification = useNotifications((state) => state.addNotification)
+  const findPathEventDispatcher = useFindPathEventDispatcher()
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
@@ -354,9 +355,15 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    *
    * - `Stage07` は find-path 固有の概念（目標）を持たないため、prop 名は
    *   `onNonAdjacentClick`（クリックの種類）のまま受ける
+   * - 提示前に `FindPath-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
+   *   何もしない。拒否の理由（EN 等）は UI では扱わない（ui-jurisdiction）
    */
   const handleNonAdjacentClick = useCallback(
-    (cell: HexCell) => {
+    async (cell: HexCell) => {
+      if (!(await findPathEventDispatcher['FindPath-propose-path']({ cell }))) {
+        return
+      }
+
       const path = findHexPathViaWaypoints(
         currentCell,
         waypoints,
@@ -381,7 +388,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       setObjectiveCell(cell)
       setWaypointFlowState('proposing')
     },
-    [addNotification, currentCell, waypoints],
+    [addNotification, currentCell, findPathEventDispatcher, waypoints],
   )
 
   /**
@@ -412,14 +419,23 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    * - 中継点フローは終了する（`objectiveCell`/`waypoints` は最初の 1 マス移動時に
    *   `handleCellChange` がクリアする）
    * - 自動移動中は `Stage07` を非対話化し、クリックによる割込みを防ぐ
+   * - 開始前に `FindPath-execute-path` を発行し、listener に拒否されたら（EN 切れ等）
+   *   開始しない。経路提示後に EN が切れた場合の対策
    */
-  const handleExecuteClick = useCallback(() => {
+  const handleExecuteClick = useCallback(async () => {
     if (previewPath.length === 0) return
+    if (
+      !(await findPathEventDispatcher['FindPath-execute-path']({
+        path: previewPath,
+      }))
+    ) {
+      return
+    }
 
     setWaypointFlowState('idle')
     setIsAutoMoving(true)
     stage07Ref.current?.followPath(previewPath)
-  }, [previewPath])
+  }, [findPathEventDispatcher, previewPath])
 
   /**
    * 自動移動の終了時。途中停止（EN 不足）ならトーストで警告する

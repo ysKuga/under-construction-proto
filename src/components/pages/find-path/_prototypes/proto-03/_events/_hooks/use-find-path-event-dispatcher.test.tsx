@@ -1,11 +1,22 @@
 import { renderHook } from '@testing-library/react'
 
-import {
-  FindPathEventProvider,
-  useFindPathEventTarget,
-} from '../index.contexts'
+import { PropsWithChildren, useState } from 'react'
+
+import { FindPathEventContext } from '../_contexts/event-context'
+import { useFindPathEventTarget } from '../index.contexts'
 
 import { useFindPathEventDispatcher } from './use-find-path-event-dispatcher'
+
+/** listener（`FindPathEventListeners`）を含めず EventTarget のみ配布する */
+const Wrapper = (props: PropsWithChildren) => {
+  const [eventTarget] = useState(() => new EventTarget())
+
+  return (
+    <FindPathEventContext.Provider value={eventTarget}>
+      {props.children}
+    </FindPathEventContext.Provider>
+  )
+}
 
 const renderDispatcher = () =>
   renderHook(
@@ -13,7 +24,7 @@ const renderDispatcher = () =>
       dispatcher: useFindPathEventDispatcher(),
       eventTarget: useFindPathEventTarget(),
     }),
-    { wrapper: FindPathEventProvider },
+    { wrapper: Wrapper },
   )
 
 test('listener が拒否しなければ true を返す', async () => {
