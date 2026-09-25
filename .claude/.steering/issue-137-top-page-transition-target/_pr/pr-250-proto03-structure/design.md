@@ -46,3 +46,17 @@ issue: #137 / PR: #250（PR-1）（backlog「proto-03 の構造見直し」）
 - `displayMode`/`enableWalking` → `_stores/display-settings`（新設）
   - `MoveTargetDisplayMode` は store の `types.ts` へ移す。store から layer への逆依存を避けるため
 - `goalReached` → `_stores/goal`（新設）
+
+### content 分割（PR-3）
+
+- `_contents/stage`: `Stage07` + 各レイヤー、移動・経路・中継点の操作
+  - 操作ごとの処理は `_hooks/` へ部品 hook として分ける（`index.tsx`/`index.hooks.ts`/`index.types.ts` 構成）
+  - EN は残量の有無（boolean）のみ購読する。残量の増減ではステージを再レンダリングしない
+- `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行）
+- `_contents/control-panel`: 表示設定の切替・EN・リセット・ゴール到達・中継点選択状況
+  - EN 残量の表示はここでのみ購読する
+- content 間で共有するもの
+  - 提示中の経路: `_hooks/use-preview-path.ts`（stage の表示と「実行」の双方が使う）
+  - `Stage07Handle` の ref: `_contexts/stage07-handle` で配布（stage が `ref` へ渡し、「実行」が `followPath` を命令する）
+    - r3f-state ルールの複数消費者と同じ方式
+- 独立 bot・見出し・`EnergyDebugPanel` は数行のため Content に残す
