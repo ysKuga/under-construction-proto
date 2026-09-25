@@ -1,6 +1,6 @@
 # proto-03 の構造見直し
 
-issue: #137（backlog「proto-03 の構造見直し」）
+issue: #137 / PR: #250（PR-1）（backlog「proto-03 の構造見直し」）
 
 ## 目的
 

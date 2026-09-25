@@ -1,6 +1,6 @@
 # 実装計画（proto-03 の構造見直し）
 
-- [ ] PR-1 `refactor`: `*-layer` 8個を `_layers/` へ移動
+- [x] PR-1 `refactor`: `*-layer` 8個を `_layers/` へ移動
   - import 更新
   - `_prototypes/CLAUDE.md` のパス修正
 - [ ] PR-2 `refactor`: 共有 state を zustand store へ移す（PR-1 と並行可）
