@@ -11,16 +11,11 @@ import {
   hexPolygonPoints,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
+import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 import { useFollowPathStore } from '../../_stores/follow-path'
 
 import { useReachedCell } from './_hooks/use-reached-cell'
-import {
-  MOVE_TARGET_TRANSITION_MS,
-  MoveTargetDisplayMode,
-  useMoveTargetLayer,
-} from './index.hooks'
-
-export type { MoveTargetDisplayMode }
+import { MOVE_TARGET_TRANSITION_MS, useMoveTargetLayer } from './index.hooks'
 
 type MoveTargetLayerProps = {
   /**

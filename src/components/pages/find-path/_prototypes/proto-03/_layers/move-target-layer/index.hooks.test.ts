@@ -2,11 +2,9 @@ import { act, renderHook } from '@testing-library/react'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
-import {
-  MOVE_TARGET_TRANSITION_MS,
-  MoveTargetDisplayMode,
-  useMoveTargetLayer,
-} from './index.hooks'
+import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
+
+import { MOVE_TARGET_TRANSITION_MS, useMoveTargetLayer } from './index.hooks'
 
 const CURRENT: HexCell = { q: 2, r: 1 }
 

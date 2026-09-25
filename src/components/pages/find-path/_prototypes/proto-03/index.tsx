@@ -47,10 +47,7 @@ import { useAdvanceFollowPathOnCellReach } from './_hooks/use-advance-follow-pat
 import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
 import { GoalMarkerLayer } from './_layers/goal-marker-layer'
 import { ItemLayer } from './_layers/item-layer'
-import {
-  MoveTargetDisplayMode,
-  MoveTargetLayer,
-} from './_layers/move-target-layer'
+import { MoveTargetLayer } from './_layers/move-target-layer'
 import { ObjectiveMarkerLayer } from './_layers/objective-marker-layer'
 import { ObstacleLayer } from './_layers/obstacle-layer'
 import { OneWayLayer } from './_layers/one-way-layer'
@@ -61,6 +58,7 @@ import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
+import { MoveTargetDisplayMode } from './_stores/display-settings/types'
 import { FogStoreProvider, useFogStore, useFogStoreApi } from './_stores/fog'
 import { FogMode } from './_stores/fog/types'
 import {
