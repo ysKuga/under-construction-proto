@@ -58,6 +58,10 @@ import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
+import {
+  DisplaySettingsStoreProvider,
+  useDisplaySettingsStore,
+} from './_stores/display-settings'
 import { MoveTargetDisplayMode } from './_stores/display-settings/types'
 import { FogStoreProvider, useFogStore, useFogStoreApi } from './_stores/fog'
 import { FogMode } from './_stores/fog/types'
@@ -66,6 +70,7 @@ import {
   useFollowPathStore,
   useFollowPathStoreApi,
 } from './_stores/follow-path'
+import { GoalStoreProvider, useGoalStore } from './_stores/goal'
 import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import {
@@ -253,9 +258,13 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
                 <VisibilityRegistryProvider>
                   <FollowPathStoreProvider>
                     <WaypointFlowStoreProvider>
-                      <FindPathProto03Content
-                        onReset={() => setResetKey((key) => key + 1)}
-                      />
+                      <DisplaySettingsStoreProvider>
+                        <GoalStoreProvider>
+                          <FindPathProto03Content
+                            onReset={() => setResetKey((key) => key + 1)}
+                          />
+                        </GoalStoreProvider>
+                      </DisplaySettingsStoreProvider>
                     </WaypointFlowStoreProvider>
                   </FollowPathStoreProvider>
                 </VisibilityRegistryProvider>
@@ -278,10 +287,22 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { onReset } = props
   /** player の現在セル（`Stage07` が移動成立時に actors store を更新する） */
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
-  const [displayMode, setDisplayMode] =
-    useState<MoveTargetDisplayMode>('scatter')
-  const [enableWalking, setEnableWalking] = useState(true)
-  const [goalReached, setGoalReached] = useState(false)
+  /** 移動可能マスの表示演出（display-settings store） */
+  const displayMode = useDisplaySettingsStore((state) => state.displayMode)
+  /** 移動可能マスの表示演出を切り替える（display-settings store） */
+  const setDisplayMode = useDisplaySettingsStore(
+    (state) => state.setDisplayMode,
+  )
+  /** 歩行モーションの有無（display-settings store） */
+  const enableWalking = useDisplaySettingsStore((state) => state.enableWalking)
+  /** 歩行モーションの有無を切り替える（display-settings store） */
+  const setEnableWalking = useDisplaySettingsStore(
+    (state) => state.setEnableWalking,
+  )
+  /** ゴールへ到達済みか（goal store） */
+  const goalReached = useGoalStore((state) => state.reached)
+  /** ゴール到達を記録する（goal store） */
+  const reachGoal = useGoalStore((state) => state.reach)
   /** 中継点フローの状態（waypoint-flow store） */
   const waypointFlowState = useWaypointFlowStore((state) => state.flowState)
   /** 非隣接クリックで選んだ経路の目標セル（waypoint-flow store、経路プレビュー中のみ） */
@@ -609,7 +630,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     })
 
     if (isSameCell(cell, GOAL_POSITION)) {
-      setGoalReached(true)
+      reachGoal()
     }
   }
 
