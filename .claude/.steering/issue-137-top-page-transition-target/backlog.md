@@ -1,6 +1,6 @@
 # 実装計画（issue #137）
 
-- [ ] ステージ上の bot の向きを同期する独立 bot 表示 → [#248](_issues/issue-248-bot-facing-sync/backlog.md) へ分離
+- [ ] ステージ上の bot の状態を同期する独立 bot 表示 → [#248](_issues/issue-248-bot-facing-sync/backlog.md) へ分離
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
 - [ ] マスホバー/選択時の内包要素一覧表示を検討
   - (design.md 懸念・リスク)
