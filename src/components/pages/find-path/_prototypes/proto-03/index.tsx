@@ -415,10 +415,17 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     stage07Ref.current?.followPath(previewPath)
   }, [previewPath])
 
-  /** 自動移動の終了時。途中停止（EN 不足）ならトーストで警告する */
+  /**
+   * 自動移動の終了時。途中停止（EN 不足）ならトーストで警告する
+   *
+   * - 目標・中継点をクリアし経路プレビューを消す。通常は最初の 1 マス移動時に
+   *   `handleCellChange` がクリアするが、1 マスも移動せず停止した場合に残るため
+   */
   const handleFollowPathEnd = useCallback(
     (blockedCell?: HexCell) => {
       setIsAutoMoving(false)
+      setObjectiveCell(undefined)
+      setWaypoints([])
 
       if (!blockedCell) return
 
