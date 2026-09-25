@@ -25,6 +25,11 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `_components/adjacent-move-layer/`: 隣接セルのみ点線枠で選択可能を明示するクリックレイヤー
   - `GOAL_POSITION` は proto-01 の `constants.ts` を import して共用。`START_POSITION` は proto-02 固有
 - `proto-03`: 試作。`prototypes/stage/stage-07`（hex グリッド版、issue #162）をページ枠へマウントした版。移動方式は proto-02 と同じ隣接クリック逐次移動だが、`Stage07` の `useHexMove` に内蔵済みのためページ側は `onCellChange` を受けるだけ
+  - 構成（構造見直し、issue #137）: `index.tsx` は Provider 群の配置と `_contents/` の組み合わせのみ。依存方向は `_contents` → `_layers` → `_components`
+    - `_contents/stage`: `Stage07` + 各レイヤー、移動・経路・中継点の操作
+    - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行）。「実行」は `_contexts/stage07-handle` 経由で `Stage07Handle.followPath` を命令する
+    - `_contents/control-panel`: 表示設定の切替・EN・リセット・ゴール到達・中継点選択状況
+    - `_layers/`: `Stage07` の children として重ねるレイヤー。`_components/`: 部品（吹き出し・インジケータ）
   - `constants.ts`: `GOAL_POSITION`/`START_POSITION` を axial 座標(`HexCell`)で定義。proto-01/02 とは座標系が異なるため独自定義（共用不可）
   - `_layers/goal-marker-layer/`: `GOAL_POSITION` セルへ旗マーカーを表示する非対話レイヤー。`Stage07` の `hex-layout` を共有し座標をズレさせない
   - `_layers/move-target-layer/`: 移動可能マス（現在地の隣接6方向）の表示演出レイヤー。現在地セル変更（進入開始）で非表示にし、bot がそのセルの中心に到達（`Stage07-cell-reach`、`_hooks/use-reached-cell.ts`）してから 80ms後に演出開始する。演出の段階は `useMoveTargetLayer` が管理する。表示完了後は次の進入開始まで維持する。EN 切れで表示と逆の演出で引っ込め、復帰で同じ出現演出をやり直す。演出は `mode` prop（`MoveTargetDisplayMode`）で切替可能: `scatter`（bot マスへ集合 → 対象マスへ散開、既定）/ `instant`（transitionなしで対象マスへ即座に出現）/ `fade`（対象マスの位置で opacity 0→1、位置移動なし）
@@ -35,10 +40,10 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `constants.ts` の `ONE_WAY_CELLS`: 一方通行セル一覧（axial 座標 + `exitDirection`、6方向。壁型 ― `exitDirection` の反対側の辺に壁がある）。proto-01 とは方向の型が異なり共用不可
   - `_lib/one-way.ts`: `isBlockedByOneWay(from, to)` で from-to 間に壁があるか判定する（壁のある辺を跨ぐ移動は方向を問わず不可）。`OPPOSITE_DIRECTION` はバリア線の辺計算のため `_layers/one-way-layer` からも参照
   - `_layers/one-way-layer/`: `ONE_WAY_CELLS` セルへ進入禁止方向（`exitDirection` の反対側）の辺だけバリア線を表示する非対話レイヤー。hex は6方向のため `HEX_VERTEX_ANGLES_DEG` 基準で進入禁止方向に対応する頂点ペアを求め SVG line で描画する（proto-01 は矩形なので border で足りるが hex は辺が斜めのため SVG が必要）
-  - 選択拒否は `Stage07` の `canEnterCell` prop（`useHexMove` の隣接判定に組込み済み）で行う。`index.tsx` の `canEnterCell` が `isObstacleCell`/`isBlockedByOneWay`(直前セルは actors store の player 現在セル)/EN 残量(下記)をまとめて `Stage07`/`MoveTargetLayer` 双方へ渡す。`MoveTargetLayer`（移動可能マス表示）もこの `canEnterCell` を参照するため、壁の先はガイド（移動可能マス表示）からも自動的に除外される。`GeoLayer`/`MoveTargetLayer` の選択可能表示（`cursor: pointer`・点線枠）にも同じ判定を反映し、進入不可セルは押せそうに見えないようにする
+  - 選択拒否は `Stage07` の `canEnterCell` prop（`useHexMove` の隣接判定に組込み済み）で行う。`_contents/stage/_hooks/use-can-enter-cell.ts` の `canEnterCell` が `isObstacleCell`/`isBlockedByOneWay`(直前セルは actors store の player 現在セル)/EN 残量(下記)をまとめて `Stage07`/`MoveTargetLayer` 双方へ渡す。`MoveTargetLayer`（移動可能マス表示）もこの `canEnterCell` を参照するため、壁の先はガイド（移動可能マス表示）からも自動的に除外される。`GeoLayer`/`MoveTargetLayer` の選択可能表示（`cursor: pointer`・点線枠）にも同じ判定を反映し、進入不可セルは押せそうに見えないようにする
   - 確認ダイアログは対象外（別途検討）
   - EN（issue #181）: proto-01 と異なり予定経路・tick 駆動「実行」は導入しない（1 マスごとの隣接クリック移動のまま）。`EnergyStoreContext.Provider` を `index.tsx` の `FindPathProto03` 直下（`ActorNodeRegistryProvider` の外側）に配置し、`canEnterCell` へ残量判定を加え、`onCellChange`（`handleCellChange`）内で移動成立時に直接 1 消費する。PR-C(#188) で複数マス選択ごと実装したが選択済みセル表示がフェードアウトせず revert、再実装時にスコープを縮小した（`docs/concept/implementation/multi-cell-selection/README.md`）
-  - `_stores/items`: proto-01 の同型を axial 座標へ移植した proto-03 固有実装（issue #181、開発優先は proto-03 という方針に対し新規機能を proto-01 側で継続してしまった反省を受けて移植）。proto-03 は予定経路・tick 駆動を持たないため即時使用のまま（携行可能化は対象外）、`index.tsx` の `handleCellChange` で移動先セルのアイテムを消費し即時回復する
+  - `_stores/items`: proto-01 の同型を axial 座標へ移植した proto-03 固有実装（issue #181、開発優先は proto-03 という方針に対し新規機能を proto-01 側で継続してしまった反省を受けて移植）。proto-03 は予定経路・tick 駆動を持たないため即時使用のまま（携行可能化は対象外）、`_contents/stage/_hooks/use-handle-cell-change.ts` の `handleCellChange` で移動先セルのアイテムを消費し即時回復する
   - `constants.ts` の `RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS`: 回復アイテム/回復スポットの初期配置一覧（axial 座標、proto-01 とは座標系が異なり共用不可。回復量・stock は仮値）
   - `_lib/get-cell-contents.ts`・`_lib/item-presentation.ts`・`_lib/describe-cell-content.ts`・`_layers/item-layer/`: proto-01 の同型を axial 座標へ移植（`ObstacleLayer` 同型の非対話レイヤー）。title 表示は `CellTitleProvider`（`getCellContents`/`describeCellContent` から合成）へ配線
   - `_stores/waypoint-flow`・`_stores/display-settings`・`_stores/goal`: `FindPathProto03Content` の `useState` から移した共有 state（proto-03 構造見直し）。それぞれ中継点フロー（状態・目標セル・中継点）、表示・演出の切替設定（移動可能マスの表示演出・歩行モーション）、ゴール到達状況。`MoveTargetDisplayMode` は `display-settings/types.ts` に置く（store から layer への逆依存を避けるため）

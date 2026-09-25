@@ -1,90 +1,35 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useState } from 'react'
 
-import {
-  EnergyStoreProvider,
-  useEnergyEventDispatcher,
-  useEnergyStore,
-  useRegisterEnergyOut,
-} from '@/components/pages/find-path/_prototypes/_stores/energy'
-import {
-  BoxBot01,
-  energyOutAction,
-  useBoxBotActionDispatcher,
-} from '@/components/theater/figure/box-bot'
-import { useNotifications } from '@/components/ui/notifications'
+import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { Stage07 } from '@/prototypes/stage/stage-07'
-import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
-import {
-  ActorsStoreProvider,
-  useActorsStore,
-} from '@/prototypes/stage/stage-07/_stores/actors'
+import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { EnergyDebugPanel } from '../_components/energy-debug-panel'
 
 import { BotBubbles } from './_contents/bot-bubbles'
 import { ControlPanel } from './_contents/control-panel'
-import {
-  Stage07HandleProvider,
-  useStage07HandleRef,
-} from './_contexts/stage07-handle'
-import {
-  useVisibilityRegistry,
-  VisibilityRegistryProvider,
-} from './_contexts/visibility-registry'
-import { FindPathEventProvider, useFindPathEventDispatcher } from './_events'
-import { useAdvanceFollowPathOnCellReach } from './_hooks/use-advance-follow-path-on-cell-reach'
-import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
-import { usePreviewPath } from './_hooks/use-preview-path'
-import { GoalMarkerLayer } from './_layers/goal-marker-layer'
-import { ItemLayer } from './_layers/item-layer'
-import { MoveTargetLayer } from './_layers/move-target-layer'
-import { ObjectiveMarkerLayer } from './_layers/objective-marker-layer'
-import { ObstacleLayer } from './_layers/obstacle-layer'
-import { OneWayLayer } from './_layers/one-way-layer'
-import { PathPreviewLayer } from './_layers/path-preview-layer'
-import { WaypointSelectLayer } from './_layers/waypoint-select-layer'
-import { canEnterForPath } from './_lib/can-enter-for-path'
-import { describeCellContent } from './_lib/describe-cell-content'
-import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
-import { getCellContents } from './_lib/get-cell-contents'
-import { isSameCell } from './_lib/is-same-cell'
-import { isObstacleCell } from './_lib/obstacle'
-import { isBlockedByOneWay } from './_lib/one-way'
-import {
-  DisplaySettingsStoreProvider,
-  useDisplaySettingsStore,
-} from './_stores/display-settings'
-import { FogStoreProvider, useFogStore } from './_stores/fog'
+import { Stage } from './_contents/stage'
+import { Stage07HandleProvider } from './_contexts/stage07-handle'
+import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
+import { FindPathEventProvider } from './_events'
+import { DisplaySettingsStoreProvider } from './_stores/display-settings'
+import { FogStoreProvider } from './_stores/fog'
 import { FogMode } from './_stores/fog/types'
-import {
-  FollowPathStoreProvider,
-  useFollowPathStore,
-  useFollowPathStoreApi,
-} from './_stores/follow-path'
-import { GoalStoreProvider, useGoalStore } from './_stores/goal'
-import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
+import { FollowPathStoreProvider } from './_stores/follow-path'
+import { GoalStoreProvider } from './_stores/goal'
+import { ItemStoreProvider } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
+import { WaypointFlowStoreProvider } from './_stores/waypoint-flow'
 import {
-  useWaypointFlowStore,
-  useWaypointFlowStoreApi,
-  WaypointFlowStoreProvider,
-} from './_stores/waypoint-flow'
-import {
-  GOAL_POSITION,
-  GRID,
-  HEX_SIZE,
   RECOVERY_ITEM_CELLS,
   RECOVERY_SPOT_CELLS,
   START_POSITION,
 } from './constants'
 
-/** bot(box-bot-01)の一辺 px */
-const BOT_SIZE = 56
 /** ステージ横に並べる独立 bot の一辺 px（向きを視認しやすいよう大きめ、issue #248） */
 const STANDALONE_BOT_SIZE = 160
 
@@ -110,21 +55,6 @@ const INITIAL_ITEMS: ItemInstance[] = [
   })),
 ]
 
-/**
- * 進入拒否条件を1件表す
- *
- * - `perceived`: 認識として不可（未到達・EN 切れ等、事前に把握できるため
- *   移動可能マス表示等のガイドにも反映する）
- * - `resultOnly`: 結果として不可（認識外の障害物・他アクターとのコンフリクト等、
- *   実行してみないと分からない。現時点では実例なし）
- */
-type EnterGuard = {
-  /** 対象セルへ進入可能か */
-  check: (cell: HexCell) => boolean
-  /** 判定の種類 */
-  kind: 'perceived' | 'resultOnly'
-}
-
 type FindPathProto03Props = {
   /** 霧の適用範囲（初期表示）の初期値（既定 `all-hidden`） */
   initialFogMode?: FogMode
@@ -134,8 +64,12 @@ type FindPathProto03Props = {
  * FindPathProto03 —find-path ページ試作（hex グリッド版）
  *
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
- *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）のため、
- *   ここでは `Stage07` のマウントとゴール到達判定のみを担う
+ *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）
+ * - ここでは Provider 群の配置と `_contents/` の組み合わせのみを担う（構造見直し、
+ *   issue #137）。content 間で共有する state は `_stores/` の各 store に置く
+ *   - `_contents/stage`: `Stage07` + 各レイヤー、移動・経路・中継点の操作
+ *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行）
+ *   - `_contents/control-panel`: 表示設定の切替・EN・リセット等
  * - 非隣接セルクリック時は `onNonAdjacentClick` 経由で BFS 経路探索（`stage-07/_lib/hex-path`）
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
  *   通知する（issue #137 backlog）
@@ -158,8 +92,8 @@ type FindPathProto03Props = {
  *   （選択中インジケータ + 「完了」ボタン）で選択モードを終了し通常状態へ戻る。
  *   `WaypointBubble`/`WaypointSelectLayer`/`WaypointSelectingIndicator` は
  *   いずれも表示制御（`useCssToggle`）込みで自己完結したコンポーネントへ切り出し
- *   済み、親からは `visible` prop のみで駆動する（このコンポーネントは
- *   `waypointFlowState`（`_stores/waypoint-flow`）を各コンポーネントへ分配するだけでよい）。
+ *   済み、親からは `visible` prop のみで駆動する（各 content が
+ *   `waypointFlowState`（`_stores/waypoint-flow`）を購読して渡す）。
  *   設置した中継点は最近傍順に経由する経路として `PathPreviewLayer` へ反映する
  *   （`findHexPathViaWaypoints`、issue #226）。bot を挟んで反対側の
  *   `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する（`Stage07Handle.followPath`）。EN 不足で進入できなくなったら
@@ -190,7 +124,7 @@ type FindPathProto03Props = {
  *   と同じ経路）
  * - EN 切れ演出（予防姿勢、issue #181、proto-01 の `energyOutAction` 相当）:
  *   `Stage07` が `actorEventTarget` prop 経由で bot と共有する EventTarget を公開
- *   するようにし（stage-06 と同じ方式）、page 側で `useBoxBotActionDispatcher`
+ *   するようにし（stage-06 と同じ方式）、stage content で `useBoxBotActionDispatcher`
  *   から `energyOut` dispatcher を得る。`useRegisterEnergyOut`（`_stores/energy`、
  *   proto-01 と共通化）へ登録するだけでよく、トグル発火・復帰は
  *   `useOutOfEnergyEventListener`（scope 全体で 1 回だけ）が
@@ -204,7 +138,7 @@ type FindPathProto03Props = {
  * - 回復アイテム/回復スポット（issue #181、proto-01 から移植）: proto-01 と同じ
  *   `ItemStore` を axial 座標へ移植した固有実装（`_stores/items`）。proto-03 は
  *   予定経路・tick 駆動を持たないため即時使用のまま（携行可能化は対象外、別途検討）。
- *   `handleCellChange` で移動先セルのアイテムを消費し即時回復する
+ *   stage content の `handleCellChange` で移動先セルのアイテムを消費し即時回復する
  * - リセット（境界値テスト用、issue #181）: `resetKey` を `EnergyStoreProvider`
  *   以下（position 含む）へ `key` として渡し、値更新で Provider 群ごと丸ごと
  *   再マウントする（proto-01 と同じ方式）
@@ -255,284 +189,9 @@ type FindPathProto03ContentProps = {
   onReset: () => void
 }
 
-/** `useVisibilityRegistry` を Provider の内側で呼び、UI へ配布する */
+/** Provider の内側で各 content を組み合わせる */
 const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { onReset } = props
-  /** player の現在セル（`Stage07` が移動成立時に actors store を更新する） */
-  const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
-  /** 移動可能マスの表示演出（display-settings store） */
-  const displayMode = useDisplaySettingsStore((state) => state.displayMode)
-  /** 歩行モーションの有無（display-settings store） */
-  const enableWalking = useDisplaySettingsStore((state) => state.enableWalking)
-  /** ゴール到達を記録する（goal store） */
-  const reachGoal = useGoalStore((state) => state.reach)
-  /** 中継点フローの状態（waypoint-flow store） */
-  const waypointFlowState = useWaypointFlowStore((state) => state.flowState)
-  /** 非隣接クリックで選んだ経路の目標セル（waypoint-flow store、経路プレビュー中のみ） */
-  const objectiveCell = useWaypointFlowStore((state) => state.objectiveCell)
-  /** 設置済みの中継点（waypoint-flow store） */
-  const waypoints = useWaypointFlowStore((state) => state.waypoints)
-  const waypointFlowStoreApi = useWaypointFlowStoreApi()
-  /** `Stage07` の imperative API。経路に沿った自動移動を命令する */
-  const stage07HandleRef = useStage07HandleRef()
-  const previewPath = usePreviewPath()
-  const { registerVisibilityNode } = useVisibilityRegistry()
-  /** 現在地を更新し、視界を到達済みとして記録する（fog store） */
-  const markVisited = useFogStore((state) => state.markVisited)
-  const energyDispatch = useEnergyEventDispatcher()
-  const energyInfo = useEnergyStore((state) =>
-    state.getEnergyInfo(PLAYER_ACTOR_ID),
-  )
-  const itemStoreApi = useItemStoreApi()
-  const addNotification = useNotifications((state) => state.addNotification)
-  const findPathEventDispatcher = useFindPathEventDispatcher()
-  /**
-   * 自動移動中の経路（follow-path store）
-   *
-   * - 変化するのは自動移動の開始・終了時のみ。1 マスごとの進行（`followedCount`）は
-   *   `PathPreviewLayer` が直接購読するため、ここでは購読しない
-   */
-  const followingPath = useFollowPathStore((state) => state.followingPath)
-  /** 経路に沿った自動移動中か（`Stage07` を非対話化する） */
-  const isAutoMoving = useFollowPathStore((state) => state.isFollowing())
-  const followPathStoreApi = useFollowPathStoreApi()
-
-  const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
-  const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
-    energyOutAction,
-  ])
-  // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyEventListener`（`_stores/energy`、
-  // scope 全体で 1 回だけマウント。issue-181-en）が Energy-depleted/Energy-recovered
-  // 購読で一元的に担う。ここでは自分の energyOut dispatcher を actorId キーで
-  // 登録するだけでよい。演出は歩いている途中で始まらないよう、停止まで待たせる
-  // （`useEnergyOutAfterStop`）
-  const energyOutAfterStop = useEnergyOutAfterStop(PLAYER_ACTOR_ID, energyOut)
-
-  // 経路プレビューの点は、bot がマスの中心に着いた時点で消す（進行の記録を到達時に行う）
-  useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
-  useRegisterEnergyOut({
-    actorId: PLAYER_ACTOR_ID,
-    energyOut: energyOutAfterStop,
-  })
-
-  /** `GoalMarkerLayer`/`ObstacleLayer`/`OneWayLayer`/`ItemLayer` の DOM をvisibility registry へ登録する（`kind: 'marker'` 固定） */
-  const registerMarkerVisibilityNode = useCallback(
-    (cell: HexCell, el: HTMLElement | null) =>
-      registerVisibilityNode(cell, 'marker', el),
-    [registerVisibilityNode],
-  )
-
-  /** `Stage07`（hex タイル）の DOM を visibility registry へ登録する（`kind: 'floor'` 固定） */
-  const registerFloorVisibilityNode = useCallback(
-    (cell: HexCell, el: HTMLElement | null) =>
-      registerVisibilityNode(cell, 'floor', el),
-    [registerVisibilityNode],
-  )
-
-  /**
-   * `WaypointSelectLayer` の DOM を visibility registry へ登録する
-   * （`kind: 'waypoint'` 固定）
-   *
-   * - 全セルに存在するため `marker` と同一セルで衝突しうる（`marker` は
-   *   `Map<NodeKind, HTMLElement>` で kind ごとに 1 要素しか持てず、GoalMarkerLayer
-   *   等と同じセルに登録すると後勝ちで上書きされてしまう）ので独立した kind にする
-   * - 視界外セルへも中継点を設置できてしまう見た目の不整合（実機検証で発見）を防ぐ
-   */
-  const registerWaypointVisibilityNode = useCallback(
-    (cell: HexCell, el: HTMLElement | null) =>
-      registerVisibilityNode(cell, 'waypoint', el),
-    [registerVisibilityNode],
-  )
-
-  /**
-   * 非隣接セルをクリックした時。クリックしたセルを目標とし、BFS で経路を求め
-   * `PathPreviewLayer` へ表示する（自動移動は吹き出しの「実行」で開始する、issue #226）
-   *
-   * - `Stage07` は find-path 固有の概念（目標）を持たないため、prop 名は
-   *   `onNonAdjacentClick`（クリックの種類）のまま受ける
-   * - 提示前に `FindPath-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
-   *   何もしない。拒否の理由（EN 等）は UI では扱わない（ui-jurisdiction）
-   */
-  const handleNonAdjacentClick = useCallback(
-    async (cell: HexCell) => {
-      if (!(await findPathEventDispatcher['FindPath-propose-path']({ cell }))) {
-        return
-      }
-
-      const path = findHexPathViaWaypoints(
-        currentCell,
-        waypoints,
-        cell,
-        GRID.cols,
-        GRID.rows,
-        canEnterForPath,
-      )
-
-      if (!path) {
-        addNotification({
-          options: { autoDismiss: true },
-          title: `(${cell.q}, ${cell.r}) へは到達できません`,
-          type: 'info',
-        })
-        waypointFlowStoreApi.getState().unpropose()
-
-        return
-      }
-
-      waypointFlowStoreApi.getState().propose(cell)
-    },
-    [
-      addNotification,
-      currentCell,
-      findPathEventDispatcher,
-      waypointFlowStoreApi,
-      waypoints,
-    ],
-  )
-
-  /**
-   * 自動移動の終了時。途中停止（EN 不足）ならトーストで警告する
-   *
-   * - 目標・中継点をクリアし経路プレビューを消す。通常は最初の 1 マス移動時に
-   *   `handleCellChange` がクリアするが、1 マスも移動せず停止した場合に残るため
-   */
-  const handleFollowPathEnd = useCallback(
-    (blockedCell?: HexCell) => {
-      followPathStoreApi.getState().end()
-      waypointFlowStoreApi.getState().clear()
-
-      if (!blockedCell) return
-
-      addNotification({
-        options: { autoDismiss: true },
-        title: `EN 不足のため (${blockedCell.q}, ${blockedCell.r}) の手前で停止しました`,
-        type: 'warning',
-      })
-    },
-    [addNotification, followPathStoreApi, waypointFlowStoreApi],
-  )
-
-  /**
-   * 中継点選択モード中のセルクリック時。中継点を設置/除去する
-   *
-   * - 経由順は設置順でなく最近傍順（`findHexPathViaWaypoints` 内で決める）
-   * - 設置により経路が到達不能になる場合（障害物セル等）は通知して設置しない
-   */
-  const handleWaypointCellClick = useCallback(
-    (cell: HexCell) => {
-      const index = waypoints.findIndex((waypoint) =>
-        isSameCell(waypoint, cell),
-      )
-
-      if (index !== -1) {
-        waypointFlowStoreApi
-          .getState()
-          .setWaypoints(waypoints.filter((_, i) => i !== index))
-
-        return
-      }
-
-      const next = [...waypoints, cell]
-      const path =
-        objectiveCell &&
-        findHexPathViaWaypoints(
-          currentCell,
-          next,
-          objectiveCell,
-          GRID.cols,
-          GRID.rows,
-          canEnterForPath,
-        )
-
-      if (!path) {
-        addNotification({
-          options: { autoDismiss: true },
-          title: `(${cell.q}, ${cell.r}) を経由できません`,
-          type: 'info',
-        })
-
-        return
-      }
-
-      waypointFlowStoreApi.getState().setWaypoints(next)
-    },
-    [
-      addNotification,
-      currentCell,
-      objectiveCell,
-      waypointFlowStoreApi,
-      waypoints,
-    ],
-  )
-
-  const handleCellChange = (cell: HexCell) => {
-    waypointFlowStoreApi.getState().clear()
-    markVisited(cell)
-
-    const item = itemStoreApi.getState().getItemAtCell(cell)
-    const consumed = item && itemStoreApi.getState().consumeItem(item.id)
-
-    // 消費・回復とも energy store 側の consume/recover-listener が実処理・閾値判定・
-    // Energy-depleted/Energy-recovered 発行を担う（proto-01 の `use-find-path-tick`
-    // と同じ経路）。EN 切れ演出の発火・復帰は `useOutOfEnergyEventListener` 側が
-    // 担うため、ここでは dispatch するだけでよい
-    if (consumed) {
-      void energyDispatch['Energy-recover']({
-        actorId: PLAYER_ACTOR_ID,
-        amount: consumed.amount,
-      })
-    }
-
-    void energyDispatch['Energy-consume']({
-      actorId: PLAYER_ACTOR_ID,
-      amount: 1,
-    })
-
-    if (isSameCell(cell, GOAL_POSITION)) {
-      reachGoal()
-    }
-  }
-
-  /**
-   * 進入拒否条件一覧（`EnterGuard`。EN 残量チェックは含まない）
-   *
-   * - EN 残量チェックは `MoveTargetLayer` 自身が EN store を直接購読して適用する
-   *   ため、ここでは対象外（issue-181-en backlog: `EnergyDebugPanel` 操作で
-   *   `Stage07` 配下ツリー全体が再レンダリングされる問題の解消）
-   */
-  const enterGuards: EnterGuard[] = useMemo(
-    () => [
-      { check: (cell) => !isObstacleCell(cell), kind: 'perceived' },
-      {
-        check: (cell) => !isBlockedByOneWay(currentCell, cell),
-        kind: 'perceived',
-      },
-    ],
-    [currentCell],
-  )
-
-  /**
-   * `MoveTargetLayer` へ渡す進入可否（`perceived` ガードのみ、EN 残量チェックは除く）
-   *
-   * - EN 残量チェックを含めると EN 変化のたびこの関数が新しい参照になり、
-   *   `MoveTargetLayer` の `React.memo` が効かなくなる
-   */
-  const canEnterCellPerceived = useCallback(
-    (cell: HexCell) =>
-      enterGuards
-        .filter((guard) => guard.kind === 'perceived')
-        .every((guard) => guard.check(cell)),
-    [enterGuards],
-  )
-
-  /** EN 残量。`energyInfo.current` を直接 `useCallback` の依存配列に入れると意図せず不安定化するため、プリミティブ値へ切り出す */
-  const energyCurrent = energyInfo.current
-
-  /** `Stage07` へ渡す進入可否（実際の移動判定・選択可能表示用。EN 残量チェック込みの全ガード） */
-  const canEnterCell = useCallback(
-    (cell: HexCell) => canEnterCellPerceived(cell) && energyCurrent > 0,
-    [canEnterCellPerceived, energyCurrent],
-  )
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
@@ -540,89 +199,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
         Find Path (proto-03 / hex)
       </h1>
       <div className="flex items-center gap-8">
-        {/* Stage07 は操作 slider 群が横に広がるため、min-content で床(scene)の幅へ合わせる */}
-        <div className="w-min">
-          <CellTitleProvider
-            getCellTitle={(cell) => {
-              const contents = getCellContents(cell, itemStoreApi.getState())
-
-              return contents[0] && describeCellContent(contents[0])
-            }}
-          >
-            <Stage07
-              actorEventTarget={actorEventTarget}
-              botSize={BOT_SIZE}
-              canEnterCell={canEnterCell}
-              cols={GRID.cols}
-              enableWalking={enableWalking}
-              hexSize={HEX_SIZE}
-              initialTiltDeg={55}
-              interactive={waypointFlowState !== 'selecting' && !isAutoMoving}
-              onCellChange={handleCellChange}
-              onFollowPathEnd={handleFollowPathEnd}
-              onNonAdjacentClick={handleNonAdjacentClick}
-              ref={stage07HandleRef}
-              registerCellVisibilityNode={registerFloorVisibilityNode}
-              rows={GRID.rows}
-            >
-              <GoalMarkerLayer
-                cols={GRID.cols}
-                hexSize={HEX_SIZE}
-                registerVisibilityNode={registerMarkerVisibilityNode}
-                rows={GRID.rows}
-              />
-              <ObstacleLayer
-                cols={GRID.cols}
-                hexSize={HEX_SIZE}
-                registerVisibilityNode={registerMarkerVisibilityNode}
-                rows={GRID.rows}
-              />
-              <OneWayLayer
-                cols={GRID.cols}
-                hexSize={HEX_SIZE}
-                registerVisibilityNode={registerMarkerVisibilityNode}
-                rows={GRID.rows}
-              />
-              <ItemLayer
-                cols={GRID.cols}
-                hexSize={HEX_SIZE}
-                registerVisibilityNode={registerMarkerVisibilityNode}
-                rows={GRID.rows}
-              />
-              <MoveTargetLayer
-                canEnterCell={canEnterCellPerceived}
-                cols={GRID.cols}
-                currentCell={currentCell}
-                hexSize={HEX_SIZE}
-                mode={displayMode}
-                rows={GRID.rows}
-              />
-              <PathPreviewLayer
-                cols={GRID.cols}
-                hexSize={HEX_SIZE}
-                path={previewPath}
-                rows={GRID.rows}
-              />
-              <ObjectiveMarkerLayer
-                cols={GRID.cols}
-                hexSize={HEX_SIZE}
-                objectiveCell={
-                  isAutoMoving ? followingPath.at(-1) : objectiveCell
-                }
-                rows={GRID.rows}
-              />
-              <WaypointSelectLayer
-                cols={GRID.cols}
-                hexSize={HEX_SIZE}
-                onCellClick={handleWaypointCellClick}
-                registerVisibilityNode={registerWaypointVisibilityNode}
-                rows={GRID.rows}
-                visible={waypointFlowState === 'selecting'}
-                waypoints={waypoints}
-              />
-            </Stage07>
-          </CellTitleProvider>
-        </div>
+        <Stage />
         {/* ステージ上の bot とは別に独立表示する bot（向き同期は後続、issue #248） */}
         <BoxBot01
           actions={[]}
