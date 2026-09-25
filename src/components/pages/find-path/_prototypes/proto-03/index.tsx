@@ -52,6 +52,7 @@ import {
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
 import { FindPathEventProvider, useFindPathEventDispatcher } from './_events'
+import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
 import { describeCellContent } from './_lib/describe-cell-content'
 import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
@@ -325,8 +326,14 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyEventListener`（`_stores/energy`、
   // scope 全体で 1 回だけマウント。issue-181-en）が Energy-depleted/Energy-recovered
   // 購読で一元的に担う。ここでは自分の energyOut dispatcher を actorId キーで
-  // 登録するだけでよい
-  useRegisterEnergyOut({ actorId: PLAYER_ACTOR_ID, energyOut })
+  // 登録するだけでよい。演出は歩いている途中で始まらないよう、停止まで待たせる
+  // （`useEnergyOutAfterStop`）
+  const { energyOutAfterStop, notifyMoveStart, notifyMoveStop } =
+    useEnergyOutAfterStop(energyOut)
+  useRegisterEnergyOut({
+    actorId: PLAYER_ACTOR_ID,
+    energyOut: energyOutAfterStop,
+  })
 
   /** `GoalMarkerLayer`/`ObstacleLayer`/`OneWayLayer`/`ItemLayer` の DOM をvisibility registry へ登録する（`kind: 'marker'` 固定） */
   const registerMarkerVisibilityNode = useCallback(
@@ -549,6 +556,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   const handleCellChange = (cell: HexCell) => {
+    // EN 消費の dispatch より先に移動開始を伝え、EN 切れ演出を停止まで待たせる
+    notifyMoveStart()
     setCurrentCell(cell)
     setObjectiveCell(undefined)
     setWaypointFlowState('idle')
@@ -647,6 +656,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           interactive={waypointFlowState !== 'selecting' && !isAutoMoving}
           onCellChange={handleCellChange}
           onFollowPathEnd={handleFollowPathEnd}
+          onMoveStop={notifyMoveStop}
           onNonAdjacentClick={handleNonAdjacentClick}
           ref={stage07Ref}
           registerCellVisibilityNode={registerFloorVisibilityNode}
