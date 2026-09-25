@@ -13,7 +13,7 @@ export type FollowPathState = {
   advance: () => void
   /** 自動移動の終了（完了・途中停止とも）。経路・進んだマス数をクリアする */
   end: () => void
-  /** 自動移動で進んだマス数（`followingPath` のうち移動済みの先頭側） */
+  /** 自動移動で進んだマス数（`followingPath` のうち移動済みの先頭側。bot がマスの中心に着いた時点で数える） */
   followedCount: number
   /** 自動移動中の経路（「実行」時点で固定する。自動移動中でなければ空） */
   followingPath: HexCell[]

@@ -49,3 +49,7 @@
     - FindPath/Energy の EventTarget へは発行しない。`Stage07` は find-path 固有の概念を持たないため
     - box-bot の `actorEventTarget` も流用しない。action dispatch 用の経路と混ぜないため
     - Provider がない場合（stage-07 単体の story 等）は、どこにも届かない EventTarget へ発行する（`useEventDispatcher` 既定の window へは流さない）
+- 2026-09-25: 経路プレビューの点は、bot の描画位置がマスの中心に到達した時点で消す（ユーザー判断）
+  - 到達は描画位置（CSS transition 中の `left`/`top`）を一定間隔で読んで判定する。draft で推奨した「表示を 1 マス遅らせる」案は、進入の間隔と移動アニメーションの所要時間が一致する前提に依存するため採らなかった
+  - 判定の間隔が粗く中心付近を見逃した場合でも、中心を過ぎていれば即時に消す（ユーザー判断）
+  - 到達の通知は `Stage07-cell-reach` として stage-07 の EventTarget へ発行する。`Stage07` は find-path 固有の概念を持たないため、経路の進行（follow-path store）は proto-03 側の listener が扱う

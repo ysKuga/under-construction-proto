@@ -53,6 +53,7 @@ import {
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
 import { FindPathEventProvider, useFindPathEventDispatcher } from './_events'
+import { useAdvanceFollowPathOnCellReach } from './_hooks/use-advance-follow-path-on-cell-reach'
 import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
 import { describeCellContent } from './_lib/describe-cell-content'
 import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
@@ -345,6 +346,9 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // 登録するだけでよい。演出は歩いている途中で始まらないよう、停止まで待たせる
   // （`useEnergyOutAfterStop`）
   const energyOutAfterStop = useEnergyOutAfterStop(PLAYER_ACTOR_ID, energyOut)
+
+  // 経路プレビューの点は、bot がマスの中心に着いた時点で消す（進行の記録を到達時に行う）
+  useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
   useRegisterEnergyOut({
     actorId: PLAYER_ACTOR_ID,
     energyOut: energyOutAfterStop,
@@ -571,10 +575,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     setObjectiveCell(undefined)
     setWaypointFlowState('idle')
     setWaypoints([])
-    // 自動移動の進行を記録する（自動移動中でなければ store 側で何もしない）。
-    // 1 マス目は「実行」と同じタスク内で呼ばれこの関数が古いクロージャのままになるため、
-    // 自動移動中かの判定は store の呼出し時点の値で行う
-    followPathStoreApi.getState().advance()
     markVisited(cell)
 
     const item = itemStoreApi.getState().getItemAtCell(cell)
