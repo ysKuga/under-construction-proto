@@ -27,9 +27,10 @@
   - 再レンダリングを避けることを重視する（[game-state ルール](../../../../rules/react/game-state.md)）
   - 下記「今後の検討候補」の「自動移動中に残り経路をプレビュー表示する」と合わせて対応
   - 対応
-    - 「実行」時点の経路を `followingPath` へ固定し、進んだマス数 `followedCount` の分だけ先頭から消す
+    - 「実行」時点の経路を `followingPath` へ固定し、進んだマス数 `followedCount` の分だけ先頭から消す（follow-path store）
     - 目標マーカーは自動移動中も `followingPath` の終端に表示し続ける
-    - `PathPreviewLayer` は `passedCount` で移動済みの点を消し、残りの点の key（元の経路での位置）を保つ
+    - `PathPreviewLayer` は store を直接購読して移動済みの点を消し、残りの点の key（元の経路での位置）を保つ
+    - 自動移動中は `MoveTargetLayer`（移動可能マス）を表示しない
 - [x] EN 切れ演出を停止箇所に着いてから行う
   - 現象: 移動時間を長くすると、歩いている途中で bot の EN 切れ演出（予防姿勢）が始まる
     - 自動移動・隣接クリックでの手動移動の両方で起きる
