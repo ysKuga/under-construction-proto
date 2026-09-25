@@ -46,6 +46,10 @@
       - 移動中でなければそのまま呼ぶ
       - 移動中に呼ばれた分は停止の `ENERGY_OUT_DELAY_MS` 後に呼ぶ（`energyOut` は切替式のため回数の偶奇で判断する）
   - 実装: 対応案どおり（`Stage07` の `onMoveStop`、proto-03 の `useEnergyOutAfterStop`）
+  - 見直し: `onMoveStop` prop をやめ、event 経由にする（ユーザー判断）
+    - `Stage07` は stage-07 の `_events` へ `Stage07-move-start`/`Stage07-move-stop`（payload: `actorId`）を発行する
+    - `useEnergyOutAfterStop(actorId, energyOut)` が両イベントを購読し、`actorId` が一致する分だけ扱う
+    - `handleCellChange` からの移動開始の通知（`notifyMoveStart`）は不要になる
 - [ ] 経路プレビューの点を、bot がマスの中心に到達した時点で消す
   - 現象: 移動を開始した時点で点が消える
   - 原因: 進んだマス数を進入開始時（`handleCellChange`）に数えているため
