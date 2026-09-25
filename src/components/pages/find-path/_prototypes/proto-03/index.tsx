@@ -57,7 +57,8 @@ import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
-import { FogStoreProvider, useFogStore } from './_stores/fog'
+import { FogStoreProvider, useFogStore, useFogStoreApi } from './_stores/fog'
+import { FogMode } from './_stores/fog/types'
 import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import {
@@ -73,6 +74,13 @@ const GRID = { cols: 5, rows: 5 } as const
 const HEX_SIZE = 40
 /** bot(box-bot-01)の一辺 px */
 const BOT_SIZE = 56
+
+/** 「初期表示」select の選択肢 */
+const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
+  { label: 'すべて表示', value: 'all-visible' },
+  { label: 'すべて非表示', value: 'all-hidden' },
+  { label: '部分的に非表示', value: 'partial' },
+]
 
 /** axial セルの一致判定 */
 const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
@@ -139,8 +147,13 @@ type EnterGuard = {
   kind: 'perceived' | 'resultOnly'
 }
 
+type FindPathProto03Props = {
+  /** 霧の適用範囲（初期表示）の初期値（既定 `all-hidden`） */
+  initialFogMode?: FogMode
+}
+
 /**
- * FindPathProto03 — find-path ページ試作（hex グリッド版）
+ * FindPathProto03 —find-path ページ試作（hex グリッド版）
  *
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
  *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）のため、
@@ -179,6 +192,8 @@ type EnterGuard = {
  *   基準の6近傍）」または「到達済み表示ONかつ到達済みセル」（`setShowVisited` で
  *   切替可能、既定 ON）。`Stage07`（hex タイルの表示/非表示）・`GoalMarkerLayer`
  *   （旗の表示/非表示）から読めるよう `Stage07` の外側に置く
+ * - 霧の適用範囲（初期表示）は「初期表示」select でプレイ中に切替可能。初期値は
+ *   `initialFogMode`（既定 `all-hidden`）。`partial` の霧セルは `PARTIAL_FOG_CELLS`
  * - 確認ダイアログは対象外（別途検討）
  * - 歩行モーション（`Stage07` の `enableWalking`）はチェックボックスで切替可能（既定 ON）。
  *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、
@@ -219,7 +234,9 @@ type EnterGuard = {
  *   EventTarget へ担当範囲の情報を発行し、EN 等のゲーム要素による実行可否は
  *   listener 側で判定する（docs/concept/implementation/ui-jurisdiction）
  */
-const FindPathProto03 = () => {
+const FindPathProto03 = (props: FindPathProto03Props) => {
+  const { initialFogMode = 'all-hidden' } = props
+
   const [resetKey, setResetKey] = useState(0)
 
   return (
@@ -229,7 +246,7 @@ const FindPathProto03 = () => {
           <ActorsStoreProvider
             initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
           >
-            <FogStoreProvider initialMode="all-hidden">
+            <FogStoreProvider initialMode={initialFogMode}>
               <VisibilityRegistryProvider>
                 <FindPathProto03Content
                   onReset={() => setResetKey((key) => key + 1)}
@@ -288,6 +305,9 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const markVisited = useFogStore((state) => state.markVisited)
   /** 到達済み表示の有無を切り替える（fog store） */
   const setShowVisited = useFogStore((state) => state.setShowVisited)
+  /** 霧の適用範囲を切り替える（fog store） */
+  const setFogMode = useFogStore((state) => state.setMode)
+  const fogStoreApi = useFogStoreApi()
   const energyDispatch = useEnergyEventDispatcher()
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
@@ -697,6 +717,19 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           playerOverlayContainer,
         )}
       <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+        <label>
+          初期表示{' '}
+          <select
+            defaultValue={fogStoreApi.getState().mode}
+            onChange={(event) => setFogMode(event.target.value as FogMode)}
+          >
+            {FOG_MODE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <label>
           <input
             defaultChecked
