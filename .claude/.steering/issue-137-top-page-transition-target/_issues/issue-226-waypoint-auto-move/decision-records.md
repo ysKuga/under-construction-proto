@@ -38,3 +38,7 @@
   - 「実行」時点の経路と進んだマス数を `useState` で持つ。理由: 各マスの移動で既に `setCurrentCell` による再レンダリングが起きており、同じハンドラ内でまとめて更新されるため再レンダリングは増えない。vanilla store 化は `currentCell` を store へ移す時に合わせて行う
   - 点は進入開始時（`onCellChange`）に消す。到着時に消す案は `Stage07` へ到着通知の追加が要るため不採用
   - 進んだマス数は `handleCellChange` で自動移動中かを見ずに関数型更新で数える。自動移動の 1 マス目は「実行」と同じタスク内で呼ばれ、`handleCellChange` が古いクロージャのままになるため
+- 2026-09-25: EN 切れ演出（予防姿勢）は actor の停止を待ってから、停止の `ENERGY_OUT_DELAY_MS` 後に発火する（ユーザー判断）
+  - EN の消費は進入開始時のまま変えない。理由: 到着時へ移すと移動中の EN と次のマスの進入判定がずれる。自動移動は到着でなくタイマーで次のマスへ進むため、判定の順序も崩れやすい
+  - 停止まで待つ処理は proto-03 側のラッパー（`useEnergyOutAfterStop`）で持ち、energy store（proto-01 と共有）は変えない
+  - 停止通知は `Stage07` の汎用 prop `onMoveStop` とする（find-path 固有の概念を持たせない）
