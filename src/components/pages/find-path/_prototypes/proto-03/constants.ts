@@ -1,4 +1,4 @@
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HEX_DIRECTIONS, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 /** bot の初期セル（axial 原点） */
 export const START_POSITION: HexCell = { q: 0, r: 0 }
@@ -38,3 +38,17 @@ export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
 export const RECOVERY_SPOT_CELLS = [
   { amount: 2, q: 0, r: 3, stock: 2 },
 ] as const
+
+/**
+ * 初期表示モード `partial` で霧（非表示対象）とするセル一覧
+ *
+ * - ゴールとその6近傍（仮の領域。issue #137）
+ * - 霧セル以外は常時表示する
+ */
+export const PARTIAL_FOG_CELLS: readonly HexCell[] = [
+  GOAL_POSITION,
+  ...HEX_DIRECTIONS.map((direction) => ({
+    q: GOAL_POSITION.q + direction.q,
+    r: GOAL_POSITION.r + direction.r,
+  })),
+]

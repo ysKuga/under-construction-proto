@@ -5,13 +5,14 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
 } from 'react'
 
-import { HEX_DIRECTIONS, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
-import { START_POSITION } from '../../constants'
+import { useFogStoreApi } from '../../_stores/fog'
 
 /** 表示切替対象 DOM の用途 */
 type NodeKind = 'floor' | 'marker' | 'waypoint'
@@ -19,34 +20,7 @@ type NodeKind = 'floor' | 'marker' | 'waypoint'
 /** セルキー ("q,r") を組み立てる */
 const cellKey = (cell: HexCell): string => `${cell.q},${cell.r}`
 
-/** 2 セルが同一または隣接（6方向）か */
-const isAdjacentOrSame = (a: HexCell, b: HexCell): boolean =>
-  (a.q === b.q && a.r === b.r) ||
-  HEX_DIRECTIONS.some(
-    (direction) => a.q + direction.q === b.q && a.r + direction.r === b.r,
-  )
-
-/** cell 自身とその6近傍（視界と同じ範囲）を列挙する */
-const visibleAreaOf = (cell: HexCell): HexCell[] => [
-  cell,
-  ...HEX_DIRECTIONS.map((direction) => ({
-    q: cell.q + direction.q,
-    r: cell.r + direction.r,
-  })),
-]
-
 type VisibilityRegistryValue = {
-  /** cell が表示可能（視界内、または到達済み表示ONで到達済み）か */
-  isVisible: (cell: HexCell) => boolean
-  /**
-   * 現在地を cell へ更新し、視界（cell 自身と6近傍）を到達済みとして記録する
-   *
-   * - 「視界内に入ったら到達扱い」の方針。視界を離れても到達済み表示ONなら
-   *   見え続ける
-   * - 全登録 DOM を直書きで表示/非表示に切り替える。React state を持たないため、
-   *   この呼出で購読側は再レンダリングされない
-   */
-  markVisited: (cell: HexCell) => void
   /**
    * セルの表示切替対象 DOM を登録する
    *
@@ -62,12 +36,6 @@ type VisibilityRegistryValue = {
     kind: NodeKind,
     el: HTMLElement | null,
   ) => void
-  /**
-   * 到達済みマス（視界外）を表示するかを切替える
-   *
-   * - 全登録 DOM を直書きで再計算する
-   */
-  setShowVisited: (show: boolean) => void
 }
 
 const VisibilityRegistryContext = createContext<null | VisibilityRegistryValue>(
@@ -75,32 +43,20 @@ const VisibilityRegistryContext = createContext<null | VisibilityRegistryValue>(
 )
 
 /**
- * 現在地・到達済みセルを ref で保持し、可視状態を DOM 直書きで反映する Provider
+ * セルの表示切替対象 DOM を保持し、fog store の可視判定を DOM 直書きで反映する Provider
  *
- * - proto-02 `VisibilityRegistryProvider`（矩形グリッド・8近傍）の hex 版。
- *   axial 座標（`HexCell`）・6近傍（`HEX_DIRECTIONS`）で判定する点のみ異なる
- * - `useState` を持たず、到達（`markVisited`）のたびに配下を再レンダリングしない
- * - 可視判定は「視界（現在地自身、またはそこへ隣接。6方向）」または
- *   「到達済み表示ONかつ到達済みセル」。いずれにも該当しないセルは非表示
- *   （`display: none`）にする
- * - 現在地・到達済みセルの初期値は bot の初期セル `START_POSITION` と\
- *   その視界に固定
+ * - proto-02 `VisibilityRegistryProvider`（矩形グリッド・8近傍）の hex 版
+ * - 霧の状態・可視判定は fog store（`_stores/fog`）が持つ。この Provider は DOM の
+ *   登録と反映のみを担い、`FogStoreProvider` の内側に置く
+ * - fog store を `subscribe` し、変化のたびに全登録 DOM を再計算する。
+ *   `useState` を持たないため、配下は再レンダリングされない
+ * - 非表示セルは `display: none` にする
  */
 export const VisibilityRegistryProvider = (props: PropsWithChildren) => {
   const { children } = props
 
-  const currentRef = useRef<HexCell>(START_POSITION)
-  const visitedRef = useRef(new Set(visibleAreaOf(START_POSITION).map(cellKey)))
-  const showVisitedRef = useRef(true)
+  const fogStoreApi = useFogStoreApi()
   const nodesRef = useRef(new Map<string, Map<NodeKind, HTMLElement>>())
-
-  const isVisible = useCallback((cell: HexCell): boolean => {
-    if (isAdjacentOrSame(cell, currentRef.current)) {
-      return true
-    }
-
-    return showVisitedRef.current && visitedRef.current.has(cellKey(cell))
-  }, [])
 
   const applyVisibility = useCallback(
     (cell: HexCell) => {
@@ -110,23 +66,27 @@ export const VisibilityRegistryProvider = (props: PropsWithChildren) => {
         return
       }
 
-      const display = isVisible(cell) ? '' : 'none'
+      const display = fogStoreApi.getState().isVisible(cell) ? '' : 'none'
 
       nodes.forEach((node) => {
         node.style.display = display
       })
     },
-    [isVisible],
+    [fogStoreApi],
   )
 
-  /** 登録済み全セルの可視状態を再計算する（グリッドが小規模なため全走査で十分） */
-  const recomputeAll = useCallback(() => {
-    for (const key of nodesRef.current.keys()) {
-      const [q, r] = key.split(',').map(Number)
+  // fog store の変化時、登録済み全セルの可視状態を再計算する（グリッドが小規模なため全走査で十分）
+  useEffect(
+    () =>
+      fogStoreApi.subscribe(() => {
+        for (const key of nodesRef.current.keys()) {
+          const [q, r] = key.split(',').map(Number)
 
-      applyVisibility({ q, r })
-    }
-  }, [applyVisibility])
+          applyVisibility({ q, r })
+        }
+      }),
+    [applyVisibility, fogStoreApi],
+  )
 
   const registerVisibilityNode = useCallback(
     (cell: HexCell, kind: NodeKind, el: HTMLElement | null) => {
@@ -152,30 +112,9 @@ export const VisibilityRegistryProvider = (props: PropsWithChildren) => {
     [applyVisibility],
   )
 
-  const markVisited = useCallback(
-    (cell: HexCell) => {
-      currentRef.current = cell
-
-      for (const visible of visibleAreaOf(cell)) {
-        visitedRef.current.add(cellKey(visible))
-      }
-
-      recomputeAll()
-    },
-    [recomputeAll],
-  )
-
-  const setShowVisited = useCallback(
-    (show: boolean) => {
-      showVisitedRef.current = show
-      recomputeAll()
-    },
-    [recomputeAll],
-  )
-
   const value = useMemo(
-    () => ({ isVisible, markVisited, registerVisibilityNode, setShowVisited }),
-    [isVisible, markVisited, registerVisibilityNode, setShowVisited],
+    () => ({ registerVisibilityNode }),
+    [registerVisibilityNode],
   )
 
   return (
