@@ -47,10 +47,7 @@ import { useAdvanceFollowPathOnCellReach } from './_hooks/use-advance-follow-pat
 import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
 import { GoalMarkerLayer } from './_layers/goal-marker-layer'
 import { ItemLayer } from './_layers/item-layer'
-import {
-  MoveTargetDisplayMode,
-  MoveTargetLayer,
-} from './_layers/move-target-layer'
+import { MoveTargetLayer } from './_layers/move-target-layer'
 import { ObjectiveMarkerLayer } from './_layers/objective-marker-layer'
 import { ObstacleLayer } from './_layers/obstacle-layer'
 import { OneWayLayer } from './_layers/one-way-layer'
@@ -61,6 +58,11 @@ import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
+import {
+  DisplaySettingsStoreProvider,
+  useDisplaySettingsStore,
+} from './_stores/display-settings'
+import { MoveTargetDisplayMode } from './_stores/display-settings/types'
 import { FogStoreProvider, useFogStore, useFogStoreApi } from './_stores/fog'
 import { FogMode } from './_stores/fog/types'
 import {
@@ -68,8 +70,14 @@ import {
   useFollowPathStore,
   useFollowPathStoreApi,
 } from './_stores/follow-path'
+import { GoalStoreProvider, useGoalStore } from './_stores/goal'
 import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
+import {
+  useWaypointFlowStore,
+  useWaypointFlowStoreApi,
+  WaypointFlowStoreProvider,
+} from './_stores/waypoint-flow'
 import {
   GOAL_POSITION,
   RECOVERY_ITEM_CELLS,
@@ -108,18 +116,6 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  */
 const canEnterForPath = (from: HexCell, to: HexCell): boolean =>
   !isObstacleCell(to) && !isBlockedByOneWay(from, to)
-
-/**
- * 中継点フローの状態（issue #137 backlog「中継点の設定」）
- *
- * - `idle`: 通常状態。セルクリックは `useHexMove` 経由の隣接移動/非隣接経路探索
- * - `proposing`: 非隣接クリックで経路が求まった直後。bot 頭上に `WaypointBubble`
- *   （思考吹き出し）を表示する
- * - `selecting`: `WaypointBubble` クリックで移行。`Stage07` を非対話化し
- *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する。
- *   再度 `WaypointBubble` をクリックすると `proposing` へ戻る
- */
-type WaypointFlowState = 'idle' | 'proposing' | 'selecting'
 
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
@@ -192,7 +188,7 @@ type FindPathProto03Props = {
  *   `WaypointBubble`/`WaypointSelectLayer`/`WaypointSelectingIndicator` は
  *   いずれも表示制御（`useCssToggle`）込みで自己完結したコンポーネントへ切り出し
  *   済み、親からは `visible` prop のみで駆動する（このコンポーネントは
- *   `waypointFlowState` を保持し各コンポーネントへ分配するだけでよい）。
+ *   `waypointFlowState`（`_stores/waypoint-flow`）を各コンポーネントへ分配するだけでよい）。
  *   設置した中継点は最近傍順に経由する経路として `PathPreviewLayer` へ反映する
  *   （`findHexPathViaWaypoints`、issue #226）。bot を挟んで反対側の
  *   `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する（`Stage07Handle.followPath`）。EN 不足で進入できなくなったら
@@ -261,9 +257,15 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
               <FogStoreProvider initialMode={initialFogMode}>
                 <VisibilityRegistryProvider>
                   <FollowPathStoreProvider>
-                    <FindPathProto03Content
-                      onReset={() => setResetKey((key) => key + 1)}
-                    />
+                    <WaypointFlowStoreProvider>
+                      <DisplaySettingsStoreProvider>
+                        <GoalStoreProvider>
+                          <FindPathProto03Content
+                            onReset={() => setResetKey((key) => key + 1)}
+                          />
+                        </GoalStoreProvider>
+                      </DisplaySettingsStoreProvider>
+                    </WaypointFlowStoreProvider>
                   </FollowPathStoreProvider>
                 </VisibilityRegistryProvider>
               </FogStoreProvider>
@@ -283,16 +285,31 @@ type FindPathProto03ContentProps = {
 /** `useVisibilityRegistry` を Provider の内側で呼び、UI へ配布する */
 const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { onReset } = props
-  const [currentCell, setCurrentCell] = useState<HexCell>(START_POSITION)
-  const [displayMode, setDisplayMode] =
-    useState<MoveTargetDisplayMode>('scatter')
-  const [enableWalking, setEnableWalking] = useState(true)
-  const [goalReached, setGoalReached] = useState(false)
-  /** 非隣接クリックで選んだ経路の目標セル（経路プレビュー中のみ） */
-  const [objectiveCell, setObjectiveCell] = useState<HexCell>()
-  const [waypointFlowState, setWaypointFlowState] =
-    useState<WaypointFlowState>('idle')
-  const [waypoints, setWaypoints] = useState<HexCell[]>([])
+  /** player の現在セル（`Stage07` が移動成立時に actors store を更新する） */
+  const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
+  /** 移動可能マスの表示演出（display-settings store） */
+  const displayMode = useDisplaySettingsStore((state) => state.displayMode)
+  /** 移動可能マスの表示演出を切り替える（display-settings store） */
+  const setDisplayMode = useDisplaySettingsStore(
+    (state) => state.setDisplayMode,
+  )
+  /** 歩行モーションの有無（display-settings store） */
+  const enableWalking = useDisplaySettingsStore((state) => state.enableWalking)
+  /** 歩行モーションの有無を切り替える（display-settings store） */
+  const setEnableWalking = useDisplaySettingsStore(
+    (state) => state.setEnableWalking,
+  )
+  /** ゴールへ到達済みか（goal store） */
+  const goalReached = useGoalStore((state) => state.reached)
+  /** ゴール到達を記録する（goal store） */
+  const reachGoal = useGoalStore((state) => state.reach)
+  /** 中継点フローの状態（waypoint-flow store） */
+  const waypointFlowState = useWaypointFlowStore((state) => state.flowState)
+  /** 非隣接クリックで選んだ経路の目標セル（waypoint-flow store、経路プレビュー中のみ） */
+  const objectiveCell = useWaypointFlowStore((state) => state.objectiveCell)
+  /** 設置済みの中継点（waypoint-flow store） */
+  const waypoints = useWaypointFlowStore((state) => state.waypoints)
+  const waypointFlowStoreApi = useWaypointFlowStoreApi()
   /** `Stage07` の imperative API。経路に沿った自動移動を命令する */
   const stage07Ref = useRef<Stage07Handle>(null)
   /**
@@ -437,16 +454,20 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           title: `(${cell.q}, ${cell.r}) へは到達できません`,
           type: 'info',
         })
-        setObjectiveCell(undefined)
-        setWaypointFlowState('idle')
+        waypointFlowStoreApi.getState().unpropose()
 
         return
       }
 
-      setObjectiveCell(cell)
-      setWaypointFlowState('proposing')
+      waypointFlowStoreApi.getState().propose(cell)
     },
-    [addNotification, currentCell, findPathEventDispatcher, waypoints],
+    [
+      addNotification,
+      currentCell,
+      findPathEventDispatcher,
+      waypointFlowStoreApi,
+      waypoints,
+    ],
   )
 
   /**
@@ -456,10 +477,10 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    *   「実行」や再度の選択へつなげる
    */
   const handleWaypointBubbleClick = useCallback(() => {
-    setWaypointFlowState((current) =>
-      current === 'selecting' ? 'proposing' : 'selecting',
-    )
-  }, [])
+    const { flowState, setFlowState } = waypointFlowStoreApi.getState()
+
+    setFlowState(flowState === 'selecting' ? 'proposing' : 'selecting')
+  }, [waypointFlowStoreApi])
 
   // waypointFlowState の変化を吹き出しの selectable・半透明化(imperative) へ同期する。
   // 中継点選択中は吹き出しが背後の経路を隠さないよう半透明にする（issue #226）
@@ -491,10 +512,15 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       return
     }
 
-    setWaypointFlowState('idle')
+    waypointFlowStoreApi.getState().setFlowState('idle')
     followPathStoreApi.getState().start(previewPath)
     stage07Ref.current?.followPath(previewPath)
-  }, [findPathEventDispatcher, followPathStoreApi, previewPath])
+  }, [
+    findPathEventDispatcher,
+    followPathStoreApi,
+    previewPath,
+    waypointFlowStoreApi,
+  ])
 
   /**
    * 自動移動の終了時。途中停止（EN 不足）ならトーストで警告する
@@ -505,8 +531,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const handleFollowPathEnd = useCallback(
     (blockedCell?: HexCell) => {
       followPathStoreApi.getState().end()
-      setObjectiveCell(undefined)
-      setWaypoints([])
+      waypointFlowStoreApi.getState().clear()
 
       if (!blockedCell) return
 
@@ -516,7 +541,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
         type: 'warning',
       })
     },
-    [addNotification, followPathStoreApi],
+    [addNotification, followPathStoreApi, waypointFlowStoreApi],
   )
 
   /**
@@ -525,8 +550,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    * - 設置済みの `waypoints` はクリアしない（「実行」までプレビュー経路に使う）
    */
   const handleWaypointDoneClick = useCallback(() => {
-    setWaypointFlowState('idle')
-  }, [])
+    waypointFlowStoreApi.getState().setFlowState('idle')
+  }, [waypointFlowStoreApi])
 
   /**
    * 中継点選択モード中のセルクリック時。中継点を設置/除去する
@@ -541,7 +566,9 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       )
 
       if (index !== -1) {
-        setWaypoints(waypoints.filter((_, i) => i !== index))
+        waypointFlowStoreApi
+          .getState()
+          .setWaypoints(waypoints.filter((_, i) => i !== index))
 
         return
       }
@@ -568,16 +595,19 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
         return
       }
 
-      setWaypoints(next)
+      waypointFlowStoreApi.getState().setWaypoints(next)
     },
-    [addNotification, currentCell, objectiveCell, waypoints],
+    [
+      addNotification,
+      currentCell,
+      objectiveCell,
+      waypointFlowStoreApi,
+      waypoints,
+    ],
   )
 
   const handleCellChange = (cell: HexCell) => {
-    setCurrentCell(cell)
-    setObjectiveCell(undefined)
-    setWaypointFlowState('idle')
-    setWaypoints([])
+    waypointFlowStoreApi.getState().clear()
     markVisited(cell)
 
     const item = itemStoreApi.getState().getItemAtCell(cell)
@@ -600,7 +630,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     })
 
     if (isSameCell(cell, GOAL_POSITION)) {
-      setGoalReached(true)
+      reachGoal()
     }
   }
 

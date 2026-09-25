@@ -3,9 +3,10 @@
 - [x] PR-1 `refactor`: `*-layer` 8個を `_layers/` へ移動
   - import 更新
   - `_prototypes/CLAUDE.md` のパス修正
-- [ ] PR-2 `refactor`: 共有 state を zustand store へ移す（PR-1 と並行可）
+- [x] PR-2 `refactor`: 共有 state を zustand store へ移す（#251）
   - `_stores/waypoint-flow` 新設（`waypointFlowState`/`waypoints`/`objectiveCell`）
-  - `currentCell`/`goalReached`/表示設定の置き場を決めて移す
+  - `currentCell` → actors store 参照
+  - `_stores/display-settings`/`_stores/goal` 新設
 - [ ] PR-3 `refactor`: `_contents/` を新設し `FindPathProto03Content` を分割（PR-1・PR-2 に依存）
   - 候補: `stage`/`bot-bubbles`/`control-panel`/`standalone-bot`
 - [ ] PR-4 `docs`: `src/components/pages/CLAUDE.md` 新規作成

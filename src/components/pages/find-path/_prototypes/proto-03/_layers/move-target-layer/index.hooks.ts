@@ -13,6 +13,8 @@ import {
   PixelPoint,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
+import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
+
 /** 非表示 → 表示演出開始までの遅延 (ms) */
 const SPAWN_DELAY_MS = 80
 
@@ -21,15 +23,6 @@ export const MOVE_TARGET_TRANSITION_MS = 200
 
 /** `scatter` モードの集合表示中の拡大率 */
 const SCATTER_ORIGIN_SCALE = 0.3
-
-/** 表示演出の種類 */
-export type MoveTargetDisplayMode =
-  /** 対象セルの位置で opacity 0→1 のみ（位置移動なし） */
-  | 'fade'
-  /** transition なしで対象セルへ即座に出現 */
-  | 'instant'
-  /** bot マスへ集合表示 → 対象セルへ散開（既定） */
-  | 'scatter'
 
 /** 移動可能マス1件ぶんの表示情報 */
 type MoveTarget = {

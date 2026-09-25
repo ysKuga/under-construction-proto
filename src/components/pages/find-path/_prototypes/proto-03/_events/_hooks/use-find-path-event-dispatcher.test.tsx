@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react'
-
 import { PropsWithChildren, useState } from 'react'
 
 import { FindPathEventContext } from '../_contexts/event-context'
