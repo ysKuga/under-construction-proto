@@ -51,6 +51,7 @@ import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
+import { FindPathEventProvider } from './_events'
 import { describeCellContent } from './_lib/describe-cell-content'
 import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
@@ -212,23 +213,28 @@ type EnterGuard = {
  * - リセット（境界値テスト用、issue #181）: `resetKey` を `EnergyStoreProvider`
  *   以下（position 含む）へ `key` として渡し、値更新で Provider 群ごと丸ごと
  *   再マウントする（proto-01 と同じ方式）
+ * - 経路の提示・実行（issue #226）: UI は `FindPathEventProvider`（`_events`）の
+ *   EventTarget へ担当範囲の情報を発行し、EN 等のゲーム要素による実行可否は
+ *   listener 側で判定する（docs/concept/implementation/ui-jurisdiction）
  */
 const FindPathProto03 = () => {
   const [resetKey, setResetKey] = useState(0)
 
   return (
     <EnergyStoreProvider key={resetKey}>
-      <ItemStoreProvider initialItems={INITIAL_ITEMS}>
-        <ActorsStoreProvider
-          initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
-        >
-          <VisibilityRegistryProvider>
-            <FindPathProto03Content
-              onReset={() => setResetKey((key) => key + 1)}
-            />
-          </VisibilityRegistryProvider>
-        </ActorsStoreProvider>
-      </ItemStoreProvider>
+      <FindPathEventProvider>
+        <ItemStoreProvider initialItems={INITIAL_ITEMS}>
+          <ActorsStoreProvider
+            initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
+          >
+            <VisibilityRegistryProvider>
+              <FindPathProto03Content
+                onReset={() => setResetKey((key) => key + 1)}
+              />
+            </VisibilityRegistryProvider>
+          </ActorsStoreProvider>
+        </ItemStoreProvider>
+      </FindPathEventProvider>
     </EnergyStoreProvider>
   )
 }
