@@ -60,6 +60,11 @@ import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
 import { FogStoreProvider, useFogStore, useFogStoreApi } from './_stores/fog'
 import { FogMode } from './_stores/fog/types'
+import {
+  FollowPathStoreProvider,
+  useFollowPathStore,
+  useFollowPathStoreApi,
+} from './_stores/follow-path'
 import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import {
@@ -249,9 +254,11 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
           >
             <FogStoreProvider initialMode={initialFogMode}>
               <VisibilityRegistryProvider>
-                <FindPathProto03Content
-                  onReset={() => setResetKey((key) => key + 1)}
-                />
+                <FollowPathStoreProvider>
+                  <FindPathProto03Content
+                    onReset={() => setResetKey((key) => key + 1)}
+                  />
+                </FollowPathStoreProvider>
               </VisibilityRegistryProvider>
             </FogStoreProvider>
           </ActorsStoreProvider>
@@ -279,10 +286,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const [waypointFlowState, setWaypointFlowState] =
     useState<WaypointFlowState>('idle')
   const [waypoints, setWaypoints] = useState<HexCell[]>([])
-  /** 自動移動中の経路（「実行」時点で固定する。自動移動中でなければ空） */
-  const [followingPath, setFollowingPath] = useState<HexCell[]>([])
-  /** 自動移動で進んだマス数（`followingPath` のうち移動済みの先頭側） */
-  const [followedCount, setFollowedCount] = useState(0)
   /** `Stage07` の imperative API。経路に沿った自動移動を命令する */
   const stage07Ref = useRef<Stage07Handle>(null)
   /**
@@ -318,6 +321,16 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const itemStoreApi = useItemStoreApi()
   const addNotification = useNotifications((state) => state.addNotification)
   const findPathEventDispatcher = useFindPathEventDispatcher()
+  /**
+   * 自動移動中の経路（follow-path store）
+   *
+   * - 変化するのは自動移動の開始・終了時のみ。1 マスごとの進行（`followedCount`）は
+   *   `PathPreviewLayer` が直接購読するため、ここでは購読しない
+   */
+  const followingPath = useFollowPathStore((state) => state.followingPath)
+  /** 経路に沿った自動移動中か（`Stage07` を非対話化する） */
+  const isAutoMoving = useFollowPathStore((state) => state.isFollowing())
+  const followPathStoreApi = useFollowPathStoreApi()
 
   const [actorEventTarget] = useState<EventTarget>(() => new EventTarget())
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
@@ -384,9 +397,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       [],
     [currentCell, objectiveCell, waypoints],
   )
-
-  /** 経路に沿った自動移動中か（`Stage07` を非対話化する） */
-  const isAutoMoving = followingPath.length > 0
 
   /**
    * 非隣接セルをクリックした時。クリックしたセルを目標とし、BFS で経路を求め
@@ -457,7 +467,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    *
    * - 中継点フローは終了する（`objectiveCell`/`waypoints` は最初の 1 マス移動時に
    *   `handleCellChange` がクリアする）
-   * - 経路は `followingPath` へ固定し、自動移動中はその残りをプレビューする
+   * - 経路は follow-path store へ固定し、自動移動中はその残りをプレビューする
    * - 自動移動中は `Stage07` を非対話化し、クリックによる割込みを防ぐ
    * - 開始前に `FindPath-execute-path` を発行し、listener に拒否されたら（EN 切れ等）
    *   開始しない。経路提示後に EN が切れた場合の対策
@@ -473,10 +483,9 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     }
 
     setWaypointFlowState('idle')
-    setFollowingPath(previewPath)
-    setFollowedCount(0)
+    followPathStoreApi.getState().start(previewPath)
     stage07Ref.current?.followPath(previewPath)
-  }, [findPathEventDispatcher, previewPath])
+  }, [findPathEventDispatcher, followPathStoreApi, previewPath])
 
   /**
    * 自動移動の終了時。途中停止（EN 不足）ならトーストで警告する
@@ -486,7 +495,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
    */
   const handleFollowPathEnd = useCallback(
     (blockedCell?: HexCell) => {
-      setFollowingPath([])
+      followPathStoreApi.getState().end()
       setObjectiveCell(undefined)
       setWaypoints([])
 
@@ -498,7 +507,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
         type: 'warning',
       })
     },
-    [addNotification],
+    [addNotification, followPathStoreApi],
   )
 
   /**
@@ -562,10 +571,10 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     setObjectiveCell(undefined)
     setWaypointFlowState('idle')
     setWaypoints([])
-    // 自動移動の 1 マス目は「実行」と同じタスク内で呼ばれ、この関数が古い
-    // クロージャのままになるため、自動移動中かを見ずに関数型更新で数える
-    // （自動移動中でなければ `followingPath` が空のため表示に影響しない）
-    setFollowedCount((count) => count + 1)
+    // 自動移動の進行を記録する（自動移動中でなければ store 側で何もしない）。
+    // 1 マス目は「実行」と同じタスク内で呼ばれこの関数が古いクロージャのままになるため、
+    // 自動移動中かの判定は store の呼出し時点の値で行う
+    followPathStoreApi.getState().advance()
     markVisited(cell)
 
     const item = itemStoreApi.getState().getItemAtCell(cell)
@@ -697,8 +706,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           <PathPreviewLayer
             cols={GRID.cols}
             hexSize={HEX_SIZE}
-            passedCount={isAutoMoving ? followedCount : 0}
-            path={isAutoMoving ? followingPath : previewPath}
+            path={previewPath}
             rows={GRID.rows}
           />
           <ObjectiveMarkerLayer

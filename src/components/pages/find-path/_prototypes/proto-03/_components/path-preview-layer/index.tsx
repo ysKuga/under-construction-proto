@@ -6,17 +6,18 @@ import {
   hexCellCenter,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
+import { useFollowPathStore } from '../../_stores/follow-path'
+
 type PathPreviewLayerProps = {
   /** 列数 */
   cols: number
   /** 六角形の外接円半径 (px)。`GeoLayer`/`ActorsLayer` と同じ値を渡し座標をズレさせない */
   hexSize: number
-  /** `path` の先頭から表示しないマス数（自動移動で移動済みのマス。既定 0） */
-  passedCount?: number
   /**
    * 表示する経路(現在地セルは含まない、通過セル列から対象セルまで)
    *
    * - 中継点経由の経路では同じセルを再訪しうる
+   * - 自動移動中は使わず、follow-path store の `followingPath` を表示する
    */
   path: HexCell[]
   /** 行数 */
@@ -36,17 +37,28 @@ type PathPreviewLayerProps = {
  *   目的が異なるための意図的な例外）
  * - 中継点を経由した経路の連結も `index.tsx` 側（`findHexPathViaWaypoints`）で行う
  * - 自動移動は `index.tsx` が表示中の経路を `Stage07Handle.followPath` へ渡して行う（issue #226）
- * - 自動移動中は移動済みのマスを `passedCount` で先頭から消す。`path` から切り出さず
- *   元の経路の位置を key に保つため、残りの点の DOM は作り直されない
+ * - 自動移動中は follow-path store（`_stores/follow-path`）を直接購読し、「実行」時点の
+ *   経路から移動済みのマスを先頭から消す。1 マスごとの進行で親を経由せず自分自身のみが
+ *   再レンダリングされる。経路から切り出さず元の経路の位置を key に保つため、残りの点の
+ *   DOM は作り直されない
  */
 export const PathPreviewLayer = memo((props: PathPreviewLayerProps) => {
-  const { cols, hexSize, passedCount = 0, path, rows } = props
+  const { cols, hexSize, path, rows } = props
+
+  const followingPath = useFollowPathStore((state) => state.followingPath)
+  const followedCount = useFollowPathStore((state) => state.followedCount)
+  /** 自動移動中か（「実行」時点の経路を表示する） */
+  const isFollowing = useFollowPathStore((state) => state.isFollowing())
+  /** 表示する経路 */
+  const displayPath = isFollowing ? followingPath : path
+  /** 先頭から表示しないマス数（自動移動で移動済みのマス） */
+  const passedCount = isFollowing ? followedCount : 0
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   return (
     <>
-      {path.map((cell, index) => {
+      {displayPath.map((cell, index) => {
         if (index < passedCount) return null
 
         const center = hexCellCenter(cell, hexSize, bounds)

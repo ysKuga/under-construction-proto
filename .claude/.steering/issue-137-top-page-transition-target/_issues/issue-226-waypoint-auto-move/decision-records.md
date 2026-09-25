@@ -36,6 +36,8 @@
   - 選択中は吹き出し全体の濃淡へ置き換わり、背景は不透明に戻る。発言中・hover 中も背景は不透明
 - 2026-09-25: 自動移動中は残り経路をプレビューし、移動したマスから順に消す（ユーザー判断）
   - 「実行」時点の経路と進んだマス数を `useState` で持つ。理由: 各マスの移動で既に `setCurrentCell` による再レンダリングが起きており、同じハンドラ内でまとめて更新されるため再レンダリングは増えない。vanilla store 化は `currentCell` を store へ移す時に合わせて行う
+    - 同日、follow-path store（`_stores/follow-path`）へ切り替えた（ユーザー判断）。1 マスごとの進行は `PathPreviewLayer` が直接購読し、Content を経由しない。`MoveTargetLayer` も自動移動中かを購読して表示を止める
+    - 自動移動中か（`isFollowing`）は state に持たず、`get()` で `followingPath` の有無から求める関数とする（ユーザー判断）。値を二重に持たずずれない。selector の戻り値が boolean のため、購読側の再レンダリングは state に持つ場合と変わらない
   - 点は進入開始時（`onCellChange`）に消す。到着時に消す案は `Stage07` へ到着通知の追加が要るため不採用
   - 進んだマス数は `handleCellChange` で自動移動中かを見ずに関数型更新で数える。自動移動の 1 マス目は「実行」と同じタスク内で呼ばれ、`handleCellChange` が古いクロージャのままになるため
 - 2026-09-25: EN 切れ演出（予防姿勢）は actor の停止を待ってから、停止の `ENERGY_OUT_DELAY_MS` 後に発火する（ユーザー判断）
