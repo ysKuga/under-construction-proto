@@ -27,9 +27,10 @@
   - 再レンダリングを避けることを重視する（[game-state ルール](../../../../rules/react/game-state.md)）
   - 下記「今後の検討候補」の「自動移動中に残り経路をプレビュー表示する」と合わせて対応
   - 対応
-    - 「実行」時点の経路を `followingPath` へ固定し、進んだマス数 `followedCount` の分だけ先頭から消す
+    - 「実行」時点の経路を `followingPath` へ固定し、進んだマス数 `followedCount` の分だけ先頭から消す（follow-path store）
     - 目標マーカーは自動移動中も `followingPath` の終端に表示し続ける
-    - `PathPreviewLayer` は `passedCount` で移動済みの点を消し、残りの点の key（元の経路での位置）を保つ
+    - `PathPreviewLayer` は store を直接購読して移動済みの点を消し、残りの点の key（元の経路での位置）を保つ
+    - 自動移動中は `MoveTargetLayer`（移動可能マス）を表示しない
 - [ ] 経路プレビューの点を、bot がマスの中心に到達した時点で消す
   - 現象: 移動を開始した時点で点が消える
   - 原因: 進んだマス数を進入開始時（`handleCellChange`）に数えているため
