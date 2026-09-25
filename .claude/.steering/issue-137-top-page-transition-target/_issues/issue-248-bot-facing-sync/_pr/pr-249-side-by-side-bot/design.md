@@ -13,8 +13,8 @@ PR: #249（issue: #248）
 
 ## 実装計画
 
-- [ ] proto-03 のステージ部分（`CellTitleProvider` + `Stage07`）と独立 bot を横並びの flex コンテナで包む
-- [ ] 独立 bot として `BoxBot01` を配置する
+- [x] proto-03 のステージ部分（`CellTitleProvider` + `Stage07`）と独立 bot を横並びの flex コンテナで包む
+- [x] 独立 bot として `BoxBot01` を配置する
   - `actions={[]}`・`interactive={false}` で、ステージ上の mob と同様に静止表示のみとする
   - サイズはステージ上の bot より大きめにし、向きを視認しやすくする
-- [ ] Storybook（proto-03 の Default story）で表示を確認する
+- [x] Storybook（proto-03 の Default story）で表示を確認する
