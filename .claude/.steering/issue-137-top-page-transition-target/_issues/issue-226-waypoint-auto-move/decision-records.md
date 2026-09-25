@@ -40,3 +40,12 @@
     - 自動移動中か（`isFollowing`）は state に持たず、`get()` で `followingPath` の有無から求める関数とする（ユーザー判断）。値を二重に持たずずれない。selector の戻り値が boolean のため、購読側の再レンダリングは state に持つ場合と変わらない
   - 点は進入開始時（`onCellChange`）に消す。到着時に消す案は `Stage07` へ到着通知の追加が要るため不採用
   - 進んだマス数は `handleCellChange` で自動移動中かを見ずに関数型更新で数える。自動移動の 1 マス目は「実行」と同じタスク内で呼ばれ、`handleCellChange` が古いクロージャのままになるため
+- 2026-09-25: EN 切れ演出（予防姿勢）は actor の停止を待ってから、停止の `ENERGY_OUT_DELAY_MS` 後に発火する（ユーザー判断）
+  - EN の消費は進入開始時のまま変えない。理由: 到着時へ移すと移動中の EN と次のマスの進入判定がずれる。自動移動は到着でなくタイマーで次のマスへ進むため、判定の順序も崩れやすい
+  - 停止まで待つ処理は proto-03 側のラッパー（`useEnergyOutAfterStop`）で持ち、energy store（proto-01 と共有）は変えない
+  - 停止通知は `Stage07` の汎用 prop `onMoveStop` とする（find-path 固有の概念を持たせない）
+    - 同日、prop をやめ event 経由へ変更した（ユーザー判断）。`Stage07` は stage-07 専用の EventTarget（`Stage07EventProvider`、`Stage07` の外側に置く）へ `Stage07-move-start`/`Stage07-move-stop` を `actorId` 付きで発行し、受け側（`useEnergyOutAfterStop`）が購読して処理する
+    - `move-start` もイベント化する（ユーザー判断）。UI（`handleCellChange`）から EN 演出の都合を外すため（ui-jurisdiction）
+    - FindPath/Energy の EventTarget へは発行しない。`Stage07` は find-path 固有の概念を持たないため
+    - box-bot の `actorEventTarget` も流用しない。action dispatch 用の経路と混ぜないため
+    - Provider がない場合（stage-07 単体の story 等）は、どこにも届かない EventTarget へ発行する（`useEventDispatcher` 既定の window へは流さない）

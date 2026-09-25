@@ -26,6 +26,7 @@ import { PLAYER_ACTOR_ID } from '../stage-06/constants'
 import { ActorOverlayLayer } from './_components/actor-overlay-layer'
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
+import { useStage07EventDispatcher } from './_events'
 import { useFollowPath } from './_hooks/use-follow-path'
 import { useHexMove } from './_hooks/use-hex-move'
 import {
@@ -165,6 +166,10 @@ type Stage07Props = PropsWithChildren<{
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
  *   進入不可ならその場で停止して `onFollowPathEnd` へ通知する
+ * - actor の移動開始・停止は `Stage07EventProvider`（`_events`、`Stage07` の外側に置く）の
+ *   EventTarget へ `Stage07-move-start`/`Stage07-move-stop` として発行する。停止箇所に
+ *   着いてから行う演出（find-path proto-03 の EN 切れ演出等）で使う。Provider がなければ
+ *   何も起きない
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  * - player bot 頭上へのオーバーレイ注入用コンテナは `ActorOverlayLayer` が
@@ -285,6 +290,8 @@ export const Stage07 = (props: Stage07Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const stage07EventDispatcher = useStage07EventDispatcher()
+
   const { handleCellClick, tryMove } = useHexMove(
     currentCell,
     (cell) => moveActorTo(PLAYER_ACTOR_ID, cell),
@@ -294,6 +301,9 @@ export const Stage07 = (props: Stage07Props) => {
         void walking()
       }
 
+      void stage07EventDispatcher['Stage07-move-start']({
+        actorId: PLAYER_ACTOR_ID,
+      })
       onCellChange?.(cell)
     },
     (screenAngle) => {
@@ -322,6 +332,9 @@ export const Stage07 = (props: Stage07Props) => {
     moveDurationMs,
     (blockedCell) => {
       stopWalking()
+      void stage07EventDispatcher['Stage07-move-stop']({
+        actorId: PLAYER_ACTOR_ID,
+      })
       onFollowPathEnd?.(blockedCell)
     },
   )
@@ -334,14 +347,17 @@ export const Stage07 = (props: Stage07Props) => {
    * - `ActorsLayer`（`React.memo` 化済み、issue-181-en backlog）の `onArrived`
    *   prop が毎レンダー新規関数だと memo が効かなくなるため `useCallback`
    *   で参照を固定する
-   * - 自動移動(`followPath`)中は途中の到着で歩行を止めない。停止は
-   *   `useFollowPath` の終了通知側で行う
+   * - 自動移動(`followPath`)中は途中の到着で歩行を止めない。停止（`Stage07-move-stop`
+   *   の発行含む）は `useFollowPath` の終了通知側で行う
    */
   const handleArrived = useCallback(() => {
     if (notifyArrived()) return
 
     stopWalking()
-  }, [notifyArrived, stopWalking])
+    void stage07EventDispatcher['Stage07-move-stop']({
+      actorId: PLAYER_ACTOR_ID,
+    })
+  }, [notifyArrived, stage07EventDispatcher, stopWalking])
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
   const sceneStyle: CSSProperties = {

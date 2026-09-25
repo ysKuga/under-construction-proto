@@ -17,6 +17,7 @@ import { useNotifications } from '@/components/ui/notifications'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07, Stage07Handle } from '@/prototypes/stage/stage-07'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
+import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
   ActorsStoreProvider,
@@ -52,6 +53,7 @@ import {
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
 import { FindPathEventProvider, useFindPathEventDispatcher } from './_events'
+import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
 import { describeCellContent } from './_lib/describe-cell-content'
 import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
@@ -251,15 +253,17 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
           <ActorsStoreProvider
             initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
           >
-            <FogStoreProvider initialMode={initialFogMode}>
-              <VisibilityRegistryProvider>
-                <FollowPathStoreProvider>
-                  <FindPathProto03Content
-                    onReset={() => setResetKey((key) => key + 1)}
-                  />
-                </FollowPathStoreProvider>
-              </VisibilityRegistryProvider>
-            </FogStoreProvider>
+            <Stage07EventProvider>
+              <FogStoreProvider initialMode={initialFogMode}>
+                <VisibilityRegistryProvider>
+                  <FollowPathStoreProvider>
+                    <FindPathProto03Content
+                      onReset={() => setResetKey((key) => key + 1)}
+                    />
+                  </FollowPathStoreProvider>
+                </VisibilityRegistryProvider>
+              </FogStoreProvider>
+            </Stage07EventProvider>
           </ActorsStoreProvider>
         </ItemStoreProvider>
       </FindPathEventProvider>
@@ -338,8 +342,13 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // EN 切れ演出(予防姿勢)の発火・復帰は `useOutOfEnergyEventListener`（`_stores/energy`、
   // scope 全体で 1 回だけマウント。issue-181-en）が Energy-depleted/Energy-recovered
   // 購読で一元的に担う。ここでは自分の energyOut dispatcher を actorId キーで
-  // 登録するだけでよい
-  useRegisterEnergyOut({ actorId: PLAYER_ACTOR_ID, energyOut })
+  // 登録するだけでよい。演出は歩いている途中で始まらないよう、停止まで待たせる
+  // （`useEnergyOutAfterStop`）
+  const energyOutAfterStop = useEnergyOutAfterStop(PLAYER_ACTOR_ID, energyOut)
+  useRegisterEnergyOut({
+    actorId: PLAYER_ACTOR_ID,
+    energyOut: energyOutAfterStop,
+  })
 
   /** `GoalMarkerLayer`/`ObstacleLayer`/`OneWayLayer`/`ItemLayer` の DOM をvisibility registry へ登録する（`kind: 'marker'` 固定） */
   const registerMarkerVisibilityNode = useCallback(
