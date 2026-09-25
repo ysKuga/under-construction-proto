@@ -11,6 +11,8 @@ type PathPreviewLayerProps = {
   cols: number
   /** 六角形の外接円半径 (px)。`GeoLayer`/`ActorsLayer` と同じ値を渡し座標をズレさせない */
   hexSize: number
+  /** `path` の先頭から表示しないマス数（自動移動で移動済みのマス。既定 0） */
+  passedCount?: number
   /**
    * 表示する経路(現在地セルは含まない、通過セル列から対象セルまで)
    *
@@ -34,15 +36,19 @@ type PathPreviewLayerProps = {
  *   目的が異なるための意図的な例外）
  * - 中継点を経由した経路の連結も `index.tsx` 側（`findHexPathViaWaypoints`）で行う
  * - 自動移動は `index.tsx` が表示中の経路を `Stage07Handle.followPath` へ渡して行う（issue #226）
+ * - 自動移動中は移動済みのマスを `passedCount` で先頭から消す。`path` から切り出さず
+ *   元の経路の位置を key に保つため、残りの点の DOM は作り直されない
  */
 export const PathPreviewLayer = memo((props: PathPreviewLayerProps) => {
-  const { cols, hexSize, path, rows } = props
+  const { cols, hexSize, passedCount = 0, path, rows } = props
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   return (
     <>
       {path.map((cell, index) => {
+        if (index < passedCount) return null
+
         const center = hexCellCenter(cell, hexSize, bounds)
 
         const style: CSSProperties = {
