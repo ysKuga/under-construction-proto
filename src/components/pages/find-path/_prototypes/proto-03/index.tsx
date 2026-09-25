@@ -17,6 +17,7 @@ import { useNotifications } from '@/components/ui/notifications'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07, Stage07Handle } from '@/prototypes/stage/stage-07'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
+import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
   ActorsStoreProvider,
@@ -252,15 +253,17 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
           <ActorsStoreProvider
             initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
           >
-            <FogStoreProvider initialMode={initialFogMode}>
-              <VisibilityRegistryProvider>
-                <FollowPathStoreProvider>
-                  <FindPathProto03Content
-                    onReset={() => setResetKey((key) => key + 1)}
-                  />
-                </FollowPathStoreProvider>
-              </VisibilityRegistryProvider>
-            </FogStoreProvider>
+            <Stage07EventProvider>
+              <FogStoreProvider initialMode={initialFogMode}>
+                <VisibilityRegistryProvider>
+                  <FollowPathStoreProvider>
+                    <FindPathProto03Content
+                      onReset={() => setResetKey((key) => key + 1)}
+                    />
+                  </FollowPathStoreProvider>
+                </VisibilityRegistryProvider>
+              </FogStoreProvider>
+            </Stage07EventProvider>
           </ActorsStoreProvider>
         </ItemStoreProvider>
       </FindPathEventProvider>
@@ -341,8 +344,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   // 購読で一元的に担う。ここでは自分の energyOut dispatcher を actorId キーで
   // 登録するだけでよい。演出は歩いている途中で始まらないよう、停止まで待たせる
   // （`useEnergyOutAfterStop`）
-  const { energyOutAfterStop, notifyMoveStart, notifyMoveStop } =
-    useEnergyOutAfterStop(energyOut)
+  const energyOutAfterStop = useEnergyOutAfterStop(PLAYER_ACTOR_ID, energyOut)
   useRegisterEnergyOut({
     actorId: PLAYER_ACTOR_ID,
     energyOut: energyOutAfterStop,
@@ -565,8 +567,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   const handleCellChange = (cell: HexCell) => {
-    // EN 消費の dispatch より先に移動開始を伝え、EN 切れ演出を停止まで待たせる
-    notifyMoveStart()
     setCurrentCell(cell)
     setObjectiveCell(undefined)
     setWaypointFlowState('idle')
@@ -665,7 +665,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           interactive={waypointFlowState !== 'selecting' && !isAutoMoving}
           onCellChange={handleCellChange}
           onFollowPathEnd={handleFollowPathEnd}
-          onMoveStop={notifyMoveStop}
           onNonAdjacentClick={handleNonAdjacentClick}
           ref={stage07Ref}
           registerCellVisibilityNode={registerFloorVisibilityNode}
