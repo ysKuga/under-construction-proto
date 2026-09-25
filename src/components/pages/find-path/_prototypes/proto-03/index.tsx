@@ -16,7 +16,7 @@ import {
 } from '@/components/theater/figure/box-bot'
 import { useNotifications } from '@/components/ui/notifications'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { Stage07, Stage07Handle } from '@/prototypes/stage/stage-07'
+import { Stage07 } from '@/prototypes/stage/stage-07'
 import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
@@ -39,12 +39,17 @@ import {
 } from './_components/waypoint-bubble'
 import { WaypointSelectingIndicator } from './_components/waypoint-selecting-indicator'
 import {
+  Stage07HandleProvider,
+  useStage07HandleRef,
+} from './_contexts/stage07-handle'
+import {
   useVisibilityRegistry,
   VisibilityRegistryProvider,
 } from './_contexts/visibility-registry'
 import { FindPathEventProvider, useFindPathEventDispatcher } from './_events'
 import { useAdvanceFollowPathOnCellReach } from './_hooks/use-advance-follow-path-on-cell-reach'
 import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
+import { usePreviewPath } from './_hooks/use-preview-path'
 import { GoalMarkerLayer } from './_layers/goal-marker-layer'
 import { ItemLayer } from './_layers/item-layer'
 import { MoveTargetLayer } from './_layers/move-target-layer'
@@ -53,9 +58,11 @@ import { ObstacleLayer } from './_layers/obstacle-layer'
 import { OneWayLayer } from './_layers/one-way-layer'
 import { PathPreviewLayer } from './_layers/path-preview-layer'
 import { WaypointSelectLayer } from './_layers/waypoint-select-layer'
+import { canEnterForPath } from './_lib/can-enter-for-path'
 import { describeCellContent } from './_lib/describe-cell-content'
 import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
+import { isSameCell } from './_lib/is-same-cell'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
 import {
@@ -80,15 +87,13 @@ import {
 } from './_stores/waypoint-flow'
 import {
   GOAL_POSITION,
+  GRID,
+  HEX_SIZE,
   RECOVERY_ITEM_CELLS,
   RECOVERY_SPOT_CELLS,
   START_POSITION,
 } from './constants'
 
-/** グリッド形状 */
-const GRID = { cols: 5, rows: 5 } as const
-/** 六角形の外接円半径 (px) */
-const HEX_SIZE = 40
 /** bot(box-bot-01)の一辺 px */
 const BOT_SIZE = 56
 /** ステージ横に並べる独立 bot の一辺 px（向きを視認しやすいよう大きめ、issue #248） */
@@ -100,22 +105,6 @@ const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
   { label: 'すべて非表示', value: 'all-hidden' },
   { label: '部分的に非表示', value: 'partial' },
 ]
-
-/** axial セルの一致判定 */
-const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
-
-/**
- * 経路探索(BFS)用の進入可否判定（EN 残量チェックは含まない、静的な障害物・
- * 一方通行のみ）
- *
- * - `enterGuards`（コンポーネント内、`currentCell` に固定された perceived ガード）
- *   とは別に用意する。一方通行判定(`isBlockedByOneWay`)は移動元セルに依存するため、
- *   探索中に動く `from` をそのまま受け取れる形にする必要がある
- * - EN 残量は探索実行の瞬間の値でしかなく、経路の各手で消費されていく動的資源
- *   のため経路の「形」自体には含めない（不足時の扱いは自動移動実装時に検討）
- */
-const canEnterForPath = (from: HexCell, to: HexCell): boolean =>
-  !isObstacleCell(to) && !isBlockedByOneWay(from, to)
 
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
@@ -260,9 +249,11 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
                     <WaypointFlowStoreProvider>
                       <DisplaySettingsStoreProvider>
                         <GoalStoreProvider>
-                          <FindPathProto03Content
-                            onReset={() => setResetKey((key) => key + 1)}
-                          />
+                          <Stage07HandleProvider>
+                            <FindPathProto03Content
+                              onReset={() => setResetKey((key) => key + 1)}
+                            />
+                          </Stage07HandleProvider>
                         </GoalStoreProvider>
                       </DisplaySettingsStoreProvider>
                     </WaypointFlowStoreProvider>
@@ -311,7 +302,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const waypoints = useWaypointFlowStore((state) => state.waypoints)
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   /** `Stage07` の imperative API。経路に沿った自動移動を命令する */
-  const stage07Ref = useRef<Stage07Handle>(null)
+  const stage07HandleRef = useStage07HandleRef()
+  const previewPath = usePreviewPath()
   /**
    * `WaypointBubble` の imperative API。`selectable`(思考吹き出し⇔発言吹き出し
    * の切替)を props でなくこの ref 経由で命令する（`WaypointBubbleHandle`
@@ -404,27 +396,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   /**
-   * `PathPreviewLayer` へ表示する経路（中継点を最近傍順に経由し `objectiveCell` へ至る）
-   *
-   * - 到達不能になる `objectiveCell`/`waypoints` は設定時点で弾くため、ここでの
-   *   `undefined` は想定外（空配列へ倒す）
-   */
-  const previewPath = useMemo(
-    () =>
-      (objectiveCell &&
-        findHexPathViaWaypoints(
-          currentCell,
-          waypoints,
-          objectiveCell,
-          GRID.cols,
-          GRID.rows,
-          canEnterForPath,
-        )) ??
-      [],
-    [currentCell, objectiveCell, waypoints],
-  )
-
-  /**
    * 非隣接セルをクリックした時。クリックしたセルを目標とし、BFS で経路を求め
    * `PathPreviewLayer` へ表示する（自動移動は吹き出しの「実行」で開始する、issue #226）
    *
@@ -514,11 +485,12 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
 
     waypointFlowStoreApi.getState().setFlowState('idle')
     followPathStoreApi.getState().start(previewPath)
-    stage07Ref.current?.followPath(previewPath)
+    stage07HandleRef.current?.followPath(previewPath)
   }, [
     findPathEventDispatcher,
     followPathStoreApi,
     previewPath,
+    stage07HandleRef,
     waypointFlowStoreApi,
   ])
 
@@ -702,7 +674,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
               onCellChange={handleCellChange}
               onFollowPathEnd={handleFollowPathEnd}
               onNonAdjacentClick={handleNonAdjacentClick}
-              ref={stage07Ref}
+              ref={stage07HandleRef}
               registerCellVisibilityNode={registerFloorVisibilityNode}
               rows={GRID.rows}
             >
