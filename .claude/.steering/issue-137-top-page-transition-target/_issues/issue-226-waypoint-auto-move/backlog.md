@@ -50,9 +50,50 @@
     - `Stage07` は stage-07 の `_events` へ `Stage07-move-start`/`Stage07-move-stop`（payload: `actorId`）を発行する
     - `useEnergyOutAfterStop(actorId, energyOut)` が両イベントを購読し、`actorId` が一致する分だけ扱う
     - `handleCellChange` からの移動開始の通知（`notifyMoveStart`）は不要になる
-- [ ] 経路プレビューの点を、bot がマスの中心に到達した時点で消す
+- [x] 経路プレビューの点を、bot がマスの中心に到達した時点で消す
   - 現象: 移動を開始した時点で点が消える
   - 原因: 進んだマス数を進入開始時（`handleCellChange`）に数えているため
+  - 検討（draft）
+    - 前提
+      - `useFollowPath` は `moveDurationMs` 間隔のタイマーで 1 マスずつ `tryMove` を呼ぶ（[use-follow-path.ts](../../../../../src/prototypes/stage/stage-07/_hooks/use-follow-path.ts)）
+      - actor の移動は `left`/`top` の linear transition で、所要時間は同じ `moveDurationMs`（[actors-layer](../../../../../src/prototypes/stage/stage-07/_components/actors-layer/index.tsx)）
+      - 途中のマスでは transition が次の移動先で上書きされるため、`transitionend` は最終マスでしか発火しない
+      - 以上から、次のマスへの進入開始が、前のマスの中心への到達とほぼ同時になる
+      - 最終マスは到着時に `onEnd` が呼ばれ、`end()` で経路全体が消える
+    - 案 1: 表示を 1 マス遅らせる（推奨）
+      - `PathPreviewLayer` で消す数を `followedCount` でなく `max(followedCount - 1, 0)` にする
+        - 進入中のマスの点は、次のマスへの進入（＝中心への到達）まで残る
+        - 最終マスの点は到着時の `end()` で消える
+        - EN 切れで途中停止した場合も `end()` で全て消える
+      - 変更は `PathPreviewLayer` の 1 行のみ
+        - store・`Stage07` は変更しない
+        - 再レンダリングの回数は現状と同じ
+      - 弱点: 表示側が `useFollowPath` の前提（進入の間隔 = 移動アニメーションの所要時間）に依存する
+        - この依存はコメントで明記する
+    - 案 2: `Stage07` へ到達通知の event を追加する
+      - stage-07 の `_events` へ `Stage07-cell-reach`（payload: `actorId`, `cell`）を追加する
+        - 発行元: タイマーによる次の step、最終マスの `notifyArrived`
+      - proto-03 は `advance()` を `handleCellChange` からこの event の listener へ移す
+      - 利点
+        - 到達の意味どおりに数えられる
+        - `Stage07-move-start`/`Stage07-move-stop` と同じ流儀
+      - 欠点: 変更範囲が広く、現状の目的に対しては過剰
+        - `useFollowPath` の戻り値
+        - event 型
+        - listener
+    - 不採用
+      - proto-03 側で `setTimeout(advance, moveDurationMs)` を呼ぶ
+        - `moveDurationMs` は `Stage07` 内部の state（スライダーで変わる）で、proto-03 からは見えないため
+      - rAF で actor の位置を監視する
+        - コストに見合わないため
+    - 推奨: 案 1
+      - 「自動移動の中断操作」で進入の間隔が崩れる操作（一時停止等）を入れる場合、その時点で案 2 へ移行する
+  - 実装: 描画位置による到達判定（上記 draft の案とは別方式。試行のうえユーザー判断）
+    - `ActorsLayer` が player の描画位置（`getComputedStyle` の `left`/`top`）を `moveDurationMs / 5` 間隔で読み、セル中心への到達を判定する（`useEffectCellReach`）
+      - 判定: 中心から `hexSize * 0.3` 以内、または判定時に中心を過ぎていたら到達とする（`judgeCellReach`）
+      - 移動開始を契機に判定を始め、移動先に着いたら止める（停止中は判定しない）
+    - 到達を stage-07 の `_events` へ `Stage07-cell-reach`（payload: `actorId`, `cell`）として発行する
+    - proto-03 は `handleCellChange` での `advance()` をやめ、`Stage07-cell-reach` を購読して `advance()` する（`useAdvanceFollowPathOnCellReach`）
 
 ## 今後の検討候補
 
