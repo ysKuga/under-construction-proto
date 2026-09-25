@@ -15,7 +15,7 @@ const DIRECTION_DELTA: Record<OneWayDirection, HexCell> = {
   'upper-right': { q: 1, r: -1 },
 }
 
-/** 退出方向 → 反対方向（進入禁止方向。`_components/one-way-layer` のバリア線から参照） */
+/** 退出方向 → 反対方向（進入禁止方向。`_layers/one-way-layer` のバリア線から参照） */
 export const OPPOSITE_DIRECTION: Record<OneWayDirection, OneWayDirection> = {
   left: 'right',
   'lower-left': 'upper-right',

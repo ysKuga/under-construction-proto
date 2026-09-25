@@ -32,22 +32,11 @@ import {
   ExecuteBubble,
   ExecuteBubbleHandle,
 } from './_components/execute-bubble'
-import { GoalMarkerLayer } from './_components/goal-marker-layer'
-import { ItemLayer } from './_components/item-layer'
-import {
-  MoveTargetDisplayMode,
-  MoveTargetLayer,
-} from './_components/move-target-layer'
-import { ObjectiveMarkerLayer } from './_components/objective-marker-layer'
-import { ObstacleLayer } from './_components/obstacle-layer'
-import { OneWayLayer } from './_components/one-way-layer'
-import { PathPreviewLayer } from './_components/path-preview-layer'
 import {
   WAYPOINT_BUBBLE_OFFSET,
   WaypointBubble,
   WaypointBubbleHandle,
 } from './_components/waypoint-bubble'
-import { WaypointSelectLayer } from './_components/waypoint-select-layer'
 import { WaypointSelectingIndicator } from './_components/waypoint-selecting-indicator'
 import {
   useVisibilityRegistry,
@@ -56,6 +45,17 @@ import {
 import { FindPathEventProvider, useFindPathEventDispatcher } from './_events'
 import { useAdvanceFollowPathOnCellReach } from './_hooks/use-advance-follow-path-on-cell-reach'
 import { useEnergyOutAfterStop } from './_hooks/use-energy-out-after-stop'
+import { GoalMarkerLayer } from './_layers/goal-marker-layer'
+import { ItemLayer } from './_layers/item-layer'
+import {
+  MoveTargetDisplayMode,
+  MoveTargetLayer,
+} from './_layers/move-target-layer'
+import { ObjectiveMarkerLayer } from './_layers/objective-marker-layer'
+import { ObstacleLayer } from './_layers/obstacle-layer'
+import { OneWayLayer } from './_layers/one-way-layer'
+import { PathPreviewLayer } from './_layers/path-preview-layer'
+import { WaypointSelectLayer } from './_layers/waypoint-select-layer'
 import { describeCellContent } from './_lib/describe-cell-content'
 import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'

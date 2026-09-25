@@ -7,7 +7,7 @@ import {
   useStage07EventDispatcher,
 } from '@/prototypes/stage/stage-07/_events'
 
-import { useReachedCell } from '../_components/move-target-layer/_hooks/use-reached-cell'
+import { useReachedCell } from '../_layers/move-target-layer/_hooks/use-reached-cell'
 import {
   FollowPathStoreProvider,
   useFollowPathStoreApi,
