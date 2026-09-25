@@ -10,7 +10,7 @@ UI が扱う情報をその UI の担当範囲に限り、ゲーム要素との�
 今後のゲーム開発では、多数の要素（EN 等）が追加されていくと考えられる。
 
 - 現状は、要素を追加するたびに UI の実装箇所へ判定が書き足されていく
-  - 例: find-path proto-03 の EN 切れ時の経路選択（[issue-226 backlog](../../../../.claude/.steering/issue-137-top-page-transition-target/_issues/issue-226-waypoint-auto-move/backlog.md)）
+  - 例: find-path proto-03 の EN 切れ時の経路選択（[issue-226 backlog](../../../../.claude/.steering/issue-137-top-page-transition-target/_closed/issue-226-waypoint-auto-move/backlog.md)）
     - 対応案では `handleNonAdjacentClick`・`handleExecuteClick` へ EN 残量の確認を追加することになる
 - 要素が増えるほど UI が各要素へ結合し、UI 自体の見通し・再利用性が下がる
 
