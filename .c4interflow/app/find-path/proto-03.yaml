@@ -1,0 +1,95 @@
+# find-path proto-03(hex 版)のアーキテクチャモデル
+#
+# 参照元:
+#   src/components/pages/find-path/_prototypes/proto-03/index.tsx
+#   src/prototypes/stage/stage-07/
+#
+# Interfaces.*.Flows.Expression のパス表記は公式ドキュメントに具体例が
+# 見当たらなかったため、Namespace 階層をそのまま連結する形で仮に記述している。
+# 実際に CLI(draw-diagrams 等)で検証し、必要なら書式を合わせること。
+
+UnderConstructionProto:
+  SoftwareSystems:
+    FindPath:
+      Label: Find Path
+      Description: 経路探索プロトタイプ群
+      Containers:
+        Proto03:
+          Label: proto-03 (hex グリッド版)
+          Description: EN(エネルギー)・アイテム・進入判定を組み合わせた hex グリッド試作
+          ContainerType: None
+          Boundary: Internal
+          Components:
+            FindPathProto03Content:
+              Label: ページコンポーネント
+              Description: セル移動イベントを受け、可視化・アイテム消費・EN消費・ゴール判定を仲介する
+              Interfaces:
+                HandleCellChange:
+                  Label: セル移動処理
+                  Description: 移動先セルの可視化登録・アイテム消費・EN増減・ゴール判定をまとめて行う
+                  Flows:
+                    - Type: Use
+                      Expression: UnderConstructionProto.SoftwareSystems.FindPath.Containers.Proto03.Components.VisibilityRegistry.Interfaces.MarkVisited
+                    - Type: Use
+                      Expression: UnderConstructionProto.SoftwareSystems.FindPath.Containers.Proto03.Components.ItemStore.Interfaces.ConsumeItem
+                    - Type: Use
+                      Expression: UnderConstructionProto.SoftwareSystems.FindPath.Containers.Proto03.Components.EnergyStore.Interfaces.Recover
+                    - Type: Use
+                      Expression: UnderConstructionProto.SoftwareSystems.FindPath.Containers.Proto03.Components.EnergyStore.Interfaces.Consume
+                CanEnterCell:
+                  Label: 進入可否判定(全ガード)
+                  Description: EN切れ・障害物・一方通行の3ガードすべてで判定する。実際の移動判定に使用
+                CanEnterCellPerceived:
+                  Label: 進入可否判定(表示用)
+                  Description: EN切れガードを除いた判定。移動可能マスガイドの表示に使用
+
+            Stage07:
+              Label: Stage07
+              Description: hex グリッド描画 + box-bot(actor)表示。5つの layer をレンダリングする
+              Interfaces:
+                Render:
+                  Label: グリッド描画
+                  Flows:
+                    - Type: Use
+                      Expression: UnderConstructionProto.SoftwareSystems.FindPath.Containers.Proto03.Components.FindPathProto03Content.Interfaces.CanEnterCell
+
+            GoalMarkerLayer:
+              Label: ゴールマーカー表示
+            ObstacleLayer:
+              Label: 障害物表示
+            OneWayLayer:
+              Label: 一方通行表示
+            ItemLayer:
+              Label: アイテム表示
+            MoveTargetLayer:
+              Label: 移動可能マス表示
+              Description: 散開/即時/フェードの3表示モードを持つ
+
+            EnergyStore:
+              Label: EnergyStore
+              Description: actor ごとの EN(エネルギー)残量管理
+              Interfaces:
+                Consume:
+                  Label: EN 消費
+                Recover:
+                  Label: EN 回復
+
+            ItemStore:
+              Label: ItemStore
+              Description: セルに配置したアイテムの管理
+              Interfaces:
+                ConsumeItem:
+                  Label: アイテム消費
+                GetItemAtCell:
+                  Label: セル上アイテム取得
+
+            VisibilityRegistry:
+              Label: VisibilityRegistry
+              Description: セルごとの可視化状態(未到達マスの非表示等)を管理
+              Interfaces:
+                MarkVisited:
+                  Label: 到達済み登録
+                RegisterVisibilityNode:
+                  Label: 可視化対象 DOM 登録
+                SetShowVisited:
+                  Label: 到達済み表示切替
