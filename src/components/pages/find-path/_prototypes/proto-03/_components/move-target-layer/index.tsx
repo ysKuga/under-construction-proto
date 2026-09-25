@@ -11,6 +11,8 @@ import {
   hexPolygonPoints,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
+import { useFollowPathStore } from '../../_stores/follow-path'
+
 import { MoveTargetDisplayMode, useMoveTargetLayer } from './index.hooks'
 
 export type { MoveTargetDisplayMode }
@@ -48,6 +50,9 @@ type MoveTargetLayerProps = {
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量は props 経由でなく
  *   `useEnergyStore` を直接購読して判定に合成するため、EN 変化時は親を経由せず
  *   自分自身のみが再レンダリングされる
+ * - 経路に沿った自動移動中は表示しない。途中のマスでは止まらないため、進入のたびに
+ *   表示が出ると歩いている途中に見えてしまう。自動移動中かは follow-path store を
+ *   直接購読して判定する（issue #226）
  */
 export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
   const { canEnterCell, cols, currentCell, hexSize, mode, rows } = props
@@ -74,36 +79,40 @@ export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
     canEnterCellWithEnergy,
   )
 
+  /** 自動移動中か（途中のマスでは移動可能マスを表示しない） */
+  const isFollowing = useFollowPathStore((state) => state.isFollowing())
+
   return (
     <>
-      {moveTargetLayer.map(({ cell, opacity, position, scale }) => {
-        const style: CSSProperties = {
-          height: bounds.cellHeight,
-          left: position.x,
-          opacity,
-          pointerEvents: 'none',
-          position: 'absolute',
-          top: position.y,
-          transform: `translate(-50%, -50%) scale(${scale})`,
-          transition:
-            'left 200ms ease-out, opacity 200ms ease-out, top 200ms ease-out, transform 200ms ease-out',
-          width: bounds.cellWidth,
-        }
+      {!isFollowing &&
+        moveTargetLayer.map(({ cell, opacity, position, scale }) => {
+          const style: CSSProperties = {
+            height: bounds.cellHeight,
+            left: position.x,
+            opacity,
+            pointerEvents: 'none',
+            position: 'absolute',
+            top: position.y,
+            transform: `translate(-50%, -50%) scale(${scale})`,
+            transition:
+              'left 200ms ease-out, opacity 200ms ease-out, top 200ms ease-out, transform 200ms ease-out',
+            width: bounds.cellWidth,
+          }
 
-        return (
-          <div key={`${cell.q},${cell.r}`} style={style}>
-            <svg height={bounds.cellHeight} width={bounds.cellWidth}>
-              <polygon
-                fill="none"
-                points={hexPolygonPoints(hexSize, HEX_INSET_RATIO)}
-                stroke="#0284c7"
-                strokeDasharray="4 3"
-                strokeWidth={2}
-              />
-            </svg>
-          </div>
-        )
-      })}
+          return (
+            <div key={`${cell.q},${cell.r}`} style={style}>
+              <svg height={bounds.cellHeight} width={bounds.cellWidth}>
+                <polygon
+                  fill="none"
+                  points={hexPolygonPoints(hexSize, HEX_INSET_RATIO)}
+                  stroke="#0284c7"
+                  strokeDasharray="4 3"
+                  strokeWidth={2}
+                />
+              </svg>
+            </div>
+          )
+        })}
     </>
   )
 })
