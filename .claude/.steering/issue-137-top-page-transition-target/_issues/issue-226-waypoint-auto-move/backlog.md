@@ -30,6 +30,20 @@
     - 「実行」時点の経路を `followingPath` へ固定し、進んだマス数 `followedCount` の分だけ先頭から消す
     - 目標マーカーは自動移動中も `followingPath` の終端に表示し続ける
     - `PathPreviewLayer` は `passedCount` で移動済みの点を消し、残りの点の key（元の経路での位置）を保つ
+- [ ] EN 切れ演出を停止箇所に着いてから行う
+  - 現象: 移動時間を長くすると、歩いている途中で bot の EN 切れ演出（予防姿勢）が始まる
+    - 自動移動・隣接クリックでの手動移動の両方で起きる
+  - 原因
+    - EN は進入開始時（`handleCellChange`）に消費する
+    - 0 になると `useOutOfEnergyEventListener` が `ENERGY_OUT_DELAY_MS`（300ms）後に `energyOut` を発火する
+    - 移動時間がこれより長いと、到着前に演出が始まる
+  - 対応案: 演出の発火だけを停止まで待たせる（EN の値・判定は変えない）
+    - `Stage07` へ actor の停止通知（`onMoveStop`）を追加する
+      - 手動移動は到着時（`handleArrived`）、自動移動は終了時（`useFollowPath` の `onEnd`）
+    - proto-03 は停止まで待つラッパーを `useRegisterEnergyOut` へ登録する
+      - energy store 側（proto-01 と共有）は変えない
+      - 移動中でなければそのまま呼ぶ
+      - 移動中に呼ばれた分は停止の `ENERGY_OUT_DELAY_MS` 後に呼ぶ（`energyOut` は切替式のため回数の偶奇で判断する）
 
 ## 今後の検討候補
 
