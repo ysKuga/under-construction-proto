@@ -30,6 +30,9 @@
     - 「実行」時点の経路を `followingPath` へ固定し、進んだマス数 `followedCount` の分だけ先頭から消す
     - 目標マーカーは自動移動中も `followingPath` の終端に表示し続ける
     - `PathPreviewLayer` は `passedCount` で移動済みの点を消し、残りの点の key（元の経路での位置）を保つ
+- [ ] 経路プレビューの点を、bot がマスの中心に到達した時点で消す
+  - 現象: 移動を開始した時点で点が消える
+  - 原因: 進んだマス数を進入開始時（`handleCellChange`）に数えているため
 
 ## 今後の検討候補
 
