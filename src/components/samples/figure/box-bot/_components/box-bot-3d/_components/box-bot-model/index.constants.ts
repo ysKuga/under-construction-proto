@@ -4,9 +4,9 @@ export const DEFAULTS: BoxBot3DConfig = {
   arm: {
     d: 0.18,
     leftAngle: -0.5,
-    leftLen: 1.15,
+    leftLen: 0.86,
     rightAngle: 2.4,
-    rightLen: 1.0,
+    rightLen: 0.75,
     w: 0.18,
   },
   body: { d: 1.4, h: 1.7, w: 2.0 },
