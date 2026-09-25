@@ -37,7 +37,7 @@ import {
   WaypointBubble,
   WaypointBubbleHandle,
 } from './_components/waypoint-bubble'
-import { WaypointSelectingIndicator } from './_components/waypoint-selecting-indicator'
+import { ControlPanel } from './_contents/control-panel'
 import {
   Stage07HandleProvider,
   useStage07HandleRef,
@@ -69,8 +69,7 @@ import {
   DisplaySettingsStoreProvider,
   useDisplaySettingsStore,
 } from './_stores/display-settings'
-import { MoveTargetDisplayMode } from './_stores/display-settings/types'
-import { FogStoreProvider, useFogStore, useFogStoreApi } from './_stores/fog'
+import { FogStoreProvider, useFogStore } from './_stores/fog'
 import { FogMode } from './_stores/fog/types'
 import {
   FollowPathStoreProvider,
@@ -98,13 +97,6 @@ import {
 const BOT_SIZE = 56
 /** ステージ横に並べる独立 bot の一辺 px（向きを視認しやすいよう大きめ、issue #248） */
 const STANDALONE_BOT_SIZE = 160
-
-/** 「初期表示」select の選択肢 */
-const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
-  { label: 'すべて表示', value: 'all-visible' },
-  { label: 'すべて非表示', value: 'all-hidden' },
-  { label: '部分的に非表示', value: 'partial' },
-]
 
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
@@ -280,18 +272,8 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
   /** 移動可能マスの表示演出（display-settings store） */
   const displayMode = useDisplaySettingsStore((state) => state.displayMode)
-  /** 移動可能マスの表示演出を切り替える（display-settings store） */
-  const setDisplayMode = useDisplaySettingsStore(
-    (state) => state.setDisplayMode,
-  )
   /** 歩行モーションの有無（display-settings store） */
   const enableWalking = useDisplaySettingsStore((state) => state.enableWalking)
-  /** 歩行モーションの有無を切り替える（display-settings store） */
-  const setEnableWalking = useDisplaySettingsStore(
-    (state) => state.setEnableWalking,
-  )
-  /** ゴールへ到達済みか（goal store） */
-  const goalReached = useGoalStore((state) => state.reached)
   /** ゴール到達を記録する（goal store） */
   const reachGoal = useGoalStore((state) => state.reach)
   /** 中継点フローの状態（waypoint-flow store） */
@@ -325,11 +307,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { registerVisibilityNode } = useVisibilityRegistry()
   /** 現在地を更新し、視界を到達済みとして記録する（fog store） */
   const markVisited = useFogStore((state) => state.markVisited)
-  /** 到達済み表示の有無を切り替える（fog store） */
-  const setShowVisited = useFogStore((state) => state.setShowVisited)
-  /** 霧の適用範囲を切り替える（fog store） */
-  const setFogMode = useFogStore((state) => state.setMode)
-  const fogStoreApi = useFogStoreApi()
   const energyDispatch = useEnergyEventDispatcher()
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
@@ -515,15 +492,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
     },
     [addNotification, followPathStoreApi, waypointFlowStoreApi],
   )
-
-  /**
-   * 「完了」クリック時。中継点選択モードを終了し通常状態へ戻る
-   *
-   * - 設置済みの `waypoints` はクリアしない（「実行」までプレビュー経路に使う）
-   */
-  const handleWaypointDoneClick = useCallback(() => {
-    waypointFlowStoreApi.getState().setFlowState('idle')
-  }, [waypointFlowStoreApi])
 
   /**
    * 中継点選択モード中のセルクリック時。中継点を設置/除去する
@@ -764,62 +732,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           />,
           playerOverlayContainer,
         )}
-      <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
-        <label>
-          初期表示{' '}
-          <select
-            defaultValue={fogStoreApi.getState().mode}
-            onChange={(event) => setFogMode(event.target.value as FogMode)}
-          >
-            {FOG_MODE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <input
-            defaultChecked
-            onChange={(event) => setShowVisited(event.target.checked)}
-            type="checkbox"
-          />{' '}
-          到達済みマスを表示する
-        </label>
-        <label>
-          <input
-            checked={enableWalking}
-            onChange={(event) => setEnableWalking(event.target.checked)}
-            type="checkbox"
-          />{' '}
-          歩行モーション
-        </label>
-        <label>
-          移動可能マス表示{' '}
-          <select
-            onChange={(event) =>
-              setDisplayMode(event.target.value as MoveTargetDisplayMode)
-            }
-            value={displayMode}
-          >
-            <option value="scatter">散開</option>
-            <option value="instant">即時</option>
-            <option value="fade">フェード</option>
-          </select>
-        </label>
-        <span>
-          EN: {energyInfo.current}/{energyInfo.max}
-        </span>
-        <button onClick={onReset} type="button">
-          リセット
-        </button>
-        <span hidden={!goalReached}>🎉 ゴール到達</span>
-        <WaypointSelectingIndicator
-          onDoneClick={handleWaypointDoneClick}
-          visible={waypointFlowState === 'selecting'}
-        />
-        <span hidden={waypoints.length === 0}>中継点: {waypoints.length}</span>
-      </div>
+      <ControlPanel onReset={onReset} />
       <EnergyDebugPanel />
     </div>
   )
