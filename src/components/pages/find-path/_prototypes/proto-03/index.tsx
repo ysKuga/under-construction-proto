@@ -283,7 +283,8 @@ type FindPathProto03ContentProps = {
 /** `useVisibilityRegistry` を Provider の内側で呼び、UI へ配布する */
 const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const { onReset } = props
-  const [currentCell, setCurrentCell] = useState<HexCell>(START_POSITION)
+  /** player の現在セル（`Stage07` が移動成立時に actors store を更新する） */
+  const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
   const [displayMode, setDisplayMode] =
     useState<MoveTargetDisplayMode>('scatter')
   const [enableWalking, setEnableWalking] = useState(true)
@@ -574,7 +575,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   )
 
   const handleCellChange = (cell: HexCell) => {
-    setCurrentCell(cell)
     setObjectiveCell(undefined)
     setWaypointFlowState('idle')
     setWaypoints([])
