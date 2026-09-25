@@ -1,4 +1,10 @@
-import { CSSProperties, memo, TransitionEvent, useCallback } from 'react'
+import {
+  CSSProperties,
+  memo,
+  TransitionEvent,
+  useCallback,
+  useRef,
+} from 'react'
 
 import {
   BoxBot01,
@@ -9,6 +15,7 @@ import {
 } from '@/components/theater/figure/box-bot'
 
 import { PLAYER_ACTOR_ID } from '../../../stage-06/constants'
+import { useEffectCellReach } from '../../_hooks/use-effect-cell-reach'
 import { HexCell } from '../../_lib/hex'
 import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
 import { useActorsStore } from '../../_stores/actors'
@@ -69,6 +76,8 @@ type ActorsLayerProps = {
  *   `moveDurationMs`（3000ms 等）で周期が数秒に伸び、歩幅(`swingAngle`)は変わらない
  *   ため振れているかどうか視認しづらくなる。歩幅は変えず、周期の伸びだけ頭打ちにして
  *   常に一定以上の頻度で動きが見えるようにする
+ * - player の描画位置がセル中心に到達したら `Stage07-cell-reach` を発行する
+ *   （`useEffectCellReach`）
  * - visibility registry・ref registry 化は対象外（試作スコープ、issue #162）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
@@ -151,6 +160,19 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     width: size,
   }
 
+  /** player の位置決め要素(セル中心への到達判定で描画位置を読む) */
+  const playerRef = useRef<HTMLDivElement>(null)
+
+  useEffectCellReach(
+    PLAYER_ACTOR_ID,
+    playerRef,
+    currentCell,
+    cols,
+    rows,
+    hexSize,
+    moveDurationMs,
+  )
+
   const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
     if (event.propertyName !== 'left' && event.propertyName !== 'top') return
 
@@ -183,7 +205,7 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
 
   return (
     <>
-      <div onTransitionEnd={handleTransitionEnd} style={style}>
+      <div onTransitionEnd={handleTransitionEnd} ref={playerRef} style={style}>
         <BoxBot01
           actionConfig={{
             walking: {
