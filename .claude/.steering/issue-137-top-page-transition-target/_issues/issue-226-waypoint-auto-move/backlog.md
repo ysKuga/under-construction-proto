@@ -95,3 +95,8 @@
     - proto-03 は `handleCellChange` での `advance()` をやめ、`Stage07-cell-reach` を購読して `advance()` する（`useAdvanceFollowPathOnCellReach`）
     - 移動可能マス（`MoveTargetLayer`）も、bot が現在地セルの中心に着くまで表示しない（`useReachedCell` が `Stage07-cell-reach` を購読）
       - 現在地セルは進入開始時に切り替わるため、移動時間を長くすると歩いている途中に表示されていた
+- [ ] EN 切れ・復帰時に移動可能マス（`MoveTargetLayer`）を演出付きで引っ込める・表示する
+  - 復帰時: 移動直後と同じ演出で表示する
+    - 現状は演出なしで即座に表示される
+  - EN 切れ時: 表示と逆の演出で、bot のマス（中心）へ引っ込める
+    - 例: `scatter` なら対象マスから bot マスへ集合して消える
