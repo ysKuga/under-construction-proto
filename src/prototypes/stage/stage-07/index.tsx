@@ -106,6 +106,17 @@ type Stage07Props = PropsWithChildren<{
    */
   onFollowPathEnd?: (blockedCell?: HexCell) => void
   /**
+   * actor の移動が止まった時（省略可）
+   *
+   * - 隣接クリックでの移動は到着時、`followPath` による自動移動は終了時に呼ぶ\
+   *   （自動移動の途中の到着では呼ばない）
+   * - 歩行の停止（`walkingReset`）の開始後に呼ぶ。停止箇所に着いてから行う演出
+   *   （find-path proto-03 の EN 切れ演出等）で使う
+   * - 到着(`transitionend`)は `left`/`top` で二重に通知されるため、1 回の停止で
+   *   2 回呼ばれうる
+   */
+  onMoveStop?: () => void
+  /**
    * 非隣接セルをクリックした時（省略可）
    *
    * - `useHexMove` へそのまま渡す。find-path proto-03 の通知表示等で使う
@@ -202,6 +213,7 @@ export const Stage07 = (props: Stage07Props) => {
     interactive = true,
     onCellChange,
     onFollowPathEnd,
+    onMoveStop,
     onNonAdjacentClick,
     perspectivePx = 800,
     ref,
@@ -244,13 +256,16 @@ export const Stage07 = (props: Stage07Props) => {
   const enableWalkingRef = useRef(enableWalking)
   /** `handleArrived`(useCallback 依存配列空)で最新の walkingReset を読むための ref */
   const walkingResetRef = useRef(walkingReset)
+  /** `handleArrived`(useCallback 依存配列空)で最新の onMoveStop を読むための ref */
+  const onMoveStopRef = useRef(onMoveStop)
 
   useEffect(() => {
-    // 毎レンダー最新の face/enableWalking/walkingReset を ref へ反映する
+    // 毎レンダー最新の face/enableWalking/walkingReset/onMoveStop を ref へ反映する
     // (react-hooks/refs: render 中の書込み禁止)
     faceRef.current = face
     enableWalkingRef.current = enableWalking
     walkingResetRef.current = walkingReset
+    onMoveStopRef.current = onMoveStop
   })
 
   useEffect(() => {
@@ -322,6 +337,7 @@ export const Stage07 = (props: Stage07Props) => {
     moveDurationMs,
     (blockedCell) => {
       stopWalking()
+      onMoveStopRef.current?.()
       onFollowPathEnd?.(blockedCell)
     },
   )
@@ -334,13 +350,14 @@ export const Stage07 = (props: Stage07Props) => {
    * - `ActorsLayer`（`React.memo` 化済み、issue-181-en backlog）の `onArrived`
    *   prop が毎レンダー新規関数だと memo が効かなくなるため `useCallback`
    *   で参照を固定する
-   * - 自動移動(`followPath`)中は途中の到着で歩行を止めない。停止は
-   *   `useFollowPath` の終了通知側で行う
+   * - 自動移動(`followPath`)中は途中の到着で歩行を止めない。停止（`onMoveStop`
+   *   の通知含む）は `useFollowPath` の終了通知側で行う
    */
   const handleArrived = useCallback(() => {
     if (notifyArrived()) return
 
     stopWalking()
+    onMoveStopRef.current?.()
   }, [notifyArrived, stopWalking])
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
