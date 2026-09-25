@@ -13,6 +13,7 @@ import {
 
 import { useFollowPathStore } from '../../_stores/follow-path'
 
+import { useReachedCell } from './_hooks/use-reached-cell'
 import { MoveTargetDisplayMode, useMoveTargetLayer } from './index.hooks'
 
 export type { MoveTargetDisplayMode }
@@ -28,7 +29,7 @@ type MoveTargetLayerProps = {
   canEnterCell?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
-  /** 現在地セル。移動可能マス(隣接6方向)の算出・表示演出のトリガーに使う */
+  /** 現在地セル。bot がこのセルの中心に着くまで移動可能マスを表示しない */
   currentCell: HexCell
   /** 六角形の外接円半径 (px)。`GeoLayer`/`ActorsLayer` と同じ値を渡し座標をズレさせない */
   hexSize: number
@@ -53,6 +54,9 @@ type MoveTargetLayerProps = {
  * - 経路に沿った自動移動中は表示しない。途中のマスでは止まらないため、進入のたびに
  *   表示が出ると歩いている途中に見えてしまう。自動移動中かは follow-path store を
  *   直接購読して判定する（issue #226）
+ * - bot が現在地セルの中心に着くまで表示しない。現在地セルは進入開始時に切り替わる
+ *   ため、移動時間が長いと歩いている途中に次の移動可能マスが出てしまう。到達は
+ *   `Stage07-cell-reach` を購読して知る（`useReachedCell`、issue #226）
  */
 export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
   const { canEnterCell, cols, currentCell, hexSize, mode, rows } = props
@@ -69,9 +73,18 @@ export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
     [canEnterCell, energyCurrent],
   )
 
+  /** 自動移動中か（途中のマスでは移動可能マスを表示しない） */
+  const isFollowing = useFollowPathStore((state) => state.isFollowing())
+  const reachedCell = useReachedCell(PLAYER_ACTOR_ID)
+  /** bot が現在地セルの中心に着いたか（着くまで移動可能マスを表示しない） */
+  const hasReachedCurrentCell =
+    reachedCell?.q === currentCell.q && reachedCell.r === currentCell.r
+
   const bounds = computeHexGridBounds(cols, rows, hexSize)
+  // 表示演出は中心への到達を契機に始めるため、到達したセルを基準にする
+  // （未到達の間は `hasReachedCurrentCell` で表示しない）
   const moveTargetLayer = useMoveTargetLayer(
-    currentCell,
+    reachedCell ?? currentCell,
     cols,
     hexSize,
     mode,
@@ -79,12 +92,10 @@ export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
     canEnterCellWithEnergy,
   )
 
-  /** 自動移動中か（途中のマスでは移動可能マスを表示しない） */
-  const isFollowing = useFollowPathStore((state) => state.isFollowing())
-
   return (
     <>
       {!isFollowing &&
+        hasReachedCurrentCell &&
         moveTargetLayer.map(({ cell, opacity, position, scale }) => {
           const style: CSSProperties = {
             height: bounds.cellHeight,
