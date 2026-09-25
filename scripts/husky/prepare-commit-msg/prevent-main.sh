@@ -7,7 +7,8 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 # コミット禁止対象 `|` で結合して複数指定する
 forbidden="main"
 
-if [[ "$branch" =~ $forbidden ]]; then
+# 部分一致だと `226-remaining-xxx` 等も弾かれるため、完全一致で判定する
+if [[ "$branch" =~ ^($forbidden)$ ]]; then
   echo "${forbidden} へのコミットは禁止されています"
   exit 1
 fi
