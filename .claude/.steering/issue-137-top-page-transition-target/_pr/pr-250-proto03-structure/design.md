@@ -41,4 +41,8 @@ issue: #137 / PR: #250（PR-1）（backlog「proto-03 の構造見直し」）
 複数 content から参照される state は zustand store へ移し、selector 購読にする（[game-state](../../../../rules/react/game-state.md)）。
 
 - `waypointFlowState`/`waypoints`/`objectiveCell` → `_stores/waypoint-flow`（新設）
-- `currentCell`/`goalReached`/表示設定（`displayMode`/`enableWalking`）→ 置き場は PR-2 内で決める
+- `currentCell` → stage-07 の actors store（`actors[PLAYER_ACTOR_ID]`）を読む
+  - `Stage07` が移動成立時に更新しており、ページ側の `useState` は重複保持だったため
+- `displayMode`/`enableWalking` → `_stores/display-settings`（新設）
+  - `MoveTargetDisplayMode` は store の `types.ts` へ移す。store から layer への逆依存を避けるため
+- `goalReached` → `_stores/goal`（新設）
