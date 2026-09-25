@@ -95,8 +95,12 @@
     - proto-03 は `handleCellChange` での `advance()` をやめ、`Stage07-cell-reach` を購読して `advance()` する（`useAdvanceFollowPathOnCellReach`）
     - 移動可能マス（`MoveTargetLayer`）も、bot が現在地セルの中心に着くまで表示しない（`useReachedCell` が `Stage07-cell-reach` を購読）
       - 現在地セルは進入開始時に切り替わるため、移動時間を長くすると歩いている途中に表示されていた
-- [ ] EN 切れ・復帰時に移動可能マス（`MoveTargetLayer`）を演出付きで引っ込める・表示する
+- [x] EN 切れ・復帰時に移動可能マス（`MoveTargetLayer`）を演出付きで引っ込める・表示する
   - 復帰時: 移動直後と同じ演出で表示する
     - 現状は演出なしで即座に表示される
   - EN 切れ時: 表示と逆の演出で、bot のマス（中心）へ引っ込める
     - 例: `scatter` なら対象マスから bot マスへ集合して消える
+  - 実装: `useMoveTargetLayer` に `isEnabled`（EN 残量あり）を追加する
+    - 表示中に無効化されたら `retracting`（出現準備と同じ見た目）へ transition し、`MOVE_TARGET_TRANSITION_MS` 後に非表示にする。`instant` は即座に非表示
+    - 有効化されたら非表示へ戻し、現在地セル変更時と同じ出現演出をやり直す
+    - EN 判定を `canEnterCell` への合成から外し、`MoveTargetLayer` は EN 残量ありか（boolean）だけを購読する
