@@ -87,14 +87,11 @@
       - rAF で actor の位置を監視する
         - コストに見合わないため
     - 推奨: 案 1
-      - 「自動移動の中断操作」で進入の間隔が崩れる操作（一時停止等）を入れる場合、その時点で案 2 へ移行する
   - 実装: 描画位置による到達判定（上記 draft の案とは別方式。試行のうえユーザー判断）
     - `ActorsLayer` が player の描画位置（`getComputedStyle` の `left`/`top`）を `moveDurationMs / 5` 間隔で読み、セル中心への到達を判定する（`useEffectCellReach`）
       - 判定: 中心から `hexSize * 0.3` 以内、または判定時に中心を過ぎていたら到達とする（`judgeCellReach`）
       - 移動開始を契機に判定を始め、移動先に着いたら止める（停止中は判定しない）
     - 到達を stage-07 の `_events` へ `Stage07-cell-reach`（payload: `actorId`, `cell`）として発行する
     - proto-03 は `handleCellChange` での `advance()` をやめ、`Stage07-cell-reach` を購読して `advance()` する（`useAdvanceFollowPathOnCellReach`）
-
-## 今後の検討候補
-
-- 自動移動の中断操作
+    - 移動可能マス（`MoveTargetLayer`）も、bot が現在地セルの中心に着くまで表示しない（`useReachedCell` が `Stage07-cell-reach` を購読）
+      - 現在地セルは進入開始時に切り替わるため、移動時間を長くすると歩いている途中に表示されていた
