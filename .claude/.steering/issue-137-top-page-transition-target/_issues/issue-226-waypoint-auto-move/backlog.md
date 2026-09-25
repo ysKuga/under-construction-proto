@@ -1,6 +1,6 @@
 # 実装計画（中継点経由の経路統合と自動移動）
 
-- [ ] EN 切れ時に経路選択ができてしまう問題を解消する
+- [x] EN 切れ時に経路選択ができてしまう問題を解消する
   - 現象
     - EN 切れ時でも目標を指定して経路を選択できる
     - その状態で「実行」を押すと、1 マスも移動せず停止し、経路プレビューが消えない
@@ -22,6 +22,7 @@
       - B: `handleFollowPathEnd` で `blockedCell` ありの場合、`objectiveCell`/`waypoints` もクリアしてプレビューを消す
       - A のみだと「実行」を押しても無反応な状態が残るため、B で経緯によらず停止時にプレビューを消す
   - 方針検討: UI へ EN 判定を直接追加せず、event listener 側で組み合わせる構想あり（[ui-jurisdiction](../../../../../docs/concept/implementation/ui-jurisdiction/README.md)）
+  - 実装: 構想の案 1（cancelable event）で対応。#235（dispatcher の戻り値）・#237（停止時のプレビュー消去）・#238（proto-03 の event 置き場）・#239（EN 判定 listener）
 - [ ] 経路プレビューを、移動したマスから順に消すことを検討する
   - 再レンダリングを避けることを重視する（[game-state ルール](../../../../rules/react/game-state.md)）
   - 下記「今後の検討候補」の「自動移動中に残り経路をプレビュー表示する」と合わせて検討する
