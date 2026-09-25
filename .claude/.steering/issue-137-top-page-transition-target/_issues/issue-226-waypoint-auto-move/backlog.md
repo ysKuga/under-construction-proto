@@ -7,6 +7,21 @@
     - 移動途中で EN が切れた場合は経路が消える（最初の 1 マス移動時に `handleCellChange` がクリアするため）
   - 対応: EN 切れ時は経路を選択させないようにする
     - カーソルは現時点で既に EN 切れを反映して変わっている
+  - 原因
+    - `useHexMove` の `handleCellClick` は非隣接セルの場合、`canEnter` 判定より前に `onNonAdjacentClick` を呼ぶ
+    - proto-03 の `handleNonAdjacentClick` は EN 残量を見ずに経路を求め、`proposing` へ遷移する
+    - 「実行」後、`followPath` が最初の 1 マス目で EN 不足により停止する
+      - 1 マスも移動しないため `handleCellChange` が呼ばれず、`objectiveCell`/`waypoints` がクリアされない
+  - 対応案
+    - `handleNonAdjacentClick` の先頭で EN 残量を確認し、0 以下なら何もせず return する
+      - EN は `useEnergyStoreApi().getState()` でクリック時点の値を読む
+      - `energyCurrent` を `useCallback` の依存配列に入れない（EN 変化のたび `Stage07` の props が変わり、配下ツリー全体が再レンダリングされるため。PR #212 で解消した問題の再発防止）
+      - 通知は出さない（カーソルで選択不可を既に示しているため）。必要なら info トーストを追加する
+    - 経路提示中に EN が切れた場合（`EnergyDebugPanel` 操作等）も同じ現象が起きるため、以下を併用する
+      - A: `handleExecuteClick` でも EN 残量を確認し、0 以下なら実行しない
+      - B: `handleFollowPathEnd` で `blockedCell` ありの場合、`objectiveCell`/`waypoints` もクリアしてプレビューを消す
+      - A のみだと「実行」を押しても無反応な状態が残るため、B で経緯によらず停止時にプレビューを消す
+  - 方針検討: UI へ EN 判定を直接追加せず、event listener 側で組み合わせる構想あり（[ui-jurisdiction](../../../../../docs/concept/implementation/ui-jurisdiction/README.md)）
 - [ ] 経路プレビューを、移動したマスから順に消すことを検討する
   - 再レンダリングを避けることを重視する（[game-state ルール](../../../../rules/react/game-state.md)）
   - 下記「今後の検討候補」の「自動移動中に残り経路をプレビュー表示する」と合わせて検討する
