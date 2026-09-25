@@ -651,86 +651,89 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
         Find Path (proto-03 / hex)
       </h1>
       <div className="flex items-center gap-8">
-        <CellTitleProvider
-          getCellTitle={(cell) => {
-            const contents = getCellContents(cell, itemStoreApi.getState())
+        {/* Stage07 は操作 slider 群が横に広がるため、min-content で床(scene)の幅へ合わせる */}
+        <div className="w-min">
+          <CellTitleProvider
+            getCellTitle={(cell) => {
+              const contents = getCellContents(cell, itemStoreApi.getState())
 
-            return contents[0] && describeCellContent(contents[0])
-          }}
-        >
-          <Stage07
-            actorEventTarget={actorEventTarget}
-            botSize={BOT_SIZE}
-            canEnterCell={canEnterCell}
-            cols={GRID.cols}
-            enableWalking={enableWalking}
-            hexSize={HEX_SIZE}
-            initialTiltDeg={55}
-            interactive={waypointFlowState !== 'selecting' && !isAutoMoving}
-            onCellChange={handleCellChange}
-            onFollowPathEnd={handleFollowPathEnd}
-            onNonAdjacentClick={handleNonAdjacentClick}
-            ref={stage07Ref}
-            registerCellVisibilityNode={registerFloorVisibilityNode}
-            rows={GRID.rows}
+              return contents[0] && describeCellContent(contents[0])
+            }}
           >
-            <GoalMarkerLayer
+            <Stage07
+              actorEventTarget={actorEventTarget}
+              botSize={BOT_SIZE}
+              canEnterCell={canEnterCell}
               cols={GRID.cols}
+              enableWalking={enableWalking}
               hexSize={HEX_SIZE}
-              registerVisibilityNode={registerMarkerVisibilityNode}
+              initialTiltDeg={55}
+              interactive={waypointFlowState !== 'selecting' && !isAutoMoving}
+              onCellChange={handleCellChange}
+              onFollowPathEnd={handleFollowPathEnd}
+              onNonAdjacentClick={handleNonAdjacentClick}
+              ref={stage07Ref}
+              registerCellVisibilityNode={registerFloorVisibilityNode}
               rows={GRID.rows}
-            />
-            <ObstacleLayer
-              cols={GRID.cols}
-              hexSize={HEX_SIZE}
-              registerVisibilityNode={registerMarkerVisibilityNode}
-              rows={GRID.rows}
-            />
-            <OneWayLayer
-              cols={GRID.cols}
-              hexSize={HEX_SIZE}
-              registerVisibilityNode={registerMarkerVisibilityNode}
-              rows={GRID.rows}
-            />
-            <ItemLayer
-              cols={GRID.cols}
-              hexSize={HEX_SIZE}
-              registerVisibilityNode={registerMarkerVisibilityNode}
-              rows={GRID.rows}
-            />
-            <MoveTargetLayer
-              canEnterCell={canEnterCellPerceived}
-              cols={GRID.cols}
-              currentCell={currentCell}
-              hexSize={HEX_SIZE}
-              mode={displayMode}
-              rows={GRID.rows}
-            />
-            <PathPreviewLayer
-              cols={GRID.cols}
-              hexSize={HEX_SIZE}
-              path={previewPath}
-              rows={GRID.rows}
-            />
-            <ObjectiveMarkerLayer
-              cols={GRID.cols}
-              hexSize={HEX_SIZE}
-              objectiveCell={
-                isAutoMoving ? followingPath.at(-1) : objectiveCell
-              }
-              rows={GRID.rows}
-            />
-            <WaypointSelectLayer
-              cols={GRID.cols}
-              hexSize={HEX_SIZE}
-              onCellClick={handleWaypointCellClick}
-              registerVisibilityNode={registerWaypointVisibilityNode}
-              rows={GRID.rows}
-              visible={waypointFlowState === 'selecting'}
-              waypoints={waypoints}
-            />
-          </Stage07>
-        </CellTitleProvider>
+            >
+              <GoalMarkerLayer
+                cols={GRID.cols}
+                hexSize={HEX_SIZE}
+                registerVisibilityNode={registerMarkerVisibilityNode}
+                rows={GRID.rows}
+              />
+              <ObstacleLayer
+                cols={GRID.cols}
+                hexSize={HEX_SIZE}
+                registerVisibilityNode={registerMarkerVisibilityNode}
+                rows={GRID.rows}
+              />
+              <OneWayLayer
+                cols={GRID.cols}
+                hexSize={HEX_SIZE}
+                registerVisibilityNode={registerMarkerVisibilityNode}
+                rows={GRID.rows}
+              />
+              <ItemLayer
+                cols={GRID.cols}
+                hexSize={HEX_SIZE}
+                registerVisibilityNode={registerMarkerVisibilityNode}
+                rows={GRID.rows}
+              />
+              <MoveTargetLayer
+                canEnterCell={canEnterCellPerceived}
+                cols={GRID.cols}
+                currentCell={currentCell}
+                hexSize={HEX_SIZE}
+                mode={displayMode}
+                rows={GRID.rows}
+              />
+              <PathPreviewLayer
+                cols={GRID.cols}
+                hexSize={HEX_SIZE}
+                path={previewPath}
+                rows={GRID.rows}
+              />
+              <ObjectiveMarkerLayer
+                cols={GRID.cols}
+                hexSize={HEX_SIZE}
+                objectiveCell={
+                  isAutoMoving ? followingPath.at(-1) : objectiveCell
+                }
+                rows={GRID.rows}
+              />
+              <WaypointSelectLayer
+                cols={GRID.cols}
+                hexSize={HEX_SIZE}
+                onCellClick={handleWaypointCellClick}
+                registerVisibilityNode={registerWaypointVisibilityNode}
+                rows={GRID.rows}
+                visible={waypointFlowState === 'selecting'}
+                waypoints={waypoints}
+              />
+            </Stage07>
+          </CellTitleProvider>
+        </div>
         {/* ステージ上の bot とは別に独立表示する bot（向き同期は後続、issue #248） */}
         <BoxBot01
           actions={[]}
