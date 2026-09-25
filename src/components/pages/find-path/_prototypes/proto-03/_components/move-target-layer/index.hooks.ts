@@ -16,6 +16,9 @@ import {
 /** 非表示 → 表示演出開始までの遅延 (ms) */
 const SPAWN_DELAY_MS = 80
 
+/** 表示・引っ込みの CSS transition の所要時間 (ms) */
+export const MOVE_TARGET_TRANSITION_MS = 200
+
 /** `scatter` モードの集合表示中の拡大率 */
 const SCATTER_ORIGIN_SCALE = 0.3
 
@@ -40,8 +43,19 @@ type MoveTarget = {
   scale: number
 }
 
-/** 表示演出の段階 */
-type Phase = 'hidden' | 'revealed' | 'spawned'
+/**
+ * 表示演出の段階
+ *
+ * - `hidden`: 非表示
+ * - `spawned`: 出現準備（集合・透明等、`revealed` へ transition する起点）
+ * - `revealed`: 表示完了
+ * - `retracting`: 引っ込み中（`spawned` と同じ見た目へ transition し、完了後 `hidden`）
+ */
+type Phase = 'hidden' | 'retracting' | 'revealed' | 'spawned'
+
+/** 集合・透明等、表示完了前（または引っ込み）の見た目にする段階か */
+const isGathered = (phase: Phase) =>
+  phase === 'spawned' || phase === 'retracting'
 
 /**
  * グリッド全セルのうち current に隣接し、かつ進入可能なセル（＝移動可能マス）を
@@ -64,7 +78,7 @@ const reachableCellsOf = (
 /**
  * mode/phase から表示位置を決める
  *
- * - `scatter` の `spawned`（集合表示中）のみ bot マス中心、それ以外は対象セル中心
+ * - `scatter` の `spawned`/`retracting`（集合表示中）のみ bot マス中心、それ以外は対象セル中心
  */
 const positionOf = (
   mode: MoveTargetDisplayMode,
@@ -72,25 +86,25 @@ const positionOf = (
   originPosition: PixelPoint,
   targetPosition: PixelPoint,
 ): PixelPoint =>
-  mode === 'scatter' && phase === 'spawned' ? originPosition : targetPosition
+  mode === 'scatter' && isGathered(phase) ? originPosition : targetPosition
 
 /**
  * mode/phase から不透明度を決める
  *
- * - `fade` の `spawned`（出現直前）のみ 0、それ以外は 1
+ * - `fade` の `spawned`/`retracting`（出現直前・引っ込み）のみ 0、それ以外は 1
  */
 const opacityOf = (mode: MoveTargetDisplayMode, phase: Phase): number =>
-  mode === 'fade' && phase === 'spawned' ? 0 : 1
+  mode === 'fade' && isGathered(phase) ? 0 : 1
 
 /**
  * mode/phase から拡大率を決める
  *
- * - `scatter` の `spawned`（bot マスへの集合表示中）のみ `SCATTER_ORIGIN_SCALE`
+ * - `scatter` の `spawned`/`retracting`（bot マスへの集合表示中）のみ `SCATTER_ORIGIN_SCALE`
  *   （小さく表示）、それ以外は等倍。散開の移動と同時に拡大させることで
  *   「中心から生まれて広がる」印象を強める
  */
 const scaleOf = (mode: MoveTargetDisplayMode, phase: Phase): number =>
-  mode === 'scatter' && phase === 'spawned' ? SCATTER_ORIGIN_SCALE : 1
+  mode === 'scatter' && isGathered(phase) ? SCATTER_ORIGIN_SCALE : 1
 
 /**
  * 移動可能マスの表示演出（非表示 → 出現準備 → 表示）を管理する
@@ -104,10 +118,14 @@ const scaleOf = (mode: MoveTargetDisplayMode, phase: Phase): number =>
  *   即座に出現して見える）
  * - 表示完了後は次の現在地セル変更（bot 移動完了）まで維持し、変更時点で
  *   非表示へ戻る（初期表示と同一の見た目）
+ * - `isEnabled`（EN 残量あり等）が `false` になったら、表示と逆の演出で引っ込める
+ *   （`retracting` → `MOVE_TARGET_TRANSITION_MS` 後に `hidden`）。`instant` は即座に
+ *   非表示にする。`true` に戻ったら、現在地セル変更時と同じ演出で表示する
  *
  * @param currentCell 現在地セル
  * @param cols グリッド列数
  * @param hexSize 六角形の外接円半径 (px)
+ * @param isEnabled 移動可能マスを表示するか（EN 切れ時 `false`）
  * @param mode 表示演出の種類
  * @param rows グリッド行数
  * @param canEnter 対象セルへ進入可能か（省略時は常に進入可能）。障害物セル等を
@@ -117,30 +135,55 @@ export const useMoveTargetLayer = (
   currentCell: HexCell,
   cols: number,
   hexSize: number,
+  isEnabled: boolean,
   mode: MoveTargetDisplayMode,
   rows: number,
   canEnter?: (cell: HexCell) => boolean,
 ): MoveTarget[] => {
   const [phase, setPhase] = useState<Phase>('hidden')
   const [trackedCell, setTrackedCell] = useState(currentCell)
+  const [trackedIsEnabled, setTrackedIsEnabled] = useState(isEnabled)
 
-  // 現在地セル変更を検知し次第、非表示へ戻す（レンダー中の同期更新。
+  const isCellChanged =
+    trackedCell.q !== currentCell.q || trackedCell.r !== currentCell.r
+
+  // 現在地セル・有効/無効の変更を検知し次第、段階を切り替える（レンダー中の同期更新。
   // useEffect 内で直接 setState すると連鎖レンダーになるため避ける）
-  if (trackedCell.q !== currentCell.q || trackedCell.r !== currentCell.r) {
+  // - 表示中のまま無効化された場合のみ引っ込める（instant は即座に非表示）
+  // - それ以外（セル変更・有効化）は非表示へ戻し、出現演出をやり直す
+  if (isCellChanged || trackedIsEnabled !== isEnabled) {
+    const shouldRetract =
+      !isCellChanged && !isEnabled && phase !== 'hidden' && mode !== 'instant'
+
     setTrackedCell(currentCell)
-    setPhase('hidden')
+    setTrackedIsEnabled(isEnabled)
+    setPhase(shouldRetract ? 'retracting' : 'hidden')
   }
 
-  // 非表示化後、SPAWN_DELAY_MS 経過で演出を開始する
+  // 非表示化後、有効なら SPAWN_DELAY_MS 経過で演出を開始する
   useEffect(() => {
-    if (phase !== 'hidden') {
+    if (phase !== 'hidden' || !isEnabled) {
       return
     }
 
     const timer = setTimeout(() => setPhase('spawned'), SPAWN_DELAY_MS)
 
     return () => clearTimeout(timer)
-  }, [phase, trackedCell.q, trackedCell.r])
+  }, [isEnabled, phase, trackedCell.q, trackedCell.r])
+
+  // 引っ込み演出（transition）の完了後、非表示にする
+  useEffect(() => {
+    if (phase !== 'retracting') {
+      return
+    }
+
+    const timer = setTimeout(
+      () => setPhase('hidden'),
+      MOVE_TARGET_TRANSITION_MS,
+    )
+
+    return () => clearTimeout(timer)
+  }, [phase])
 
   // 演出開始の直後、次フレームで表示完了へ切替える（同一フレーム内の変更だと
   // transition が発火しないため1フレーム置く）

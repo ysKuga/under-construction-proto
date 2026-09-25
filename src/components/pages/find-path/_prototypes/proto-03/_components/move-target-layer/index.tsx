@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties, memo, useCallback } from 'react'
+import { CSSProperties, memo } from 'react'
 
 import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
@@ -14,7 +14,11 @@ import {
 import { useFollowPathStore } from '../../_stores/follow-path'
 
 import { useReachedCell } from './_hooks/use-reached-cell'
-import { MoveTargetDisplayMode, useMoveTargetLayer } from './index.hooks'
+import {
+  MOVE_TARGET_TRANSITION_MS,
+  MoveTargetDisplayMode,
+  useMoveTargetLayer,
+} from './index.hooks'
 
 export type { MoveTargetDisplayMode }
 
@@ -23,7 +27,7 @@ type MoveTargetLayerProps = {
    * 対象セルへ進入可能か（省略時は常に進入可能）。障害物セル等を除外する
    *
    * - EN 残量チェックは含まない。EN 残量は `MoveTargetLayer` 自身が EN store を
-   *   直接購読して適用する（issue-181-en backlog: `EnergyDebugPanel` 操作で
+   *   直接購読し、EN 切れで表示を引っ込める（issue-181-en backlog: `EnergyDebugPanel` 操作で
    *   `Stage07` 配下ツリー全体が再レンダリングされる問題の解消）
    */
   canEnterCell?: (cell: HexCell) => boolean
@@ -49,8 +53,10 @@ type MoveTargetLayerProps = {
  *   `GeoLayer` と同じ点線六角形（選択可能マスの見た目）を CSS transition で
  *   描画するだけ
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量は props 経由でなく
- *   `useEnergyStore` を直接購読して判定に合成するため、EN 変化時は親を経由せず
- *   自分自身のみが再レンダリングされる
+ *   `useEnergyStore` を直接購読するため、EN 変化時は親を経由せず自分自身のみが
+ *   再レンダリングされる
+ * - EN 切れで表示と逆の演出で引っ込め、復帰で移動直後と同じ演出で表示する
+ *   （`useMoveTargetLayer` の `isEnabled`、issue #226）
  * - 経路に沿った自動移動中は表示しない。途中のマスでは止まらないため、進入のたびに
  *   表示が出ると歩いている途中に見えてしまう。自動移動中かは follow-path store を
  *   直接購読して判定する（issue #226）
@@ -61,16 +67,9 @@ type MoveTargetLayerProps = {
 export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
   const { canEnterCell, cols, currentCell, hexSize, mode, rows } = props
 
-  const energyInfo = useEnergyStore((state) =>
-    state.getEnergyInfo(PLAYER_ACTOR_ID),
-  )
-  /** `energyInfo.current` を直接 `useCallback` の依存配列に入れると意図せず不安定化するため、プリミティブ値へ切り出す */
-  const energyCurrent = energyInfo.current
-
-  /** `canEnterCell`（EN を除く、props 由来）に EN 残量チェックを合成する */
-  const canEnterCellWithEnergy = useCallback(
-    (cell: HexCell) => (canEnterCell?.(cell) ?? true) && energyCurrent > 0,
-    [canEnterCell, energyCurrent],
+  /** EN 残量があるか（EN 切れなら移動可能マスを引っ込める） */
+  const hasEnergy = useEnergyStore(
+    (state) => state.getEnergyInfo(PLAYER_ACTOR_ID).current > 0,
   )
 
   /** 自動移動中か（途中のマスでは移動可能マスを表示しない） */
@@ -87,9 +86,10 @@ export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
     reachedCell ?? currentCell,
     cols,
     hexSize,
+    hasEnergy,
     mode,
     rows,
-    canEnterCellWithEnergy,
+    canEnterCell,
   )
 
   return (
@@ -105,8 +105,12 @@ export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
             position: 'absolute',
             top: position.y,
             transform: `translate(-50%, -50%) scale(${scale})`,
-            transition:
-              'left 200ms ease-out, opacity 200ms ease-out, top 200ms ease-out, transform 200ms ease-out',
+            transition: ['left', 'opacity', 'top', 'transform']
+              .map(
+                (property) =>
+                  `${property} ${MOVE_TARGET_TRANSITION_MS}ms ease-out`,
+              )
+              .join(', '),
             width: bounds.cellWidth,
           }
 
