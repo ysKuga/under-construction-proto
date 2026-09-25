@@ -45,8 +45,10 @@ export const useBoxBotActionDispatcher = <
       Object.fromEntries(
         actions.map((action) => [
           action.name,
-          (override?: unknown) =>
-            dispatch(new CustomEvent(action.event, { detail: override })),
+          // 実行拒否の判定は使わないため、dispatch の戻り値は捨てる
+          async (override?: unknown) => {
+            await dispatch(new CustomEvent(action.event, { detail: override }))
+          },
         ]),
       ) as BoxBotActionDispatchers<T>,
     // eslint-disable-next-line react-hooks/exhaustive-deps
