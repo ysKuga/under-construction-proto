@@ -27,15 +27,20 @@ export const useBoxBotActionDispatcher = (
 ): UseBoxBotActionDispatcherReturn => {
   const dispatch = useEventDispatcher(eventTarget)
 
+  /** action の event を発行する(実行拒否の判定は使わないため、dispatch の戻り値は捨てる) */
+  const dispatchAction = async (type: string) => {
+    await dispatch(new Event(type))
+  }
+
   return {
-    armLeftToggle: () => dispatch(new Event(ACTION_ARM_LEFT_TOGGLE)),
-    armRightToggle: () => dispatch(new Event(ACTION_ARM_RIGHT_TOGGLE)),
-    fall: () => dispatch(new Event(ACTION_FALL)),
-    getUp: () => dispatch(new Event(ACTION_GET_UP)),
-    hoppingStart: () => dispatch(new Event(ACTION_HOPPING_START)),
-    hoppingStop: () => dispatch(new Event(ACTION_HOPPING_STOP)),
-    jump: () => dispatch(new Event(ACTION_JUMP)),
-    marchingToggle: () => dispatch(new Event(ACTION_MARCHING_TOGGLE)),
-    walkingToggle: () => dispatch(new Event(ACTION_WALKING_TOGGLE)),
+    armLeftToggle: () => dispatchAction(ACTION_ARM_LEFT_TOGGLE),
+    armRightToggle: () => dispatchAction(ACTION_ARM_RIGHT_TOGGLE),
+    fall: () => dispatchAction(ACTION_FALL),
+    getUp: () => dispatchAction(ACTION_GET_UP),
+    hoppingStart: () => dispatchAction(ACTION_HOPPING_START),
+    hoppingStop: () => dispatchAction(ACTION_HOPPING_STOP),
+    jump: () => dispatchAction(ACTION_JUMP),
+    marchingToggle: () => dispatchAction(ACTION_MARCHING_TOGGLE),
+    walkingToggle: () => dispatchAction(ACTION_WALKING_TOGGLE),
   }
 }
