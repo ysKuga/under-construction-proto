@@ -1,7 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   EnergyStoreProvider,
@@ -27,16 +26,7 @@ import {
 
 import { EnergyDebugPanel } from '../_components/energy-debug-panel'
 
-import {
-  EXECUTE_BUBBLE_OFFSET,
-  ExecuteBubble,
-  ExecuteBubbleHandle,
-} from './_components/execute-bubble'
-import {
-  WAYPOINT_BUBBLE_OFFSET,
-  WaypointBubble,
-  WaypointBubbleHandle,
-} from './_components/waypoint-bubble'
+import { BotBubbles } from './_contents/bot-bubbles'
 import { ControlPanel } from './_contents/control-panel'
 import {
   Stage07HandleProvider,
@@ -286,24 +276,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   /** `Stage07` の imperative API。経路に沿った自動移動を命令する */
   const stage07HandleRef = useStage07HandleRef()
   const previewPath = usePreviewPath()
-  /**
-   * `WaypointBubble` の imperative API。`selectable`(思考吹き出し⇔発言吹き出し
-   * の切替)を props でなくこの ref 経由で命令する（`WaypointBubbleHandle`
-   * 内コメント参照）
-   */
-  const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
-  /** `ExecuteBubble` の imperative API。半透明化を ref 経由で命令する */
-  const executeBubbleRef = useRef<ExecuteBubbleHandle>(null)
-  /**
-   * `useActorsStore` の `overlayContainers` が公開する、player bot 用の
-   * コンテナ DOM。`WaypointBubble` をここへ `createPortal` で注入する
-   * （issue #137）。`Stage07` の `ActorOverlayLayer` が floor の 3D 空間外に
-   * 用意し、bot の画面上の位置へ追従させる（props drilling でなく actor に
-   * 紐づく store 経由）
-   */
-  const playerOverlayContainer = useActorsStore(
-    (state) => state.overlayContainers[PLAYER_ACTOR_ID],
-  )
   const { registerVisibilityNode } = useVisibilityRegistry()
   /** 現在地を更新し、視界を到達済みとして記録する（fog store） */
   const markVisited = useFogStore((state) => state.markVisited)
@@ -417,59 +389,6 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
       waypoints,
     ],
   )
-
-  /**
-   * 中継点の吹き出しクリック時。中継点選択モードへ移行する
-   *
-   * - 選択中なら解除し、経路提示中(`proposing`)へ戻す。吹き出しは表示したままにし、
-   *   「実行」や再度の選択へつなげる
-   */
-  const handleWaypointBubbleClick = useCallback(() => {
-    const { flowState, setFlowState } = waypointFlowStoreApi.getState()
-
-    setFlowState(flowState === 'selecting' ? 'proposing' : 'selecting')
-  }, [waypointFlowStoreApi])
-
-  // waypointFlowState の変化を吹き出しの selectable・半透明化(imperative) へ同期する。
-  // 中継点選択中は吹き出しが背後の経路を隠さないよう半透明にする（issue #226）
-  useEffect(() => {
-    const isSelecting = waypointFlowState === 'selecting'
-
-    waypointBubbleRef.current?.setSelectable(isSelecting)
-    waypointBubbleRef.current?.setTranslucent(isSelecting)
-    executeBubbleRef.current?.setTranslucent(isSelecting)
-  }, [waypointFlowState])
-
-  /**
-   * 「実行」吹き出しクリック時。表示中の経路に沿って自動移動を開始する
-   *
-   * - 中継点フローは終了する（`objectiveCell`/`waypoints` は最初の 1 マス移動時に
-   *   `handleCellChange` がクリアする）
-   * - 経路は follow-path store へ固定し、自動移動中はその残りをプレビューする
-   * - 自動移動中は `Stage07` を非対話化し、クリックによる割込みを防ぐ
-   * - 開始前に `FindPath-execute-path` を発行し、listener に拒否されたら（EN 切れ等）
-   *   開始しない。経路提示後に EN が切れた場合の対策
-   */
-  const handleExecuteClick = useCallback(async () => {
-    if (previewPath.length === 0) return
-    if (
-      !(await findPathEventDispatcher['FindPath-execute-path']({
-        path: previewPath,
-      }))
-    ) {
-      return
-    }
-
-    waypointFlowStoreApi.getState().setFlowState('idle')
-    followPathStoreApi.getState().start(previewPath)
-    stage07HandleRef.current?.followPath(previewPath)
-  }, [
-    findPathEventDispatcher,
-    followPathStoreApi,
-    previewPath,
-    stage07HandleRef,
-    waypointFlowStoreApi,
-  ])
 
   /**
    * 自動移動の終了時。途中停止（EN 不足）ならトーストで警告する
@@ -712,26 +631,7 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
           style={{ height: STANDALONE_BOT_SIZE, width: STANDALONE_BOT_SIZE }}
         />
       </div>
-      {playerOverlayContainer &&
-        createPortal(
-          <WaypointBubble
-            offset={WAYPOINT_BUBBLE_OFFSET}
-            onClick={handleWaypointBubbleClick}
-            ref={waypointBubbleRef}
-            visible={waypointFlowState !== 'idle'}
-          />,
-          playerOverlayContainer,
-        )}
-      {playerOverlayContainer &&
-        createPortal(
-          <ExecuteBubble
-            offset={EXECUTE_BUBBLE_OFFSET}
-            onClick={handleExecuteClick}
-            ref={executeBubbleRef}
-            visible={waypointFlowState !== 'idle'}
-          />,
-          playerOverlayContainer,
-        )}
+      <BotBubbles />
       <ControlPanel onReset={onReset} />
       <EnergyDebugPanel />
     </div>
