@@ -57,6 +57,7 @@ import { findHexPathViaWaypoints } from './_lib/find-hex-path-via-waypoints'
 import { getCellContents } from './_lib/get-cell-contents'
 import { isObstacleCell } from './_lib/obstacle'
 import { isBlockedByOneWay } from './_lib/one-way'
+import { FogStoreProvider, useFogStore } from './_stores/fog'
 import { ItemStoreProvider, useItemStoreApi } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import {
@@ -173,10 +174,11 @@ type EnterGuard = {
  *   `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する（`Stage07Handle.followPath`）。EN 不足で進入できなくなったら
  *   その場で停止し、トーストで警告する
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
- *   の hex 版）。可視判定は「視界（現在地基準の6近傍）」または「到達済み表示ONかつ
- *   到達済みセル」（`setShowVisited` で切替可能、既定 ON）。`Stage07`（hex タイルの
- *   表示/非表示）・`GoalMarkerLayer`（旗の表示/非表示）から読めるよう `Stage07`
- *   の外側に置く
+ *   の hex 版）。霧の状態・可視判定は `FogStoreProvider`（`_stores/fog`）が持ち、
+ *   registry は DOM の登録・反映のみを担う。可視判定は霧セルについて「視界（現在地
+ *   基準の6近傍）」または「到達済み表示ONかつ到達済みセル」（`setShowVisited` で
+ *   切替可能、既定 ON）。`Stage07`（hex タイルの表示/非表示）・`GoalMarkerLayer`
+ *   （旗の表示/非表示）から読めるよう `Stage07` の外側に置く
  * - 確認ダイアログは対象外（別途検討）
  * - 歩行モーション（`Stage07` の `enableWalking`）はチェックボックスで切替可能（既定 ON）。
  *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、
@@ -227,11 +229,13 @@ const FindPathProto03 = () => {
           <ActorsStoreProvider
             initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
           >
-            <VisibilityRegistryProvider>
-              <FindPathProto03Content
-                onReset={() => setResetKey((key) => key + 1)}
-              />
-            </VisibilityRegistryProvider>
+            <FogStoreProvider initialMode="all-hidden">
+              <VisibilityRegistryProvider>
+                <FindPathProto03Content
+                  onReset={() => setResetKey((key) => key + 1)}
+                />
+              </VisibilityRegistryProvider>
+            </FogStoreProvider>
           </ActorsStoreProvider>
         </ItemStoreProvider>
       </FindPathEventProvider>
@@ -279,8 +283,11 @@ const FindPathProto03Content = (props: FindPathProto03ContentProps) => {
   const playerOverlayContainer = useActorsStore(
     (state) => state.overlayContainers[PLAYER_ACTOR_ID],
   )
-  const { markVisited, registerVisibilityNode, setShowVisited } =
-    useVisibilityRegistry()
+  const { registerVisibilityNode } = useVisibilityRegistry()
+  /** 現在地を更新し、視界を到達済みとして記録する（fog store） */
+  const markVisited = useFogStore((state) => state.markVisited)
+  /** 到達済み表示の有無を切り替える（fog store） */
+  const setShowVisited = useFogStore((state) => state.setShowVisited)
   const energyDispatch = useEnergyEventDispatcher()
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
