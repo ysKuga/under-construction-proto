@@ -13,6 +13,7 @@ import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
 import { FindPathEventProvider } from './_events'
 import { DisplaySettingsStoreProvider } from './_stores/display-settings'
+import { EnergySettingsStoreProvider } from './_stores/energy-settings'
 import { FogStoreProvider } from './_stores/fog'
 import { FollowPathStoreProvider } from './_stores/follow-path'
 import { GoalStoreProvider } from './_stores/goal'
@@ -91,13 +92,15 @@ export const FindPathProto03Providers = (
                     <FollowPathStoreProvider>
                       <WaypointFlowStoreProvider>
                         <DisplaySettingsStoreProvider>
-                          <GoalStoreProvider>
-                            <Stage07HandleProvider>
-                              <PlayerActorEventTargetProvider>
-                                {children}
-                              </PlayerActorEventTargetProvider>
-                            </Stage07HandleProvider>
-                          </GoalStoreProvider>
+                          <EnergySettingsStoreProvider>
+                            <GoalStoreProvider>
+                              <Stage07HandleProvider>
+                                <PlayerActorEventTargetProvider>
+                                  {children}
+                                </PlayerActorEventTargetProvider>
+                              </Stage07HandleProvider>
+                            </GoalStoreProvider>
+                          </EnergySettingsStoreProvider>
                         </DisplaySettingsStoreProvider>
                       </WaypointFlowStoreProvider>
                     </FollowPathStoreProvider>
