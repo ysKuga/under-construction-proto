@@ -9,6 +9,14 @@ export const HEX_SIZE = 40
 /** bot の初期セル（axial 原点） */
 export const START_POSITION: HexCell = { q: 0, r: 0 }
 
+/**
+ * 目標セルのオーバーレイアンカーを actors store へ登録する際の擬似 id
+ *
+ * - 目標セル側にも bot と同じ吹き出しを注入するため、actor 用の overlay anchor を流用する
+ * - actor の id（`PLAYER_ACTOR_ID` 等）と重複しない値にする
+ */
+export const OBJECTIVE_OVERLAY_ID = 'objective'
+
 /** ゴールセル */
 export const GOAL_POSITION: HexCell = { q: 3, r: 2 }
 
