@@ -25,7 +25,7 @@
   - `FindPathProto03Props` を `index.types.ts` へ移す
   - 並び順の制約（energy → event、fog → visibility-registry）を JSDoc に明記
   - 構成・決定事項: [design.md](design.md)「Provider 構成（PR-5）」
-- [ ] PR-6 `docs`: `src/components/pages/CLAUDE.md` 新規作成
+- [x] PR-6 `docs`: `src/components/pages/CLAUDE.md` 新規作成（#255）
   - `_components`/`_layers`/`_contents` の役割
   - 依存方向（`_contents` → `_layers` → `_components`）
   - `_contents` のネスト、`index.providers.tsx`・`_contexts` の役割分担
