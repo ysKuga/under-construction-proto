@@ -18,5 +18,5 @@ PR: #257（issue: #248）
 
 ## 懸念・リスク
 
-- 上下量 `height` の既定値（0.025）はステージ上の小さい bot では視認しにくい可能性がある
-  - 目視確認の上、値の調整・スライダー追加を判断する
+- 上下量 `height` の既定値（0.025）はステージ上の小さい bot では視認できない
+  - Stage07 にスライダー(`bodyBobHeight`)を追加して対応（[decision-records.md](decision-records.md)）
