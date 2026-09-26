@@ -7,7 +7,7 @@
     - 上記 2 項目: PR #256
     - [x] 脚振り周期のずれへの対応を検討する（中継実装後、実際の見た目を確認してから）
       - 目視確認の結果、大きな問題なしと判断し対応しない
-    - [ ] bot の story（`body-bobbing`）のように、歩行中に体を上下させる
+    - [x] bot の story（`body-bobbing`）のように、歩行中に体を上下させる
       - `bodyBobbingAction` は dispatch 不要で walking に常時連動する（`actions` へ登録するだけ）
       - ステージ上の bot・独立 bot の双方が対象
       - PR #257
