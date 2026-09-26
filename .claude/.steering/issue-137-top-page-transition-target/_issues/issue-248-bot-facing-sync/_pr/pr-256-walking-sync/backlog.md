@@ -5,6 +5,7 @@
   - EN 切れ演出の登録は `Stage` 側に残す
 - [x] 独立 bot 側に walking / walkingReset の中継 hook を追加する
 - [x] `StandaloneBot` へ自前の `eventTarget` と walking / walkingReset action を渡す
-- [ ] Storybook で歩行の同期と、脚振り周期のずれの有無を確認する（目視、ユーザー側）
+- [x] Storybook で歩行の同期と、脚振り周期のずれの有無を確認する（目視、ユーザー側）
   - Playwright で中継の成立（walking / walkingReset が独立 bot の EventTarget へ届く）は確認済み
-  - headless では WebGL 描画の変化を取得できず、見た目は未確認
+  - headless では WebGL 描画の変化を取得できず、目視で確認（interactive=false で再生されない問題を修正後）
+  - 周期のずれへの対応は issue-248 backlog へ持ち越し
