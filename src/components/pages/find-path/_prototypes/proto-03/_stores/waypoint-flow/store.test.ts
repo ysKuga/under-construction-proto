@@ -33,4 +33,17 @@ describe('createWaypointFlowStore', () => {
     expect(store.getState().flowState).toBe('idle')
     expect(store.getState().waypoints).toEqual([])
   })
+
+  it('cancelSelecting は中継点を消し、経路提示中へ戻す（目標は残す）', () => {
+    const store = createWaypointFlowStore()
+
+    store.getState().propose({ q: 2, r: 3 })
+    store.getState().setFlowState('selecting')
+    store.getState().setWaypoints([{ q: 1, r: 1 }])
+    store.getState().cancelSelecting()
+
+    expect(store.getState().objectiveCell).toEqual({ q: 2, r: 3 })
+    expect(store.getState().flowState).toBe('proposing')
+    expect(store.getState().waypoints).toEqual([])
+  })
 })

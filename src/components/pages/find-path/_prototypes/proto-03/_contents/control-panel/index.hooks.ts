@@ -48,7 +48,7 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const reset = useReset()
 
   /**
-   * 経路提示中(`proposing`)へ戻す（`WaypointBubble` 再クリックと同じ確定操作）
+   * 中継点選択を確定し、経路提示中(`proposing`)へ戻す
    *
    * - 設置済みの `waypoints` はクリアしない（「実行」までプレビュー経路に使う）
    * - `idle` へ戻すと吹き出し（「実行」）が消え、経路プレビューだけ残るため不可

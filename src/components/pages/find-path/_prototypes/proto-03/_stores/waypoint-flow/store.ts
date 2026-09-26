@@ -5,6 +5,9 @@ import { WaypointFlowStore, WaypointFlowStoreState } from './types'
 /** 経路の提示（目標・中継点）と中継点フローの状態の store を生成する */
 export const createWaypointFlowStore = (): WaypointFlowStore =>
   createStore<WaypointFlowStoreState>((set) => ({
+    cancelSelecting: () => {
+      set({ flowState: 'proposing', waypoints: [] })
+    },
     clear: () => {
       set({ flowState: 'idle', objectiveCell: undefined, waypoints: [] })
     },

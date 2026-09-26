@@ -10,7 +10,8 @@ import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
  *   （思考吹き出し）を表示する
  * - `selecting`: `WaypointBubble` クリックで移行。`Stage07` を非対話化し
  *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する。
- *   再度 `WaypointBubble` をクリックすると `proposing` へ戻る
+ *   「完了」で中継点を残したまま（確定）、再度の `WaypointBubble` クリックで
+ *   中継点を消して（キャンセル）`proposing` へ戻る
  */
 export type WaypointFlowState = 'idle' | 'proposing' | 'selecting'
 
@@ -22,6 +23,8 @@ export type WaypointFlowStore = StoreApi<WaypointFlowStoreState>
  * - 経路の到達可否の検証は呼び出し側で行う。ここでは state 更新のみ行う
  */
 export type WaypointFlowStoreState = {
+  /** 中継点選択をキャンセルする。中継点を消し、経路提示中(`proposing`)へ戻す */
+  cancelSelecting: () => void
   /** 目標・中継点を消し、通常状態へ戻す */
   clear: () => void
   /** 中継点フローの状態 */
