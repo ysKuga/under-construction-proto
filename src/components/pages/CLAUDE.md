@@ -27,9 +27,21 @@ page-name/
 - `_components/`: 部品（吹き出し・インジケータ等）。ページの状態を知らず、props で駆動する
 - `_layers/`: ステージ（`Stage07` 等）の children として重ねるレイヤー
 - `_contents/`: ページ内容を区画ごとに格納する。その階層の直下で使う実装の置き場
-  - `_contents/index.tsx` は各 content を並べるのみとし、props・定数・className・状態を持たない
-  - 各 content の props・定数・レイアウト用 className は content 側に持つ
+  - `_contents/index.tsx` は各 content を並べるのみとし、props・定数・状態を持たない
+  - 各 content の props・定数は content 側に持つ
   - 複数 content から参照される state は `_stores/` の store へ置き、selector で購読する（[game-state](../../../.claude/rules/react/game-state.md)）
+
+### レイアウト
+
+`_contents/index.tsx`・子 content を並べる content がレイアウトを用意し、子をはめ込む（[components/CLAUDE.md](../CLAUDE.md) の「レイアウト」）。
+
+### store の線引き
+
+- ページ固有の変数（表示設定の切替等、ゲームの仕組みに関与しないもの）: ページ用の store 1 つへ集約する
+  - 関心ごとに context を分けない。selector 購読で再レンダリングの範囲は保てる
+- ドメイン（EN・アイテム・中継点フロー・ゴール到達等、ゲームの機能を成すもの）: 個別の store として維持する
+  - 複数ページ・試作からの再利用（`energy` は proto-01/02/03 で共有）を妨げないため
+- 境界は store 追加・見直しの都度精査する
 
 ### 依存方向
 
