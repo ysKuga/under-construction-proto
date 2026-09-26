@@ -94,10 +94,9 @@ issue: #137 / PR: #250（PR-1）（backlog「proto-03 の構造見直し」）
 - 候補: 見出しは `header` + `h1`、`stage-area`・`control-panel` は `aria-label` 付き `section`
 - いったん導入しない。行う場合は各 content でなく layout 側（`pages/layout.tsx` 等）での対応を検討する
 
-### Provider 構成（PR-5 検討中）
+### Provider 構成（PR-5）
 
-別セッションで検討する。
-PR-4（#253）の上に作業する（`FindPathProto03Contents` と同様の構造を目指す）。
+PR-4（#253）の上に作業する。
 
 #### 現状
 
@@ -117,29 +116,39 @@ Provider が 13 段ネストしている（外側から順に）。
 
 `index.tsx` には Provider の初期値（`INITIAL_ITEMS`）の組み立ても残っている。
 
-#### 方針（案）
+#### 方針
 
-`FindPathProto03Contents` と同様の構造にする。
-
-- Provider 群を `FindPathProto03Providers` としてまとめ、専用ディレクトリの `index.tsx` へ移す
+- Provider 群を `FindPathProto03Providers` としてまとめ、`index.providers.tsx` へ移す
   - `FindPathProto03` は `FindPathProto03Providers` と `FindPathProto03Contents` を組み合わせるのみにする
-- Provider の初期値（`INITIAL_ITEMS` 等）は `FindPathProto03Providers` 側へ集約する
+  - Provider に関する JSDoc（`VisibilityRegistryProvider`・`ActorsStoreProvider`・リセット）は `FindPathProto03Providers` へ移す
+- Provider の初期値は `FindPathProto03Providers` 側へ集約する
+  - `INITIAL_ITEMS`: `index.providers.tsx` のモジュール定数
+  - `initialFogMode` の既定値（`'all-hidden'`）
+- `FindPathProto03Props` は `index.types.ts` へ移す
+  - `index.tsx`・`index.providers.tsx` の双方から参照するため（相互 import を避ける）
+  - `FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>` とし、`{...props}` で渡す
 
-#### 検討事項
+```tsx
+const FindPathProto03 = (props: FindPathProto03Props) => (
+  <FindPathProto03Providers {...props}>
+    <FindPathProto03Contents />
+  </FindPathProto03Providers>
+)
+```
 
-- ディレクトリ名
-  - 候補: `_providers/`
-  - 同階層の既存ディレクトリ（`_contents`/`_contexts`/`_stores` 等、複数形）と一貫させる
-  - `_contexts/` との役割分担（個別 Context の実装 vs それらの組み合わせ）
-- ネストの平坦化
-  - 依存のない Provider 群を配列等で合成する（`composeProviders` 的な utility）か、ネストのまま並べるか
-  - 汎用 utility にする場合は下準備として別 PR に分ける（[pr.md](../../../../rules/pr.md)「粒度」）
-- 並び順の制約の明示
-  - 依存がある組: `EnergyStoreProvider` → `FindPathEventProvider`、`FogStoreProvider` → `VisibilityRegistryProvider`
-  - 依存のない Provider のまとめ方（store 系・stage-07 系・context 系等）
-- `ResetProvider` の位置
-  - `key` で再マウントする範囲 = リセット対象の範囲
-  - 全 Provider をリセット対象にする現状を維持するか（表示設定等、リセットで戻したくない state があるか）
-- props（`initialFogMode`）の受け渡し
-  - `FindPathProto03` の props を `FindPathProto03Providers` へどう渡すか
+#### 決定事項
 
+- 置き場は `_providers/` でなく `index.providers.tsx`
+  - 前例: time-control-03 の `index.providers.tsx`（`TimeControl03Providers`）
+  - `_contents/` は配下に子の実装（`title`・`stage-area` 等）を持つためディレクトリにした。Provider は各実装が `_stores`/`_contexts` に既にあり組み合わせるのみで、`_providers/` にしても `index.tsx` 1枚になる
+  - `_contexts/` = 個別 Context の実装、`index.providers.tsx` = それらの組み合わせ、と役割が分かれる
+- ネストは平坦化しない（`composeProviders` 的な utility は作らない）
+  - Provider ごとに props（`initialItems`/`initialActors`/`initialMode`）が異なり、配列合成では型・可読性が落ちる
+  - ネストは `index.providers.tsx` へ移すことで `index.tsx` からは見えなくなる
+- 並び順の制約は `FindPathProto03Providers` の JSDoc に明記する（time-control-03 と同形式）
+  - `FindPathEventProvider` は `EnergyStoreProvider` の内側（listener が `useEnergyStoreApi` を参照）
+  - `VisibilityRegistryProvider` は `FogStoreProvider` の内側（`useFogStoreApi` を参照）
+  - 上記以外は相互依存なし。store 系・stage-07 系等の中間 Provider へのグループ化は段が増えるだけのため行わない
+- `ResetProvider` は最外のまま、全 Provider をリセット対象とする現状を維持する
+  - 表示設定・霧のモードも PR-2 以前（`useState` 時代）からリセットで初期値へ戻っていた
+  - リセット対象から外すのは挙動変更のため、本 PR（`refactor`）の対象外。必要になれば別途 backlog へ積む

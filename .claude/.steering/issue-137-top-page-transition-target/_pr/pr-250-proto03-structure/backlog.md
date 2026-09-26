@@ -19,9 +19,12 @@
     - 独立 bot のサイズ・props、レイアウト用 className 等
   - `onReset` を props でなく context 経由にする
   - 構成・決定事項: [design.md](design.md)「FindPathProto03Contents（PR-4）」
-- [ ] PR-5 `refactor`: Provider 構成の見直し（別セッションで検討、PR-4 の上に作業）
-  - `FindPathProto03Contents` と同様、Provider 群を `FindPathProto03Providers` へまとめる案
-  - 現状・検討事項: [design.md](design.md)「Provider 構成（PR-5 検討中）」
+- [x] PR-5 `refactor`: Provider 群を `index.providers.tsx` の `FindPathProto03Providers` へまとめる（#254）
+  - `FindPathProto03` は `FindPathProto03Providers` と `FindPathProto03Contents` を組み合わせるのみにする
+  - `INITIAL_ITEMS`・`initialFogMode` の既定値を `FindPathProto03Providers` 側へ移す
+  - `FindPathProto03Props` を `index.types.ts` へ移す
+  - 並び順の制約（energy → event、fog → visibility-registry）を JSDoc に明記
+  - 構成・決定事項: [design.md](design.md)「Provider 構成（PR-5）」
 - [ ] PR-6 `docs`: `src/components/pages/CLAUDE.md` 新規作成
   - `_components`/`_layers`/`_contents` の役割
   - 依存方向（`_contents` → `_layers` → `_components`）
