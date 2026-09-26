@@ -28,14 +28,12 @@ export type WaypointFlowStoreState = {
   flowState: WaypointFlowState
   /** 非隣接クリックで選んだ経路の目標セル（経路提示中のみ） */
   objectiveCell?: HexCell
-  /** cell を目標として経路提示中(`proposing`)へ移行する */
+  /** cell を目標として経路提示中(`proposing`)へ移行する。前の目標の中継点は消す */
   propose: (cell: HexCell) => void
   /** 中継点フローの状態を切り替える */
   setFlowState: (flowState: WaypointFlowState) => void
   /** 中継点を置き換える */
   setWaypoints: (waypoints: HexCell[]) => void
-  /** 目標を消し、通常状態へ戻す（中継点は残す） */
-  unpropose: () => void
   /** 設置済みの中継点（経由順は最近傍順で別途決める） */
   waypoints: HexCell[]
 }

@@ -11,16 +11,13 @@ export const createWaypointFlowStore = (): WaypointFlowStore =>
     flowState: 'idle',
     objectiveCell: undefined,
     propose: (cell) => {
-      set({ flowState: 'proposing', objectiveCell: cell })
+      set({ flowState: 'proposing', objectiveCell: cell, waypoints: [] })
     },
     setFlowState: (flowState) => {
       set({ flowState })
     },
     setWaypoints: (waypoints) => {
       set({ waypoints })
-    },
-    unpropose: () => {
-      set({ flowState: 'idle', objectiveCell: undefined })
     },
     waypoints: [],
   }))

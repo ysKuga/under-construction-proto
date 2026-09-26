@@ -10,16 +10,15 @@ describe('createWaypointFlowStore', () => {
     expect(store.getState().flowState).toBe('proposing')
   })
 
-  it('unpropose は目標を消し通常状態へ戻すが、中継点は残す', () => {
+  it('propose は前の目標の中継点を引き継がない', () => {
     const store = createWaypointFlowStore()
 
     store.getState().propose({ q: 2, r: 3 })
     store.getState().setWaypoints([{ q: 1, r: 1 }])
-    store.getState().unpropose()
+    store.getState().propose({ q: 4, r: 0 })
 
-    expect(store.getState().objectiveCell).toBeUndefined()
-    expect(store.getState().flowState).toBe('idle')
-    expect(store.getState().waypoints).toEqual([{ q: 1, r: 1 }])
+    expect(store.getState().objectiveCell).toEqual({ q: 4, r: 0 })
+    expect(store.getState().waypoints).toEqual([])
   })
 
   it('clear は目標・中継点を消し通常状態へ戻す', () => {
