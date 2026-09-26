@@ -17,4 +17,7 @@ issue: #248（親: #137）
 
 ## 懸念・リスク
 
-- 独立 bot へ状態を同期する経路（ステージ上の bot と共有する `actorEventTarget` を使うか等）が未定
+- 独立 bot の脚振り周期がステージ上の bot とずれる可能性がある（検討事項、実際の見た目を確認してから判断）
+  - ステージ上の bot の `cycleSec` は `moveDurationMs × 2`（`maxWalkCycleSec` で頭打ち）で算出され、`ActorsLayer` が `actionConfig` として渡している
+  - `moveDurationMs`/`maxWalkCycleSec` は `Stage07` 内のスライダー state のため、独立 bot は既定の `WALKING_DEFAULTS` で動く
+  - 対応候補: 見た目の同期として許容する / `cycleSec` 算出を store 等へ出し共有する
