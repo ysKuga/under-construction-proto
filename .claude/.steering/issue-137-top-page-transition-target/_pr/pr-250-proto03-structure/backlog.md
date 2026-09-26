@@ -18,7 +18,7 @@
   - Content 内で行っている「実装」を各要素へ集約する
     - 独立 bot のサイズ・props、レイアウト用 className 等
   - `onReset` を props でなく context 経由にする
-  - 検討事項: [design.md](design.md)「FindPathProto03Contents（PR-4 検討中）」
+  - 構成・決定事項: [design.md](design.md)「FindPathProto03Contents（PR-4）」
 - [ ] PR-5 `refactor`: Provider 構成の見直し（PR-4 の後に検討）
 - [ ] PR-6 `docs`: `src/components/pages/CLAUDE.md` 新規作成
   - `_components`/`_layers`/`_contents` の役割
