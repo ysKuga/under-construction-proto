@@ -33,8 +33,12 @@ const CAM_UP = cross(RIGHT, FORWARD)
  * - カメラの right/up ベクトルへ正面ベクトルを投影し、screen 座標(x: 右+、y: 下+)の\
  *   `atan2` を求める。斜め上から見下ろす遠近視点のため、yaw とこの画面角度の関係は\
  *   非線形(側面付近ほど画面角度の変化が小さい)
+ * - face action の yaw を画面上の向き表示(find-path proto-03 の向きインジケータ等)へ\
+ *   変換する用途でも使う
+ *
+ * @param yaw box-bot-01 の yaw(rad)。0 = カメラ正面(world +z)
  */
-const yawToScreenAngle = (yaw: number): number => {
+export const yawToScreenAngle = (yaw: number): number => {
   const v: Vec3 = [Math.sin(yaw), 0, Math.cos(yaw)]
   const screenX = dot(v, RIGHT)
   const screenYDown = -dot(v, CAM_UP)

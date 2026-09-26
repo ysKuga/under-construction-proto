@@ -27,7 +27,7 @@ import { useBoxBotActionDispatcher } from './_components/box-bot-model/use-box-b
 import { CastShadow } from './_components/cast-shadow'
 import { ContactShadow } from './_components/contact-shadow'
 import { CAMERA_POSITION, ORBIT_TARGET } from './_lib/camera'
-import { screenAngleToYaw } from './_lib/screen-facing'
+import { screenAngleToYaw, yawToScreenAngle } from './_lib/screen-facing'
 import type { BoxBot3DProps, Vec3 } from './index.types'
 
 /**
@@ -132,7 +132,9 @@ export {
   useBoxBotActionDispatcher,
   walkingAction,
   walkingResetAction,
+  yawToScreenAngle,
 }
+export type { FaceOverride } from './_actions/face'
 
 /**
  * BoxBot3D — 手描き風ボックスロボットの 3D 版(react-three-fiber)
