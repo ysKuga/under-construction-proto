@@ -7,6 +7,7 @@ import {
 } from 'react'
 
 import {
+  bodyBobbingAction,
   BoxBot01,
   energyOutAction,
   faceAction,
@@ -21,6 +22,8 @@ import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
 import { useActorsStore } from '../../_stores/actors'
 
 type ActorsLayerProps = {
+  /** 歩行中の体の上下(body-bobbing)の最大持ち上げ量(world)（省略時は `BODY_BOBBING_DEFAULTS.height`） */
+  bodyBobHeight?: number
   /** 列数 */
   cols: number
   /**
@@ -39,7 +42,7 @@ type ActorsLayerProps = {
    * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
    */
   maxWalkCycleSec?: number
-  /** セル間移動アニメーションの所要時間(ms)（省略時は `150`） */
+  /** セル間移動アニメーションの所要時間(ms)（省略時は `300`） */
   moveDurationMs?: number
   /**
    * セル間移動アニメーション(位置決め div の CSS transition)完了時(省略可)
@@ -89,8 +92,18 @@ type ActorsLayerProps = {
  *   コンテナを置いていたが、floor の奥行きヒットテストで `GeoLayer` のセルに
  *   クリックを奪われたため分離した
  */
-/** face / walking / walkingReset / energyOut を有効化する(jump/spin 等は無効のまま) */
-const ACTIONS = [faceAction, walkingAction, walkingResetAction, energyOutAction]
+/**
+ * face / walking / walkingReset / bodyBobbing / energyOut を有効化する(jump/spin 等は無効のまま)
+ *
+ * - 配列の順 = `useFrame` の実行順。bodyBobbing は walking が書いた脚 swing を読むため walking より後
+ */
+const ACTIONS = [
+  faceAction,
+  walkingAction,
+  walkingResetAction,
+  bodyBobbingAction,
+  energyOutAction,
+]
 
 /**
  * 腕振り角の振幅(rad)。前後 90 度ずつ(合計可動域 180 度)に固定する
@@ -116,12 +129,13 @@ const DEFAULT_CELL: HexCell = { q: 0, r: 0 }
 
 export const ActorsLayer = memo((props: ActorsLayerProps) => {
   const {
+    bodyBobHeight,
     cols,
     eventTarget,
     hexSize,
     legSwingAngle,
     maxWalkCycleSec = 1.2,
-    moveDurationMs = 150,
+    moveDurationMs = 300,
     onArrived,
     rows,
     size,
@@ -208,6 +222,11 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
       <div onTransitionEnd={handleTransitionEnd} ref={playerRef} style={style}>
         <BoxBot01
           actionConfig={{
+            bodyBobbing: {
+              ...(bodyBobHeight !== undefined && { height: bodyBobHeight }),
+              // 正規化基準を脚振り角へ揃える（ずれると頂点で頭打ち・最大量未達になる）
+              ...(legSwingAngle !== undefined && { swingRef: legSwingAngle }),
+            },
             walking: {
               armSwingAngle: ARM_SWING_ANGLE,
               cycleSec,

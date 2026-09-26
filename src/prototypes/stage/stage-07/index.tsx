@@ -78,6 +78,13 @@ type Stage07Props = PropsWithChildren<{
   enableWalking?: boolean
   /** 六角形の外接円半径 (px) */
   hexSize: number
+  /**
+   * 歩行中の体の上下(body-bobbing)の初期最大持ち上げ量(world)（省略時は `0.1`）
+   *
+   * - `BODY_BOBBING_DEFAULTS.height`(0.025)は Canvas 一辺 234px 基準。stage 上の小さい bot
+   *   (56px 程度)では 1px 未満になり視認できないため、既定を大きめにする
+   */
+  initialBodyBobHeight?: number
   /** walking の脚振り角の初期振幅(rad)（省略時は `WALKING_DEFAULTS.swingAngle` = `0.5`） */
   initialLegSwingAngle?: number
   /**
@@ -86,7 +93,7 @@ type Stage07Props = PropsWithChildren<{
    * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
    */
   initialMaxWalkCycleSec?: number
-  /** セル間移動アニメーションの初期所要時間(ms)（省略時は `150`） */
+  /** セル間移動アニメーションの初期所要時間(ms)（省略時は `300`） */
   initialMoveDurationMs?: number
   /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
@@ -181,11 +188,22 @@ type Stage07Props = PropsWithChildren<{
  *   セル座標基準の overlay）と異なり、bot の画面上の位置へ JS で追従し、
  *   floor の奥行きヒットテストでセルにクリックを奪われない点が違う（issue #137）
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
- *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)はいずれもスライダーで
+ *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)・体の上下量(`bodyBobHeight`)はいずれもスライダーで
  *   調整可能（`ActorsLayer` へ渡す。tilt と異なり操作頻度が低いため `useState`
  *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
  *   固定値)で調整不要とのユーザー判断のため UI なし
  */
+/**
+ * 値調整スライダーの label スタイル
+ *
+ * - 1 要素 1 行にし、見出し | バー | 値 の列を全 label で同じ幅に揃える
+ */
+const SLIDER_LABEL_STYLE: CSSProperties = {
+  alignItems: 'center',
+  columnGap: 8,
+  display: 'grid',
+  gridTemplateColumns: '10em 160px auto',
+}
 /** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
 const WALKING_RESET_DURATION_MS = 200
 /** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
@@ -200,9 +218,10 @@ export const Stage07 = (props: Stage07Props) => {
     cols,
     enableWalking = false,
     hexSize,
+    initialBodyBobHeight = 0.1,
     initialLegSwingAngle = 0.5,
     initialMaxWalkCycleSec = 1.2,
-    initialMoveDurationMs = 150,
+    initialMoveDurationMs = 300,
     initialTiltDeg = 0,
     interactive = true,
     onCellChange,
@@ -220,6 +239,7 @@ export const Stage07 = (props: Stage07Props) => {
   const [maxWalkCycleSec, setMaxWalkCycleSec] = useState(initialMaxWalkCycleSec)
   /** walking の脚振り角の振幅(rad)。スライダーで調整可能 */
   const [legSwingAngle, setLegSwingAngle] = useState(initialLegSwingAngle)
+  const [bodyBobHeight, setBodyBobHeight] = useState(initialBodyBobHeight)
 
   /**
    * player bot(box-bot-01)と共有する EventTarget
@@ -391,6 +411,7 @@ export const Stage07 = (props: Stage07Props) => {
             rows={rows}
           />
           <ActorsLayer
+            bodyBobHeight={bodyBobHeight}
             cols={cols}
             eventTarget={eventTarget}
             hexSize={hexSize}
@@ -405,7 +426,7 @@ export const Stage07 = (props: Stage07Props) => {
         </div>
       </div>
       <ActorOverlayLayer />
-      <label>
+      <label style={SLIDER_LABEL_STYLE}>
         tilt{' '}
         <input
           defaultValue={initialTiltDeg}
@@ -418,7 +439,7 @@ export const Stage07 = (props: Stage07Props) => {
           type="range"
         />
       </label>
-      <label>
+      <label style={SLIDER_LABEL_STYLE}>
         移動時間(ms){' '}
         <input
           defaultValue={initialMoveDurationMs}
@@ -432,7 +453,7 @@ export const Stage07 = (props: Stage07Props) => {
         />{' '}
         {moveDurationMs}ms
       </label>
-      <label>
+      <label style={SLIDER_LABEL_STYLE}>
         歩行周期上限(s){' '}
         <input
           defaultValue={initialMaxWalkCycleSec}
@@ -446,7 +467,7 @@ export const Stage07 = (props: Stage07Props) => {
         />{' '}
         {maxWalkCycleSec.toFixed(2)}s
       </label>
-      <label>
+      <label style={SLIDER_LABEL_STYLE}>
         脚振り角(rad){' '}
         <input
           defaultValue={initialLegSwingAngle}
@@ -459,6 +480,20 @@ export const Stage07 = (props: Stage07Props) => {
           type="range"
         />{' '}
         {legSwingAngle.toFixed(2)}
+      </label>
+      <label style={SLIDER_LABEL_STYLE}>
+        体の上下量{' '}
+        <input
+          defaultValue={initialBodyBobHeight}
+          max={0.3}
+          min={0}
+          onChange={(event) => {
+            setBodyBobHeight(Number(event.target.value))
+          }}
+          step={0.01}
+          type="range"
+        />{' '}
+        {bodyBobHeight.toFixed(2)}
       </label>
     </div>
   )
