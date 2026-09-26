@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
+import { useReset } from '../../_contexts/reset'
 import { useDisplaySettingsStore } from '../../_stores/display-settings'
 import { useFogStore, useFogStoreApi } from '../../_stores/fog'
 import { useGoalStore } from '../../_stores/goal'
@@ -39,6 +40,7 @@ export const useControlPanel = (): UseControlPanelReturn => {
   )
   const waypointCount = useWaypointFlowStore((state) => state.waypoints.length)
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
+  const reset = useReset()
 
   /** 設置済みの `waypoints` はクリアしない（「実行」までプレビュー経路に使う） */
   const handleWaypointDoneClick = useCallback(() => {
@@ -51,6 +53,7 @@ export const useControlPanel = (): UseControlPanelReturn => {
     energyInfo,
     fogModeDefault: fogStoreApi.getState().mode,
     goalReached,
+    handleReset: reset,
     handleWaypointDoneClick,
     isSelectingWaypoint,
     setDisplayMode,
