@@ -92,3 +92,54 @@ issue: #137 / PR: #250（PR-1）（backlog「proto-03 の構造見直し」）
 - `<main>` は `pages/layout.tsx` が提供済み。Contents のルートは `div`
 - `article`（単独で配信・再利用できる自己完結コンテンツ向け）はステージ・操作パネルに合わない
 - 候補: 見出しは `header` + `h1`、`stage-area`・`control-panel` は `aria-label` 付き `section`
+- いったん導入しない。行う場合は各 content でなく layout 側（`pages/layout.tsx` 等）での対応を検討する
+
+### Provider 構成（PR-5 検討中）
+
+別セッションで検討する。
+PR-4（#253）の上に作業する（`FindPathProto03Contents` と同様の構造を目指す）。
+
+#### 現状
+
+`FindPathProto03`（`proto-03/index.tsx`）は Provider 群の配置のみを担う。
+Provider が 13 段ネストしている（外側から順に）。
+
+- `ResetProvider`（`_contexts/reset`）: 配下へ `key` を付け、`reset` で丸ごと再マウントする
+- `EnergyStoreProvider`（find-path 共有 `_stores/energy`）: EN store。内側で EN のイベント機構・listener も配線する
+- `FindPathEventProvider`（`_events`）: find-path の EventTarget。EN 判定の listener が energy store を参照するため `EnergyStoreProvider` の内側
+- `ItemStoreProvider`（`_stores/items`）: `initialItems`（`INITIAL_ITEMS`、`index.tsx` で組み立て）を受ける
+- `ActorsStoreProvider`（stage-07）: `initialActors`（player の `START_POSITION`）を受ける
+- `Stage07EventProvider`（stage-07）: stage-07 の EventTarget
+- `FogStoreProvider`（`_stores/fog`）: `initialMode`（`FindPathProto03` の props `initialFogMode`）を受ける
+- `VisibilityRegistryProvider`（`_contexts/visibility-registry`）: fog store を購読するため `FogStoreProvider` の内側
+- `FollowPathStoreProvider`・`WaypointFlowStoreProvider`・`DisplaySettingsStoreProvider`・`GoalStoreProvider`（`_stores/*`）: 相互依存なし
+- `Stage07HandleProvider`（`_contexts/stage07-handle`）: `Stage07Handle` の ref
+
+`index.tsx` には Provider の初期値（`INITIAL_ITEMS`）の組み立ても残っている。
+
+#### 方針（案）
+
+`FindPathProto03Contents` と同様の構造にする。
+
+- Provider 群を `FindPathProto03Providers` としてまとめ、専用ディレクトリの `index.tsx` へ移す
+  - `FindPathProto03` は `FindPathProto03Providers` と `FindPathProto03Contents` を組み合わせるのみにする
+- Provider の初期値（`INITIAL_ITEMS` 等）は `FindPathProto03Providers` 側へ集約する
+
+#### 検討事項
+
+- ディレクトリ名
+  - 候補: `_providers/`
+  - 同階層の既存ディレクトリ（`_contents`/`_contexts`/`_stores` 等、複数形）と一貫させる
+  - `_contexts/` との役割分担（個別 Context の実装 vs それらの組み合わせ）
+- ネストの平坦化
+  - 依存のない Provider 群を配列等で合成する（`composeProviders` 的な utility）か、ネストのまま並べるか
+  - 汎用 utility にする場合は下準備として別 PR に分ける（[pr.md](../../../../rules/pr.md)「粒度」）
+- 並び順の制約の明示
+  - 依存がある組: `EnergyStoreProvider` → `FindPathEventProvider`、`FogStoreProvider` → `VisibilityRegistryProvider`
+  - 依存のない Provider のまとめ方（store 系・stage-07 系・context 系等）
+- `ResetProvider` の位置
+  - `key` で再マウントする範囲 = リセット対象の範囲
+  - 全 Provider をリセット対象にする現状を維持するか（表示設定等、リセットで戻したくない state があるか）
+- props（`initialFogMode`）の受け渡し
+  - `FindPathProto03` の props を `FindPathProto03Providers` へどう渡すか
+
