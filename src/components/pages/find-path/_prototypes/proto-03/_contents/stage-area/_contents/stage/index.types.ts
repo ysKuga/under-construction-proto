@@ -21,7 +21,7 @@ export type EnterGuard = {
 }
 
 export type UseStageReturn = {
-  /** `Stage07` と bot で共有する EventTarget（EN 切れ演出の dispatch 先） */
+  /** `Stage07` と player bot で共有する EventTarget（`PlayerActorEventTargetProvider`） */
   actorEventTarget: EventTarget
   /** `Stage07` へ渡す進入可否（実際の移動判定・選択可能表示用。EN 残量チェック込みの全ガード） */
   canEnterCell: (cell: HexCell) => boolean

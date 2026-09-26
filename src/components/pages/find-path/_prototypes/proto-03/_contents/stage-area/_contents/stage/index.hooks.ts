@@ -1,6 +1,7 @@
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { usePlayerActorEventTarget } from '../../../../_contexts/player-actor-event-target'
 import { useStage07HandleRef } from '../../../../_contexts/stage07-handle'
 import { useAdvanceFollowPathOnCellReach } from '../../../../_hooks/use-advance-follow-path-on-cell-reach'
 import { usePreviewPath } from '../../../../_hooks/use-preview-path'
@@ -14,7 +15,7 @@ import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
 import { useHandleNonAdjacentClick } from './_hooks/use-handle-non-adjacent-click'
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
-import { usePlayerActorEventTarget } from './_hooks/use-player-actor-event-target'
+import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
 import { useVisibilityNodeRegistrars } from './_hooks/use-visibility-node-registrars'
 import { UseStageReturn } from './index.types'
 
@@ -53,6 +54,8 @@ export const useStage = (): UseStageReturn => {
     registerMarkerVisibilityNode,
     registerWaypointVisibilityNode,
   } = useVisibilityNodeRegistrars()
+
+  useRegisterPlayerEnergyOut()
 
   // 経路プレビューの点は、bot がマスの中心に着いた時点で消す（進行の記録を到達時に行う）
   useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)

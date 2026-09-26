@@ -7,6 +7,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
 import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-target'
 import { ResetProvider } from './_contexts/reset'
 import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
@@ -92,7 +93,9 @@ export const FindPathProto03Providers = (
                         <DisplaySettingsStoreProvider>
                           <GoalStoreProvider>
                             <Stage07HandleProvider>
-                              {children}
+                              <PlayerActorEventTargetProvider>
+                                {children}
+                              </PlayerActorEventTargetProvider>
                             </Stage07HandleProvider>
                           </GoalStoreProvider>
                         </DisplaySettingsStoreProvider>
