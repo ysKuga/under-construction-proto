@@ -4,7 +4,7 @@
 - 2026-09-25: 独立 bot の配置先は proto-03 のステージ横とする（PR #249）
 - 2026-09-25: 同期対象を「向き」から「各種状態（歩行・EN 切れ等）」へ変更。向きの同期は行わない可能性あり（別途 UI を用意する等）
 - 2026-09-26: 歩行の同期経路は「action イベントの許可リスト中継」とする
-  - `actorEventTarget` を `StageArea` へ持ち上げる
+  - `actorEventTarget` を `Stage` 内から持ち上げ、`StandaloneBot` からも参照できるようにする
   - 独立 bot 側で `ACTION_WALKING`/`ACTION_WALKING_RESET` を listen し、自身の `eventTarget` へ再送する
   - 採用理由
     - 歩行の判定結果（`enableWalking` 判定・トグル状態・reset 時間）をそのまま受けられ、`Stage07` のロジックを重複させない
