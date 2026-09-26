@@ -5,6 +5,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { isSameCell } from '../../../../../_lib/is-same-cell'
+import { useEnergySettingsStoreApi } from '../../../../../_stores/energy-settings'
 import { useFogStore } from '../../../../../_stores/fog'
 import { useGoalStore } from '../../../../../_stores/goal'
 import { useItemStoreApi } from '../../../../../_stores/items'
@@ -16,13 +17,15 @@ import { UseStageReturn } from '../index.types'
  * 現在地セル変更時（移動成立時）の処理を返す
  *
  * - 目標・中継点をクリアし、視界を到達済みとして記録する
- * - 移動先セルのアイテムを消費し即時回復、EN を 1 消費する
+ * - 移動先セルのアイテムを消費し即時回復、EN を消費量設定（`consumePerMove`）分消費する
+ * - 消費量 0（EN 無限）なら消費しない
  * - ゴールセルなら到達を記録する
  */
 export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
   const markVisited = useFogStore((state) => state.markVisited)
   const reachGoal = useGoalStore((state) => state.reach)
   const energyDispatch = useEnergyEventDispatcher()
+  const energySettingsStoreApi = useEnergySettingsStoreApi()
   const itemStoreApi = useItemStoreApi()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
 
@@ -45,10 +48,14 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
         })
       }
 
-      void energyDispatch['Energy-consume']({
-        actorId: PLAYER_ACTOR_ID,
-        amount: 1,
-      })
+      const { consumePerMove } = energySettingsStoreApi.getState()
+
+      if (consumePerMove > 0) {
+        void energyDispatch['Energy-consume']({
+          actorId: PLAYER_ACTOR_ID,
+          amount: consumePerMove,
+        })
+      }
 
       if (isSameCell(cell, GOAL_POSITION)) {
         reachGoal()
@@ -56,6 +63,7 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
     },
     [
       energyDispatch,
+      energySettingsStoreApi,
       itemStoreApi,
       markVisited,
       reachGoal,

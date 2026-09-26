@@ -17,10 +17,12 @@ const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
  * 操作パネル（表示設定の切替・EN・リセット・ゴール到達・中継点選択状況）
  *
  * - 霧・歩行モーション・移動可能マス表示は各 store へ書き込み、stage content が購読する
+ * - EN 消費量は `energy-settings` store へ書き込み、移動成立時の処理が読む（0 で EN 無限）
  * - 中継点選択モード中は `WaypointSelectingIndicator`（「完了」ボタン）を表示する
  */
 export const ControlPanel = () => {
   const {
+    consumePerMove,
     displayMode,
     enableWalking,
     energyInfo,
@@ -29,6 +31,7 @@ export const ControlPanel = () => {
     handleReset,
     handleWaypointDoneClick,
     isSelectingWaypoint,
+    setConsumePerMove,
     setDisplayMode,
     setEnableWalking,
     setFogMode,
@@ -83,6 +86,18 @@ export const ControlPanel = () => {
       <span>
         EN: {energyInfo.current}/{energyInfo.max}
       </span>
+      <label>
+        EN 消費量{' '}
+        <input
+          max={5}
+          min={0}
+          onChange={(event) => setConsumePerMove(Number(event.target.value))}
+          step={1}
+          type="range"
+          value={consumePerMove}
+        />{' '}
+        {consumePerMove === 0 ? '無限' : consumePerMove}
+      </label>
       <button onClick={handleReset} type="button">
         リセット
       </button>
