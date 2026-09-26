@@ -1,7 +1,20 @@
 # 実装計画（ステージ上の bot の状態を同期する独立 bot 表示）
 
 - [ ] 独立 bot へステージ上の bot の各種状態を同期する
-  - 歩行
+  - 歩行（action イベントの許可リスト中継。[decision-records.md](decision-records.md) 2026-09-26）
+    - [x] `actorEventTarget` を `Stage` 内から持ち上げ、`StandaloneBot` からも参照できるようにする
+    - [x] 独立 bot 側に `walking`/`walkingReset` の中継 hook を追加し、`StandaloneBot` の `actions` へ同 action を渡す
+    - 上記 2 項目: PR #256
+    - [ ] 脚振り周期のずれへの対応を検討する（中継実装後、実際の見た目を確認してから）
+      - 下記「移動速度に応じた振りの回数」で周期の算出を見直す際に併せて扱う
+    - [ ] bot の story（`body-bobbing`）のように、歩行中に体を上下させる
+      - `bodyBobbingAction` は dispatch 不要で walking に常時連動する（`actions` へ登録するだけ）
+      - ステージ上の bot・独立 bot の双方が対象
+    - [ ] 移動速度に応じて腕・脚の振りの回数（周期）を調整する
+      - 移動時間が長めの場合: 現在の周期（長め）で自然に見える
+      - 移動時間が短い場合: ほとんど振らないのに速度が出ており不自然
+        - 速度に応じ、その分振りの回数を増やしたい
+      - 現状の算出: `cycleSec = min(moveDurationMs × 2, maxWalkCycleSec)`（`Stage07` の `ActorsLayer`、1 マス = 片脚 1 歩）
   - EN 切れ
 - [ ] 向きの同期を行うか検討する
   - 行わない可能性あり（別途 UI を用意する等）
