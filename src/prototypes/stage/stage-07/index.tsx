@@ -93,7 +93,7 @@ type Stage07Props = PropsWithChildren<{
    * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
    */
   initialMaxWalkCycleSec?: number
-  /** セル間移動アニメーションの初期所要時間(ms)（省略時は `150`） */
+  /** セル間移動アニメーションの初期所要時間(ms)（省略時は `300`） */
   initialMoveDurationMs?: number
   /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
@@ -221,7 +221,7 @@ export const Stage07 = (props: Stage07Props) => {
     initialBodyBobHeight = 0.1,
     initialLegSwingAngle = 0.5,
     initialMaxWalkCycleSec = 1.2,
-    initialMoveDurationMs = 150,
+    initialMoveDurationMs = 300,
     initialTiltDeg = 0,
     interactive = true,
     onCellChange,

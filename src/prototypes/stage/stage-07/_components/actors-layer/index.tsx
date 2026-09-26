@@ -42,7 +42,7 @@ type ActorsLayerProps = {
    * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
    */
   maxWalkCycleSec?: number
-  /** セル間移動アニメーションの所要時間(ms)（省略時は `150`） */
+  /** セル間移動アニメーションの所要時間(ms)（省略時は `300`） */
   moveDurationMs?: number
   /**
    * セル間移動アニメーション(位置決め div の CSS transition)完了時(省略可)
@@ -135,7 +135,7 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     hexSize,
     legSwingAngle,
     maxWalkCycleSec = 1.2,
-    moveDurationMs = 150,
+    moveDurationMs = 300,
     onArrived,
     rows,
     size,
