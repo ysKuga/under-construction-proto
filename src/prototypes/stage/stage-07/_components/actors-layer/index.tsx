@@ -126,14 +126,16 @@ const ARM_SWING_ANGLE = Math.PI / 2
 const WALK_CADENCE_EXPONENT = 1.5
 
 /**
- * walking の速度収束レート(`speedApproachRate`)の基準値。box-bot 既定値
- * (`WALKING_DEFAULTS.speedApproachRate`)と同じ、`cycleSec` = 1 のときの値
+ * walking の速度収束レート(`speedApproachRate`)の基準値。`cycleSec` = 1 のときの値
  *
  * - `cycleSec` に反比例させ、周期が短いほど速く収束させる(`cycleSec` 計算の隣で使用)。
  *   box-bot 既定のレートのまま stage-07 の短い `moveDurationMs`(数百 ms)で使うと、
  *   歩行の減速だけで数秒かかり「到着後も行進が続く」ように見えるため
+ * - box-bot 既定値(`WALKING_DEFAULTS.speedApproachRate` = 3)より大きくする。3 だと
+ *   時定数が `cycleSec / 3` となり、1 マス単発移動では加速しきる前に到着して
+ *   ほとんど振らずに終わるため
  */
-const BASE_SPEED_APPROACH_RATE = 3
+const BASE_SPEED_APPROACH_RATE = 10
 
 /** store に `PLAYER_ACTOR_ID` が未設定(Provider 設定漏れ)なときのフォールバックセル */
 const DEFAULT_CELL: HexCell = { q: 0, r: 0 }
