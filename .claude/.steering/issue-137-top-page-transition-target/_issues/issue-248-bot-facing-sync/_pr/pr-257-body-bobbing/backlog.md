@@ -6,4 +6,5 @@
 - [x] 独立 bot の `actions` へ `bodyBobbingAction` を追加する（中継対象には含めない）
 - [x] Stage07 へ体の上下量(`bodyBobHeight`)のスライダーを追加する
   - 既定 `height`(0.025)ではステージ上の bot(56px)の上下が視認できなかったため
-- [ ] Storybook で上下の見え方を確認する（目視、ユーザー側）
+- [x] Storybook で上下の見え方を確認する（目視、ユーザー側）
+  - 上下量の既定を 1 とする
