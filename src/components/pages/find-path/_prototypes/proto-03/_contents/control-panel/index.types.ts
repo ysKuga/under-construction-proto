@@ -4,6 +4,8 @@ import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 import { FogMode } from '../../_stores/fog/types'
 
 export type UseControlPanelReturn = {
+  /** 移動 1 マスあたりの EN 消費量。0 で EN 無限 */
+  consumePerMove: number
   /** 移動可能マスの表示演出 */
   displayMode: MoveTargetDisplayMode
   /** 歩行モーションの有無 */
@@ -20,6 +22,8 @@ export type UseControlPanelReturn = {
   handleWaypointDoneClick: () => void
   /** 中継点選択モード中か */
   isSelectingWaypoint: boolean
+  /** 移動 1 マスあたりの EN 消費量を切り替える */
+  setConsumePerMove: (consumePerMove: number) => void
   /** 移動可能マスの表示演出を切り替える */
   setDisplayMode: (displayMode: MoveTargetDisplayMode) => void
   /** 歩行モーションの有無を切り替える */

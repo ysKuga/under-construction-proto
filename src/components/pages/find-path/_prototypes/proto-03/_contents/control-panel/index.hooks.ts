@@ -5,6 +5,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
 import { useReset } from '../../_contexts/reset'
 import { useDisplaySettingsStore } from '../../_stores/display-settings'
+import { useEnergySettingsStore } from '../../_stores/energy-settings'
 import { useFogStore, useFogStoreApi } from '../../_stores/fog'
 import { useGoalStore } from '../../_stores/goal'
 import {
@@ -34,6 +35,10 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const energyInfo = useEnergyStore((state) =>
     state.getEnergyInfo(PLAYER_ACTOR_ID),
   )
+  const consumePerMove = useEnergySettingsStore((state) => state.consumePerMove)
+  const setConsumePerMove = useEnergySettingsStore(
+    (state) => state.setConsumePerMove,
+  )
   const goalReached = useGoalStore((state) => state.reached)
   const isSelectingWaypoint = useWaypointFlowStore(
     (state) => state.flowState === 'selecting',
@@ -48,6 +53,7 @@ export const useControlPanel = (): UseControlPanelReturn => {
   }, [waypointFlowStoreApi])
 
   return {
+    consumePerMove,
     displayMode,
     enableWalking,
     energyInfo,
@@ -56,6 +62,7 @@ export const useControlPanel = (): UseControlPanelReturn => {
     handleReset: reset,
     handleWaypointDoneClick,
     isSelectingWaypoint,
+    setConsumePerMove,
     setDisplayMode,
     setEnableWalking,
     setFogMode,
