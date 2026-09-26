@@ -17,7 +17,8 @@
         - 速度に応じ、その分振りの回数を増やしたい
       - 現状の算出: `cycleSec = min(moveDurationMs × 2, maxWalkCycleSec)`（`Stage07` の `ActorsLayer`、1 マス = 片脚 1 歩）
       - PR #261（べき乗則による周期算出・歩行開始時の加速改善）
-  - [ ] EN 切れ
+  - [x] EN 切れ
     - [x] 独立 bot の中継対象へ `energyOutAction` を追加する（PR #262）
+    - [x] EN 切れ・回復の見え方を確認する（PR #262）
 - [ ] 向きの同期を行うか検討する
   - 行わない可能性あり（別途 UI を用意する等）
