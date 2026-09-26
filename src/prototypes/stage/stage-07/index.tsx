@@ -79,7 +79,7 @@ type Stage07Props = PropsWithChildren<{
   /** 六角形の外接円半径 (px) */
   hexSize: number
   /**
-   * 歩行中の体の上下(body-bobbing)の初期最大持ち上げ量(world)（省略時は `1`）
+   * 歩行中の体の上下(body-bobbing)の初期最大持ち上げ量(world)（省略時は `0.1`）
    *
    * - `BODY_BOBBING_DEFAULTS.height`(0.025)は Canvas 一辺 234px 基準。stage 上の小さい bot
    *   (56px 程度)では 1px 未満になり視認できないため、既定を大きめにする
@@ -207,7 +207,7 @@ export const Stage07 = (props: Stage07Props) => {
     cols,
     enableWalking = false,
     hexSize,
-    initialBodyBobHeight = 1,
+    initialBodyBobHeight = 0.1,
     initialLegSwingAngle = 0.5,
     initialMaxWalkCycleSec = 1.2,
     initialMoveDurationMs = 150,
@@ -474,12 +474,12 @@ export const Stage07 = (props: Stage07Props) => {
         体の上下量{' '}
         <input
           defaultValue={initialBodyBobHeight}
-          max={2}
+          max={0.3}
           min={0}
           onChange={(event) => {
             setBodyBobHeight(Number(event.target.value))
           }}
-          step={0.05}
+          step={0.01}
           type="range"
         />{' '}
         {bodyBobHeight.toFixed(2)}
