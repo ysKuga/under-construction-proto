@@ -1,64 +1,17 @@
 'use client'
 
-import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
-import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
-
 import { FindPathProto03Contents } from './_contents'
-import { ResetProvider } from './_contexts/reset'
-import { Stage07HandleProvider } from './_contexts/stage07-handle'
-import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
-import { FindPathEventProvider } from './_events'
-import { DisplaySettingsStoreProvider } from './_stores/display-settings'
-import { FogStoreProvider } from './_stores/fog'
-import { FogMode } from './_stores/fog/types'
-import { FollowPathStoreProvider } from './_stores/follow-path'
-import { GoalStoreProvider } from './_stores/goal'
-import { ItemStoreProvider } from './_stores/items'
-import { ItemInstance } from './_stores/items/types'
-import { WaypointFlowStoreProvider } from './_stores/waypoint-flow'
-import {
-  RECOVERY_ITEM_CELLS,
-  RECOVERY_SPOT_CELLS,
-  START_POSITION,
-} from './constants'
-
-/**
- * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
- *
- * - 回復アイテムは `stock` 未指定（1個ずつ使い切り）、回復スポットは `stock` 指定
- *   （指定回数で枯渇しうる）で区別する（proto-01 と同型）
- */
-const INITIAL_ITEMS: ItemInstance[] = [
-  ...RECOVERY_ITEM_CELLS.map((cell, index): ItemInstance => ({
-    amount: cell.amount,
-    cell: { q: cell.q, r: cell.r },
-    id: `recovery-item-${index}`,
-    kind: 'energy-recovery',
-  })),
-  ...RECOVERY_SPOT_CELLS.map((cell, index): ItemInstance => ({
-    amount: cell.amount,
-    cell: { q: cell.q, r: cell.r },
-    id: `recovery-spot-${index}`,
-    kind: 'energy-recovery',
-    stock: cell.stock,
-  })),
-]
-
-type FindPathProto03Props = {
-  /** 霧の適用範囲（初期表示）の初期値（既定 `all-hidden`） */
-  initialFogMode?: FogMode
-}
+import { FindPathProto03Providers } from './index.providers'
+import { FindPathProto03Props } from './index.types'
 
 /**
  * FindPathProto03 —find-path ページ試作（hex グリッド版）
  *
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
  *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）
- * - ここでは Provider 群の配置のみを担い、ページ内容は `FindPathProto03Contents`
- *   （`_contents/index.tsx`）に任せる（構造見直し、issue #137）。content 間で共有する
- *   state は `_stores/` の各 store に置く
+ * - ここでは Provider 群（`FindPathProto03Providers`、`index.providers.tsx`）と
+ *   ページ内容（`FindPathProto03Contents`、`_contents/index.tsx`）を組み合わせるのみ
+ *   （構造見直し、issue #137）。content 間で共有する state は `_stores/` の各 store に置く
  *   - `_contents/title`: 見出し
  *   - `_contents/stage-area`: ステージ（`_contents/stage`: `Stage07` + 各レイヤー、
  *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
@@ -92,12 +45,7 @@ type FindPathProto03Props = {
  *   （`findHexPathViaWaypoints`、issue #226）。bot を挟んで反対側の
  *   `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する（`Stage07Handle.followPath`）。EN 不足で進入できなくなったら
  *   その場で停止し、トーストで警告する
- * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
- *   の hex 版）。霧の状態・可視判定は `FogStoreProvider`（`_stores/fog`）が持ち、
- *   registry は DOM の登録・反映のみを担う。可視判定は霧セルについて「視界（現在地
- *   基準の6近傍）」または「到達済み表示ONかつ到達済みセル」（`setShowVisited` で
- *   切替可能、既定 ON）。`Stage07`（hex タイルの表示/非表示）・`GoalMarkerLayer`
- *   （旗の表示/非表示）から読めるよう `Stage07` の外側に置く
+
  * - 霧の適用範囲（初期表示）は「初期表示」select でプレイ中に切替可能。初期値は
  *   `initialFogMode`（既定 `all-hidden`）。`partial` の霧セルは `PARTIAL_FOG_CELLS`
  * - 確認ダイアログは対象外（別途検討）
@@ -105,10 +53,7 @@ type FindPathProto03Props = {
  *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、
  *   1 マスごとの隣接クリック移動でも到着後に行進が続く不自然さが解消したため既定有効化。
  *   無効化との比較用にチェックボックスは残す
- * - `ActorsStoreProvider`（hex 版、zustand store）は actorId ごとの現在セルを
- *   保持する Provider。`Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の
- *   追加に備え、外部からクリックを介さず actor を動かせるようにするため）。
- *   player・mob を区別せず一元管理する（issue #215）
+
  * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費、アイテム回復量ぶん
  *   回復する。予定経路・tick 駆動の「実行」は proto-01 と異なり導入しない（1 マス
  *   ごとの隣接クリック移動のまま）ため、`canEnterCell` へ残量判定を加え、移動成立時
@@ -133,47 +78,15 @@ type FindPathProto03Props = {
  *   `ItemStore` を axial 座標へ移植した固有実装（`_stores/items`）。proto-03 は
  *   予定経路・tick 駆動を持たないため即時使用のまま（携行可能化は対象外、別途検討）。
  *   stage content の `handleCellChange` で移動先セルのアイテムを消費し即時回復する
- * - リセット（境界値テスト用、issue #181）: `ResetProvider`（`_contexts/reset`）が
- *   `EnergyStoreProvider` 以下（position 含む）へ `key` を付け、`reset` で Provider 群
- *   ごと丸ごと再マウントする（proto-01 と同じ方式）
+
  * - 経路の提示・実行（issue #226）: UI は `FindPathEventProvider`（`_events`）の
  *   EventTarget へ担当範囲の情報を発行し、EN 等のゲーム要素による実行可否は
  *   listener 側で判定する（docs/concept/implementation/ui-jurisdiction）
  */
-const FindPathProto03 = (props: FindPathProto03Props) => {
-  const { initialFogMode = 'all-hidden' } = props
-
-  return (
-    <ResetProvider>
-      <EnergyStoreProvider>
-        <FindPathEventProvider>
-          <ItemStoreProvider initialItems={INITIAL_ITEMS}>
-            <ActorsStoreProvider
-              initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
-            >
-              <Stage07EventProvider>
-                <FogStoreProvider initialMode={initialFogMode}>
-                  <VisibilityRegistryProvider>
-                    <FollowPathStoreProvider>
-                      <WaypointFlowStoreProvider>
-                        <DisplaySettingsStoreProvider>
-                          <GoalStoreProvider>
-                            <Stage07HandleProvider>
-                              <FindPathProto03Contents />
-                            </Stage07HandleProvider>
-                          </GoalStoreProvider>
-                        </DisplaySettingsStoreProvider>
-                      </WaypointFlowStoreProvider>
-                    </FollowPathStoreProvider>
-                  </VisibilityRegistryProvider>
-                </FogStoreProvider>
-              </Stage07EventProvider>
-            </ActorsStoreProvider>
-          </ItemStoreProvider>
-        </FindPathEventProvider>
-      </EnergyStoreProvider>
-    </ResetProvider>
-  )
-}
+const FindPathProto03 = (props: FindPathProto03Props) => (
+  <FindPathProto03Providers {...props}>
+    <FindPathProto03Contents />
+  </FindPathProto03Providers>
+)
 
 export default FindPathProto03
