@@ -36,7 +36,7 @@ import { FindPathProto03Props } from './index.types'
  *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する
  *   （設置済みセルへ 📍 を表示）。通常モードのクリック（`useHexMove` 経由）とは
  *   完全に別イベントとして分離する設計方針。`WaypointSelectingIndicator`
- *   （選択中インジケータ + 「完了」ボタン）で選択モードを終了し通常状態へ戻る。
+ *   （選択中インジケータ + 「完了」ボタン）で選択モードを終了し経路提示中へ戻る。
  *   `WaypointBubble`/`WaypointSelectLayer`/`WaypointSelectingIndicator` は
  *   いずれも表示制御（`useCssToggle`）込みで自己完結したコンポーネントへ切り出し
  *   済み、親からは `visible` prop のみで駆動する（各 content が

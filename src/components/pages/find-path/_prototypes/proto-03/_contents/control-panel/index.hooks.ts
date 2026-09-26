@@ -47,9 +47,14 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   const reset = useReset()
 
-  /** 設置済みの `waypoints` はクリアしない（「実行」までプレビュー経路に使う） */
+  /**
+   * 経路提示中(`proposing`)へ戻す（`WaypointBubble` 再クリックと同じ確定操作）
+   *
+   * - 設置済みの `waypoints` はクリアしない（「実行」までプレビュー経路に使う）
+   * - `idle` へ戻すと吹き出し（「実行」）が消え、経路プレビューだけ残るため不可
+   */
   const handleWaypointDoneClick = useCallback(() => {
-    waypointFlowStoreApi.getState().setFlowState('idle')
+    waypointFlowStoreApi.getState().setFlowState('proposing')
   }, [waypointFlowStoreApi])
 
   return {
