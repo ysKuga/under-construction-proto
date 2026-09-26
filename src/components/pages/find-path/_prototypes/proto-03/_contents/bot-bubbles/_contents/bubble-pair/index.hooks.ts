@@ -1,25 +1,30 @@
 import { useCallback, useRef } from 'react'
 
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { ExecuteBubbleHandle } from '../../_components/execute-bubble'
-import { WaypointBubbleHandle } from '../../_components/waypoint-bubble'
+import { ExecuteBubbleHandle } from '../../../../_components/execute-bubble'
+import { WaypointBubbleHandle } from '../../../../_components/waypoint-bubble'
 import {
   useWaypointFlowStore,
   useWaypointFlowStoreApi,
-} from '../../_stores/waypoint-flow'
+} from '../../../../_stores/waypoint-flow'
 
 import { useEffectBubbleSelecting } from './_hooks/use-effect-bubble-selecting'
 import { useHandleExecuteClick } from './_hooks/use-handle-execute-click'
-import { UseBotBubblesReturn } from './index.types'
+import { BubblePairProps, UseBubblePairReturn } from './index.types'
 
-/** bot 頭上の吹き出し（中継点・実行）の表示・操作をまとめる */
-export const useBotBubbles = (): UseBotBubblesReturn => {
+/**
+ * 吹き出しの組（中継点・実行）の表示・操作をまとめる
+ *
+ * @param props `BubblePair` の props
+ */
+export const useBubblePair = (props: BubblePairProps): UseBubblePairReturn => {
+  const { overlayId } = props
+
   const waypointBubbleRef = useRef<WaypointBubbleHandle>(null)
   const executeBubbleRef = useRef<ExecuteBubbleHandle>(null)
-  const playerOverlayContainer = useActorsStore(
-    (state) => state.overlayContainers[PLAYER_ACTOR_ID],
+  const overlayContainer = useActorsStore(
+    (state) => state.overlayContainers[overlayId],
   )
   const visible = useWaypointFlowStore((state) => state.flowState !== 'idle')
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
@@ -41,7 +46,7 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
     executeBubbleRef,
     handleExecuteClick,
     handleWaypointBubbleClick,
-    playerOverlayContainer,
+    overlayContainer,
     visible,
     waypointBubbleRef,
   }

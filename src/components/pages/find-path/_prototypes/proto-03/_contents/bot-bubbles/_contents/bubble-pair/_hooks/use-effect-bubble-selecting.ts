@@ -1,8 +1,8 @@
 import { RefObject, useEffect } from 'react'
 
-import { ExecuteBubbleHandle } from '../../../_components/execute-bubble'
-import { WaypointBubbleHandle } from '../../../_components/waypoint-bubble'
-import { useWaypointFlowStore } from '../../../_stores/waypoint-flow'
+import { ExecuteBubbleHandle } from '../../../../../_components/execute-bubble'
+import { WaypointBubbleHandle } from '../../../../../_components/waypoint-bubble'
+import { useWaypointFlowStore } from '../../../../../_stores/waypoint-flow'
 
 /**
  * 中継点選択モードの切替を吹き出しの selectable・半透明化(imperative) へ同期する

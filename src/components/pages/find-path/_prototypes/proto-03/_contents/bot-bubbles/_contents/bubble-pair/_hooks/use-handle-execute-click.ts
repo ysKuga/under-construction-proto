@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 
-import { useStage07HandleRef } from '../../../_contexts/stage07-handle'
-import { useFindPathEventDispatcher } from '../../../_events'
-import { usePreviewPath } from '../../../_hooks/use-preview-path'
-import { useFollowPathStoreApi } from '../../../_stores/follow-path'
-import { useWaypointFlowStoreApi } from '../../../_stores/waypoint-flow'
-import { UseBotBubblesReturn } from '../index.types'
+import { useStage07HandleRef } from '../../../../../_contexts/stage07-handle'
+import { useFindPathEventDispatcher } from '../../../../../_events'
+import { usePreviewPath } from '../../../../../_hooks/use-preview-path'
+import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
+import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
+import { UseBubblePairReturn } from '../index.types'
 
 /**
  * 「実行」吹き出しクリック時の処理。表示中の経路に沿って自動移動を開始する
@@ -18,7 +18,7 @@ import { UseBotBubblesReturn } from '../index.types'
  *   開始しない。経路提示後に EN が切れた場合の対策
  */
 export const useHandleExecuteClick =
-  (): UseBotBubblesReturn['handleExecuteClick'] => {
+  (): UseBubblePairReturn['handleExecuteClick'] => {
     const previewPath = usePreviewPath()
     const stage07HandleRef = useStage07HandleRef()
     const findPathEventDispatcher = useFindPathEventDispatcher()
