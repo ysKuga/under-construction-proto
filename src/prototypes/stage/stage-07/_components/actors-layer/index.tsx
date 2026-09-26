@@ -22,6 +22,8 @@ import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
 import { useActorsStore } from '../../_stores/actors'
 
 type ActorsLayerProps = {
+  /** 歩行中の体の上下(body-bobbing)の最大持ち上げ量(world)（省略時は `BODY_BOBBING_DEFAULTS.height`） */
+  bodyBobHeight?: number
   /** 列数 */
   cols: number
   /**
@@ -127,6 +129,7 @@ const DEFAULT_CELL: HexCell = { q: 0, r: 0 }
 
 export const ActorsLayer = memo((props: ActorsLayerProps) => {
   const {
+    bodyBobHeight,
     cols,
     eventTarget,
     hexSize,
@@ -219,6 +222,11 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
       <div onTransitionEnd={handleTransitionEnd} ref={playerRef} style={style}>
         <BoxBot01
           actionConfig={{
+            bodyBobbing: {
+              ...(bodyBobHeight !== undefined && { height: bodyBobHeight }),
+              // 正規化基準を脚振り角へ揃える（ずれると頂点で頭打ち・最大量未達になる）
+              ...(legSwingAngle !== undefined && { swingRef: legSwingAngle }),
+            },
             walking: {
               armSwingAngle: ARM_SWING_ANGLE,
               cycleSec,
@@ -227,10 +235,6 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
               // undefined を明示的に含めると既定値を上書きしてしまう。省略する
               ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
             },
-            // 体の上下の正規化基準を脚振り角へ揃える（ずれると頂点で頭打ち・最大量未達になる）
-            ...(legSwingAngle !== undefined && {
-              bodyBobbing: { swingRef: legSwingAngle },
-            }),
           }}
           actions={ACTIONS}
           eventTarget={eventTarget}
