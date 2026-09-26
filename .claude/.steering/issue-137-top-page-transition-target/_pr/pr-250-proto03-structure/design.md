@@ -152,3 +152,41 @@ const FindPathProto03 = (props: FindPathProto03Props) => (
 - `ResetProvider` は最外のまま、全 Provider をリセット対象とする現状を維持する
   - 表示設定・霧のモードも PR-2 以前（`useState` 時代）からリセットで初期値へ戻っていた
   - リセット対象から外すのは挙動変更のため、本 PR（`refactor`）の対象外。必要になれば別途 backlog へ積む
+
+### pages 全体の方針（PR-6）
+
+PR-5（#254）の上に作業する。
+PR-1〜5 で整理した構成を `src/components/pages/CLAUDE.md` へ pages 全体の方針として記載する。
+
+#### 既存記述との比較
+
+- `_components` のネスト（[component-nesting](../../../../rules/react/component-nesting.md)）
+  - 「特定の親からのみ使う子は親配下の `_components/` へ」という基準
+  - `_contents` のネスト（`stage-area/_contents/stage`）は同じ基準の適用で、矛盾しない
+  - ルール側は `_components` のみを対象に書かれているため、pages/CLAUDE.md で `_contents`・`_layers` にも適用すると明記する
+- 構成分割（[react/hooks.md](../../../../rules/react/hooks.md) の `index.tsx`/`index.hooks.ts`/`index.types.ts`）
+  - `index.providers.tsx` は同じ「種類ごとの `index.*` 分割」の延長にあたる
+  - 前例の time-control-03 は `src/prototypes/` 配下で、pages 限定の構成ではない
+  - hooks.md は hook の分割ルールのため、Provider の組み合わせはそこへ足さず pages/CLAUDE.md に書く
+- 同列 import の回避（[sibling-import](../../../../rules/sibling-import.md)）
+  - 依存方向 `_contents` → `_layers` → `_components` は「一方向にする」の具体化で、矛盾しない
+- home の `_prototypes/CLAUDE.md`
+  - `_components/` を「共通の実装置き場」（`bot-overlay` 等の部品）としており、`_components` = 部品の定義と一致する
+- find-path の `_prototypes/CLAUDE.md`（proto-03）
+  - `_contents` の定義・依存方向を proto-03 の説明として記載済み。pages/CLAUDE.md への一般化に合わせ、一般論は参照へ置き換える
+  - PR-5 前の記述が残っている
+    - 「`index.tsx` は Provider 群の配置のみ」→ `index.providers.tsx` の `FindPathProto03Providers`
+    - EN の「`EnergyStoreContext.Provider` を `index.tsx` の `FindPathProto03` 直下」→ `FindPathProto03Providers` 内の `EnergyStoreProvider`
+- `_contents/index.tsx` の JSDoc
+  - 「Provider 群（`FindPathProto03`）の内側で使う」→ `FindPathProto03Providers`
+
+#### 方針
+
+- pages/CLAUDE.md に記載する内容
+  - `_components`/`_layers`/`_contents` の役割
+  - 依存方向（`_contents` → `_layers` → `_components`）
+  - `_contents` のネスト（component-nesting と同じ基準）
+  - `index.tsx`（組み合わせのみ）・`index.providers.tsx`（Provider の組み合わせ）・`_contexts/`（個別 Context）の役割分担
+  - ディレクトリ名と HTML 要素の選択は別に扱う
+- 例は proto-03 を参照させる。pages 配下で上記構成を採るのは現状 proto-03 のみのため、既存ページへの一括適用は行わない
+- 上記の古い記述（`_prototypes/CLAUDE.md`・`_contents/index.tsx`）を合わせて修正する

@@ -28,3 +28,6 @@
 - [ ] PR-6 `docs`: `src/components/pages/CLAUDE.md` 新規作成
   - `_components`/`_layers`/`_contents` の役割
   - 依存方向（`_contents` → `_layers` → `_components`）
+  - `_contents` のネスト、`index.providers.tsx`・`_contexts` の役割分担
+  - PR-5 前の古い記述（`_prototypes/CLAUDE.md`・`_contents/index.tsx`）を修正
+  - 構成・決定事項: [design.md](design.md)「pages 全体の方針（PR-6）」
