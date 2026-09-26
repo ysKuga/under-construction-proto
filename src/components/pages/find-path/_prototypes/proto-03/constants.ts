@@ -1,5 +1,11 @@
 import { HEX_DIRECTIONS, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+/** グリッド形状 */
+export const GRID = { cols: 5, rows: 5 } as const
+
+/** 六角形の外接円半径 (px) */
+export const HEX_SIZE = 40
+
 /** bot の初期セル（axial 原点） */
 export const START_POSITION: HexCell = { q: 0, r: 0 }
 

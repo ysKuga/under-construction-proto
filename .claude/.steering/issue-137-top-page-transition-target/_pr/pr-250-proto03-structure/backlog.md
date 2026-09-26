@@ -7,8 +7,19 @@
   - `_stores/waypoint-flow` 新設（`waypointFlowState`/`waypoints`/`objectiveCell`）
   - `currentCell` → actors store 参照
   - `_stores/display-settings`/`_stores/goal` 新設
-- [ ] PR-3 `refactor`: `_contents/` を新設し `FindPathProto03Content` を分割（PR-1・PR-2 に依存）
-  - 候補: `stage`/`bot-bubbles`/`control-panel`/`standalone-bot`
-- [ ] PR-4 `docs`: `src/components/pages/CLAUDE.md` 新規作成
+- [x] PR-3 `refactor`: `_contents/` を新設し `FindPathProto03Content` を分割（#252）
+  - `stage`/`bot-bubbles`/`control-panel`（独立 bot は Content に残す）
+- [ ] PR-4 `refactor`: `FindPathProto03Content` を `_contents/index.tsx` の `FindPathProto03Contents` へ移す（PR-3 に依存）
+  - `FindPathProto03Contents` へ名前変更し、`_contents/index.tsx` へ移動
+  - `_contents/` の要素は `FindPathProto03Contents` 直下で使う実装を格納する
+    - `h1`
+    - `Stage`・独立 bot を格納する `div`
+    - `BotBubbles`・`ControlPanel`（既存）
+  - Content 内で行っている「実装」を各要素へ集約する
+    - 独立 bot のサイズ・props、レイアウト用 className 等
+  - `onReset` を props でなく context 経由にする
+  - 検討事項: [design.md](design.md)「FindPathProto03Contents（PR-4 検討中）」
+- [ ] PR-5 `refactor`: Provider 構成の見直し（PR-4 の後に検討）
+- [ ] PR-6 `docs`: `src/components/pages/CLAUDE.md` 新規作成
   - `_components`/`_layers`/`_contents` の役割
   - 依存方向（`_contents` → `_layers` → `_components`）
