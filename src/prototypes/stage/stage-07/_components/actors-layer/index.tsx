@@ -7,6 +7,7 @@ import {
 } from 'react'
 
 import {
+  bodyBobbingAction,
   BoxBot01,
   energyOutAction,
   faceAction,
@@ -89,8 +90,18 @@ type ActorsLayerProps = {
  *   コンテナを置いていたが、floor の奥行きヒットテストで `GeoLayer` のセルに
  *   クリックを奪われたため分離した
  */
-/** face / walking / walkingReset / energyOut を有効化する(jump/spin 等は無効のまま) */
-const ACTIONS = [faceAction, walkingAction, walkingResetAction, energyOutAction]
+/**
+ * face / walking / walkingReset / bodyBobbing / energyOut を有効化する(jump/spin 等は無効のまま)
+ *
+ * - 配列の順 = `useFrame` の実行順。bodyBobbing は walking が書いた脚 swing を読むため walking より後
+ */
+const ACTIONS = [
+  faceAction,
+  walkingAction,
+  walkingResetAction,
+  bodyBobbingAction,
+  energyOutAction,
+]
 
 /**
  * 腕振り角の振幅(rad)。前後 90 度ずつ(合計可動域 180 度)に固定する
@@ -216,6 +227,10 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
               // undefined を明示的に含めると既定値を上書きしてしまう。省略する
               ...(legSwingAngle !== undefined && { swingAngle: legSwingAngle }),
             },
+            // 体の上下の正規化基準を脚振り角へ揃える（ずれると頂点で頭打ち・最大量未達になる）
+            ...(legSwingAngle !== undefined && {
+              bodyBobbing: { swingRef: legSwingAngle },
+            }),
           }}
           actions={ACTIONS}
           eventTarget={eventTarget}
