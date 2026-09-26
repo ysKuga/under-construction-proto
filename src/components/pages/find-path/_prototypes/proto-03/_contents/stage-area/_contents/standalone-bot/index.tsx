@@ -11,9 +11,9 @@ import {
 const STANDALONE_BOT_SIZE = 160
 
 /**
- * ステージ上の bot とは別に独立表示し、歩行を同期する bot（issue #248）
+ * ステージ上の bot とは別に独立表示し、歩行・EN 切れを同期する bot（issue #248）
  *
- * - `interactive` は既定(true)のままにする。false だと walking 等の action が
+ * - `interactive` は既定(true)のままにする。false だと walking・energyOut 等の action が
  *   dispatch を無視し、同期されない
  * - クリック(既定の `clickBindings` = jump/spin)は `actions` に含めないため反応しない
  *   （ステージ上の bot と同じ）
