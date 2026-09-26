@@ -9,7 +9,7 @@
   - `_stores/display-settings`/`_stores/goal` 新設
 - [x] PR-3 `refactor`: `_contents/` を新設し `FindPathProto03Content` を分割（#252）
   - `stage`/`bot-bubbles`/`control-panel`（独立 bot は Content に残す）
-- [ ] PR-4 `refactor`: `FindPathProto03Content` を `_contents/index.tsx` の `FindPathProto03Contents` へ移す（PR-3 に依存）
+- [x] PR-4 `refactor`: `FindPathProto03Content` を `_contents/index.tsx` の `FindPathProto03Contents` へ移す（#253）
   - `FindPathProto03Contents` へ名前変更し、`_contents/index.tsx` へ移動
   - `_contents/` の要素は `FindPathProto03Contents` 直下で使う実装を格納する
     - `h1`
