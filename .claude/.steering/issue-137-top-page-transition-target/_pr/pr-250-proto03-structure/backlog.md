@@ -9,7 +9,7 @@
   - `_stores/display-settings`/`_stores/goal` 新設
 - [x] PR-3 `refactor`: `_contents/` を新設し `FindPathProto03Content` を分割（#252）
   - `stage`/`bot-bubbles`/`control-panel`（独立 bot は Content に残す）
-- [ ] PR-4 `refactor`: `FindPathProto03Content` を `_contents/index.tsx` の `FindPathProto03Contents` へ移す（PR-3 に依存）
+- [x] PR-4 `refactor`: `FindPathProto03Content` を `_contents/index.tsx` の `FindPathProto03Contents` へ移す（#253）
   - `FindPathProto03Contents` へ名前変更し、`_contents/index.tsx` へ移動
   - `_contents/` の要素は `FindPathProto03Contents` 直下で使う実装を格納する
     - `h1`
@@ -18,8 +18,10 @@
   - Content 内で行っている「実装」を各要素へ集約する
     - 独立 bot のサイズ・props、レイアウト用 className 等
   - `onReset` を props でなく context 経由にする
-  - 検討事項: [design.md](design.md)「FindPathProto03Contents（PR-4 検討中）」
-- [ ] PR-5 `refactor`: Provider 構成の見直し（PR-4 の後に検討）
+  - 構成・決定事項: [design.md](design.md)「FindPathProto03Contents（PR-4）」
+- [ ] PR-5 `refactor`: Provider 構成の見直し（別セッションで検討、PR-4 の上に作業）
+  - `FindPathProto03Contents` と同様、Provider 群を `FindPathProto03Providers` へまとめる案
+  - 現状・検討事項: [design.md](design.md)「Provider 構成（PR-5 検討中）」
 - [ ] PR-6 `docs`: `src/components/pages/CLAUDE.md` 新規作成
   - `_components`/`_layers`/`_contents` の役割
   - 依存方向（`_contents` → `_layers` → `_components`）

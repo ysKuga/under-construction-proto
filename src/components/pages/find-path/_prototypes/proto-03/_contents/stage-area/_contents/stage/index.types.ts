@@ -3,7 +3,7 @@ import { RefObject } from 'react'
 import { Stage07Handle } from '@/prototypes/stage/stage-07'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
-import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
+import { MoveTargetDisplayMode } from '../../../../_stores/display-settings/types'
 
 /**
  * 進入拒否条件を1件表す

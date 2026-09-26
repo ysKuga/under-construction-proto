@@ -61,9 +61,9 @@ issue: #137 / PR: #250（PR-1）（backlog「proto-03 の構造見直し」）
     - r3f-state ルールの複数消費者と同じ方式
 - 独立 bot・見出し・`EnergyDebugPanel` は数行のため Content に残す
 
-### FindPathProto03Contents（PR-4 検討中）
+### FindPathProto03Contents（PR-4）
 
-`FindPathProto03Content`（`index.tsx`）は content を組み合わせるだけになったが、以下が残っている。
+`FindPathProto03Content`（`index.tsx`）は content を組み合わせるだけになったが、以下が残っていた。
 
 - 独立 bot の props・サイズ定数（`STANDALONE_BOT_SIZE`）
 - レイアウト用の className（全体の縦並び、stage と独立 bot の横並び）
@@ -72,29 +72,74 @@ issue: #137 / PR: #250（PR-1）（backlog「proto-03 の構造見直し」）
 #### 方針
 
 - `FindPathProto03Contents` へ名前変更し、`_contents/index.tsx` へ移動する
-- `_contents/` 直下の要素 = `FindPathProto03Contents` 直下で使う実装
-  - `FindPathProto03Contents` は各要素を並べるのみとし、props・定数・className を持たない
-- `onReset` は context 経由にする
+  - 各要素を並べるのみとし、props・定数・className を持たない
+- `_contents/` = その階層の直下で使う実装の置き場
+  - `_contents/title`: 見出し（`h1`）
+  - `_contents/stage-area`: stage と独立 bot を横に並べる
+    - `stage-area/_contents/stage`: 既存 `_contents/stage` をネスト（`stage-area` からのみ使うため）
+    - `stage-area/_contents/standalone-bot`: 独立 bot（issue #248 の状態同期で実装が増える見込みのため切り出す）
+  - `_contents/bot-bubbles`・`_contents/control-panel`: 既存のまま
+  - `EnergyDebugPanel`: find-path 共有の `_components` のため `_contents` へは入れず直接使う
+- `onReset` を context 化する
+  - `_contexts/reset`: `resetKey` の state と `key` の付与を1つの Provider へまとめ、`reset` 関数を配る
+  - `FindPathProto03` から `useState` がなくなる
+  - Provider 群の中での位置は PR-5 で見直す
+
+#### HTML セマンティクス
+
+ディレクトリ名（`_contents`）はコード上の置き場の区分で、HTML 要素の選択とは別に扱う。
+
+- `<main>` は `pages/layout.tsx` が提供済み。Contents のルートは `div`
+- `article`（単独で配信・再利用できる自己完結コンテンツ向け）はステージ・操作パネルに合わない
+- 候補: 見出しは `header` + `h1`、`stage-area`・`control-panel` は `aria-label` 付き `section`
+- いったん導入しない。行う場合は各 content でなく layout 側（`pages/layout.tsx` 等）での対応を検討する
+
+### Provider 構成（PR-5 検討中）
+
+別セッションで検討する。
+PR-4（#253）の上に作業する（`FindPathProto03Contents` と同様の構造を目指す）。
+
+#### 現状
+
+`FindPathProto03`（`proto-03/index.tsx`）は Provider 群の配置のみを担う。
+Provider が 13 段ネストしている（外側から順に）。
+
+- `ResetProvider`（`_contexts/reset`）: 配下へ `key` を付け、`reset` で丸ごと再マウントする
+- `EnergyStoreProvider`（find-path 共有 `_stores/energy`）: EN store。内側で EN のイベント機構・listener も配線する
+- `FindPathEventProvider`（`_events`）: find-path の EventTarget。EN 判定の listener が energy store を参照するため `EnergyStoreProvider` の内側
+- `ItemStoreProvider`（`_stores/items`）: `initialItems`（`INITIAL_ITEMS`、`index.tsx` で組み立て）を受ける
+- `ActorsStoreProvider`（stage-07）: `initialActors`（player の `START_POSITION`）を受ける
+- `Stage07EventProvider`（stage-07）: stage-07 の EventTarget
+- `FogStoreProvider`（`_stores/fog`）: `initialMode`（`FindPathProto03` の props `initialFogMode`）を受ける
+- `VisibilityRegistryProvider`（`_contexts/visibility-registry`）: fog store を購読するため `FogStoreProvider` の内側
+- `FollowPathStoreProvider`・`WaypointFlowStoreProvider`・`DisplaySettingsStoreProvider`・`GoalStoreProvider`（`_stores/*`）: 相互依存なし
+- `Stage07HandleProvider`（`_contexts/stage07-handle`）: `Stage07Handle` の ref
+
+`index.tsx` には Provider の初期値（`INITIAL_ITEMS`）の組み立ても残っている。
+
+#### 方針（案）
+
+`FindPathProto03Contents` と同様の構造にする。
+
+- Provider 群を `FindPathProto03Providers` としてまとめ、専用ディレクトリの `index.tsx` へ移す
+  - `FindPathProto03` は `FindPathProto03Providers` と `FindPathProto03Contents` を組み合わせるのみにする
+- Provider の初期値（`INITIAL_ITEMS` 等）は `FindPathProto03Providers` 側へ集約する
 
 #### 検討事項
 
-- 直下要素の分け方と命名
-  - 見出し（`h1`）: 1要素として切り出す（例: `_contents/title`）
-  - stage と独立 bot の `div`: 1要素にまとめる（例: `_contents/stage-area`）
-  - `EnergyDebugPanel`: find-path 共有の `_components` のため `_contents` へは入れず直接使う想定
-- 既存 `_contents/stage` の置き場
-  - stage と独立 bot をまとめる要素からのみ使われる
-  - [component-nesting](../../../../rules/react/component-nesting.md) に従うなら、その要素の配下へネストする
-  - ネスト先のディレクトリ名は未定（`_contents/` か `_components/` か）
-    - `_components/` は部品のみという方針（PR-1）と食い違う
-    - `_contents/` をネストすると「`_contents` = Contents 直下」という定義を各階層に拡張する形になる
-- 独立 bot の置き場
-  - stage と独立 bot をまとめる要素の中へ直接書く案
-  - 独立した要素に切り出す案（issue #248 の状態同期で実装が増える見込み）
-- `onReset` の context 化
-  - リセットは `FindPathProto03` の `resetKey`（Provider 群の `key`）を更新して再マウントする方式
-  - context は `key` を付ける Provider より外側に置く必要がある
-  - 案: `resetKey` の state と `key` の付与を1つの Provider（例: `_contexts/reset`）へまとめ、`reset` 関数を context で配る
-    - `FindPathProto03` から `useState` がなくなる
-  - Provider 構成の見直し（PR-5）と関わるため、置き場は PR-5 の検討と合わせて決める
+- ディレクトリ名
+  - 候補: `_providers/`
+  - 同階層の既存ディレクトリ（`_contents`/`_contexts`/`_stores` 等、複数形）と一貫させる
+  - `_contexts/` との役割分担（個別 Context の実装 vs それらの組み合わせ）
+- ネストの平坦化
+  - 依存のない Provider 群を配列等で合成する（`composeProviders` 的な utility）か、ネストのまま並べるか
+  - 汎用 utility にする場合は下準備として別 PR に分ける（[pr.md](../../../../rules/pr.md)「粒度」）
+- 並び順の制約の明示
+  - 依存がある組: `EnergyStoreProvider` → `FindPathEventProvider`、`FogStoreProvider` → `VisibilityRegistryProvider`
+  - 依存のない Provider のまとめ方（store 系・stage-07 系・context 系等）
+- `ResetProvider` の位置
+  - `key` で再マウントする範囲 = リセット対象の範囲
+  - 全 Provider をリセット対象にする現状を維持するか（表示設定等、リセットで戻したくない state があるか）
+- props（`initialFogMode`）の受け渡し
+  - `FindPathProto03` の props を `FindPathProto03Providers` へどう渡すか
 

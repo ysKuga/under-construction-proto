@@ -3,11 +3,6 @@ import { EnergyInfo } from '@/components/pages/find-path/_prototypes/_stores/ene
 import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 import { FogMode } from '../../_stores/fog/types'
 
-export type ControlPanelProps = {
-  /** 「リセット」。全 store（position/items 等）を初期状態に戻す */
-  onReset: () => void
-}
-
 export type UseControlPanelReturn = {
   /** 移動可能マスの表示演出 */
   displayMode: MoveTargetDisplayMode
@@ -19,6 +14,8 @@ export type UseControlPanelReturn = {
   fogModeDefault: FogMode
   /** ゴールへ到達済みか */
   goalReached: boolean
+  /** 「リセット」クリック時。全 store（position/items 等）を初期状態に戻す */
+  handleReset: () => void
   /** 「完了」クリック時。中継点選択モードを終了し通常状態へ戻る */
   handleWaypointDoneClick: () => void
   /** 中継点選択モード中か */

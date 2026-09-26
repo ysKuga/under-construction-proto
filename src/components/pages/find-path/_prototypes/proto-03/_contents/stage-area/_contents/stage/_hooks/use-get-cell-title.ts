@@ -2,9 +2,9 @@ import { useCallback } from 'react'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
-import { describeCellContent } from '../../../_lib/describe-cell-content'
-import { getCellContents } from '../../../_lib/get-cell-contents'
-import { useItemStoreApi } from '../../../_stores/items'
+import { describeCellContent } from '../../../../../_lib/describe-cell-content'
+import { getCellContents } from '../../../../../_lib/get-cell-contents'
+import { useItemStoreApi } from '../../../../../_stores/items'
 import { UseStageReturn } from '../index.types'
 
 /**
