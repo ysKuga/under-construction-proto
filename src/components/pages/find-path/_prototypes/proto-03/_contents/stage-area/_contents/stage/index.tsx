@@ -111,6 +111,7 @@ export const Stage = () => {
             rows={GRID.rows}
           />
           <ObjectiveMarkerLayer
+            anchorSize={BOT_SIZE}
             cols={GRID.cols}
             hexSize={HEX_SIZE}
             objectiveCell={objectiveMarkerCell}
