@@ -19,6 +19,7 @@ import { PLAYER_ACTOR_ID } from '../../../stage-06/constants'
 import { useEffectCellReach } from '../../_hooks/use-effect-cell-reach'
 import { HexCell } from '../../_lib/hex'
 import { computeHexGridBounds, hexCellCenter } from '../../_lib/hex-layout'
+import { computeWalkCycleSec } from '../../_lib/walk-cycle'
 import { useActorsStore } from '../../_stores/actors'
 
 type ActorsLayerProps = {
@@ -79,6 +80,9 @@ type ActorsLayerProps = {
  *   `moveDurationMs`（3000ms 等）で周期が数秒に伸び、歩幅(`swingAngle`)は変わらない
  *   ため振れているかどうか視認しづらくなる。歩幅は変えず、周期の伸びだけ頭打ちにして
  *   常に一定以上の頻度で動きが見えるようにする
+ * - 上限未満の区間は `WALK_CADENCE_EXPONENT` 乗で周期を縮め、速い移動ほど 1 マスあたりの
+ *   歩数を増やす（`computeWalkCycleSec`）。線形連動のみだと 1 マスあたり常に 1 歩で、
+ *   速い移動なのにほとんど振らないように見えるため
  * - player の描画位置がセル中心に到達したら `Stage07-cell-reach` を発行する
  *   （`useEffectCellReach`）
  * - visibility registry・ref registry 化は対象外（試作スコープ、issue #162）
@@ -115,14 +119,23 @@ const ACTIONS = [
 const ARM_SWING_ANGLE = Math.PI / 2
 
 /**
- * walking の速度収束レート(`speedApproachRate`)の基準値。box-bot 既定値
- * (`WALKING_DEFAULTS.speedApproachRate`)と同じ、`cycleSec` = 1 のときの値
+ * 脚振り周期の上限未満の区間で周期を縮める指数(`computeWalkCycleSec` 参照)
+ *
+ * - 1 で線形連動(1 マスあたり常に 1 歩)。1 超で速い移動ほど 1 マスあたりの歩数が増える
+ */
+const WALK_CADENCE_EXPONENT = 1.5
+
+/**
+ * walking の速度収束レート(`speedApproachRate`)の基準値。`cycleSec` = 1 のときの値
  *
  * - `cycleSec` に反比例させ、周期が短いほど速く収束させる(`cycleSec` 計算の隣で使用)。
  *   box-bot 既定のレートのまま stage-07 の短い `moveDurationMs`(数百 ms)で使うと、
  *   歩行の減速だけで数秒かかり「到着後も行進が続く」ように見えるため
+ * - box-bot 既定値(`WALKING_DEFAULTS.speedApproachRate` = 3)より大きくする。3 だと
+ *   時定数が `cycleSec / 3` となり、1 マス単発移動では加速しきる前に到着して
+ *   ほとんど振らずに終わるため
  */
-const BASE_SPEED_APPROACH_RATE = 3
+const BASE_SPEED_APPROACH_RATE = 10
 
 /** store に `PLAYER_ACTOR_ID` が未設定(Provider 設定漏れ)なときのフォールバックセル */
 const DEFAULT_CELL: HexCell = { q: 0, r: 0 }
@@ -208,11 +221,12 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     }
   }
 
-  /**
-   * walking の 1 周期(両脚 1 往復 = 2 歩)を、1 マス移動(片脚 1 歩)の 2 マスぶんとみなし、
-   * 移動時間の 2 倍を周期にする（`maxWalkCycleSec` で頭打ち）
-   */
-  const cycleSec = Math.min((moveDurationMs / 1000) * 2, maxWalkCycleSec)
+  /** walking の脚振り周期(秒)。移動時間から算出する(`computeWalkCycleSec` 参照) */
+  const cycleSec = computeWalkCycleSec(
+    moveDurationMs,
+    maxWalkCycleSec,
+    WALK_CADENCE_EXPONENT,
+  )
 
   /** `cycleSec` に反比例させた歩行の速度収束レート(`BASE_SPEED_APPROACH_RATE` 参照) */
   const speedApproachRate = BASE_SPEED_APPROACH_RATE / cycleSec
