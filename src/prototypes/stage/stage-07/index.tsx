@@ -193,8 +193,17 @@ type Stage07Props = PropsWithChildren<{
  *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
  *   固定値)で調整不要とのユーザー判断のため UI なし
  */
-/** 値調整スライダーの label スタイル（折り返しで要素の区切りが分かりにくくならないよう 1 要素 1 行にする） */
-const SLIDER_LABEL_STYLE: CSSProperties = { display: 'block' }
+/**
+ * 値調整スライダーの label スタイル
+ *
+ * - 1 要素 1 行にし、見出し | バー | 値 の列を全 label で同じ幅に揃える
+ */
+const SLIDER_LABEL_STYLE: CSSProperties = {
+  alignItems: 'center',
+  columnGap: 8,
+  display: 'grid',
+  gridTemplateColumns: '10em 160px auto',
+}
 /** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
 const WALKING_RESET_DURATION_MS = 200
 /** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
