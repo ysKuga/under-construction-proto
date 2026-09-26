@@ -4,12 +4,12 @@ import { useEnergyEventDispatcher } from '@/components/pages/find-path/_prototyp
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
-import { isSameCell } from '../../../_lib/is-same-cell'
-import { useFogStore } from '../../../_stores/fog'
-import { useGoalStore } from '../../../_stores/goal'
-import { useItemStoreApi } from '../../../_stores/items'
-import { useWaypointFlowStoreApi } from '../../../_stores/waypoint-flow'
-import { GOAL_POSITION } from '../../../constants'
+import { isSameCell } from '../../../../../_lib/is-same-cell'
+import { useFogStore } from '../../../../../_stores/fog'
+import { useGoalStore } from '../../../../../_stores/goal'
+import { useItemStoreApi } from '../../../../../_stores/items'
+import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
+import { GOAL_POSITION } from '../../../../../constants'
 import { UseStageReturn } from '../index.types'
 
 /**

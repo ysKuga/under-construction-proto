@@ -5,14 +5,14 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { canEnterForPath } from '../../../_lib/can-enter-for-path'
-import { findHexPathViaWaypoints } from '../../../_lib/find-hex-path-via-waypoints'
-import { isSameCell } from '../../../_lib/is-same-cell'
+import { canEnterForPath } from '../../../../../_lib/can-enter-for-path'
+import { findHexPathViaWaypoints } from '../../../../../_lib/find-hex-path-via-waypoints'
+import { isSameCell } from '../../../../../_lib/is-same-cell'
 import {
   useWaypointFlowStore,
   useWaypointFlowStoreApi,
-} from '../../../_stores/waypoint-flow'
-import { GRID } from '../../../constants'
+} from '../../../../../_stores/waypoint-flow'
+import { GRID } from '../../../../../constants'
 import { UseStageReturn } from '../index.types'
 
 /**

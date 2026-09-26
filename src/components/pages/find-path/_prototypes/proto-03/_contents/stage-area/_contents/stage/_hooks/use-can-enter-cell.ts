@@ -5,8 +5,8 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { isObstacleCell } from '../../../_lib/obstacle'
-import { isBlockedByOneWay } from '../../../_lib/one-way'
+import { isObstacleCell } from '../../../../../_lib/obstacle'
+import { isBlockedByOneWay } from '../../../../../_lib/one-way'
 import { EnterGuard, UseStageReturn } from '../index.types'
 
 /**

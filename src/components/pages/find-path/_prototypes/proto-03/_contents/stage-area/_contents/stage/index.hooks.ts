@@ -1,12 +1,12 @@
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { useStage07HandleRef } from '../../_contexts/stage07-handle'
-import { useAdvanceFollowPathOnCellReach } from '../../_hooks/use-advance-follow-path-on-cell-reach'
-import { usePreviewPath } from '../../_hooks/use-preview-path'
-import { useDisplaySettingsStore } from '../../_stores/display-settings'
-import { useFollowPathStore } from '../../_stores/follow-path'
-import { useWaypointFlowStore } from '../../_stores/waypoint-flow'
+import { useStage07HandleRef } from '../../../../_contexts/stage07-handle'
+import { useAdvanceFollowPathOnCellReach } from '../../../../_hooks/use-advance-follow-path-on-cell-reach'
+import { usePreviewPath } from '../../../../_hooks/use-preview-path'
+import { useDisplaySettingsStore } from '../../../../_stores/display-settings'
+import { useFollowPathStore } from '../../../../_stores/follow-path'
+import { useWaypointFlowStore } from '../../../../_stores/waypoint-flow'
 
 import { useCanEnterCell } from './_hooks/use-can-enter-cell'
 import { useGetCellTitle } from './_hooks/use-get-cell-title'

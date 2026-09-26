@@ -3,8 +3,8 @@ import { useCallback } from 'react'
 import { useNotifications } from '@/components/ui/notifications'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
-import { useFollowPathStoreApi } from '../../../_stores/follow-path'
-import { useWaypointFlowStoreApi } from '../../../_stores/waypoint-flow'
+import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
+import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { UseStageReturn } from '../index.types'
 
 /**

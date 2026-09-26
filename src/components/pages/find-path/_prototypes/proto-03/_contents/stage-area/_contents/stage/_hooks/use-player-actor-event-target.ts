@@ -7,7 +7,7 @@ import {
 } from '@/components/theater/figure/box-bot'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
-import { useEnergyOutAfterStop } from '../../../_hooks/use-energy-out-after-stop'
+import { useEnergyOutAfterStop } from '../../../../../_hooks/use-energy-out-after-stop'
 import { UseStageReturn } from '../index.types'
 
 /**

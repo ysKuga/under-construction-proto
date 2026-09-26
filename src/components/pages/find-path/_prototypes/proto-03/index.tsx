@@ -1,16 +1,11 @@
 'use client'
 
 import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
 import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { EnergyDebugPanel } from '../_components/energy-debug-panel'
-
-import { BotBubbles } from './_contents/bot-bubbles'
-import { ControlPanel } from './_contents/control-panel'
-import { Stage } from './_contents/stage'
+import { FindPathProto03Contents } from './_contents'
 import { ResetProvider } from './_contexts/reset'
 import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
@@ -28,9 +23,6 @@ import {
   RECOVERY_SPOT_CELLS,
   START_POSITION,
 } from './constants'
-
-/** ステージ横に並べる独立 bot の一辺 px（向きを視認しやすいよう大きめ、issue #248） */
-const STANDALONE_BOT_SIZE = 160
 
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
@@ -64,9 +56,12 @@ type FindPathProto03Props = {
  *
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
  *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）
- * - ここでは Provider 群の配置と `_contents/` の組み合わせのみを担う（構造見直し、
- *   issue #137）。content 間で共有する state は `_stores/` の各 store に置く
- *   - `_contents/stage`: `Stage07` + 各レイヤー、移動・経路・中継点の操作
+ * - ここでは Provider 群の配置のみを担い、ページ内容は `FindPathProto03Contents`
+ *   （`_contents/index.tsx`）に任せる（構造見直し、issue #137）。content 間で共有する
+ *   state は `_stores/` の各 store に置く
+ *   - `_contents/title`: 見出し
+ *   - `_contents/stage-area`: ステージ（`_contents/stage`: `Stage07` + 各レイヤー、
+ *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
  *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行）
  *   - `_contents/control-panel`: 表示設定の切替・EN・リセット等
  * - 非隣接セルクリック時は `onNonAdjacentClick` 経由で BFS 経路探索（`stage-07/_lib/hex-path`）
@@ -164,7 +159,7 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
                         <DisplaySettingsStoreProvider>
                           <GoalStoreProvider>
                             <Stage07HandleProvider>
-                              <FindPathProto03Content />
+                              <FindPathProto03Contents />
                             </Stage07HandleProvider>
                           </GoalStoreProvider>
                         </DisplaySettingsStoreProvider>
@@ -178,30 +173,6 @@ const FindPathProto03 = (props: FindPathProto03Props) => {
         </FindPathEventProvider>
       </EnergyStoreProvider>
     </ResetProvider>
-  )
-}
-
-/** Provider の内側で各 content を組み合わせる */
-const FindPathProto03Content = () => {
-  return (
-    <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
-      <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-        Find Path (proto-03 / hex)
-      </h1>
-      <div className="flex items-center gap-8">
-        <Stage />
-        {/* ステージ上の bot とは別に独立表示する bot（向き同期は後続、issue #248） */}
-        <BoxBot01
-          actions={[]}
-          interactive={false}
-          orbit={false}
-          style={{ height: STANDALONE_BOT_SIZE, width: STANDALONE_BOT_SIZE }}
-        />
-      </div>
-      <BotBubbles />
-      <ControlPanel />
-      <EnergyDebugPanel />
-    </div>
   )
 }
 
