@@ -18,7 +18,7 @@ export type UseControlPanelReturn = {
   goalReached: boolean
   /** 「リセット」クリック時。全 store（position/items 等）を初期状態に戻す */
   handleReset: () => void
-  /** 「完了」クリック時。中継点選択モードを終了し通常状態へ戻る */
+  /** 「完了」クリック時。中継点選択モードを終了し経路提示中へ戻る */
   handleWaypointDoneClick: () => void
   /** 中継点選択モード中か */
   isSelectingWaypoint: boolean

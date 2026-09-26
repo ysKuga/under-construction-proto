@@ -33,13 +33,23 @@ export const useBubblePair = (props: BubblePairProps): UseBubblePairReturn => {
   useEffectBubbleSelecting(waypointBubbleRef, executeBubbleRef)
 
   /**
-   * 選択中なら解除し、経路提示中(`proposing`)へ戻す。吹き出しは表示したままにし、
-   * 「実行」や再度の選択へつなげる
+   * 経路提示中(`proposing`)なら中継点選択を開始する
+   *
+   * - 選択中ならキャンセルし、設置した中継点を消して `proposing` へ戻す\
+   *   （中継点を残す確定は操作パネルの「完了」）
+   * - 吹き出しは表示したままにし、「実行」や再度の選択へつなげる
    */
   const handleWaypointBubbleClick = useCallback(() => {
-    const { flowState, setFlowState } = waypointFlowStoreApi.getState()
+    const { cancelSelecting, flowState, setFlowState } =
+      waypointFlowStoreApi.getState()
 
-    setFlowState(flowState === 'selecting' ? 'proposing' : 'selecting')
+    if (flowState === 'selecting') {
+      cancelSelecting()
+
+      return
+    }
+
+    setFlowState('selecting')
   }, [waypointFlowStoreApi])
 
   return {

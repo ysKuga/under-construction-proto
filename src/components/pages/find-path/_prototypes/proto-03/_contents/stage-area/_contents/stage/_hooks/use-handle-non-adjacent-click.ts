@@ -8,10 +8,7 @@ import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 import { useFindPathEventDispatcher } from '../../../../../_events'
 import { canEnterForPath } from '../../../../../_lib/can-enter-for-path'
 import { findHexPathViaWaypoints } from '../../../../../_lib/find-hex-path-via-waypoints'
-import {
-  useWaypointFlowStore,
-  useWaypointFlowStoreApi,
-} from '../../../../../_stores/waypoint-flow'
+import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { GRID } from '../../../../../constants'
 import { UseStageReturn } from '../index.types'
 
@@ -20,6 +17,7 @@ import { UseStageReturn } from '../index.types'
  *
  * - クリックしたセルを目標とし、BFS で経路を求め `PathPreviewLayer` へ表示する
  *   （自動移動は吹き出しの「実行」で開始する、issue #226）。到達不能なら通知する
+ * - 新しい目標は中継点なしで経路を求める（前の目標の中継点は引き継がない）
  * - `Stage07` は find-path 固有の概念（目標）を持たないため、prop 名は
  *   `onNonAdjacentClick`（クリックの種類）のまま受ける
  * - 提示前に `FindPath-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
@@ -28,7 +26,6 @@ import { UseStageReturn } from '../index.types'
 export const useHandleNonAdjacentClick =
   (): UseStageReturn['handleNonAdjacentClick'] => {
     const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
-    const waypoints = useWaypointFlowStore((state) => state.waypoints)
     const waypointFlowStoreApi = useWaypointFlowStoreApi()
     const addNotification = useNotifications((state) => state.addNotification)
     const findPathEventDispatcher = useFindPathEventDispatcher()
@@ -43,7 +40,7 @@ export const useHandleNonAdjacentClick =
 
         const path = findHexPathViaWaypoints(
           currentCell,
-          waypoints,
+          [],
           cell,
           GRID.cols,
           GRID.rows,
@@ -56,7 +53,7 @@ export const useHandleNonAdjacentClick =
             title: `(${cell.q}, ${cell.r}) へは到達できません`,
             type: 'info',
           })
-          waypointFlowStoreApi.getState().unpropose()
+          waypointFlowStoreApi.getState().clear()
 
           return
         }
@@ -68,7 +65,6 @@ export const useHandleNonAdjacentClick =
         currentCell,
         findPathEventDispatcher,
         waypointFlowStoreApi,
-        waypoints,
       ],
     )
   }

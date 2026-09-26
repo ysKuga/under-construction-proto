@@ -53,7 +53,7 @@ type WaypointBubbleProps = {
  * - `selectable`（中継点選択モードが選択可能な状態か）で思考吹き出し
  *   「中継点？」⇔発言吹き出し「中継点！」を切替える
  *   （`WaypointBubbleHandle.setSelectable`）。hover 中も「中継点！」になる
- * - 選択中の hover 時は「中継点🚫」になり、クリックで選択モードを解除する
+ * - 選択中の hover 時は「中継点🚫」になり、クリックで中継点選択をキャンセルする
  * - bot を挟んだ反対側に `ExecuteBubble`（「実行」）が並ぶ想定（issue #226）
  */
 export const WaypointBubble = memo(
