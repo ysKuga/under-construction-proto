@@ -11,7 +11,7 @@ import { Title } from './title'
  * proto-03 のページ内容。各 content を並べるのみ
  *
  * - `_contents/` の各要素はここの直下で使う実装。props・定数・状態は各要素側に持つ
- * - Provider 群（`FindPathProto03`）の内側で使う
+ * - Provider 群（`FindPathProto03Providers`）の内側で使う
  */
 export const FindPathProto03Contents = () => (
   <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
