@@ -11,6 +11,7 @@ import {
   ACTION_JUMP,
   ACTION_WALKING,
   ACTION_WALKING_RESET,
+  bodyBobbingAction,
   BOX_BOT_ACTIONS,
   DEFAULT_CLICK_BINDINGS,
   energyOutAction,
@@ -106,12 +107,13 @@ const ORBIT_MAX_DISTANCE = 12
 /** OrbitControls の最大ズームイン距離 */
 const ORBIT_MIN_DISTANCE = 3.5
 /**
- * jump / face / walking / energyOut action・そのイベント名・dispatcher の再 export
+ * jump / face / walking / bodyBobbing / energyOut action・そのイベント名・dispatcher の再 export
  *
  * - 外部から `eventTarget` を共有してこれらの action を購読/発火する用途(find-path
  *   proto の実行前アンロック・進行方向転換・歩行モーション・EN 切れ演出等)向け。
  *   `actions` prop に `[jumpAction]`/`[faceAction]`/`[walkingAction]`/`[energyOutAction]`
  *   を渡し該当 action のみ有効化できる
+ * - `bodyBobbingAction` は dispatch 不要。`actions` に含めると walking に連動して体が上下する
  * - `useBoxBotActionDispatcher(eventTarget, [faceAction])` で face を外部から発火できる
  */
 export {
@@ -120,6 +122,7 @@ export {
   ACTION_JUMP,
   ACTION_WALKING,
   ACTION_WALKING_RESET,
+  bodyBobbingAction,
   CAMERA_POSITION,
   energyOutAction,
   faceAction,

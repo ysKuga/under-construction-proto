@@ -11,6 +11,7 @@ import { spinAction } from './spin'
 import { walkingAction } from './walking'
 import { walkingResetAction } from './walking-reset'
 
+export { bodyBobbingAction } from './body-bobbing'
 export * from './define-action'
 export { ACTION_ENERGY_OUT, energyOutAction } from './energy-out'
 export { ACTION_FACE, faceAction } from './face'
