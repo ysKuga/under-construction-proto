@@ -9,8 +9,13 @@
   - 参考: bot は `ActorsLayer` で `rotateX(calc(-1 * var(--floor-tilt)))` により tilt を打ち消して直立させている
 - [ ] 目標を設定した際に、bot と同様の bubble を目標側にも表示することを検討する
   - 目標が遠距離にあると、bot の bubble を操作するためにカーソルを bot まで戻す必要があるため
-- [ ] proto-03 の値調整 UI に EN 無限モードを追加する
+- [x] proto-03 の値調整 UI に EN 無限モードを追加する（[#258](_closed/pr-258-en-infinite-mode/backlog.md)）
   - 手段: 移動時の EN 消費量スライダーを追加し、0 で無限とする
     - 消費は `use-handle-cell-change.ts` の `Energy-consume`（`amount: 1` 固定）の 1 箇所のみ
     - EN store・proto-01 と共通の `EnergyDebugPanel` は変更しない
   - EN 0 の状態で有効化した場合は 0 のまま（回復させない）
+- [ ] 中継点選択をキャンセルした後も、設置した中継点が保持されたままになっている
+  - キャンセル時は、目標をクリックした直後の経路（中継点なし）へ戻すのが望ましい
+- [ ] 目標設定のキャンセル手段を追加する
+  - ESC キー押下
+  - 実行 bubble の右上に close ボタンを置くことを検討
