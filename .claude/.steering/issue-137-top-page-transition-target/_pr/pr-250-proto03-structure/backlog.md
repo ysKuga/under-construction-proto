@@ -19,7 +19,7 @@
     - 独立 bot のサイズ・props、レイアウト用 className 等
   - `onReset` を props でなく context 経由にする
   - 構成・決定事項: [design.md](design.md)「FindPathProto03Contents（PR-4）」
-- [ ] PR-5 `refactor`: Provider 群を `index.providers.tsx` の `FindPathProto03Providers` へまとめる（PR-4 の上に作業）
+- [x] PR-5 `refactor`: Provider 群を `index.providers.tsx` の `FindPathProto03Providers` へまとめる（#254）
   - `FindPathProto03` は `FindPathProto03Providers` と `FindPathProto03Contents` を組み合わせるのみにする
   - `INITIAL_ITEMS`・`initialFogMode` の既定値を `FindPathProto03Providers` 側へ移す
   - `FindPathProto03Props` を `index.types.ts` へ移す
