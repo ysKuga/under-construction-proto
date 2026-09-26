@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import {
   bodyBobbingAction,
+  energyOutAction,
   walkingAction,
   walkingResetAction,
 } from '@/components/theater/figure/box-bot'
@@ -14,10 +15,13 @@ import { useRelayEvents } from './_hooks/use-relay-events'
  * 独立 bot が受け付け、ステージ上の bot から同期する action
  *
  * - face（向き）は同期しない可能性があるため含めない（issue #248）
+ * - energyOut はステージ上の bot 宛てに停止待ち（`useEnergyOutAfterStop`）を経て
+ *   dispatch されるため、独立 bot も停止後に演出する
  */
 export const STANDALONE_BOT_RELAYED_ACTIONS = [
   walkingAction,
   walkingResetAction,
+  energyOutAction,
 ]
 
 /**
