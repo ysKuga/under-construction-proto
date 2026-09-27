@@ -35,6 +35,8 @@ type GoalMarkerLayerProps = {
  * - `registerVisibilityNode` 経由でゴールセルの DOM を visibility registry へ登録する
  *   （渡された場合のみ）。可視状態の反映は registry 側の DOM 直書きに任せるため、
  *   ここでは再レンダリングを起こさない
+ * - floor の tilt（`rotateX`）と一緒に寝ないよう、`ActorsLayer` の bot と同じく
+ *   `rotateX(calc(-1 * var(--floor-tilt)))` で打ち消して直立させる（issue #137）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
  *   状態変化に巻き込まれて再レンダリングしない
  */
@@ -54,7 +56,8 @@ export const GoalMarkerLayer = memo((props: GoalMarkerLayerProps) => {
     pointerEvents: 'none',
     position: 'absolute',
     top: center.y,
-    transform: 'translate(-50%, -50%)',
+    transform: 'translate(-50%, -50%) rotateX(calc(-1 * var(--floor-tilt)))',
+    transformOrigin: 'center bottom',
     width: bounds.cellWidth,
   }
 
