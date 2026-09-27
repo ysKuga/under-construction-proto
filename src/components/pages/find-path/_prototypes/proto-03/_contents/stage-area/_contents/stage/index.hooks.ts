@@ -10,7 +10,7 @@ import { useFollowPathStore } from '../../../../_stores/follow-path'
 import { useWaypointFlowStore } from '../../../../_stores/waypoint-flow'
 
 import { useCanEnterCell } from './_hooks/use-can-enter-cell'
-import { useEffectCancelWaypointSelectingOnEscape } from './_hooks/use-effect-cancel-waypoint-selecting-on-escape'
+import { useCancelWaypointFlowOnEscape } from './_hooks/use-cancel-waypoint-flow-on-escape'
 import { useGetCellTitle } from './_hooks/use-get-cell-title'
 import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
@@ -57,7 +57,7 @@ export const useStage = (): UseStageReturn => {
   } = useVisibilityNodeRegistrars()
 
   useRegisterPlayerEnergyOut()
-  useEffectCancelWaypointSelectingOnEscape()
+  useCancelWaypointFlowOnEscape()
 
   // 経路プレビューの点は、bot がマスの中心に着いた時点で消す（進行の記録を到達時に行う）
   useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
