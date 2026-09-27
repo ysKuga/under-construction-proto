@@ -4,9 +4,14 @@
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
 - [ ] マスホバー/選択時の内包要素一覧表示を検討
   - (design.md 懸念・リスク)
-- [ ] アイテム・スポット等のマーカーが tilt の影響を受けないよう修正する
+- [x] アイテム・スポット等のマーカーが tilt の影響を受けないよう修正する（#271）
   - 現状: floor の `rotateX` と一緒に寝てしまう
   - 参考: bot は `ActorsLayer` で `rotateX(calc(-1 * var(--floor-tilt)))` により tilt を打ち消して直立させている
+  - 対象: アイテム・スポット・ゴールの旗・障害物の岩（岩の暗色の円は床の影として寝かせたまま）
+  - 対象外: 中継点の 📍（セル全体がクリック対象のボタンのため）、バリア線・経路プレビュー・目標リング（床面の表示）
+- [ ] visibility registry がマーカーの `display: flex` を上書きし、絵文字がセル中心からずれる
+  - `applyVisibility` が `node.style.display` へ `''`/`'none'` を書込むため、`ItemLayer`/`GoalMarkerLayer`/`ObstacleLayer` の flex 中央寄せが消える
+  - 絵文字が要素の左上に寄る（#271 の確認時に発覚、既存の不具合）
 - [x] 目標を設定した際に、bot と同様の bubble を目標側にも表示することを検討する（[#259](_closed/pr-259-objective-bubbles/backlog.md)）
   - 目標が遠距離にあると、bot の bubble を操作するためにカーソルを bot まで戻す必要があるため
 - [x] proto-03 の値調整 UI に EN 無限モードを追加する（[#258](_closed/pr-258-en-infinite-mode/backlog.md)）
