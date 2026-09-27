@@ -14,6 +14,10 @@ export type DisplaySettingsState = {
   setDisplayMode: (displayMode: MoveTargetDisplayMode) => void
   /** 歩行モーションの有無を切り替える */
   setEnableWalking: (enableWalking: boolean) => void
+  /** 独立 bot の向き同期の有無を切り替える */
+  setSyncStandaloneBotFacing: (syncStandaloneBotFacing: boolean) => void
+  /** 独立 bot（状態表示）の向きをステージ上の bot と同期するか */
+  syncStandaloneBotFacing: boolean
 }
 
 export type DisplaySettingsStore = StoreApi<DisplaySettingsState>

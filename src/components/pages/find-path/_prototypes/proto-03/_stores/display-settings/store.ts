@@ -13,4 +13,8 @@ export const createDisplaySettingsStore = (): DisplaySettingsStore =>
     setEnableWalking: (enableWalking) => {
       set({ enableWalking })
     },
+    setSyncStandaloneBotFacing: (syncStandaloneBotFacing) => {
+      set({ syncStandaloneBotFacing })
+    },
+    syncStandaloneBotFacing: false,
   }))
