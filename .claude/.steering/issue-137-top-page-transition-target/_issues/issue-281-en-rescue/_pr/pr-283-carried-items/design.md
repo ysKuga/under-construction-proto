@@ -26,9 +26,10 @@ issue: #281 / PR: #283（[backlog](../../backlog.md)「手持ち（携行）ア�
   - UI は `FindPath-use-carried-item` を発行するのみ
   - listener が携行 store から取り出し、`Energy-recover` を発行する
   - 携行が空なら `preventDefault()` で拒否する
-- 表示と使用 UI は操作パネル（`ControlPanel`）へ置く
-  - `携行: n/上限` の表示
-  - 「使用」ボタン（携行数 0 なら disabled）
+- 表示と使用 UI は状態表示（独立 bot）の下部へ置く（`carried-item-button`）
+  - 丸で囲った回復アイテムを表示する
+  - 携行数はアイテム表示の右下へ重ねる（丸からのはみ出しは許容）
+  - クリックで1つ使用する（携行数 0 なら disabled）
 
 ## 決定事項
 
@@ -36,11 +37,12 @@ issue: #281 / PR: #283（[backlog](../../backlog.md)「手持ち（携行）ア�
   - 座標系が異なり、`_stores/items` も同様に移植している
 - `CarriedItemStoreProvider` は `FindPathEventProvider` の外側に置く
   - 使用の listener が携行 store を参照するため
+- 使用 UI は当初操作パネルへ置いたが、状態表示の下部へ移し操作パネルからは削除した（レビュー指摘）
 
 ## 実装計画
 
 - [x] 携行 store（`_stores/carried-items`）とテスト
 - [x] `FindPath-use-carried-item` イベントと listener
 - [x] `handleCellChange` の即時回復を携行へ切り替える
-- [x] 操作パネルに携行数表示・「使用」ボタンを追加する
+- [x] 状態表示の下部に携行アイテムの使用ボタンを追加する
 - [x] アイテムの hover 説明文言・関連コメント・`_prototypes/CLAUDE.md` を更新する
