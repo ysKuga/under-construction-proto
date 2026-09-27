@@ -2,6 +2,8 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+import { ITEM_KINDS } from './constants'
+
 /**
  * セル上の要素（障害物 or アイテム）を統一的に表す
  *
@@ -38,8 +40,9 @@ export type ItemInstance = {
  * アイテムの種類
  *
  * - 今後の拡張を見込み種類で判別する（issue #181 時点では energy-recovery のみ）
+ * - 種類の追加は `ITEM_KINDS`（`constants.ts`）へ行う
  */
-export type ItemKind = 'energy-recovery'
+export type ItemKind = (typeof ITEM_KINDS)[number]
 
 /**
  * グリッド上のアイテムを保持する store
