@@ -4,8 +4,8 @@ import { ItemInstance, ItemKind } from '../_stores/items/types'
  * アイテムの使用方法
  *
  * - 使用イベント（`FindPath-use-item`）で使用方法として指定する
- * - 用途を増やす際はここへ追加し、`ITEM_USAGES` へ許可するアイテムを、
- *   `use-item-use-event-listener` へ処理を足す
+ * - 用途を増やす際はここへ追加し、`ITEM_USAGES` へ許可するアイテムを足す。\
+ *   効果は `FindPath-item-used` を購読する listener を用途ごとに追加して実装する
  */
 export type ItemUsage = 'recover-energy'
 

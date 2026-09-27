@@ -1,23 +1,19 @@
-import { match } from 'ts-pattern'
-
-import { useEnergyEventDispatcher } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-
 import { getItemUsages } from '../../../_lib/item-usage'
 import { useCarriedItemStoreApi } from '../../../_stores/carried-items'
+import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
 import { useFindPathEventListener } from '../../_hooks/use-find-path-event-listener'
 
 /**
- * 携行中のアイテムを、指定された使用方法で使用する
+ * 携行中のアイテムの使用を受け付け、使用を通知する
  *
- * - 使用方法ごとの処理はここで振り分ける。アイテムの種類は問わず、許可の判定は\
- *   `getItemUsages`（ホワイトリスト）に委ねる
- * - 携行していないアイテム、または許可されていない使用方法なら `preventDefault()` で拒否する
- * - 使用したアイテムは携行から取り除く
+ * - 携行していないアイテム、または許可されていない使用方法（`getItemUsages`）なら\
+ *   `preventDefault()` で拒否する
+ * - 受理したアイテムは携行から取り除き、`FindPath-item-used` を発行する
+ * - 使用方法ごとの効果は扱わない（`FindPath-item-used` を購読する用途ごとの listener が担う）
  */
 export const useItemUseEventListener = () => {
   const carriedItemStoreApi = useCarriedItemStoreApi()
-  const energyDispatch = useEnergyEventDispatcher()
+  const findPathEventDispatcher = useFindPathEventDispatcher()
 
   useFindPathEventListener('FindPath-use-item', async (event) => {
     const { itemId, usage } = event.detail
@@ -37,13 +33,6 @@ export const useItemUseEventListener = () => {
 
     carriedItemStoreApi.getState().removeItem(item.id)
 
-    await match(usage)
-      .with('recover-energy', () =>
-        energyDispatch['Energy-recover']({
-          actorId: PLAYER_ACTOR_ID,
-          amount: item.amount,
-        }),
-      )
-      .exhaustive()
+    await findPathEventDispatcher['FindPath-item-used']({ item, usage })
   })
 }
