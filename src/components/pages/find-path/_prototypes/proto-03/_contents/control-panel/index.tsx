@@ -14,18 +14,22 @@ const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
 ]
 
 /**
- * 操作パネル（表示設定の切替・リセット・ゴール到達・中継点選択状況）
+ * 操作パネル（表示設定の切替・携行アイテム・リセット・ゴール到達・中継点選択状況）
  *
  * - 霧・歩行モーション・移動可能マス表示・状態表示の向き同期は各 store へ書き込み、stage content が購読する
+ * - 携行数を `携行: n/上限` で表示し、「使用」で1つ使用する（携行数 0 なら disabled）
  * - 中継点選択モード中は `WaypointSelectingIndicator`（「完了」ボタン）を表示する
  */
 export const ControlPanel = () => {
   const {
+    carriedCapacity,
+    carriedCount,
     displayMode,
     enableWalking,
     fogModeDefault,
     goalReached,
     handleReset,
+    handleUseCarriedItemClick,
     handleWaypointDoneClick,
     isSelectingWaypoint,
     setDisplayMode,
@@ -89,6 +93,16 @@ export const ControlPanel = () => {
           <option value="fade">フェード</option>
         </select>
       </label>
+      <span>
+        携行: {carriedCount}/{carriedCapacity}
+      </span>
+      <button
+        disabled={carriedCount === 0}
+        onClick={handleUseCarriedItemClick}
+        type="button"
+      >
+        使用
+      </button>
       <button onClick={handleReset} type="button">
         リセット
       </button>

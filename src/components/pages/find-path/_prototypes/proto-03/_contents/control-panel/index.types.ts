@@ -2,6 +2,10 @@ import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 import { FogMode } from '../../_stores/fog/types'
 
 export type UseControlPanelReturn = {
+  /** 携行可能な回復アイテムの上限数 */
+  carriedCapacity: number
+  /** 携行中の回復アイテムの数 */
+  carriedCount: number
   /** 移動可能マスの表示演出 */
   displayMode: MoveTargetDisplayMode
   /** 歩行モーションの有無 */
@@ -12,6 +16,8 @@ export type UseControlPanelReturn = {
   goalReached: boolean
   /** 「リセット」クリック時。全 store（position/items 等）を初期状態に戻す */
   handleReset: () => void
+  /** 「使用」クリック時。携行中の回復アイテムを1つ使用する */
+  handleUseCarriedItemClick: () => void
   /** 「完了」クリック時。中継点選択モードを終了し経路提示中へ戻る */
   handleWaypointDoneClick: () => void
   /** 中継点選択モード中か */
