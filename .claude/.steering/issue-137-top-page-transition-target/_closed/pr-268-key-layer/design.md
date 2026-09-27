@@ -45,5 +45,5 @@ issue: #137 / PR: #268（backlog「目標設定のキャンセル手段を追加
 
 ## 実装計画
 
-- [ ] PR 1: `useKeyLayer` とテスト
-- [ ] PR 2: proto-03 の ESC を `useKeyLayer` へ置き換え、目標設定のキャンセル（`proposing` での ESC → `clear()`）を追加する
+- [x] PR 1: `useKeyLayer` とテスト（#268）
+- [x] PR 2: proto-03 の ESC を `useKeyLayer` へ置き換え、目標設定のキャンセル（`proposing` での ESC → `clear()`）を追加する（#269）
