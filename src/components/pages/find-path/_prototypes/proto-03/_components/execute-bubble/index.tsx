@@ -34,6 +34,8 @@ type ExecuteBubbleProps = {
   offset: { x: number; y: number }
   /** クリック時。経路に沿った自動移動を開始する */
   onClick: () => void
+  /** 右上の close ボタン(×)クリック時。目標設定をキャンセルする */
+  onClose: () => void
   /** 表示するか（`waypointFlowState !== 'idle'`） */
   visible: boolean
 }
@@ -47,11 +49,13 @@ type ExecuteBubbleProps = {
  *   （`BotBubble` の hover 時の切替）
  * - 中継点の設置途中(`WaypointBubble` の `selectable` 選択時)でも押せ、
  *   表示中の経路で自動移動を開始する
+ * - 右上の close ボタン(×)で目標設定をキャンセルする（issue #137）。
+ *   ESC・目標セルの再クリックより見つけやすい手段として置く
  */
 export const ExecuteBubble = memo(
   forwardRef(
     (props: ExecuteBubbleProps, ref: ForwardedRef<ExecuteBubbleHandle>) => {
-      const { offset, onClick, visible } = props
+      const { offset, onClick, onClose, visible } = props
 
       const botBubbleRef = useRef<BotBubbleHandle>(null)
 
@@ -66,8 +70,10 @@ export const ExecuteBubble = memo(
       return (
         <BotBubble
           ariaLabel="経路に沿って自動移動を開始"
+          closeAriaLabel="目標設定をキャンセル"
           offset={offset}
           onClick={onClick}
+          onClose={onClose}
           placement="left"
           ref={botBubbleRef}
           speechText="実行！"
