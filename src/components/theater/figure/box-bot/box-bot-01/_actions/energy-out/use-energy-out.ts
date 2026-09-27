@@ -34,11 +34,11 @@ type EnergyOutHost = Pick<
  * - EN 切れは経路実行中に検知できる(想定内の停止)ため、fall(不意の転倒 ― シルエット中心軸で
  *   脚を含む全身を 90° 前傾・腕を頭側へ大きく引き寄せ・表示領域ずらしで崩れ落ちる)とは別の
  *   動きにする。腰(脚の付け根)を支点に上半身だけ少し前傾させ(`applyTorsoTiltAngle`、脚は
- *   接地したまま)、腕は地面に対して垂直(鉛直下向き)に垂らす ― 転倒しかけたときすぐ支えに
+ *   接地したまま)、腕は鉛直からやや前方(`armForward`)へ垂らす ― 転倒しかけたときすぐ支えに
  *   使える準備姿勢。腕は `torsoRef` の内側にネストされているため、胴体の前傾ぶんそのままでは
  *   地面に対して傾いてしまう。`applyArmAngle`(x 軸)へ前傾と逆符号の角度を加え、胴体の前傾を
- *   打ち消して地面に対する鉛直を保つ。`applyArmLift`(z 軸、静的な肩の開きを打ち消す方向)は
- *   既定 0(開きをそのまま残す) ― 完全に体側へ寄せると体に埋もれてほぼ見えなくなるため。
+ *   打ち消して地面に対する鉛直を基準にし、`armForward` ぶん前方へ出す。`applyArmLift`
+ *   (z 軸、静的な肩の開きを打ち消す方向)は既定 0(開きをそのまま残す) ― 完全に体側へ寄せると体に埋もれてほぼ見えなくなるため。
  *   「転倒を防ぐための予防姿勢・動力を使わない安定した姿勢」を表す。表示領域ずらし・
  *   接地影の持ち上げは行わない(倒れていないため)。同じ姿勢(postureRef)は共有しない ―
  *   EN 切れは経路実行の tick 停止と同時に起きるため、walking/marching 側の開始阻止は
@@ -94,7 +94,7 @@ export const useEnergyOut = (host: EnergyOutHost): void => {
     // 通常(未発火 / 復帰後)は何もしない
     if (phaseRef.current === 0) return
 
-    const { armLift, tiltAngle } = config
+    const { armForward, armLift, tiltAngle } = config
 
     let progress: number
     if (phaseRef.current === 2) {
@@ -108,8 +108,8 @@ export const useEnergyOut = (host: EnergyOutHost): void => {
     }
 
     applyTorsoTiltAngle(tiltAngle * progress)
-    // 胴体前傾(torsoRef)を打ち消し、腕を地面に対して鉛直に保つ(腕は torsoRef の内側)
-    applyArmAngle(-tiltAngle * progress)
+    // 胴体前傾(torsoRef)を打ち消し(腕は torsoRef の内側)、さらに armForward ぶん手先を前方へ出す
+    applyArmAngle(-(tiltAngle + armForward) * progress)
     // 静的な肩の開き(左: 負 / 右: 正、DEFAULTS.arm.*Angle)を打ち消す方向へ左右対称に加える
     applyArmLift({ left: armLift * progress, right: -armLift * progress })
   })

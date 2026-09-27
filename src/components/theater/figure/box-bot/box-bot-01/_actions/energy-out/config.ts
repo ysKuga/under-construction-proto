@@ -26,8 +26,18 @@ export const ENERGY_OUT_TILT_ANGLE = Math.PI / 10
  */
 export const ENERGY_OUT_ARM_LIFT = 0
 
+/**
+ * 予防姿勢で腕を鉛直から前方へ垂らす角度の既定値(rad、x 軸回転、実測要)
+ *
+ * - 胴体前傾の打ち消し(鉛直)に上乗せし、手先を地面に対し前方へ出す。\
+ *   転倒しかけた際に手を前へ突く準備姿勢を強調する
+ */
+export const ENERGY_OUT_ARM_FORWARD = Math.PI / 6
+
 /** `host.config`(energyOut)の型 */
 export type EnergyOutConfig = {
+  /** 予防姿勢で腕を鉛直から前方へ垂らす角度(rad、x 軸回転、実測要) */
+  armForward: number
   /** 予防姿勢で腕を体側へ寄せる量(rad、z 軸回転、実測要) */
   armLift: number
   /** 予防姿勢の上半身前傾角度(rad、腰まわりの x 軸回転、実測要) */
@@ -44,6 +54,7 @@ export type EnergyOutOverride = Partial<EnergyOutConfig>
 
 /** `host.config`(energyOut)の既定値。`actionConfig.energyOut` で部分上書きできる */
 export const ENERGY_OUT_DEFAULTS: EnergyOutConfig = {
+  armForward: ENERGY_OUT_ARM_FORWARD,
   armLift: ENERGY_OUT_ARM_LIFT,
   tiltAngle: ENERGY_OUT_TILT_ANGLE,
 }
