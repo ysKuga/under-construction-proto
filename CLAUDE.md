@@ -103,6 +103,10 @@ export const reducePointerState = (
 @.claude/rules/react/props-with-children.md
 @.claude/rules/react/stories.md
 
+### 条件分岐
+
+@.claude/rules/if-intent.md
+
 ### event
 
 @.claude/rules/event-driven-actions.md
