@@ -59,6 +59,14 @@ const writeYawDelta = (yawRef: RefObject<Group | null>, rad: number): void => {
 }
 
 /** 接地影グループ(`shadowLiftRef`)の持ち上げ量(`position.y`)を `y` に設定する(fall) */
+/** 接地影グループ(`shadowLiftRef`)の拡縮(`scale`)を `scale` に設定する(energy-out) */
+const writeShadowScale = (
+  shadowLiftRef: RefObject<Group | null> | undefined,
+  scale: number,
+): void => {
+  shadowLiftRef?.current?.scale.setScalar(scale)
+}
+
 const writeShadowLift = (
   shadowLiftRef: RefObject<Group | null> | undefined,
   y: number,
@@ -290,6 +298,7 @@ export function useBoxBotModel(
     applyLegSwing: (angles) =>
       writeLegSwing(leg.leftRef, leg.rightRef, angles.left, angles.right),
     applyShadowLift: (y) => writeShadowLift(shadowLiftRef, y),
+    applyShadowScale: (scale) => writeShadowScale(shadowLiftRef, scale),
     applyShift: (offset) => writeShift(displayAreaRef, offset),
     applySquash: (sx, sy) => writeSquash(rootRef, sx, sy),
     applyTiltAngle: (rad) => writeTilt(fallPivotRef, rad),

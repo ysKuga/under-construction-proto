@@ -156,6 +156,13 @@ export type BoxBotActionHost = {
    */
   applyShadowLift: (y: number) => void
   /**
+   * 接地影を拡縮する(絶対値、1 で等倍)
+   *
+   * - adapter が影グループの `scale` へ反映する
+   * - energy-out が EN 切れ時に影を大きくするのに使う
+   */
+  applyShadowScale: (scale: number) => void
+  /**
    * 表示領域(Canvas ラッパー)を基準位置(中央)からずらす
    *
    * - `x` は画面右、`y` は画面上を正とする px。adapter が DOM の `left` / `top` を書き換える(#108)

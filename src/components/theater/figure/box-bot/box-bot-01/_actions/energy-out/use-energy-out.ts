@@ -20,6 +20,7 @@ type EnergyOutHost = Pick<
   BoxBotActionContext<EnergyOutConfig>,
   | 'applyArmAngle'
   | 'applyArmLift'
+  | 'applyShadowScale'
   | 'applyTorsoTiltAngle'
   | 'config'
   | 'eventTarget'
@@ -50,6 +51,7 @@ export const useEnergyOut = (host: EnergyOutHost): void => {
   const {
     applyArmAngle,
     applyArmLift,
+    applyShadowScale,
     applyTorsoTiltAngle,
     config,
     eventTarget,
@@ -87,6 +89,7 @@ export const useEnergyOut = (host: EnergyOutHost): void => {
           applyTorsoTiltAngle(0)
           applyArmAngle(0)
           applyArmLift({ left: 0, right: 0 })
+          applyShadowScale(1)
         }
       }
     }
@@ -94,7 +97,7 @@ export const useEnergyOut = (host: EnergyOutHost): void => {
     // 通常(未発火 / 復帰後)は何もしない
     if (phaseRef.current === 0) return
 
-    const { armForward, armLift, tiltAngle } = config
+    const { armForward, armLift, shadowScale, tiltAngle } = config
 
     let progress: number
     if (phaseRef.current === 2) {
@@ -112,5 +115,7 @@ export const useEnergyOut = (host: EnergyOutHost): void => {
     applyArmAngle(-(tiltAngle + armForward) * progress)
     // 静的な肩の開き(左: 負 / 右: 正、DEFAULTS.arm.*Angle)を打ち消す方向へ左右対称に加える
     applyArmLift({ left: armLift * progress, right: -armLift * progress })
+    // 接地影を等倍から shadowScale 倍へ拡縮する
+    applyShadowScale(1 + (shadowScale - 1) * progress)
   })
 }

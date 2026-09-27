@@ -34,6 +34,7 @@ export const EnergyOut: Story = {
     const [tiltAngleDeg, setTiltAngleDeg] = React.useState(18)
     const [armLiftDeg, setArmLiftDeg] = React.useState(0)
     const [armForwardDeg, setArmForwardDeg] = React.useState(30)
+    const [shadowScale, setShadowScale] = React.useState(2)
 
     return (
       <div>
@@ -51,6 +52,7 @@ export const EnergyOut: Story = {
               void energyOut({
                 armForward: (armForwardDeg * Math.PI) / 180,
                 armLift: (armLiftDeg * Math.PI) / 180,
+                shadowScale,
                 tiltAngle: (tiltAngleDeg * Math.PI) / 180,
               })
             }
@@ -92,10 +94,20 @@ export const EnergyOut: Story = {
               value={armForwardDeg}
             />
           </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            shadowScale {shadowScale.toFixed(1)}
+            <input
+              max={3}
+              min={1}
+              onChange={(e) => setShadowScale(Number(e.target.value))}
+              step={0.1}
+              type="range"
+              value={shadowScale}
+            />
+          </label>
         </div>
         <BoxBot
           eventTarget={eventTarget}
-          shadowOpacity={0}
           style={{ marginTop: 160, outline: '1px solid red' }}
         />
       </div>
