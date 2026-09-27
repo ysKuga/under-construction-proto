@@ -1,6 +1,6 @@
 # 実装計画（EN 切れ時の救済手段）
 
-- [ ] 手持ち（携行）アイテム
+- [x] 手持ち（携行）アイテム（#283）
   - proto-03 のアイテムは踏むと即時回復するため、携行の仕組みを作る
     - proto-01 の `carried-items` store（`pickUp`/`useItem`/`capacity`）を流用候補とする
     - 対象: `use-handle-cell-change` の即時回復を携行へ切り替える

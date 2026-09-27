@@ -39,8 +39,8 @@ issue: #281 / PR: #283（[backlog](../../backlog.md)「手持ち（携行）ア�
 
 ## 実装計画
 
-- [ ] 携行 store（`_stores/carried-items`）とテスト
-- [ ] `FindPath-use-carried-item` イベントと listener
-- [ ] `handleCellChange` の即時回復を携行へ切り替える
-- [ ] 操作パネルに携行数表示・「使用」ボタンを追加する
-- [ ] アイテムの hover 説明文言・関連コメント・`_prototypes/CLAUDE.md` を更新する
+- [x] 携行 store（`_stores/carried-items`）とテスト
+- [x] `FindPath-use-carried-item` イベントと listener
+- [x] `handleCellChange` の即時回復を携行へ切り替える
+- [x] 操作パネルに携行数表示・「使用」ボタンを追加する
+- [x] アイテムの hover 説明文言・関連コメント・`_prototypes/CLAUDE.md` を更新する
