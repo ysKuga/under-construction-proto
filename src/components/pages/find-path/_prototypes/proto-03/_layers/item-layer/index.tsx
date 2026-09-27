@@ -38,6 +38,8 @@ type ItemLayerProps = {
  *   共有し、見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。実際の回復処理は
  *   `index.tsx` の `handleCellChange` が行う
+ * - floor の tilt（`rotateX`）と一緒に寝ないよう、`ActorsLayer` の bot と同じく
+ *   `rotateX(calc(-1 * var(--floor-tilt)))` で打ち消して直立させる（issue #137）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
  *   状態変化に巻き込まれて再レンダリングしない（アイテム変化自体は `useItemStore`
  *   の直接購読により従来通り反応する）
@@ -64,7 +66,9 @@ export const ItemLayer = memo((props: ItemLayerProps) => {
           pointerEvents: 'none',
           position: 'absolute',
           top: center.y,
-          transform: 'translate(-50%, -50%)',
+          transform:
+            'translate(-50%, -50%) rotateX(calc(-1 * var(--floor-tilt)))',
+          transformOrigin: 'center bottom',
           width: bounds.cellWidth * 0.7,
         }
 
