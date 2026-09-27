@@ -21,7 +21,7 @@ vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <CarriedItemStoreProvider capacity={3}>
+    <CarriedItemStoreProvider>
       <FindPathEventProvider>
         <ActorsStoreProvider
           initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}

@@ -40,7 +40,7 @@ const RECOVERY_SPOT: ItemInstance = {
   stock: 2,
 }
 
-const createWrapper = (capacity: number) => (props: PropsWithChildren) => (
+const createWrapper = (capacity?: number) => (props: PropsWithChildren) => (
   <EnergyStoreProvider>
     <CarriedItemStoreProvider capacity={capacity}>
       <ItemStoreProvider initialItems={[RECOVERY_ITEM, RECOVERY_SPOT]}>
@@ -56,7 +56,7 @@ const createWrapper = (capacity: number) => (props: PropsWithChildren) => (
   </EnergyStoreProvider>
 )
 
-const renderHandleCellChange = (capacity = 3) =>
+const renderHandleCellChange = (capacity?: number) =>
   renderHook(
     () => ({
       carriedItems: useCarriedItemStoreApi(),

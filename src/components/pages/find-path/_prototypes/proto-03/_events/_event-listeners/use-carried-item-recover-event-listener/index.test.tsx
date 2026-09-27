@@ -16,7 +16,7 @@ import { FindPathEventProvider } from '../../index.contexts'
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <CarriedItemStoreProvider capacity={3}>
+    <CarriedItemStoreProvider>
       <FindPathEventProvider>{props.children}</FindPathEventProvider>
     </CarriedItemStoreProvider>
   </EnergyStoreProvider>

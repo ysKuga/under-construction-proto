@@ -5,6 +5,7 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { createStoreContext } from '@/stores/utils/create-store-context'
 
+import { CARRIED_ITEM_CAPACITY } from './constants'
 import { createCarriedItemStore } from './store'
 import { CarriedItemState } from './types'
 
@@ -15,15 +16,15 @@ const { StoreContext, useStoreApi, useStoreSelector } =
 export const CarriedItemStoreContext = StoreContext
 
 type CarriedItemStoreProviderProps = PropsWithChildren<{
-  /** 携行可能な上限数 */
-  capacity: number
+  /** 携行可能な上限数（省略時は `CARRIED_ITEM_CAPACITY`） */
+  capacity?: number
 }>
 
 /** CarriedItem store を生成し Context 経由で配布する */
 export const CarriedItemStoreProvider = (
   props: CarriedItemStoreProviderProps,
 ) => {
-  const { capacity, children } = props
+  const { capacity = CARRIED_ITEM_CAPACITY, children } = props
 
   const [carriedItemStore] = useState(() => createCarriedItemStore(capacity))
 

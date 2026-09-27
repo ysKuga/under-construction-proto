@@ -22,7 +22,6 @@ import { ItemStoreProvider } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import { WaypointFlowStoreProvider } from './_stores/waypoint-flow'
 import {
-  CARRIED_ITEM_CAPACITY,
   RECOVERY_ITEM_CELLS,
   RECOVERY_SPOT_CELLS,
   START_POSITION,
@@ -85,7 +84,7 @@ export const FindPathProto03Providers = (
   return (
     <ResetProvider>
       <EnergyStoreProvider>
-        <CarriedItemStoreProvider capacity={CARRIED_ITEM_CAPACITY}>
+        <CarriedItemStoreProvider>
           <FindPathEventProvider>
             <ItemStoreProvider initialItems={INITIAL_ITEMS}>
               <ActorsStoreProvider
