@@ -10,12 +10,12 @@ const dispatchFace = (eventTarget: EventTarget, rad: number) => {
   eventTarget.dispatchEvent(new CustomEvent(ACTION_FACE, { detail: { rad } }))
 }
 
-/** handler が最後に受けた向き(rad) */
-const lastRad = (handler: ReturnType<typeof vi.fn>) =>
-  (handler.mock.lastCall![0] as CustomEvent).detail.rad
+/** handler が最後に受けた向き指定 */
+const lastDetail = (handler: ReturnType<typeof vi.fn>) =>
+  (handler.mock.lastCall![0] as CustomEvent).detail
 
 describe('useRelayFacing', () => {
-  it('有効時は source の向きを target へ再送する', () => {
+  it('有効時は source の向きを target へ瞬時の指定で再送する', () => {
     const source = new EventTarget()
     const target = new EventTarget()
     const handler = vi.fn<(event: Event) => void>()
@@ -25,7 +25,7 @@ describe('useRelayFacing', () => {
 
     dispatchFace(source, 1)
 
-    expect(lastRad(handler)).toBe(1)
+    expect(lastDetail(handler)).toEqual({ rad: 1 })
   })
 
   it('無効時は source の向きを再送しない', () => {
@@ -41,7 +41,7 @@ describe('useRelayFacing', () => {
     expect(handler).not.toHaveBeenCalled()
   })
 
-  it('有効化した時点で、無効中に受けた最新の向きへ合わせる', () => {
+  it('有効化した時点で、無効中に受けた最新の向きへ 300ms かけて合わせる', () => {
     const source = new EventTarget()
     const target = new EventTarget()
     const handler = vi.fn<(event: Event) => void>()
@@ -56,10 +56,10 @@ describe('useRelayFacing', () => {
     dispatchFace(source, 2)
     rerender({ enabled: true })
 
-    expect(lastRad(handler)).toBe(2)
+    expect(lastDetail(handler)).toEqual({ durationMs: 300, rad: 2 })
   })
 
-  it('無効化した時点で既定の向き(0)へ戻す', () => {
+  it('無効化した時点で既定の向き(0)へ 300ms かけて戻す', () => {
     const source = new EventTarget()
     const target = new EventTarget()
     const handler = vi.fn<(event: Event) => void>()
@@ -73,6 +73,6 @@ describe('useRelayFacing', () => {
     dispatchFace(source, 1)
     rerender({ enabled: false })
 
-    expect(lastRad(handler)).toBe(0)
+    expect(lastDetail(handler)).toEqual({ durationMs: 300, rad: 0 })
   })
 })
