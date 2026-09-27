@@ -22,6 +22,8 @@ import { UseStageReturn } from '../index.types'
  *   `onNonAdjacentClick`（クリックの種類）のまま受ける
  * - 提示前に `FindPath-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
  *   何もしない。拒否の理由（EN 等）は UI では扱わない（ui-jurisdiction）
+ * - 経路提示中に目標セルを再クリックした場合は目標設定をキャンセルする（タッチ操作向け、
+ *   ESC の代替）。キャンセルは提示ではないため `FindPath-propose-path` を発行しない
  */
 export const useHandleNonAdjacentClick =
   (): UseStageReturn['handleNonAdjacentClick'] => {
@@ -32,9 +34,27 @@ export const useHandleNonAdjacentClick =
 
     return useCallback(
       async (cell: HexCell) => {
-        if (
-          !(await findPathEventDispatcher['FindPath-propose-path']({ cell }))
-        ) {
+        const { flowState, objectiveCell } = waypointFlowStoreApi.getState()
+        /** 経路提示中の目標セルを再クリックしたか */
+        const isObjectiveReclick =
+          flowState === 'proposing' &&
+          objectiveCell?.q === cell.q &&
+          objectiveCell.r === cell.r
+
+        // 目標セルの再クリック: 目標設定をキャンセルする
+        if (isObjectiveReclick) {
+          waypointFlowStoreApi.getState().clear()
+
+          return
+        }
+
+        /** listener が経路の提示を許可したか（EN 切れ等で拒否される） */
+        const proposeAllowed = await findPathEventDispatcher[
+          'FindPath-propose-path'
+        ]({ cell })
+
+        // 提示を拒否された: 何もしない
+        if (!proposeAllowed) {
           return
         }
 
@@ -47,6 +67,7 @@ export const useHandleNonAdjacentClick =
           canEnterForPath,
         )
 
+        // 到達不能: 通知し、前の目標も消す
         if (!path) {
           addNotification({
             options: { autoDismiss: true },
@@ -58,6 +79,7 @@ export const useHandleNonAdjacentClick =
           return
         }
 
+        // 到達可能: cell を目標として経路を提示する
         waypointFlowStoreApi.getState().propose(cell)
       },
       [
