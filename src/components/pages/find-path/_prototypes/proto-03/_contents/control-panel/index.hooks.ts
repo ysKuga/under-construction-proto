@@ -21,6 +21,12 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const setEnableWalking = useDisplaySettingsStore(
     (state) => state.setEnableWalking,
   )
+  const syncStandaloneBotFacing = useDisplaySettingsStore(
+    (state) => state.syncStandaloneBotFacing,
+  )
+  const setSyncStandaloneBotFacing = useDisplaySettingsStore(
+    (state) => state.setSyncStandaloneBotFacing,
+  )
   const setShowVisited = useFogStore((state) => state.setShowVisited)
   const setFogMode = useFogStore((state) => state.setMode)
   const fogStoreApi = useFogStoreApi()
@@ -54,6 +60,8 @@ export const useControlPanel = (): UseControlPanelReturn => {
     setEnableWalking,
     setFogMode,
     setShowVisited,
+    setSyncStandaloneBotFacing,
+    syncStandaloneBotFacing,
     waypointCount,
   }
 }
