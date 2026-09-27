@@ -22,6 +22,8 @@ import { UseStageReturn } from '../index.types'
  *   `onNonAdjacentClick`（クリックの種類）のまま受ける
  * - 提示前に `FindPath-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
  *   何もしない。拒否の理由（EN 等）は UI では扱わない（ui-jurisdiction）
+ * - 経路提示中に目標セルを再クリックした場合は目標設定をキャンセルする（タッチ操作向け、
+ *   ESC の代替）。キャンセルは提示ではないため `FindPath-propose-path` を発行しない
  */
 export const useHandleNonAdjacentClick =
   (): UseStageReturn['handleNonAdjacentClick'] => {
@@ -32,6 +34,18 @@ export const useHandleNonAdjacentClick =
 
     return useCallback(
       async (cell: HexCell) => {
+        const { flowState, objectiveCell } = waypointFlowStoreApi.getState()
+
+        if (
+          flowState === 'proposing' &&
+          objectiveCell?.q === cell.q &&
+          objectiveCell.r === cell.r
+        ) {
+          waypointFlowStoreApi.getState().clear()
+
+          return
+        }
+
         if (
           !(await findPathEventDispatcher['FindPath-propose-path']({ cell }))
         ) {
