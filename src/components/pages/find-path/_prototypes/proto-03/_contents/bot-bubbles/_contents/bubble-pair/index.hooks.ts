@@ -28,6 +28,7 @@ export const useBubblePair = (props: BubblePairProps): UseBubblePairReturn => {
   )
   const visible = useWaypointFlowStore((state) => state.flowState !== 'idle')
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
+  const handleExecuteClose = useWaypointFlowStore((state) => state.clear)
   const handleExecuteClick = useHandleExecuteClick()
 
   useEffectBubbleSelecting(waypointBubbleRef, executeBubbleRef)
@@ -55,6 +56,7 @@ export const useBubblePair = (props: BubblePairProps): UseBubblePairReturn => {
   return {
     executeBubbleRef,
     handleExecuteClick,
+    handleExecuteClose,
     handleWaypointBubbleClick,
     overlayContainer,
     visible,

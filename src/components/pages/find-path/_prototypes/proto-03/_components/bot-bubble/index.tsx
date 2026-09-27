@@ -1,5 +1,6 @@
 'use client'
 
+import { Cross2Icon } from '@radix-ui/react-icons'
 import {
   ForwardedRef,
   forwardRef,
@@ -41,6 +42,8 @@ export type BotBubbleHandle = {
 type BotBubbleProps = {
   /** 本体(button)の `aria-label` */
   ariaLabel: string
+  /** close ボタンの `aria-label`(`onClose` 指定時のみ使用) */
+  closeAriaLabel?: string
   /**
    * bot 基準点(0, 0)から見た表示位置(px)
    *
@@ -53,6 +56,12 @@ type BotBubbleProps = {
   offset: { x: number; y: number }
   /** クリック時 */
   onClick: () => void
+  /**
+   * 右上の close ボタン(×)クリック時
+   *
+   * - 指定時のみ close ボタンを表示する
+   */
+  onClose?: () => void
   /**
    * bot に対して本体を置く側(既定 `'right'`)
    *
@@ -101,6 +110,7 @@ type BotBubbleProps = {
  *   bot 方向コネクタは `offset` から逆算するため、呼び出し元が `offset` を
  *   変えても自動的に bot とのつながりを保つ（座標計算自体は
  *   `_lib/compute-connector-geometry.ts` へ分離）
+ * - `onClose` 指定時は本体の右上へ close ボタン(×)を重ねる（issue #137）
  * - 呼び出し元が `useActorsStore` の `overlayContainers` が公開するコンテナへ
  *   `createPortal` で注入し（複数の吹き出しを同時注入することも想定）、
  *   `offset` で相対位置（bot 頭上等）を指定する想定（issue #137）。コンテナは
@@ -111,8 +121,10 @@ export const BotBubble = memo(
   forwardRef((props: BotBubbleProps, ref: ForwardedRef<BotBubbleHandle>) => {
     const {
       ariaLabel,
+      closeAriaLabel,
       offset,
       onClick,
+      onClose,
       placement = 'right',
       speechText,
       speechHoverText = speechText,
@@ -273,6 +285,16 @@ export const BotBubble = memo(
               />
             </g>
           </svg>
+          {onClose && (
+            <button
+              aria-label={closeAriaLabel}
+              className={styles.closeButton}
+              onClick={onClose}
+              type="button"
+            >
+              <Cross2Icon />
+            </button>
+          )}
         </div>
       </div>
     )

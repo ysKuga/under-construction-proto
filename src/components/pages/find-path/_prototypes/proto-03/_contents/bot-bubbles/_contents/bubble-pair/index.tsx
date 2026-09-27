@@ -20,7 +20,8 @@ import { BubblePairProps } from './index.types'
  * - `overlayId` のオーバーレイコンテナ（bot 頭上・目標セル上）へ注入する
  * - 経路が求まると表示する（中継点フローが `idle` 以外、選択モード中も継続）
  * - `WaypointBubble`（思考吹き出し）クリックで中継点選択モードを切り替える
- * - bot を挟んで反対側の `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する
+ * - bot を挟んで反対側の `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する。
+ *   右上の close ボタン(×)で目標設定をキャンセルする
  * - 吹き出しは自身では座標計算を持たないため、オーバーレイコンテナ
  *   （floor の 3D 空間外、アンカーの画面上の位置へ追従）へ `createPortal` で注入する。
  *   3D 空間外のため `GeoLayer` セルと重なってもクリックを奪われない
@@ -29,6 +30,7 @@ export const BubblePair = (props: BubblePairProps) => {
   const {
     executeBubbleRef,
     handleExecuteClick,
+    handleExecuteClose,
     handleWaypointBubbleClick,
     overlayContainer,
     visible,
@@ -48,6 +50,7 @@ export const BubblePair = (props: BubblePairProps) => {
       <ExecuteBubble
         offset={EXECUTE_BUBBLE_OFFSET}
         onClick={handleExecuteClick}
+        onClose={handleExecuteClose}
         ref={executeBubbleRef}
         visible={visible}
       />

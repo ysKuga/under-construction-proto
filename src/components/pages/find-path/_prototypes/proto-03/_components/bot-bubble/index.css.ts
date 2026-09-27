@@ -279,3 +279,34 @@ export const connectorTail = style({
       },
   },
 })
+
+/**
+ * 本体の右上へ重ねる close ボタン(×)
+ *
+ * - 本体の角へ中心を合わせ、半分はみ出させる
+ * - 本体と同じ配色(白背景 + グレー枠線)にする
+ */
+export const closeButton = style({
+  alignItems: 'center',
+  background: '#fff',
+  border: '1px solid #9ca3af',
+  borderRadius: '9999px',
+  color: '#6b7280',
+  cursor: 'pointer',
+  display: 'flex',
+  fontSize: 10,
+  height: 16,
+  justifyContent: 'center',
+  padding: 0,
+  position: 'absolute',
+  right: 0,
+  selectors: {
+    '&:hover': {
+      background: '#f3f4f6',
+      color: '#111827',
+    },
+  },
+  top: 0,
+  transform: 'translate(50%, -50%)',
+  width: 16,
+})
