@@ -1,5 +1,6 @@
 'use client'
 
+import { Cross2Icon } from '@radix-ui/react-icons'
 import {
   ForwardedRef,
   forwardRef,
@@ -291,7 +292,7 @@ export const BotBubble = memo(
               onClick={onClose}
               type="button"
             >
-              ×
+              <Cross2Icon />
             </button>
           )}
         </div>

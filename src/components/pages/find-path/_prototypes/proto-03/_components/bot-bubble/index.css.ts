@@ -297,7 +297,6 @@ export const closeButton = style({
   fontSize: 10,
   height: 16,
   justifyContent: 'center',
-  lineHeight: 1,
   padding: 0,
   position: 'absolute',
   right: 0,
