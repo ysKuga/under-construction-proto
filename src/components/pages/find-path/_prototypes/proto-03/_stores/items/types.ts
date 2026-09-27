@@ -27,9 +27,9 @@ export type ItemInstance = {
    * 残り使用回数
    *
    * - 未指定は1回限り（回復アイテム）、指定時は指定回数で枯渇しうる（回復スポット）
-   * - proto-01 の `use-find-path-tick` はこの有無で「携行する（未指定）」
-   *   「即時回復する（指定）」を判別する（issue #181）。proto-03 は携行可能化が
-   *   対象外のため現状 `handleCellChange` で一律即時回復するのみ、区別は使わない
+   * - この有無で「携行する（未指定）」「即時回復する（指定）」を判別する。
+   *   proto-01 は `use-find-path-tick`（issue #181）、proto-03 は `handleCellChange`
+   *   （issue #281）で判別する
    */
   stock?: number
 }
