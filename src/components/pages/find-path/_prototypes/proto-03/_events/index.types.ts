@@ -18,4 +18,6 @@ export type FindPathEventMap = {
     /** 目標セル */
     cell: HexCell
   }
+  /** 携行中の回復アイテムを1つ使用する */
+  'FindPath-use-carried-item': undefined
 }

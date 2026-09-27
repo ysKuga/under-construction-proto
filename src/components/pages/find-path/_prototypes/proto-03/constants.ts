@@ -54,6 +54,13 @@ export const RECOVERY_SPOT_CELLS = [
 ] as const
 
 /**
+ * 携行可能な回復アイテムの上限数
+ *
+ * - 仮値（proto-01 と同じ。後日バランス調整）
+ */
+export const CARRIED_ITEM_CAPACITY = 3
+
+/**
  * 初期表示モード `partial` で霧（非表示対象）とするセル一覧
  *
  * - ゴールとその6近傍（仮の領域。issue #137）

@@ -7,12 +7,15 @@ import {
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
+import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
 import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
 import { FindPathEventProvider } from '../../index.contexts'
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <FindPathEventProvider>{props.children}</FindPathEventProvider>
+    <CarriedItemStoreProvider capacity={3}>
+      <FindPathEventProvider>{props.children}</FindPathEventProvider>
+    </CarriedItemStoreProvider>
   </EnergyStoreProvider>
 )
 

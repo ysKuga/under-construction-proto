@@ -9,6 +9,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { FindPathEventProvider } from '../../../../../_events'
+import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
 import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
@@ -20,13 +21,17 @@ vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <FindPathEventProvider>
-      <ActorsStoreProvider
-        initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
-      >
-        <WaypointFlowStoreProvider>{props.children}</WaypointFlowStoreProvider>
-      </ActorsStoreProvider>
-    </FindPathEventProvider>
+    <CarriedItemStoreProvider capacity={3}>
+      <FindPathEventProvider>
+        <ActorsStoreProvider
+          initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+        >
+          <WaypointFlowStoreProvider>
+            {props.children}
+          </WaypointFlowStoreProvider>
+        </ActorsStoreProvider>
+      </FindPathEventProvider>
+    </CarriedItemStoreProvider>
   </EnergyStoreProvider>
 )
 
