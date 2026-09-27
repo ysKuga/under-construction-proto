@@ -17,8 +17,9 @@ type Story = StoryObj<typeof BoxBot>
  * energyOut action の挙動・パラメータ調節
  *
  * - EnergyOut ボタンでトグル発火(直立 → 予防姿勢、予防姿勢中なら復帰)。スライダーで
- *   上半身の前傾角度(°)・腕を体側へ寄せる量(°、既定 0 は静的な肩の開きをそのまま残す)を
- *   変え、dispatch の override 引数(`energyOut({ armLift, tiltAngle })`)として渡す
+ *   上半身の前傾角度(°)・腕を体側へ寄せる量(°、既定 0 は静的な肩の開きをそのまま残す)・
+ *   腕を鉛直から前方へ垂らす角度(°)を
+ *   変え、dispatch の override 引数(`energyOut({ armForward, armLift, tiltAngle })`)として渡す
  * - issue #181: EN 切れは経路実行中に検知できる(想定内の停止)ため、fall(不意の転倒)とは
  *   別の「転倒を防ぐための予防姿勢・動力を使わない安定した姿勢」を表す。脚は接地したまま
  *   腰を支点に上半身だけ前傾する(fall はシルエット中心軸で脚を含む全身が傾く)
@@ -32,6 +33,8 @@ export const EnergyOut: Story = {
     const { energyOut } = useBoxBotActionDispatcher(eventTarget)
     const [tiltAngleDeg, setTiltAngleDeg] = React.useState(18)
     const [armLiftDeg, setArmLiftDeg] = React.useState(0)
+    const [armForwardDeg, setArmForwardDeg] = React.useState(30)
+    const [shadowScale, setShadowScale] = React.useState(2)
 
     return (
       <div>
@@ -47,7 +50,9 @@ export const EnergyOut: Story = {
           <Button
             onClick={() =>
               void energyOut({
+                armForward: (armForwardDeg * Math.PI) / 180,
                 armLift: (armLiftDeg * Math.PI) / 180,
+                shadowScale,
                 tiltAngle: (tiltAngleDeg * Math.PI) / 180,
               })
             }
@@ -78,10 +83,31 @@ export const EnergyOut: Story = {
               value={armLiftDeg}
             />
           </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            armForward {armForwardDeg}°
+            <input
+              max={60}
+              min={0}
+              onChange={(e) => setArmForwardDeg(Number(e.target.value))}
+              step={1}
+              type="range"
+              value={armForwardDeg}
+            />
+          </label>
+          <label style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
+            shadowScale {shadowScale.toFixed(1)}
+            <input
+              max={3}
+              min={1}
+              onChange={(e) => setShadowScale(Number(e.target.value))}
+              step={0.1}
+              type="range"
+              value={shadowScale}
+            />
+          </label>
         </div>
         <BoxBot
           eventTarget={eventTarget}
-          shadowOpacity={0}
           style={{ marginTop: 160, outline: '1px solid red' }}
         />
       </div>

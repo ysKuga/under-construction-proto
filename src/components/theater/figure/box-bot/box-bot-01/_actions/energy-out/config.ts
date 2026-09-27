@@ -26,10 +26,31 @@ export const ENERGY_OUT_TILT_ANGLE = Math.PI / 10
  */
 export const ENERGY_OUT_ARM_LIFT = 0
 
+/**
+ * 予防姿勢で腕を鉛直から前方へ垂らす角度の既定値(rad、x 軸回転、実測要)
+ *
+ * - 胴体前傾の打ち消し(鉛直)に上乗せし、手先を地面に対し前方へ出す。\
+ *   転倒しかけた際に手を前へ突く準備姿勢を強調する
+ */
+export const ENERGY_OUT_ARM_FORWARD = Math.PI / 6
+
+/**
+ * 予防姿勢での接地影の拡縮倍率の既定値(1 で等倍)
+ *
+ * - 既定は等倍(影を変えない)。EN 切れ時に影を大きくし動力を失った印象を出したい bot のみ\
+ *   `actionConfig.energyOut.shadowScale` で上書きする(find-path proto-03 の状態表示 bot 等)
+ * - 拡大した影が表示領域(Canvas)から見切れる場合、`canvasWidth`/`canvasHeight` で広げる
+ */
+export const ENERGY_OUT_SHADOW_SCALE = 1
+
 /** `host.config`(energyOut)の型 */
 export type EnergyOutConfig = {
+  /** 予防姿勢で腕を鉛直から前方へ垂らす角度(rad、x 軸回転、実測要) */
+  armForward: number
   /** 予防姿勢で腕を体側へ寄せる量(rad、z 軸回転、実測要) */
   armLift: number
+  /** 予防姿勢での接地影の拡縮倍率(1 で等倍、実測要) */
+  shadowScale: number
   /** 予防姿勢の上半身前傾角度(rad、腰まわりの x 軸回転、実測要) */
   tiltAngle: number
 }
@@ -44,6 +65,8 @@ export type EnergyOutOverride = Partial<EnergyOutConfig>
 
 /** `host.config`(energyOut)の既定値。`actionConfig.energyOut` で部分上書きできる */
 export const ENERGY_OUT_DEFAULTS: EnergyOutConfig = {
+  armForward: ENERGY_OUT_ARM_FORWARD,
   armLift: ENERGY_OUT_ARM_LIFT,
+  shadowScale: ENERGY_OUT_SHADOW_SCALE,
   tiltAngle: ENERGY_OUT_TILT_ANGLE,
 }

@@ -13,6 +13,7 @@ import { PathPreviewLayer } from '../../../../_layers/path-preview-layer'
 import { WaypointSelectLayer } from '../../../../_layers/waypoint-select-layer'
 import { GRID, HEX_SIZE } from '../../../../constants'
 
+import { EnergySliders } from './_components/energy-sliders'
 import { useStage } from './index.hooks'
 
 /** bot(box-bot-01)の一辺 px */
@@ -62,6 +63,7 @@ export const Stage = () => {
           canEnterCell={canEnterCell}
           cols={GRID.cols}
           enableWalking={enableWalking}
+          extraSliders={<EnergySliders />}
           hexSize={HEX_SIZE}
           initialTiltDeg={55}
           interactive={interactive}
