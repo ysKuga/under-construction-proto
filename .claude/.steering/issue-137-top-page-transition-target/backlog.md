@@ -9,9 +9,11 @@
   - 参考: bot は `ActorsLayer` で `rotateX(calc(-1 * var(--floor-tilt)))` により tilt を打ち消して直立させている
   - 対象: アイテム・スポット・ゴールの旗・障害物の岩（岩の暗色の円は床の影として寝かせたまま）
   - 対象外: 中継点の 📍（セル全体がクリック対象のボタンのため）、バリア線・経路プレビュー・目標リング（床面の表示）
-- [ ] visibility registry がマーカーの `display: flex` を上書きし、絵文字がセル中心からずれる
+- [x] visibility registry がマーカーの `display: flex` を上書きし、絵文字がセル中心からずれる（#272）
   - `applyVisibility` が `node.style.display` へ `''`/`'none'` を書込むため、`ItemLayer`/`GoalMarkerLayer`/`ObstacleLayer` の flex 中央寄せが消える
   - 絵文字が要素の左上に寄る（#271 の確認時に発覚、既存の不具合）
+  - 対応: proto-03 の registry を `visibility` の切替へ変更し、`display` に触れないようにした
+  - proto-02 の registry も同じ `display` 直書きのまま（proto-01 共用の `GoalMarkerLayer` が影響を受ける）。proto-03 優先のため未対応
 - [x] 目標を設定した際に、bot と同様の bubble を目標側にも表示することを検討する（[#259](_closed/pr-259-objective-bubbles/backlog.md)）
   - 目標が遠距離にあると、bot の bubble を操作するためにカーソルを bot まで戻す必要があるため
 - [x] proto-03 の値調整 UI に EN 無限モードを追加する（[#258](_closed/pr-258-en-infinite-mode/backlog.md)）
