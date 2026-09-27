@@ -4,6 +4,7 @@ import {
   ComponentProps,
   CSSProperties,
   PropsWithChildren,
+  ReactNode,
   Ref,
   useCallback,
   useEffect,
@@ -35,6 +36,7 @@ import {
   pickInitialFacingTarget,
 } from './_lib/hex'
 import { useActorsStore } from './_stores/actors'
+import { SLIDER_LABEL_STYLE } from './constants'
 
 /** `Stage07` が呼び出し元へ公開する imperative API */
 export type Stage07Handle = {
@@ -76,6 +78,13 @@ type Stage07Props = PropsWithChildren<{
    *   方式（find-path proto-01 の `useFindPathTick` 等）の方が相性がよい
    */
   enableWalking?: boolean
+  /**
+   * 組込みの調整スライダー群（体の上下量）の後に追加するスライダー（省略可）
+   *
+   * - 呼び出し元固有の値（find-path proto-03 の EN 等）を同じ並びで調整するため。\
+   *   列幅は `SLIDER_LABEL_STYLE`（`./constants`）で揃える
+   */
+  extraSliders?: ReactNode
   /** 六角形の外接円半径 (px) */
   hexSize: number
   /**
@@ -193,17 +202,6 @@ type Stage07Props = PropsWithChildren<{
  *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
  *   固定値)で調整不要とのユーザー判断のため UI なし
  */
-/**
- * 値調整スライダーの label スタイル
- *
- * - 1 要素 1 行にし、見出し | バー | 値 の列を全 label で同じ幅に揃える
- */
-const SLIDER_LABEL_STYLE: CSSProperties = {
-  alignItems: 'center',
-  columnGap: 8,
-  display: 'grid',
-  gridTemplateColumns: '10em 160px auto',
-}
 /** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
 const WALKING_RESET_DURATION_MS = 200
 /** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
@@ -217,6 +215,7 @@ export const Stage07 = (props: Stage07Props) => {
     children,
     cols,
     enableWalking = false,
+    extraSliders,
     hexSize,
     initialBodyBobHeight = 0.1,
     initialLegSwingAngle = 0.5,
@@ -495,6 +494,7 @@ export const Stage07 = (props: Stage07Props) => {
         />{' '}
         {bodyBobHeight.toFixed(2)}
       </label>
+      {extraSliders}
     </div>
   )
 }
