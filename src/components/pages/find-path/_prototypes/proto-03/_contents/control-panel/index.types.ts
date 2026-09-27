@@ -24,6 +24,10 @@ export type UseControlPanelReturn = {
   setFogMode: (mode: FogMode) => void
   /** 到達済み表示の有無を切り替える */
   setShowVisited: (show: boolean) => void
+  /** 独立 bot の向き同期の有無を切り替える */
+  setSyncStandaloneBotFacing: (syncStandaloneBotFacing: boolean) => void
+  /** 独立 bot の向きをステージ上の bot と同期するか */
+  syncStandaloneBotFacing: boolean
   /** 設置済みの中継点の数 */
   waypointCount: number
 }
