@@ -1,7 +1,5 @@
 'use client'
 
-import { EnergyDebugPanel } from '../../_components/energy-debug-panel'
-
 import { BotBubbles } from './bot-bubbles'
 import { ControlPanel } from './control-panel'
 import { StageArea } from './stage-area'
@@ -19,6 +17,5 @@ export const FindPathProto03Contents = () => (
     <StageArea />
     <BotBubbles />
     <ControlPanel />
-    <EnergyDebugPanel />
   </div>
 )

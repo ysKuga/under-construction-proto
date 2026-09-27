@@ -1,11 +1,7 @@
 import { useCallback } from 'react'
 
-import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-
 import { useReset } from '../../_contexts/reset'
 import { useDisplaySettingsStore } from '../../_stores/display-settings'
-import { useEnergySettingsStore } from '../../_stores/energy-settings'
 import { useFogStore, useFogStoreApi } from '../../_stores/fog'
 import { useGoalStore } from '../../_stores/goal'
 import {
@@ -15,11 +11,7 @@ import {
 
 import { UseControlPanelReturn } from './index.types'
 
-/**
- * 操作パネルの表示値・操作を各 store から集める
- *
- * - EN 残量はここでのみ購読する。EN 変化で再レンダリングされるのは操作パネルのみ
- */
+/** 操作パネルの表示値・操作を各 store から集める */
 export const useControlPanel = (): UseControlPanelReturn => {
   const displayMode = useDisplaySettingsStore((state) => state.displayMode)
   const setDisplayMode = useDisplaySettingsStore(
@@ -32,13 +24,6 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const setShowVisited = useFogStore((state) => state.setShowVisited)
   const setFogMode = useFogStore((state) => state.setMode)
   const fogStoreApi = useFogStoreApi()
-  const energyInfo = useEnergyStore((state) =>
-    state.getEnergyInfo(PLAYER_ACTOR_ID),
-  )
-  const consumePerMove = useEnergySettingsStore((state) => state.consumePerMove)
-  const setConsumePerMove = useEnergySettingsStore(
-    (state) => state.setConsumePerMove,
-  )
   const goalReached = useGoalStore((state) => state.reached)
   const isSelectingWaypoint = useWaypointFlowStore(
     (state) => state.flowState === 'selecting',
@@ -58,16 +43,13 @@ export const useControlPanel = (): UseControlPanelReturn => {
   }, [waypointFlowStoreApi])
 
   return {
-    consumePerMove,
     displayMode,
     enableWalking,
-    energyInfo,
     fogModeDefault: fogStoreApi.getState().mode,
     goalReached,
     handleReset: reset,
     handleWaypointDoneClick,
     isSelectingWaypoint,
-    setConsumePerMove,
     setDisplayMode,
     setEnableWalking,
     setFogMode,
