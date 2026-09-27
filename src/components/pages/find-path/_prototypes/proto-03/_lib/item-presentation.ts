@@ -36,6 +36,14 @@ const ITEM_PRESENTATIONS: Record<
   },
 }
 
+/**
+ * 携行アイテムの表示情報を種類から解決する
+ *
+ * @param kind アイテムの種類
+ */
+export const getCarriedItemPresentation = (kind: ItemKind): ItemPresentation =>
+  ITEM_PRESENTATIONS[kind].item
+
 /** アイテムの表示情報（className・絵文字・hover 説明文言）を解決する */
 export const getItemPresentation = (item: ItemInstance): ItemPresentation =>
   item.stock !== undefined

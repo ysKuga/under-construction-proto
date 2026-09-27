@@ -1,8 +1,6 @@
 import { useCallback } from 'react'
 
 import { useReset } from '../../_contexts/reset'
-import { useFindPathEventDispatcher } from '../../_events'
-import { useCarriedItemStore } from '../../_stores/carried-items'
 import { useDisplaySettingsStore } from '../../_stores/display-settings'
 import { useFogStore, useFogStoreApi } from '../../_stores/fog'
 import { useGoalStore } from '../../_stores/goal'
@@ -38,9 +36,6 @@ export const useControlPanel = (): UseControlPanelReturn => {
   )
   const waypointCount = useWaypointFlowStore((state) => state.waypoints.length)
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
-  const carriedCount = useCarriedItemStore((state) => state.carriedItems.length)
-  const carriedCapacity = useCarriedItemStore((state) => state.capacity)
-  const findPathEventDispatcher = useFindPathEventDispatcher()
   const reset = useReset()
 
   /**
@@ -53,20 +48,12 @@ export const useControlPanel = (): UseControlPanelReturn => {
     waypointFlowStoreApi.getState().setFlowState('proposing')
   }, [waypointFlowStoreApi])
 
-  /** 携行中の回復アイテムを1つ使用する（実処理は listener 側） */
-  const handleUseCarriedItemClick = useCallback(() => {
-    void findPathEventDispatcher['FindPath-use-carried-item'](undefined)
-  }, [findPathEventDispatcher])
-
   return {
-    carriedCapacity,
-    carriedCount,
     displayMode,
     enableWalking,
     fogModeDefault: fogStoreApi.getState().mode,
     goalReached,
     handleReset: reset,
-    handleUseCarriedItemClick,
     handleWaypointDoneClick,
     isSelectingWaypoint,
     setDisplayMode,

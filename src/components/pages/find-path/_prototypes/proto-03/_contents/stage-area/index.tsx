@@ -1,5 +1,6 @@
 'use client'
 
+import { CarriedItemButton } from './_contents/carried-item-button'
 import { FacingIndicator } from './_contents/facing-indicator'
 import { FacingSyncToggle } from './_contents/facing-sync-toggle'
 import { Stage } from './_contents/stage'
@@ -8,7 +9,7 @@ import { StandaloneBot } from './_contents/standalone-bot'
 /**
  * ステージと bot の状態表示を横に並べる
  *
- * - bot の状態表示は、独立 bot を上・向きインジケータを下に縦に並べる
+ * - bot の状態表示は、独立 bot を上・向きインジケータを下に縦に並べ、その下に携行アイテムの使用ボタンを置く
  * - 独立 bot の表示領域は設置領域からはみ出すため、向きインジケータを `z-10` で前面に置く
  * - 独立 bot の右上に向きの同期・固定の切替ボタンを重ねる
  */
@@ -25,6 +26,7 @@ export const StageArea = () => (
       <div className="relative z-10">
         <FacingIndicator />
       </div>
+      <CarriedItemButton />
     </div>
   </div>
 )
