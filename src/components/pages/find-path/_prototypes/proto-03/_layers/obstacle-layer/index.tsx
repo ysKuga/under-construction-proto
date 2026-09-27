@@ -23,6 +23,14 @@ type ObstacleLayerProps = {
   rows: number
 }
 
+/** 岩の絵文字を floor の tilt から打ち消して直立させるスタイル */
+const UPRIGHT_STYLE: CSSProperties = {
+  // inline のままだと transform が効かない
+  display: 'inline-block',
+  transform: 'rotateX(calc(-1 * var(--floor-tilt)))',
+  transformOrigin: 'center bottom',
+}
+
 /**
  * 障害物セルの表示レイヤー
  *
@@ -34,6 +42,9 @@ type ObstacleLayerProps = {
  *   `Stage07` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
  * - `registerVisibilityNode` 経由で障害物セルの DOM を visibility registry へ登録する
  *   （渡された場合のみ）。未到達マスの岩が視界外から見えてしまうのを防ぐ
+ * - 暗色の円は床の影として floor と一緒に寝かせ、岩の絵文字のみ `ActorsLayer` の
+ *   bot と同じく `rotateX(calc(-1 * var(--floor-tilt)))` で tilt を打ち消して
+ *   直立させる（issue #137）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
  *   状態変化に巻き込まれて再レンダリングしない
  */
@@ -60,6 +71,8 @@ export const ObstacleLayer = memo((props: ObstacleLayerProps) => {
           position: 'absolute',
           top: center.y,
           transform: 'translate(-50%, -50%)',
+          // 子の岩を floor の 3D 空間へ参加させ、tilt 打消しを効かせる
+          transformStyle: 'preserve-3d',
           width: bounds.cellWidth * 0.7,
         }
 
@@ -70,7 +83,7 @@ export const ObstacleLayer = memo((props: ObstacleLayerProps) => {
             ref={(el) => registerVisibilityNode?.(cell, el)}
             style={style}
           >
-            🪨
+            <span style={UPRIGHT_STYLE}>🪨</span>
           </div>
         )
       })}
