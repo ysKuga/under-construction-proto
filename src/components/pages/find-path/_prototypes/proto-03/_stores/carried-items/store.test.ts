@@ -26,20 +26,20 @@ test('pickUp は上限に達すると false を返し、追加しない', () => 
   expect(store.getState().carriedItems).toEqual([item('a')])
 })
 
-test('useItem は最古のものから取り出す（FIFO）', () => {
+test('removeItem は id の携行アイテムを取り出す', () => {
   const store = createCarriedItemStore(3)
 
   store.getState().pickUp(item('a'))
   store.getState().pickUp(item('b'))
 
-  expect(store.getState().useItem()).toEqual(item('a'))
-  expect(store.getState().carriedItems).toEqual([item('b')])
+  expect(store.getState().removeItem('b')).toEqual(item('b'))
+  expect(store.getState().carriedItems).toEqual([item('a')])
 })
 
-test('useItem は空なら undefined を返す', () => {
+test('removeItem は携行していない id なら undefined を返す', () => {
   const store = createCarriedItemStore(1)
 
-  expect(store.getState().useItem()).toBeUndefined()
+  expect(store.getState().removeItem('a')).toBeUndefined()
 })
 
 test('reset で初期状態に戻る', () => {

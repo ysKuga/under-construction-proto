@@ -20,18 +20,20 @@ export const createCarriedItemStore = (capacity: number): CarriedItemStore =>
 
       return true
     },
-    reset: () => {
-      set({ carriedItems: [] })
-    },
-    useItem: () => {
-      const [oldest, ...rest] = get().carriedItems
+    removeItem: (id) => {
+      const item = get().carriedItems.find((carried) => carried.id === id)
 
-      if (!oldest) {
+      if (!item) {
         return undefined
       }
 
-      set({ carriedItems: rest })
+      set((state) => ({
+        carriedItems: state.carriedItems.filter((carried) => carried.id !== id),
+      }))
 
-      return oldest
+      return item
+    },
+    reset: () => {
+      set({ carriedItems: [] })
     },
   }))

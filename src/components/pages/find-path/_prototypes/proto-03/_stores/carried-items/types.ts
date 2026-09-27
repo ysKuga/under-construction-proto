@@ -20,10 +20,10 @@ export type CarriedItemState = {
    *   `ItemStore.consumeItem` を呼ばず、アイテムをその場に残す）
    */
   pickUp: (item: ItemInstance) => boolean
+  /** id の携行アイテムを取り出す（携行していなければ `undefined`） */
+  removeItem: (id: string) => ItemInstance | undefined
   /** 初期状態に戻す */
   reset: () => void
-  /** 最古の携行アイテムを1つ取り出す（空なら `undefined`） */
-  useItem: () => ItemInstance | undefined
 }
 
 export type CarriedItemStore = StoreApi<CarriedItemState>

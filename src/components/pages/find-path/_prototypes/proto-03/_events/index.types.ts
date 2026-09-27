@@ -1,5 +1,7 @@
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+import { ItemUsage } from '../_lib/item-usage'
+
 /**
  * イベント名 → payload 型の対応表
  *
@@ -18,6 +20,15 @@ export type FindPathEventMap = {
     /** 目標セル */
     cell: HexCell
   }
-  /** 携行中の回復アイテムを1つ使用する */
-  'FindPath-use-carried-item': undefined
+  /**
+   * 携行中のアイテムを、指定した使用方法で使用する
+   *
+   * - 使用方法がアイテムに許可されていなければ拒否される（`getItemUsages`）
+   */
+  'FindPath-use-item': {
+    /** 使用する携行アイテムの id */
+    itemId: string
+    /** 使用方法 */
+    usage: ItemUsage
+  }
 }
