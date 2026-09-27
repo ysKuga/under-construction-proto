@@ -50,7 +50,9 @@ const VisibilityRegistryContext = createContext<null | VisibilityRegistryValue>(
  *   登録と反映のみを担い、`FogStoreProvider` の内側に置く
  * - fog store を `subscribe` し、変化のたびに全登録 DOM を再計算する。
  *   `useState` を持たないため、配下は再レンダリングされない
- * - 非表示セルは `display: none` にする
+ * - 非表示セルは `visibility: hidden` にする（クリック・フォーカスも不可になる）
+ *   - `display` を書換えると、マーカー側が inline で持つ `display: flex`（絵文字の
+ *     中央寄せ）を上書きしてしまうため使わない
  */
 export const VisibilityRegistryProvider = (props: PropsWithChildren) => {
   const { children } = props
@@ -66,10 +68,10 @@ export const VisibilityRegistryProvider = (props: PropsWithChildren) => {
         return
       }
 
-      const display = fogStoreApi.getState().isVisible(cell) ? '' : 'none'
+      const visibility = fogStoreApi.getState().isVisible(cell) ? '' : 'hidden'
 
       nodes.forEach((node) => {
-        node.style.display = display
+        node.style.visibility = visibility
       })
     },
     [fogStoreApi],
