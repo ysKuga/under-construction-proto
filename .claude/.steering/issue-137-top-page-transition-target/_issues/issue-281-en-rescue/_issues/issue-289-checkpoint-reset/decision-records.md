@@ -9,3 +9,17 @@
     - 案C（盤面ごと初期化）: 既存の `ResetProvider` による全体リセットと同じで、救済にならない
   - 携行アイテムの没収は代価にならない（リセットは手持ちがない場合に提示するため）
   - チェックポイントの位置は当面 `START_POSITION` 定数とする。複数チェックポイントが必要になった時点で store 化する
+- 2026-09-28: stage-07 のワープ手段を決定
+  - actors store に `warpActor` を追加し、actor ごとの直近の移動種別（`'move' | 'warp'`）を持たせる
+  - `ActorsLayer` は移動種別が `warp` のとき `left`/`top` の transition を 0ms で描画する
+    - CSS transition は変更後のスタイルの値が効くため、次の `moveActor` ではワープ先から通常どおり滑らかに移動する
+    - `transform`（床の傾きへの追従）の transition は残す
+  - `useEffectCellReach` は初回の判定で描画位置が移動先と一致し、ワープ先セルの到達のみ発行する
+    - transition を残すと、到達候補（移動先とその隣接）の制約から開始位置の隣接セルを誤って到達扱いする
+  - duration 0 の transition は `transitionend` が発火しないため、`onArrived`（歩行停止・`Stage07-move-stop`）は呼ばれない。受理条件が停止中のため問題なし
+  - ワープ後の向きは初期表示時と同じ規則（`pickInitialFacingTarget`）で決める
+  - 不採用
+    - DOM 直書き（ref で transition を外す → reflow → 戻す）: React 管理の `style` と競合し、戻すタイミングが reflow 依存で壊れやすい
+    - player の `key` 変更による再マウント: box-bot の action 状態（向き・EN 切れ演出）まで初期化され、3D モデル再生成も重い
+    - `moveDurationMs` の一時的な 0 化: `Stage07` の props 変更となり配下全体が再レンダリングされる
+    - ワープ通知用の stage-07 イベント（`Stage07-warp` 等）: 購読側がなく、proto-03 の listener で直接処理すれば足りる
