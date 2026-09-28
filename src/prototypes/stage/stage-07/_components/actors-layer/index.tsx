@@ -85,6 +85,10 @@ type ActorsLayerProps = {
  *   速い移動なのにほとんど振らないように見えるため
  * - player の描画位置がセル中心に到達したら `Stage07-cell-reach` を発行する
  *   （`useEffectCellReach`）
+ * - player の移動種別(`moveKinds`)が `warp` のときは `left`/`top` の transition を
+ *   0ms にし、移動先へ即座に描画する（issue #289）。通過マスがないため到達は移動先
+ *   セルのみ発行される。0ms の transition は `transitionend` が発火しないため
+ *   `onArrived` は呼ばれない
  * - visibility registry・ref registry 化は対象外（試作スコープ、issue #162）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
@@ -169,6 +173,17 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     [registerOverlayAnchor],
   )
   const currentCell = actors[PLAYER_ACTOR_ID] ?? DEFAULT_CELL
+  /** player の直近の移動種別 */
+  const playerMoveKind = useActorsStore(
+    (state) => state.moveKinds[PLAYER_ACTOR_ID],
+  )
+  /**
+   * player の `left`/`top` の transition 所要時間(ms)
+   *
+   * - ワープ時は 0 にし、移動先へ即座に描画する。CSS transition は変更後のスタイルの
+   *   値が効くため、次の `moveActor` ではワープ先から通常どおり滑らかに移動する
+   */
+  const positionDurationMs = playerMoveKind === 'warp' ? 0 : moveDurationMs
   const mobs = Object.entries(actors).filter(
     ([actorId]) => actorId !== PLAYER_ACTOR_ID,
   )
@@ -183,7 +198,7 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
     top: center.y,
     transform: 'translate(-50%, -53%) rotateX(calc(-1 * var(--floor-tilt)))',
     transformOrigin: 'center bottom',
-    transition: `left ${moveDurationMs}ms linear, top ${moveDurationMs}ms linear, transform ${moveDurationMs}ms linear`,
+    transition: `left ${positionDurationMs}ms linear, top ${positionDurationMs}ms linear, transform ${moveDurationMs}ms linear`,
     width: size,
   }
 
