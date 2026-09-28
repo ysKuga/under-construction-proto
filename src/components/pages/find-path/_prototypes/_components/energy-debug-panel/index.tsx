@@ -2,6 +2,7 @@
 
 import { CSSProperties } from 'react'
 
+import { energyTerm } from '@/features/term-registry'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
 import { useEnergyEventDispatcher, useEnergyStore } from '../../_stores/energy'
@@ -33,7 +34,7 @@ export const EnergyDebugPanel = ({ style }: EnergyDebugPanelProps) => {
 
   return (
     <label style={style}>
-      EN{' '}
+      {energyTerm.abbreviation}{' '}
       <input
         max={energyInfo.max}
         min={0}
