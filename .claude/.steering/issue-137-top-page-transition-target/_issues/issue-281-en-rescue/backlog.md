@@ -6,8 +6,7 @@
     - 対象: `use-handle-cell-change` の即時回復を携行へ切り替える
   - 手持ちの表示と使用
 - [ ] チェックポイント（開始位置）へのリセット
-  - actor の位置を開始位置へ戻す（design.md 懸念・リスク）
-  - 代価の定義（戻す EN 量、消費済アイテム・fog の扱い等）
+  - サブ issue #289 へ分離（[_issues/issue-289-checkpoint-reset](_issues/issue-289-checkpoint-reset/backlog.md)）
 - [ ] EN 切れ bubble へ救済手段を提示する
   - 親 #137 の bubble 本体の実装後に着手する
   - 手持ちがあれば使用、なければチェックポイントへのリセット
