@@ -39,8 +39,10 @@ export const createActorsStore = (
     moveActor: (actorId, target) => {
       set((state) => ({
         actors: { ...state.actors, [actorId]: target },
+        moveKinds: { ...state.moveKinds, [actorId]: 'move' },
       }))
     },
+    moveKinds: {},
     overlayAnchors: {},
     overlayContainers: {},
     registerOverlayAnchor: (actorId, el) => {
@@ -60,6 +62,12 @@ export const createActorsStore = (
     spawnActor: (actorId, cell) => {
       set((state) => ({
         actors: { ...state.actors, [actorId]: cell },
+      }))
+    },
+    warpActor: (actorId, target) => {
+      set((state) => ({
+        actors: { ...state.actors, [actorId]: target },
+        moveKinds: { ...state.moveKinds, [actorId]: 'warp' },
       }))
     },
   }))
