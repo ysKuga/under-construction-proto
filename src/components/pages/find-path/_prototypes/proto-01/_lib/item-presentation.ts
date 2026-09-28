@@ -1,8 +1,13 @@
+import {
+  energyRecoveryItemTerm,
+  energyRecoverySpotTerm,
+} from '@/features/term-registry'
+
 import { ItemInstance, ItemKind } from '../_stores/items/types'
 
 /** アイテム1個の表示情報 */
 export type ItemPresentation = {
-  /** 表示用 className（issue #137、共通プレフィクス `ui-term-`） */
+  /** 表示用 className（issue #137、`@/features/term-registry` の用語から参照） */
   className: string
   /** 表示絵文字 */
   emoji: string
@@ -23,14 +28,14 @@ const ITEM_PRESENTATIONS: Record<
 > = {
   'energy-recovery': {
     item: {
-      className: 'ui-term-energy-recovery-item',
-      emoji: '🔋',
-      title: '回復アイテム（踏むとエネルギー回復、1個限り）',
+      className: energyRecoveryItemTerm.className,
+      emoji: energyRecoveryItemTerm.emoji,
+      title: `${energyRecoveryItemTerm.name}（踏むとエネルギー回復、1個限り）`,
     },
     spot: {
-      className: 'ui-term-energy-recovery-spot',
-      emoji: '⛽',
-      title: '回復スポット（到達するとエネルギー回復、在庫が尽きるまで複数回）',
+      className: energyRecoverySpotTerm.className,
+      emoji: energyRecoverySpotTerm.emoji,
+      title: `${energyRecoverySpotTerm.name}（到達するとエネルギー回復、在庫が尽きるまで複数回）`,
     },
   },
 }
