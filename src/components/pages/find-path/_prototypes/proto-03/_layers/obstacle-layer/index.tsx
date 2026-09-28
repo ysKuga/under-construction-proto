@@ -1,5 +1,6 @@
 import { CSSProperties, memo } from 'react'
 
+import { obstacleTerm } from '@/features/term-registry'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import {
   computeHexGridBounds,
@@ -78,12 +79,12 @@ export const ObstacleLayer = memo((props: ObstacleLayerProps) => {
 
         return (
           <div
-            className="ui-term-obstacle"
+            className={obstacleTerm.className}
             key={`${cell.q},${cell.r}`}
             ref={(el) => registerVisibilityNode?.(cell, el)}
             style={style}
           >
-            <span style={UPRIGHT_STYLE}>🪨</span>
+            <span style={UPRIGHT_STYLE}>{obstacleTerm.emoji}</span>
           </div>
         )
       })}

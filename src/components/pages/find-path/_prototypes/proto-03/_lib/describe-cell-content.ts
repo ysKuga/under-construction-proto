@@ -1,3 +1,5 @@
+import { obstacleTerm } from '@/features/term-registry'
+
 import { CellContent } from '../_stores/items/types'
 
 import { getItemPresentation } from './item-presentation'
@@ -11,5 +13,5 @@ import { getItemPresentation } from './item-presentation'
  */
 export const describeCellContent = (content: CellContent): string =>
   content.kind === 'obstacle'
-    ? '障害物（通行不可）'
+    ? `${obstacleTerm.name}（通行不可）`
     : getItemPresentation(content.item).title

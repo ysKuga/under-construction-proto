@@ -1,5 +1,7 @@
 import { CSSProperties } from 'react'
 
+import { obstacleTerm } from '@/features/term-registry'
+
 import { isObstacleCell } from '../../_lib/obstacle'
 
 type ObstacleLayerProps = {
@@ -55,11 +57,11 @@ export const ObstacleLayer = (props: ObstacleLayerProps) => {
 
           return (
             <div
-              className="ui-term-obstacle"
+              className={obstacleTerm.className}
               key={`${row}-${col}`}
               style={cellStyle(col, row)}
             >
-              🪨
+              {obstacleTerm.emoji}
             </div>
           )
         }),
