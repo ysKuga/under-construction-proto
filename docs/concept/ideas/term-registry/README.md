@@ -10,6 +10,8 @@
 - 略称(例: EN)
 - `className`(例: `ui-term-energy`)
 - 画像(アイコン等)
+- 説明(prototype 固有の挙動を含まない汎用的な説明)
+- 表示 component(hover で説明を表示する)
 
 ## ディレクトリ構成
 
@@ -25,7 +27,7 @@ terms/
 
 - 用語の定義(上記の集約する情報)と画像を同じディレクトリへ配置する
 - `className` は英語名称から導出できる(`ui-term-` + 英語名称)
-- 用語に関連する実装(説明表示用のコンポーネント等)も同ディレクトリへ置くか
+- 用語の表示 component も同ディレクトリの `index.tsx` へ置く
 
 ## 想定する用途
 
@@ -40,6 +42,8 @@ terms/
 
 - 用語: `energy`・`energy-recovery-item`・`energy-recovery-spot`・`obstacle`
 - 画像は当面、絵文字(`emoji`)で代用している
+- 表示 component は `title` 属性による暫定の hover 説明表示
+- 用語一覧は Storybook の `features/term-registry` で確認できる
 - find-path の各 prototype で直書きしていた情報を用語の参照へ置き換えた
   - `className`(`item-presentation.ts`・`obstacle-layer`)
   - 名称・絵文字(`item-presentation.ts`・`describe-cell-content.ts`)
@@ -48,4 +52,5 @@ terms/
 ## 詰め切れていない点
 
 - `docs/terminology/` との関係(用語の説明文の正をどちらに置くか)
-  - hover 説明文の本文は現状 `item-presentation.ts` に残している
+  - 汎用的な説明は用語の `description` に持たせた
+  - prototype 固有の挙動を含む hover 説明文は `item-presentation.ts` に残している
