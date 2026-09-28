@@ -24,3 +24,20 @@ export const List: Story = {
     </dl>
   ),
 }
+
+/** タグ指定（既定の span・div・タグなし） */
+export const Tags: Story = {
+  render: () => (
+    <ul className="flex flex-col gap-2">
+      <li>
+        span（既定）: <term.energy.component />
+      </li>
+      <li>
+        div: <term.energy.component as="div" />
+      </li>
+      <li>
+        タグなし: <term.energy.component as={null} />
+      </li>
+    </ul>
+  ),
+}
