@@ -1,3 +1,11 @@
+import { ComponentPropsWithoutRef, ComponentType } from 'react'
+
+/** 用語の表示 component が受け取る props */
+export type TermComponentProps = Pick<
+  ComponentPropsWithoutRef<'span'>,
+  'className' | 'style'
+>
+
 /**
  * 用語1件の情報
  *
@@ -8,6 +16,10 @@ export type Term = {
   abbreviation?: string
   /** 表示用 className（`ui-term-` + 英語名称） */
   className: string
+  /** 用語の表示 component（hover で説明を表示する） */
+  component: ComponentType<TermComponentProps>
+  /** 説明（prototype 固有の挙動を含まない汎用的な説明） */
+  description: string
   /** 表示絵文字（画像の代用） */
   emoji?: string
   /** 英語名称（kebab-case、用語ディレクトリ名と一致） */
