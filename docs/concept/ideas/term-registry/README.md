@@ -36,14 +36,16 @@ terms/
 
 ## 現状との関係
 
-find-path では用語の情報が各所へ分散している。
+`src/features/term-registry/` へ実装済み(issue #284)。
 
-- `className`: 各 prototype の `_lib/item-presentation.ts`・`obstacle-layer` に直書き
-- 表示名: `item-presentation.ts` の `title` 等
-
-集約後は上記を用語ディレクトリからの参照へ置き換える想定。
+- 用語: `energy`・`energy-recovery-item`・`energy-recovery-spot`・`obstacle`
+- 画像は当面、絵文字(`emoji`)で代用している
+- find-path の各 prototype で直書きしていた情報を用語の参照へ置き換えた
+  - `className`(`item-presentation.ts`・`obstacle-layer`)
+  - 名称・絵文字(`item-presentation.ts`・`describe-cell-content.ts`)
+  - 略称 `EN`(`energy-debug-panel`・proto-01 の `action-bar`)
 
 ## 詰め切れていない点
 
-- 配置先(`src/` 配下のどこに置くか、prototype 横断で共有するか)
 - `docs/terminology/` との関係(用語の説明文の正をどちらに置くか)
+  - hover 説明文の本文は現状 `item-presentation.ts` に残している
