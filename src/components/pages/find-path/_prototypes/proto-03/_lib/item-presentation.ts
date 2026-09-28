@@ -1,7 +1,4 @@
-import {
-  energyRecoveryItemTerm,
-  energyRecoverySpotTerm,
-} from '@/features/term-registry'
+import { term } from '@/features/term-registry'
 
 import { ItemInstance, ItemKind } from '../_stores/items/types'
 
@@ -29,14 +26,14 @@ const ITEM_PRESENTATIONS: Record<
 > = {
   'energy-recovery': {
     item: {
-      className: energyRecoveryItemTerm.className,
-      emoji: energyRecoveryItemTerm.emoji,
-      title: `${energyRecoveryItemTerm.name}（踏むと携行、使用するとエネルギー回復、1個限り）`,
+      className: term.energyRecoveryItem.className,
+      emoji: term.energyRecoveryItem.emoji,
+      title: `${term.energyRecoveryItem.name}（踏むと携行、使用するとエネルギー回復、1個限り）`,
     },
     spot: {
-      className: energyRecoverySpotTerm.className,
-      emoji: energyRecoverySpotTerm.emoji,
-      title: `${energyRecoverySpotTerm.name}（到達するとエネルギー回復、在庫が尽きるまで複数回）`,
+      className: term.energyRecoverySpot.className,
+      emoji: term.energyRecoverySpot.emoji,
+      title: `${term.energyRecoverySpot.name}（到達するとエネルギー回復、在庫が尽きるまで複数回）`,
     },
   },
 }
