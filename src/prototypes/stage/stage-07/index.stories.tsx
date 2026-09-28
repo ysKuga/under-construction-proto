@@ -6,7 +6,7 @@ import { PLAYER_ACTOR_ID } from '../stage-06/constants'
 import { colRowToAxial } from './_lib/hex'
 import { ActorsStoreProvider, useActorsStore } from './_stores/actors'
 
-import { Stage07 as StoryComponent } from '.'
+import { Stage07Handle, Stage07 as StoryComponent } from '.'
 
 const meta: Meta<typeof StoryComponent> = {
   component: StoryComponent,
@@ -92,4 +92,42 @@ export const SpawnableMob: Story = {
       </ActorsStoreProvider>
     ),
   ],
+}
+
+/** クリックごとにランダムなセルへ player をワープさせる story 用 render(`Stage07Handle.warp` 動作確認用) */
+const WarpRender = (args: Story['args']) => {
+  /** `Stage07` の imperative API */
+  const stage07Ref = useRef<Stage07Handle>(null)
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          const col = Math.floor(Math.random() * DEFAULT_ARGS.cols)
+          const row = Math.floor(Math.random() * DEFAULT_ARGS.rows)
+
+          stage07Ref.current?.warp(colRowToAxial(col, row))
+        }}
+        type="button"
+      >
+        ワープ
+      </button>
+      <StoryComponent {...DEFAULT_ARGS} {...args} ref={stage07Ref} />
+    </>
+  )
+}
+
+// ワープ後のクリック移動がワープ先から滑らかに始まることも確認する(issue #289)
+export const Warp: Story = {
+  args: DEFAULT_ARGS,
+  decorators: [
+    (Story) => (
+      <ActorsStoreProvider
+        initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+      >
+        <Story />
+      </ActorsStoreProvider>
+    ),
+  ],
+  render: (args) => <WarpRender {...args} />,
 }

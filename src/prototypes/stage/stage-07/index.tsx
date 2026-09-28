@@ -48,6 +48,15 @@ export type Stage07Handle = {
    *   その場で停止する。終了は `onFollowPathEnd` で通知する
    */
   followPath: (path: HexCell[]) => void
+  /**
+   * player を移動アニメーションなしで `cell` へ移す
+   *
+   * - 通過マスの到達(`Stage07-cell-reach`)は発行せず、`cell` の到達のみ発行する
+   * - 移動成立の通知(`onCellChange`・`Stage07-move-start`/`Stage07-move-stop`)は行わない
+   * - 向きは初期表示時と同じ規則(`pickInitialFacingTarget`)で決める
+   * - 停止中の呼出を前提とする（移動中の歩行・自動移動は止めない）
+   */
+  warp: (cell: HexCell) => void
 }
 
 type Stage07Props = PropsWithChildren<{
@@ -182,6 +191,8 @@ type Stage07Props = PropsWithChildren<{
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
  *   進入不可ならその場で停止して `onFollowPathEnd` へ通知する
+ * - `ref`（`Stage07Handle.warp`）で移動アニメーションなしに任意セルへ移せる
+ *   （store の `warpActor`、issue #289）。チェックポイントへのリセット等で使う
  * - actor の移動開始・停止は `Stage07EventProvider`（`_events`、`Stage07` の外側に置く）の
  *   EventTarget へ `Stage07-move-start`/`Stage07-move-stop` として発行する。停止箇所に
  *   着いてから行う演出（find-path proto-03 の EN 切れ演出等）で使う。Provider がなければ
@@ -202,6 +213,22 @@ type Stage07Props = PropsWithChildren<{
  *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
  *   固定値)で調整不要とのユーザー判断のため UI なし
  */
+/**
+ * 初期表示時の向き(yaw, rad)を返す
+ *
+ * - `pickInitialFacingTarget` で選んだ隣接マスへ向ける。向ける先がなければ `undefined`
+ */
+const computeInitialFacingRad = (
+  cell: HexCell,
+  cols: number,
+  rows: number,
+): number | undefined => {
+  const target = pickInitialFacingTarget(cell, cols, rows)
+  const screenAngle = target && hexDirectionToScreenAngle(cell, target)
+
+  return screenAngle === undefined ? undefined : screenAngleToYaw(screenAngle)
+}
+
 /** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
 const WALKING_RESET_DURATION_MS = 200
 /** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
@@ -259,6 +286,7 @@ export const Stage07 = (props: Stage07Props) => {
   /** player の現在セル。store は player・mob 共通で保持するため `PLAYER_ACTOR_ID` で引く */
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
   const moveActorTo = useActorsStore((state) => state.moveActor)
+  const warpActor = useActorsStore((state) => state.warpActor)
 
   /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
@@ -284,12 +312,9 @@ export const Stage07 = (props: Stage07Props) => {
     // INITIAL_FACING_MAX_RETRY_FRAMES フレームの間 rAF で再送し続け、listener attach
     // 後の 1 回を確実に届ける(絶対角度指定の dispatch のため、attach 済み以降の
     // 重複送信は差分 0 の no-op になり無害)
-    const target = pickInitialFacingTarget(currentCell, cols, rows)
-    const screenAngle = target && hexDirectionToScreenAngle(currentCell, target)
+    const rad = computeInitialFacingRad(currentCell, cols, rows)
 
-    if (screenAngle === undefined) return
-
-    const rad = screenAngleToYaw(screenAngle)
+    if (rad === undefined) return
 
     let handle = 0
     let frame = 0
@@ -358,7 +383,18 @@ export const Stage07 = (props: Stage07Props) => {
     },
   )
 
-  useImperativeHandle(ref, () => ({ followPath }), [followPath])
+  const warp = useCallback(
+    (cell: HexCell) => {
+      warpActor(PLAYER_ACTOR_ID, cell)
+
+      const rad = computeInitialFacingRad(cell, cols, rows)
+
+      if (rad !== undefined) void faceRef.current({ rad })
+    },
+    [cols, rows, warpActor],
+  )
+
+  useImperativeHandle(ref, () => ({ followPath, warp }), [followPath, warp])
 
   /**
    * セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする
