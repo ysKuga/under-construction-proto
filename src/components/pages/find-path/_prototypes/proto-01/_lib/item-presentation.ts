@@ -26,12 +26,12 @@ const ITEM_PRESENTATIONS: Record<
   'energy-recovery': {
     item: {
       className: term.energyRecoveryItem.className,
-      emoji: term.energyRecoveryItem.emoji,
+      emoji: term.energyRecoveryItem.icon,
       title: `${term.energyRecoveryItem.name}（踏むとエネルギー回復、1個限り）`,
     },
     spot: {
       className: term.energyRecoverySpot.className,
-      emoji: term.energyRecoverySpot.emoji,
+      emoji: term.energyRecoverySpot.icon,
       title: `${term.energyRecoverySpot.name}（到達するとエネルギー回復、在庫が尽きるまで複数回）`,
     },
   },
