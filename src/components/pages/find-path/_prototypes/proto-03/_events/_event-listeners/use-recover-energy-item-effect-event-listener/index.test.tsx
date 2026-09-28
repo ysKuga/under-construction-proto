@@ -8,8 +8,16 @@ import {
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
 import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
+import { ItemInstance } from '../../../_stores/items/types'
 import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
 import { FindPathEventProvider } from '../../index.contexts'
+
+const RECOVERY_ITEM: ItemInstance = {
+  amount: 3,
+  cell: { q: 1, r: 1 },
+  id: 'item-1',
+  kind: 'energy-recovery',
+}
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
@@ -19,37 +27,22 @@ const Wrapper = (props: PropsWithChildren) => (
   </EnergyStoreProvider>
 )
 
-const renderGuard = () =>
-  renderHook(
+test('recover-energy で使用されたアイテムの amount 分 EN を回復する', async () => {
+  const { result } = renderHook(
     () => ({
       dispatcher: useFindPathEventDispatcher(),
       energy: useEnergyStoreApi(),
     }),
     { wrapper: Wrapper },
   )
-
-test('EN が残っていれば経路の提示・実行を許可する', async () => {
-  const { result } = renderGuard()
-  const { dispatcher } = result.current
-
-  await expect(
-    dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),
-  ).resolves.toBe(true)
-  await expect(
-    dispatcher['FindPath-execute-path']({ path: [{ q: 1, r: 0 }] }),
-  ).resolves.toBe(true)
-})
-
-test('EN 切れなら経路の提示・実行を拒否する', async () => {
-  const { result } = renderGuard()
   const { dispatcher, energy } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
   energy.getState().consume(PLAYER_ACTOR_ID, max)
 
-  await expect(
-    dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),
-  ).resolves.toBe(false)
-  await expect(
-    dispatcher['FindPath-execute-path']({ path: [{ q: 1, r: 0 }] }),
-  ).resolves.toBe(false)
+  await dispatcher['FindPath-item-used']({
+    item: RECOVERY_ITEM,
+    usage: 'recover-energy',
+  })
+
+  expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(3)
 })

@@ -2,6 +2,8 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+import { ITEM_KINDS } from './constants'
+
 /**
  * セル上の要素（障害物 or アイテム）を統一的に表す
  *
@@ -27,9 +29,9 @@ export type ItemInstance = {
    * 残り使用回数
    *
    * - 未指定は1回限り（回復アイテム）、指定時は指定回数で枯渇しうる（回復スポット）
-   * - proto-01 の `use-find-path-tick` はこの有無で「携行する（未指定）」
-   *   「即時回復する（指定）」を判別する（issue #181）。proto-03 は携行可能化が
-   *   対象外のため現状 `handleCellChange` で一律即時回復するのみ、区別は使わない
+   * - この有無で「携行する（未指定）」「即時回復する（指定）」を判別する。
+   *   proto-01 は `use-find-path-tick`（issue #181）、proto-03 は `handleCellChange`
+   *   （issue #281）で判別する
    */
   stock?: number
 }
@@ -38,8 +40,9 @@ export type ItemInstance = {
  * アイテムの種類
  *
  * - 今後の拡張を見込み種類で判別する（issue #181 時点では energy-recovery のみ）
+ * - 種類の追加は `ITEM_KINDS`（`constants.ts`）へ行う
  */
-export type ItemKind = 'energy-recovery'
+export type ItemKind = (typeof ITEM_KINDS)[number]
 
 /**
  * グリッド上のアイテムを保持する store

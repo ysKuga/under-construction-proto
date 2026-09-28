@@ -12,6 +12,7 @@ import { ResetProvider } from './_contexts/reset'
 import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
 import { FindPathEventProvider } from './_events'
+import { CarriedItemStoreProvider } from './_stores/carried-items'
 import { DisplaySettingsStoreProvider } from './_stores/display-settings'
 import { EnergySettingsStoreProvider } from './_stores/energy-settings'
 import { FogStoreProvider } from './_stores/fog'
@@ -57,6 +58,8 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  * - 並び順の制約（それ以外の Provider 間に依存はない）
  *   - `FindPathEventProvider` は `EnergyStoreProvider` の内側に置く\
  *     （EN 判定の listener が energy store を参照するため）
+ *   - `FindPathEventProvider` は `CarriedItemStoreProvider` の内側に置く\
+ *     （携行アイテム使用の listener が携行 store を参照するため）
  *   - `VisibilityRegistryProvider` は `FogStoreProvider` の内側に置く\
  *     （fog store を購読するため）
  * - リセット（境界値テスト用、issue #181）: 最外の `ResetProvider`（`_contexts/reset`）が
@@ -81,35 +84,37 @@ export const FindPathProto03Providers = (
   return (
     <ResetProvider>
       <EnergyStoreProvider>
-        <FindPathEventProvider>
-          <ItemStoreProvider initialItems={INITIAL_ITEMS}>
-            <ActorsStoreProvider
-              initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
-            >
-              <Stage07EventProvider>
-                <FogStoreProvider initialMode={initialFogMode}>
-                  <VisibilityRegistryProvider>
-                    <FollowPathStoreProvider>
-                      <WaypointFlowStoreProvider>
-                        <DisplaySettingsStoreProvider>
-                          <EnergySettingsStoreProvider>
-                            <GoalStoreProvider>
-                              <Stage07HandleProvider>
-                                <PlayerActorEventTargetProvider>
-                                  {children}
-                                </PlayerActorEventTargetProvider>
-                              </Stage07HandleProvider>
-                            </GoalStoreProvider>
-                          </EnergySettingsStoreProvider>
-                        </DisplaySettingsStoreProvider>
-                      </WaypointFlowStoreProvider>
-                    </FollowPathStoreProvider>
-                  </VisibilityRegistryProvider>
-                </FogStoreProvider>
-              </Stage07EventProvider>
-            </ActorsStoreProvider>
-          </ItemStoreProvider>
-        </FindPathEventProvider>
+        <CarriedItemStoreProvider>
+          <FindPathEventProvider>
+            <ItemStoreProvider initialItems={INITIAL_ITEMS}>
+              <ActorsStoreProvider
+                initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
+              >
+                <Stage07EventProvider>
+                  <FogStoreProvider initialMode={initialFogMode}>
+                    <VisibilityRegistryProvider>
+                      <FollowPathStoreProvider>
+                        <WaypointFlowStoreProvider>
+                          <DisplaySettingsStoreProvider>
+                            <EnergySettingsStoreProvider>
+                              <GoalStoreProvider>
+                                <Stage07HandleProvider>
+                                  <PlayerActorEventTargetProvider>
+                                    {children}
+                                  </PlayerActorEventTargetProvider>
+                                </Stage07HandleProvider>
+                              </GoalStoreProvider>
+                            </EnergySettingsStoreProvider>
+                          </DisplaySettingsStoreProvider>
+                        </WaypointFlowStoreProvider>
+                      </FollowPathStoreProvider>
+                    </VisibilityRegistryProvider>
+                  </FogStoreProvider>
+                </Stage07EventProvider>
+              </ActorsStoreProvider>
+            </ItemStoreProvider>
+          </FindPathEventProvider>
+        </CarriedItemStoreProvider>
       </EnergyStoreProvider>
     </ResetProvider>
   )

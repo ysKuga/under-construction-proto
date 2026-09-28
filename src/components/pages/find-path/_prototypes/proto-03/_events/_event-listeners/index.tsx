@@ -1,4 +1,6 @@
 import { useEnergyPathGuardEventListener } from './use-energy-path-guard-event-listener'
+import { useItemUseEventListener } from './use-item-use-event-listener'
+import { useRecoverEnergyItemEffectEventListener } from './use-recover-energy-item-effect-event-listener'
 
 /**
  * find-path（proto-03）scope 全体のイベント購読をまとめて有効化する
@@ -7,6 +9,8 @@ import { useEnergyPathGuardEventListener } from './use-energy-path-guard-event-l
  */
 export const FindPathEventListeners = () => {
   useEnergyPathGuardEventListener()
+  useItemUseEventListener()
+  useRecoverEnergyItemEffectEventListener()
 
   return null
 }

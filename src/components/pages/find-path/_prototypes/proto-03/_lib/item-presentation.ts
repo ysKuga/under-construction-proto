@@ -13,7 +13,7 @@ export type ItemPresentation = {
 /**
  * アイテム種別ごとの表示情報
  *
- * - `item`: 即時使用アイテム相当（`stock` 未指定）。`spot`: 据置スポット相当
+ * - `item`: 携行アイテム相当（`stock` 未指定）。`spot`: 据置スポット相当
  *   （`stock` 指定）。新しい `ItemKind` を追加する際はここへエントリを足すだけで
  *   `ItemLayer`/`describeCellContent` は対応できる（issue #137。proto-01 の同型を
  *   axial 座標へ移植）
@@ -26,7 +26,7 @@ const ITEM_PRESENTATIONS: Record<
     item: {
       className: 'ui-term-energy-recovery-item',
       emoji: '🔋',
-      title: '回復アイテム（踏むとエネルギー回復、1個限り）',
+      title: '回復アイテム（踏むと携行、使用するとエネルギー回復、1個限り）',
     },
     spot: {
       className: 'ui-term-energy-recovery-spot',
@@ -35,6 +35,14 @@ const ITEM_PRESENTATIONS: Record<
     },
   },
 }
+
+/**
+ * 携行アイテムの表示情報を種類から解決する
+ *
+ * @param kind アイテムの種類
+ */
+export const getCarriedItemPresentation = (kind: ItemKind): ItemPresentation =>
+  ITEM_PRESENTATIONS[kind].item
 
 /** アイテムの表示情報（className・絵文字・hover 説明文言）を解決する */
 export const getItemPresentation = (item: ItemInstance): ItemPresentation =>
