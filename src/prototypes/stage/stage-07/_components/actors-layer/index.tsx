@@ -181,7 +181,7 @@ export const ActorsLayer = memo((props: ActorsLayerProps) => {
    * player の `left`/`top` の transition 所要時間(ms)
    *
    * - ワープ時は 0 にし、移動先へ即座に描画する。CSS transition は変更後のスタイルの
-   *   値が効くため、次の `moveActor` ではワープ先から通常どおり滑らかに移動する
+   *   値が効くため、次の通常移動ではワープ先から通常どおり滑らかに移動する
    */
   const positionDurationMs = playerMoveKind === 'warp' ? 0 : moveDurationMs
   const mobs = Object.entries(actors).filter(

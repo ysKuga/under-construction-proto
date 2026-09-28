@@ -7,8 +7,9 @@ import { HexCell } from '../../_lib/hex'
 /**
  * actor の直近の移動種別
  *
- * - `move`: 移動アニメーションあり(`moveActor`)
- * - `warp`: 移動アニメーションなし(`warpActor`)
+ * - `move`: 移動アニメーションあり
+ * - `warp`: 移動アニメーションなし。通過マスを経由しないため、通過マスの到達\
+ *   (`Stage07-cell-reach`)は発行されない
  */
 export type ActorMoveKind = 'move' | 'warp'
 
@@ -23,8 +24,16 @@ export type ActorsState = {
   actors: Record<ActorId, HexCell>
   /** actor を取り除く */
   despawnActor: (actorId: ActorId) => void
-  /** actor を target セルへ移動する */
-  moveActor: (actorId: ActorId, target: HexCell) => void
+  /**
+   * actor を target セルへ移動する
+   *
+   * - `options.kind` で移動種別を指定する（省略時は `move`）
+   */
+  moveActor: (
+    actorId: ActorId,
+    target: HexCell,
+    options?: { kind?: ActorMoveKind },
+  ) => void
   /**
    * actorId ごとの直近の移動種別
    *
@@ -68,12 +77,6 @@ export type ActorsState = {
   ) => void
   /** actor を新規配置する(既存 actorId の場合は上書き) */
   spawnActor: (actorId: ActorId, cell: HexCell) => void
-  /**
-   * actor を移動アニメーションなしで target セルへ移す
-   *
-   * - 通過マスを経由しないため、通過マスの到達(`Stage07-cell-reach`)は発行されない
-   */
-  warpActor: (actorId: ActorId, target: HexCell) => void
 }
 
 export type ActorsStore = StoreApi<ActorsState>

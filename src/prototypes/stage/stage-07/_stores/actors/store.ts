@@ -36,10 +36,10 @@ export const createActorsStore = (
         ),
       }))
     },
-    moveActor: (actorId, target) => {
+    moveActor: (actorId, target, options) => {
       set((state) => ({
         actors: { ...state.actors, [actorId]: target },
-        moveKinds: { ...state.moveKinds, [actorId]: 'move' },
+        moveKinds: { ...state.moveKinds, [actorId]: options?.kind ?? 'move' },
       }))
     },
     moveKinds: {},
@@ -62,12 +62,6 @@ export const createActorsStore = (
     spawnActor: (actorId, cell) => {
       set((state) => ({
         actors: { ...state.actors, [actorId]: cell },
-      }))
-    },
-    warpActor: (actorId, target) => {
-      set((state) => ({
-        actors: { ...state.actors, [actorId]: target },
-        moveKinds: { ...state.moveKinds, [actorId]: 'warp' },
       }))
     },
   }))

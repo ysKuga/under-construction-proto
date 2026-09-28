@@ -70,19 +70,19 @@ test('registerOverlayAnchor で actorId ごとにアンカー DOM を登録・�
   expect(store.getState().overlayAnchors).toEqual({})
 })
 
-test('warpActor で位置が更新され、移動種別が warp になる', () => {
+test('moveActor で kind に warp を指定すると移動種別が warp になる', () => {
   const store = createActorsStore({ player: { q: 0, r: 0 } })
 
-  store.getState().warpActor('player', { q: 3, r: 1 })
+  store.getState().moveActor('player', { q: 3, r: 1 }, { kind: 'warp' })
 
   expect(store.getState().actors.player).toEqual({ q: 3, r: 1 })
   expect(store.getState().moveKinds.player).toBe('warp')
 })
 
-test('warpActor 後の moveActor で移動種別が move に戻る', () => {
+test('kind 省略の moveActor で移動種別が move に戻る', () => {
   const store = createActorsStore({ player: { q: 0, r: 0 } })
 
-  store.getState().warpActor('player', { q: 3, r: 1 })
+  store.getState().moveActor('player', { q: 3, r: 1 }, { kind: 'warp' })
   store.getState().moveActor('player', { q: 4, r: 1 })
 
   expect(store.getState().moveKinds.player).toBe('move')

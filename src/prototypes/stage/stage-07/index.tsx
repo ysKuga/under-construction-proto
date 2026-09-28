@@ -192,7 +192,7 @@ type Stage07Props = PropsWithChildren<{
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
  *   進入不可ならその場で停止して `onFollowPathEnd` へ通知する
  * - `ref`（`Stage07Handle.warp`）で移動アニメーションなしに任意セルへ移せる
- *   （store の `warpActor`、issue #289）。チェックポイントへのリセット等で使う
+ *   （store の `moveActor` に移動種別 `warp` を指定、issue #289）。チェックポイントへのリセット等で使う
  * - actor の移動開始・停止は `Stage07EventProvider`（`_events`、`Stage07` の外側に置く）の
  *   EventTarget へ `Stage07-move-start`/`Stage07-move-stop` として発行する。停止箇所に
  *   着いてから行う演出（find-path proto-03 の EN 切れ演出等）で使う。Provider がなければ
@@ -286,7 +286,6 @@ export const Stage07 = (props: Stage07Props) => {
   /** player の現在セル。store は player・mob 共通で保持するため `PLAYER_ACTOR_ID` で引く */
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
   const moveActorTo = useActorsStore((state) => state.moveActor)
-  const warpActor = useActorsStore((state) => state.warpActor)
 
   /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
@@ -385,13 +384,13 @@ export const Stage07 = (props: Stage07Props) => {
 
   const warp = useCallback(
     (cell: HexCell) => {
-      warpActor(PLAYER_ACTOR_ID, cell)
+      moveActorTo(PLAYER_ACTOR_ID, cell, { kind: 'warp' })
 
       const rad = computeInitialFacingRad(cell, cols, rows)
 
       if (rad !== undefined) void faceRef.current({ rad })
     },
-    [cols, rows, warpActor],
+    [cols, moveActorTo, rows],
   )
 
   useImperativeHandle(ref, () => ({ followPath, warp }), [followPath, warp])
