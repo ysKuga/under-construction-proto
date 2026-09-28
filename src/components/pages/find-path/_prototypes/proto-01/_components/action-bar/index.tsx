@@ -1,6 +1,6 @@
 import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { Button } from '@/components/ui/button'
-import { energyTerm } from '@/features/term-registry'
+import { term } from '@/features/term-registry'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useGameClockStore } from '@/prototypes/time-control/time-control-03/_stores/game-clock'
 import { usePlannedPathStore } from '@/prototypes/time-control/time-control-03/_stores/planned-path'
@@ -92,7 +92,7 @@ export const ActionBar = (props: ActionBarProps) => {
         />
       </label>
       <span>
-        {energyTerm.abbreviation}: {energyInfo.current}/{energyInfo.max}
+        {term.energy.abbreviation}: {energyInfo.current}/{energyInfo.max}
       </span>
       <span>
         携行: {carriedCount}/{carriedCapacity}
