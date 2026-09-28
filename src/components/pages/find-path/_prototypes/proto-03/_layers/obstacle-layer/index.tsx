@@ -84,7 +84,7 @@ export const ObstacleLayer = memo((props: ObstacleLayerProps) => {
             ref={(el) => registerVisibilityNode?.(cell, el)}
             style={style}
           >
-            <span style={UPRIGHT_STYLE}>{term.obstacle.emoji}</span>
+            <span style={UPRIGHT_STYLE}>{term.obstacle.icon}</span>
           </div>
         )
       })}

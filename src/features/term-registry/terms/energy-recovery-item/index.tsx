@@ -6,13 +6,13 @@ import { TermComponentProps } from '../../types'
 export const energyRecoveryItemTerm = defineTerm(
   {
     description: 'エネルギーを回復するアイテム。1個限り',
-    emoji: '🔋',
     englishName: 'energy-recovery-item',
+    icon: '🔋',
     name: '回復アイテム',
   },
   (term) => (props: TermComponentProps) => (
     <TermLabel {...props} term={term}>
-      {term.emoji}
+      {term.icon}
     </TermLabel>
   ),
 )

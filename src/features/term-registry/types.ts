@@ -3,6 +3,7 @@ import {
   ComponentType,
   ElementType,
   PropsWithChildren,
+  ReactNode,
 } from 'react'
 
 /** 用語の表示 component が受け取る props */
@@ -37,10 +38,10 @@ export type Term = {
   component: ComponentType<TermComponentProps>
   /** 説明（prototype 固有の挙動を含まない汎用的な説明） */
   description: string
-  /** 表示絵文字（画像の代用） */
-  emoji?: string
   /** 英語名称（kebab-case、用語ディレクトリ名と一致） */
   englishName: string
+  /** 表示アイコン（現状は絵文字で代用） */
+  icon?: ReactNode
   /** 名称 */
   name: string
 }

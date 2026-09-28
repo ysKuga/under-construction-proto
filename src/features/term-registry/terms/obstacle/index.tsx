@@ -6,13 +6,13 @@ import { TermComponentProps } from '../../types'
 export const obstacleTerm = defineTerm(
   {
     description: '通行できないマス',
-    emoji: '🪨',
     englishName: 'obstacle',
+    icon: '🪨',
     name: '障害物',
   },
   (term) => (props: TermComponentProps) => (
     <TermLabel {...props} term={term}>
-      {term.emoji}
+      {term.icon}
     </TermLabel>
   ),
 )

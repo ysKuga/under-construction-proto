@@ -61,7 +61,7 @@ export const ObstacleLayer = (props: ObstacleLayerProps) => {
               key={`${row}-${col}`}
               style={cellStyle(col, row)}
             >
-              {term.obstacle.emoji}
+              {term.obstacle.icon}
             </div>
           )
         }),
