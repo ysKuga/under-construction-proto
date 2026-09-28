@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 import { term } from '@/features/term-registry'
 
 import { ItemInstance, ItemKind } from '../_stores/items/types'
@@ -6,8 +8,8 @@ import { ItemInstance, ItemKind } from '../_stores/items/types'
 export type ItemPresentation = {
   /** 表示用 className（issue #137、`@/features/term-registry` の用語から参照） */
   className: string
-  /** 表示絵文字 */
-  emoji: string
+  /** 表示アイコン */
+  icon: ReactNode
   /** hover 説明文言 */
   title: string
 }
@@ -26,18 +28,18 @@ const ITEM_PRESENTATIONS: Record<
   'energy-recovery': {
     item: {
       className: term.energyRecoveryItem.className,
-      emoji: term.energyRecoveryItem.icon,
+      icon: term.energyRecoveryItem.icon,
       title: `${term.energyRecoveryItem.name}（踏むとエネルギー回復、1個限り）`,
     },
     spot: {
       className: term.energyRecoverySpot.className,
-      emoji: term.energyRecoverySpot.icon,
+      icon: term.energyRecoverySpot.icon,
       title: `${term.energyRecoverySpot.name}（到達するとエネルギー回復、在庫が尽きるまで複数回）`,
     },
   },
 }
 
-/** アイテムの表示情報（className・絵文字・hover 説明文言）を解決する */
+/** アイテムの表示情報（className・アイコン・hover 説明文言）を解決する */
 export const getItemPresentation = (item: ItemInstance): ItemPresentation =>
   item.stock !== undefined
     ? ITEM_PRESENTATIONS[item.kind].spot

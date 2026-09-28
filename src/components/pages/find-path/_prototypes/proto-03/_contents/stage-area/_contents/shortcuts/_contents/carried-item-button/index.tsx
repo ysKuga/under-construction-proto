@@ -24,7 +24,7 @@ export const CarriedItemButton = (props: CarriedItemButtonProps) => {
       title={presentation.title}
       type="button"
     >
-      <span aria-hidden>{presentation.emoji}</span>
+      <span aria-hidden>{presentation.icon}</span>
       <span
         aria-hidden
         className="absolute -bottom-1 -right-2 text-sm font-bold text-gray-700"

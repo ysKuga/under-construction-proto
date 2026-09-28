@@ -30,7 +30,7 @@ const cellStyle = (col: number, row: number): CSSProperties => ({
  * - `Stage06` の floor(grid) へ children として重ねる絶対配置オーバーレイ。
  *   `ItemStore` の全アイテムを種類問わず表示する非対話層。消費済み（store から
  *   削除済み）のアイテムは表示されない
- * - 表示（絵文字・className）は `getItemPresentation`（`ItemKind` ベースの辞書、
+ * - 表示（アイコン・className）は `getItemPresentation`（`ItemKind` ベースの辞書、
  *   `_lib/item-presentation.ts`）で解決する。新しい種類のアイテムが増えても辞書へ
  *   追記するだけで対応でき、このレイヤー自体を種類ごとに増やす必要はない
  *   （旧 `RecoveryItemLayer`/`RecoverySpotLayer` を統合、issue #137）
@@ -64,7 +64,7 @@ export const ItemLayer = (props: ItemLayerProps) => {
             key={item.id}
             style={cellStyle(item.cell.col, item.cell.row)}
           >
-            {presentation.emoji}
+            {presentation.icon}
           </div>
         )
       })}
