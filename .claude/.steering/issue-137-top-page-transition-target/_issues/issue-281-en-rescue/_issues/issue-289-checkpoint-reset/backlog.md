@@ -1,6 +1,6 @@
 # 実装計画（チェックポイントへのリセット）
 
-- [ ] stage-07: actor を移動アニメーションなしで指定セルへ移すワープ手段
+- [x] stage-07: actor を移動アニメーションなしで指定セルへ移すワープ手段
   - 通過マスでマス到達イベント（`useEffectCellReach`）を発行しない
   - actors store に `warpActor` と actor ごとの移動種別を追加する
   - `ActorsLayer` は移動種別が `warp` のとき `left`/`top` の transition を 0ms にする
