@@ -17,19 +17,21 @@ issue: #281 / PR: #283（[backlog](../../backlog.md)「手持ち（携行）ア�
 ## 方針
 
 - proto-01 の `carried-items` store を proto-03 へ移植する
-  - `pickUp`/`useItem`/`capacity`/`reset` の構成は同じ
-  - 上限は `CARRIED_ITEM_CAPACITY`（proto-03 `constants.ts`、proto-01 と同じ 3）
+  - `pickUp`/`capacity`/`reset` の構成は同じ。取り出しは最古からでなく id 指定（`removeItem`）
+  - 上限は `CARRIED_ITEM_CAPACITY`（`_stores/carried-items/constants.ts`、proto-01 と同じ 3）。`CarriedItemStoreProvider` の `capacity` 省略時の既定値
 - 拾う処理は `handleCellChange` で行う
   - 回復アイテム（`stock` 未指定）: 携行する。上限に達していればその場に残す
   - 回復スポット（`stock` 指定）: 従来通り即時回復
-- 使用は event 経由にする（ui-jurisdiction）
-  - UI は `FindPath-use-carried-item` を発行するのみ
-  - listener が携行 store から取り出し、`Energy-recover` を発行する
-  - 携行が空なら `preventDefault()` で拒否する
-- 表示と使用 UI は状態表示（独立 bot）の下部へ置く（`carried-item-button`）
-  - 丸で囲った回復アイテムを表示する
-  - 携行数はアイテム表示の右下へ重ねる（丸からのはみ出しは許容）
-  - クリックで1つ使用する（携行数 0 なら disabled）
+- 使用は汎用のアイテム使用イベントで扱う（ui-jurisdiction）
+  - UI は `FindPath-use-item`（`itemId` + 使用方法 `usage`）を発行するのみ
+  - `use-item-use-event-listener` が受理判定・携行からの除去を行い、`FindPath-item-used` を通知する
+    - 携行していない・許可されていない使用方法なら `preventDefault()` で拒否する
+  - 効果は用途ごとの listener が `FindPath-item-used` を購読して処理する（`recover-energy` は `use-recover-energy-item-effect-event-listener`）
+  - 使用方法の許可はアイテム種別ごとのホワイトリスト（`_lib/item-usage.ts`）。先頭が UI の提示する代表用途
+- 使用 UI は状態表示（独立 bot）の左下に重ねるショートカット群（`shortcuts`）に置く
+  - アイテムの種類（`ITEM_KINDS`）ごとに使用ボタン（`carried-item-button`）を並べる
+  - 丸で囲ったアイテムを表示し、その種類の携行数を右下へ重ねる（丸からのはみ出しは許容）
+  - クリックでその種類の最古の携行アイテムを代表用途で使用する（携行数 0 なら disabled）
 
 ## 決定事項
 
@@ -37,12 +39,15 @@ issue: #281 / PR: #283（[backlog](../../backlog.md)「手持ち（携行）ア�
   - 座標系が異なり、`_stores/items` も同様に移植している
 - `CarriedItemStoreProvider` は `FindPathEventProvider` の外側に置く
   - 使用の listener が携行 store を参照するため
-- 使用 UI は当初操作パネルへ置いたが、状態表示の下部へ移し操作パネルからは削除した（レビュー指摘）
+- 使用 UI は当初操作パネルへ置いたが、状態表示の bot の左下へ移し操作パネルからは削除した（レビュー指摘）
+- 使用ボタンは種類ごとに分ける（他の種類のアイテム追加時に混ざらないよう）
+- 状態表示に重ねる置き場はショートカット群（`Shortcuts`）とし、同様の要素を今後ここへ追加する
+- 使用の受理と効果を listener で分ける経緯は [decision-records.md](../../decision-records.md) 参照
 
 ## 実装計画
 
 - [x] 携行 store（`_stores/carried-items`）とテスト
-- [x] `FindPath-use-carried-item` イベントと listener
+- [x] アイテム使用イベント（`FindPath-use-item`/`FindPath-item-used`）と listener
 - [x] `handleCellChange` の即時回復を携行へ切り替える
-- [x] 状態表示の下部に携行アイテムの使用ボタンを追加する
+- [x] 状態表示の bot の左下（ショートカット群）に種類ごとの使用ボタンを追加する
 - [x] アイテムの hover 説明文言・関連コメント・`_prototypes/CLAUDE.md` を更新する
