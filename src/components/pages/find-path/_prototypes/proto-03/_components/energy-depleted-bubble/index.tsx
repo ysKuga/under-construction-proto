@@ -8,6 +8,8 @@ import {
   useRef,
 } from 'react'
 
+import { getCarriedItemPresentation } from '../../_lib/item-presentation'
+import { ItemKind } from '../../_stores/items/types'
 import { BotBubble, BotBubbleHandle } from '../bot-bubble'
 
 /**
@@ -31,17 +33,26 @@ export type EnergyDepletedBubbleHandle = {
 type EnergyDepletedBubbleProps = {
   /** bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照 */
   offset: { x: number; y: number }
-  /** クリック時 */
+  /** クリック時。提示中の救済手段を実行する */
   onClick: () => void
+  /**
+   * 救済手段として使う手持ちのアイテムの種類
+   *
+   * - 未指定なら手持ちなしとし、チェックポイントへのリセットを提示する
+   */
+  rescueItemKind?: ItemKind
   /** 表示するか（EN 切れ中） */
   visible: boolean
 }
 
 /**
- * EN 切れで動けないことを伝える吹き出し（issue #137）
+ * EN 切れで動けないことを伝え、救済手段の入口となる吹き出し（issue #137/#281）
  *
  * - 見た目・表示切替は `BotBubble` に委ねる
- * - 文言は思考吹き出し「EN 切れ…」、hover 中は発言吹き出し「EN 切れ！」
+ * - 通常時は思考吹き出し「EN 切れ…」で状態を示す
+ * - hover 中は発言吹き出しで救済手段を 1 つ示し、クリックで実行する
+ *   - 手持ちあり: アイテムのアイコン + 「使う！」
+ *   - 手持ちなし: チェックポイントへ「戻る！」
  * - 拒否された操作を知らせるために揺らす（`EnergyDepletedBubbleHandle.shake`）
  */
 export const EnergyDepletedBubble = memo(
@@ -50,7 +61,7 @@ export const EnergyDepletedBubble = memo(
       props: EnergyDepletedBubbleProps,
       ref: ForwardedRef<EnergyDepletedBubbleHandle>,
     ) => {
-      const { offset, onClick, visible } = props
+      const { offset, onClick, rescueItemKind, visible } = props
 
       const botBubbleRef = useRef<BotBubbleHandle>(null)
 
@@ -64,11 +75,21 @@ export const EnergyDepletedBubble = memo(
 
       return (
         <BotBubble
-          ariaLabel="EN 切れ"
+          ariaLabel={
+            rescueItemKind
+              ? 'EN 切れ: 手持ちのアイテムを使う'
+              : 'EN 切れ: チェックポイントへ戻る'
+          }
           offset={offset}
           onClick={onClick}
           ref={botBubbleRef}
-          speechText="EN 切れ！"
+          speechText={
+            rescueItemKind ? (
+              <>{getCarriedItemPresentation(rescueItemKind).icon}使う！</>
+            ) : (
+              '戻る！'
+            )
+          }
           thoughtText="EN 切れ…"
           visible={visible}
         />
