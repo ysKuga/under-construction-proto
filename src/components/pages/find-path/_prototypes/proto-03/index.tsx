@@ -15,7 +15,7 @@ import { FindPathProto03Props } from './index.types'
  *   - `_contents/title`: 見出し
  *   - `_contents/stage-area`: ステージ（`_contents/stage`: `Stage07` + 各レイヤー、
  *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
- *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行）
+ *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ）
  *   - `_contents/control-panel`: 表示設定の切替・EN・リセット等
  * - 非隣接セルクリック時は `onNonAdjacentClick` 経由で BFS 経路探索（`stage-07/_lib/hex-path`）
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
