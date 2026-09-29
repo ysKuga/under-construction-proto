@@ -18,6 +18,8 @@ import { ActorId } from '@/prototypes/time-control/time-control-03/types'
  * - `energyOut` は切替式（EN 切れ/回復で同じ action を呼ぶ）のため、保留した
  *   回数の偶奇で反映の要否を決める（偶数なら打ち消し合うため呼ばない）
  * - 到着の二重通知で `Stage07-move-stop` が 2 回届いても、移動中でなければ何もしない
+ * - 移動の開始・停止は他の hook（チェックポイントへのリセットの受理判定等）も購読するため\
+ *   `allowMultiple` で購読する
  *
  * @param actorId 対象 actor
  * @param energyOut box-bot-01 の energyOut action dispatcher
@@ -55,6 +57,7 @@ export const useEnergyOutAfterStop = (
       },
       [actorId],
     ),
+    { allowMultiple: true },
   )
 
   useStage07EventListener(
@@ -82,6 +85,7 @@ export const useEnergyOutAfterStop = (
       },
       [actorId],
     ),
+    { allowMultiple: true },
   )
 
   return useCallback(async () => {
