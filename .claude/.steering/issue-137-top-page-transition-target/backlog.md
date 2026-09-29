@@ -11,7 +11,7 @@
       - 可能な手段の提示は補助輪にあたる。自明なもの（アイテム使用）は提示してよい
       - スポットは難易度次第。いじわるな難易度ではあえて表示しない
       - スポットマスでの停止中使用はサブ issue #297 へ分離
-  - 救済手段（手持ち・チェックポイント・bubble への提示）はサブ issue #281 へ分離（[_issues/issue-281-en-rescue](_issues/issue-281-en-rescue/backlog.md)）
+  - 救済手段（手持ち・チェックポイント・bubble への提示）はサブ issue #281 へ分離（[_closed/issue-281-en-rescue](_closed/issue-281-en-rescue/backlog.md)）
   - 本 issue では bubble 本体（状態表示・揺らす挙動）を扱う（[#295](_pr/pr-295-energy-depleted-bubble/design.md)）
   - 拒否時に bot の bubble を揺らす
     - 揺らす挙動は「拒否」でなく「揺らす」行為として定義し、拒否時にそれを呼ぶ
