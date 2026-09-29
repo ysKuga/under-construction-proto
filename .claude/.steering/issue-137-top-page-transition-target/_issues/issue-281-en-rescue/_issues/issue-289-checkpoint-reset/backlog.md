@@ -8,12 +8,14 @@
     - `moveActor` を移動種別 `warp` で呼ぶ
     - 向きを `pickInitialFacingTarget` の規則で初期表示時と同じにする
   - (design.md 懸念・リスク、decision-records.md 2026-09-28 ワープ手段)
-- [ ] proto-03: `FindPath-reset-to-checkpoint` イベントと listener
+- [x] proto-03: `FindPath-reset-to-checkpoint` イベントと listener
   - 受理条件: EN 切れ中かつ停止中
+    - 停止中は `Stage07-move-start`/`Stage07-move-stop` の購読で判定する
   - 位置: `Stage07Handle.warp` で `START_POSITION` へ
   - EN: `Energy-recover` イベントで初期値まで回復する
   - fog: `markVisited(START_POSITION)` で視界の基準を移す
   - 目標・中継点: `waypointFlow.clear()`
     - ワープより先に呼ぶ（ワープ先の到達イベントで自動移動が進まないようにする）
   - 確認用に control-panel へ仮ボタンを置く
+  - listener は `Stage07Handle` を使うため stage content の hook として購読する（`FindPathEventListeners` は `Stage07HandleProvider` の外側）
   - (decision-records.md 2026-09-28)
