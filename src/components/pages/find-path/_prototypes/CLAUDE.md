@@ -30,7 +30,7 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
     - `_contents/stage-area`: ステージと独立 bot を横に並べる
       - `stage-area/_contents/stage`: `Stage07` + 各レイヤー、移動・経路・中継点の操作
       - `stage-area/_contents/standalone-bot`: ステージ上の bot とは別に独立表示する bot（issue #248）
-    - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行）。「実行」は `_contexts/stage07-handle` 経由で `Stage07Handle.followPath` を命令する
+    - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ）。「実行」は `_contexts/stage07-handle` 経由で `Stage07Handle.followPath` を命令する。EN 切れの吹き出しはクリックで救済手段（手持ちのアイテム使用、なければチェックポイントへのリセット）を実行し、拒否されると揺れる（`FindPath-shake-bot-bubble`）
     - `_contents/control-panel`: 表示設定の切替・EN・リセット・ゴール到達・中継点選択状況。リセットは `_contexts/reset`（`ResetProvider` が Provider 群へ `key` を付けて再マウント）の `useReset` で受ける
     - `_layers/`: `Stage07` の children として重ねるレイヤー。`_components/`: 部品（吹き出し・インジケータ）
   - `constants.ts`: `GOAL_POSITION`/`START_POSITION` を axial 座標(`HexCell`)で定義。proto-01/02 とは座標系が異なるため独自定義（共用不可）

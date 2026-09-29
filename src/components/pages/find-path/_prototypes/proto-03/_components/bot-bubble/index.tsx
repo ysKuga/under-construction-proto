@@ -5,6 +5,7 @@ import {
   ForwardedRef,
   forwardRef,
   memo,
+  ReactNode,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -78,9 +79,9 @@ type BotBubbleProps = {
    *   どうなるかを示すために使う
    * - クリック後、hover を一度外すまでは表示しない（下記 `BotBubble` 参照）
    */
-  speechHoverText?: string
+  speechHoverText?: ReactNode
   /** 発言吹き出し時の文言 */
-  speechText: string
+  speechText: ReactNode
   /** 思考吹き出し時の文言 */
   thoughtText: string
   /** 表示するか */
