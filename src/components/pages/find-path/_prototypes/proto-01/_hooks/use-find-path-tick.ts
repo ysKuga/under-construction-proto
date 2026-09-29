@@ -115,7 +115,7 @@ type UseFindPathTickReturn = {
  * - `options.face`(省略可、box-bot-01 の face action dispatcher)を渡すと、1 tick
  *   消化ごとに bot を進行方向へ向ける
  * - 回復アイテム（`ItemInstance.stock` 未指定）は踏んでも即時回復せず携行する
- *   （`CarriedItemStore`、上限に達していればその場に残る）。回復スポットは据置型
+ *   （`CarriedItemStore`、上限に達していればその場に残る）。EN スポットは据置型
  *   のため対象外、従来通り即時回復。携行アイテムの使用は `useCarriedItem`（issue #181）
  * - EN 消費・回復とも `Energy-consume`/`Energy-recover` イベントを dispatch する
  *   だけにし、実処理・0 以下/より大きくなった判定・`Energy-depleted`/
@@ -244,7 +244,7 @@ export const useFindPathTick = (
           items.getState().consumeItem(item.id)
         }
       } else if (item) {
-        // 回復スポット（据置型）: 従来通り即時回復
+        // EN スポット（据置型）: 従来通り即時回復
         const consumed = items.getState().consumeItem(item.id)
 
         if (consumed) {

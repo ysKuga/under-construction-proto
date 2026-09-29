@@ -14,7 +14,7 @@ export const term = {
   energy: energyTerm,
   /** 回復アイテム */
   energyRecoveryItem: energyRecoveryItemTerm,
-  /** 回復スポット */
+  /** EN スポット */
   energyRecoverySpot: energyRecoverySpotTerm,
   /** 障害物 */
   obstacle: obstacleTerm,

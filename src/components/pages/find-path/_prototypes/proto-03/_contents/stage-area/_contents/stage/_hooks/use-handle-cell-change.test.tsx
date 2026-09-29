@@ -100,7 +100,7 @@ test('携行が上限なら回復アイテムはその場に残る', () => {
   ).toEqual(RECOVERY_ITEM)
 })
 
-test('回復スポットは携行せず即時回復する', async () => {
+test('EN スポットは携行せず即時回復する', async () => {
   const { result } = renderHandleCellChange()
   const { energy } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)

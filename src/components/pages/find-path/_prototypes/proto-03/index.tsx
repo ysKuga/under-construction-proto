@@ -74,10 +74,10 @@ import { FindPathProto03Props } from './index.types'
  *   持たないため、`CellTitleProvider`（`stage-07/_contexts/cell-title`）で
  *   `getCellTitle` の中身（障害物・アイテムの説明、`getCellContents`/
  *   `describeCellContent`）を注入する（PR #196 レビュー対応）
- * - 回復アイテム/回復スポット（issue #181、proto-01 から移植）: proto-01 と同じ
+ * - 回復アイテム/EN スポット（issue #181、proto-01 から移植）: proto-01 と同じ
  *   `ItemStore` を axial 座標へ移植した固有実装（`_stores/items`）。stage content の
  *   `handleCellChange` で、回復アイテムは携行（`_stores/carried-items`、issue #281）、
- *   回復スポットは即時回復する
+ *   EN スポットは即時回復する
 
  * - 経路の提示・実行（issue #226）: UI は `FindPathEventProvider`（`_events`）の
  *   EventTarget へ担当範囲の情報を発行し、EN 等のゲーム要素による実行可否は

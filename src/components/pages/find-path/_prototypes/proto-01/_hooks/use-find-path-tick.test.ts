@@ -287,7 +287,7 @@ test('携行アイテムが空のとき useCarriedItem を呼んでも何も起�
   ).toBe(DEFAULT_ENERGY_INFO.current)
 })
 
-test('回復スポットは指定回数のみ回復し、枯渇後は回復しない', () => {
+test('EN スポットは指定回数のみ回復し、枯渇後は回復しない', () => {
   const { result } = renderTick()
   const spot = RECOVERY_SPOT_CELLS[0]
   const adjacent = { col: spot.col, row: spot.row - 1 }

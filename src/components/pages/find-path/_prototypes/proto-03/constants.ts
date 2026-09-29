@@ -45,7 +45,7 @@ export const ONE_WAY_CELLS = [
 export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
 
 /**
- * 回復スポット一覧（踏むたび回復、指定回数で枯渇しうる）
+ * EN スポット一覧（踏むたび回復、指定回数で枯渇しうる）
  *
  * - 配置・回復量・回数は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
  */
