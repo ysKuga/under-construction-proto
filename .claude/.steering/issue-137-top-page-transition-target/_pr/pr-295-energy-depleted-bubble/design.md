@@ -15,6 +15,8 @@ issue: #137 / PR: #295（backlog「EN 切れ時に bubble で救済手段を表�
   - 中継点・実行の bubble（`BubblePair`）とは同時に表示されない
 - UI は拒否の理由（EN）を扱わない（ui-jurisdiction）
 
+決定事項: [decision-records.md](decision-records.md)
+
 ## 方針
 
 - `_components/energy-depleted-bubble` を新設し、`BotBubble` に見た目・表示切替を委ねる
@@ -26,9 +28,3 @@ issue: #137 / PR: #295（backlog「EN 切れ時に bubble で救済手段を表�
   - 非隣接クリックの提示が拒否された時、UI が発行する
   - 表示中の bot bubble が `allowMultiple` で購読して揺れる
 - 注入先は `BotBubbles`（`_contents/bot-bubbles`）の bot 頭上オーバーレイ
-
-## 実装計画
-
-- [x] `BotBubbleHandle.shake()` を追加する
-- [x] `FindPath-shake-bot-bubble` を追加し、提示拒否時に発行する
-- [x] `EnergyDepletedBubble` を追加し、bot 頭上へ表示する
