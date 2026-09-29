@@ -14,7 +14,7 @@ const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
 ]
 
 /**
- * 操作パネル（表示設定の切替・リセット・チェックポイントへのリセット・ゴール到達・中継点選択状況）
+ * 操作パネル（表示設定の切替・リセット・ゴール到達・中継点選択状況）
  *
  * - 霧・歩行モーション・移動可能マス表示・状態表示の向き同期は各 store へ書き込み、stage content が購読する
  * - 中継点選択モード中は `WaypointSelectingIndicator`（「完了」ボタン）を表示する
@@ -26,7 +26,6 @@ export const ControlPanel = () => {
     fogModeDefault,
     goalReached,
     handleReset,
-    handleResetToCheckpoint,
     handleWaypointDoneClick,
     isSelectingWaypoint,
     setDisplayMode,
@@ -92,9 +91,6 @@ export const ControlPanel = () => {
       </label>
       <button onClick={handleReset} type="button">
         リセット
-      </button>
-      <button onClick={handleResetToCheckpoint} type="button">
-        チェックポイントへ
       </button>
       <span hidden={!goalReached}>🎉 ゴール到達</span>
       <WaypointSelectingIndicator
