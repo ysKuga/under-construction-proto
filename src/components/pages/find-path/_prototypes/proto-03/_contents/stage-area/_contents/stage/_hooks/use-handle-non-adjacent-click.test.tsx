@@ -8,7 +8,10 @@ import {
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { FindPathEventProvider } from '../../../../../_events'
+import {
+  FindPathEventProvider,
+  useFindPathEventListener,
+} from '../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
 import {
   useWaypointFlowStoreApi,
@@ -35,13 +38,17 @@ const Wrapper = (props: PropsWithChildren) => (
   </EnergyStoreProvider>
 )
 
-const renderHandler = () =>
+const renderHandler = (onShakeBotBubble = vi.fn<() => void>()) =>
   renderHook(
-    () => ({
-      energy: useEnergyStoreApi(),
-      handleNonAdjacentClick: useHandleNonAdjacentClick(),
-      waypointFlow: useWaypointFlowStoreApi(),
-    }),
+    () => {
+      useFindPathEventListener('FindPath-shake-bot-bubble', onShakeBotBubble)
+
+      return {
+        energy: useEnergyStoreApi(),
+        handleNonAdjacentClick: useHandleNonAdjacentClick(),
+        waypointFlow: useWaypointFlowStoreApi(),
+      }
+    },
     { wrapper: Wrapper },
   )
 
@@ -70,4 +77,29 @@ test('EN 切れでも目標セルの再クリックでキャンセルできる',
   await act(() => handleNonAdjacentClick({ q: 2, r: 3 }))
 
   expect(waypointFlow.getState().flowState).toBe('idle')
+})
+
+test('EN 切れで提示を拒否されると bot 頭上の吹き出しを揺らす', async () => {
+  const onShakeBotBubble = vi.fn<() => void>()
+  const { result } = renderHandler(onShakeBotBubble)
+  const { energy, handleNonAdjacentClick, waypointFlow } = result.current
+  const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
+
+  act(() => {
+    energy.getState().consume(PLAYER_ACTOR_ID, max)
+  })
+  await act(() => handleNonAdjacentClick({ q: 2, r: 0 }))
+
+  expect(onShakeBotBubble).toHaveBeenCalledTimes(1)
+  expect(waypointFlow.getState().flowState).toBe('idle')
+})
+
+test('提示を許可されれば吹き出しを揺らさない', async () => {
+  const onShakeBotBubble = vi.fn<() => void>()
+  const { result } = renderHandler(onShakeBotBubble)
+
+  await act(() => result.current.handleNonAdjacentClick({ q: 2, r: 0 }))
+
+  expect(onShakeBotBubble).not.toHaveBeenCalled()
+  expect(result.current.waypointFlow.getState().flowState).toBe('proposing')
 })

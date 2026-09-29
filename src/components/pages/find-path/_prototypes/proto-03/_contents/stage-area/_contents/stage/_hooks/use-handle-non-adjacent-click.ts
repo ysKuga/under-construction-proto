@@ -21,7 +21,8 @@ import { UseStageReturn } from '../index.types'
  * - `Stage07` は find-path 固有の概念（目標）を持たないため、prop 名は
  *   `onNonAdjacentClick`（クリックの種類）のまま受ける
  * - 提示前に `FindPath-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
- *   何もしない。拒否の理由（EN 等）は UI では扱わない（ui-jurisdiction）
+ *   bot 頭上の吹き出しを揺らすのみ（`FindPath-shake-bot-bubble`）。拒否の理由（EN 等）は
+ *   UI では扱わない（ui-jurisdiction）
  * - 経路提示中に目標セルを再クリックした場合は目標設定をキャンセルする（タッチ操作向け、
  *   ESC の代替）。キャンセルは提示ではないため `FindPath-propose-path` を発行しない
  */
@@ -53,8 +54,10 @@ export const useHandleNonAdjacentClick =
           'FindPath-propose-path'
         ]({ cell })
 
-        // 提示を拒否された: 何もしない
+        // 提示を拒否された: bot 頭上の吹き出しを揺らして知らせる
         if (!proposeAllowed) {
+          void findPathEventDispatcher['FindPath-shake-bot-bubble'](undefined)
+
           return
         }
 
