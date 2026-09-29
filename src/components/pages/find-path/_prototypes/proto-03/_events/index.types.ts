@@ -40,6 +40,13 @@ export type FindPathEventMap = {
    */
   'FindPath-reset-to-checkpoint': undefined
   /**
+   * bot 頭上に表示中の吹き出しを揺らす
+   *
+   * - 操作が拒否されたことを知らせるために発行する（拒否の理由は問わない）
+   * - 表示中の吹き出しが購読して揺れる。購読がなければ何も起きない
+   */
+  'FindPath-shake-bot-bubble': undefined
+  /**
    * 携行中のアイテムを、指定した使用方法で使用する
    *
    * - 使用方法がアイテムに許可されていなければ拒否される（`getItemUsages`）

@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import { useReset } from '../../_contexts/reset'
-import { useFindPathEventDispatcher } from '../../_events'
 import { useDisplaySettingsStore } from '../../_stores/display-settings'
 import { useFogStore, useFogStoreApi } from '../../_stores/fog'
 import { useGoalStore } from '../../_stores/goal'
@@ -38,7 +37,6 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const waypointCount = useWaypointFlowStore((state) => state.waypoints.length)
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   const reset = useReset()
-  const findPathEventDispatcher = useFindPathEventDispatcher()
 
   /**
    * 中継点選択を確定し、経路提示中(`proposing`)へ戻す
@@ -50,22 +48,12 @@ export const useControlPanel = (): UseControlPanelReturn => {
     waypointFlowStoreApi.getState().setFlowState('proposing')
   }, [waypointFlowStoreApi])
 
-  /**
-   * 「チェックポイントへ」クリック時。チェックポイントへのリセットを要求する
-   *
-   * - 受理条件（EN 切れ中かつ停止中）の判定は listener が担う。拒否時は何もしない
-   */
-  const handleResetToCheckpoint = useCallback(() => {
-    void findPathEventDispatcher['FindPath-reset-to-checkpoint'](undefined)
-  }, [findPathEventDispatcher])
-
   return {
     displayMode,
     enableWalking,
     fogModeDefault: fogStoreApi.getState().mode,
     goalReached,
     handleReset: reset,
-    handleResetToCheckpoint,
     handleWaypointDoneClick,
     isSelectingWaypoint,
     setDisplayMode,

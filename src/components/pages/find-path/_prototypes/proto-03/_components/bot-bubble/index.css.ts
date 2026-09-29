@@ -112,6 +112,19 @@ const gradientShift = keyframes({
 })
 
 /**
+ * 左右に小刻みに揺れるアニメーション（`BotBubbleHandle.shake`）
+ *
+ * - `transform` でなく `translate` を動かす。左配置時の最外 div の
+ *   `transform: translateX(-100%)` を上書きしないため
+ * - `index.tsx` がインライン `style.animation` へ設定して再生する（`rippleSpread` と同じ）
+ */
+export const shake = keyframes({
+  '0%, 100%': { translate: '0' },
+  '20%, 60%': { translate: '-4px' },
+  '40%, 80%': { translate: '4px' },
+})
+
+/**
  * 吹き出し本体(button)
  *
  * - 文言の出し分け・コネクタ(hover 時)の表示切替セレクター基点も兼ねる
