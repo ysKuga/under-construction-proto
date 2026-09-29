@@ -12,6 +12,8 @@ export type UseControlPanelReturn = {
   goalReached: boolean
   /** 「リセット」クリック時。全 store（position/items 等）を初期状態に戻す */
   handleReset: () => void
+  /** 「チェックポイントへ」クリック時。EN 切れ中かつ停止中なら開始位置へ戻り EN を回復する（確認用の仮ボタン） */
+  handleResetToCheckpoint: () => void
   /** 「完了」クリック時。中継点選択モードを終了し経路提示中へ戻る */
   handleWaypointDoneClick: () => void
   /** 中継点選択モード中か */

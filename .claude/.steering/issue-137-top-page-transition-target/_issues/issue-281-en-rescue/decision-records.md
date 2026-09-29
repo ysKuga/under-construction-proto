@@ -6,4 +6,4 @@
   - 使用方法の許可はアイテム種別ごとのホワイトリスト（`_lib/item-usage.ts`）で判定する。状況に応じた許可は必要になった時点で追加する
   - UI はホワイトリスト先頭の代表用途を提示する
   - 使用イベントの listener は受理判定・携行からの除去・`FindPath-item-used` の通知のみ行い、効果（EN 回復等）は持たない。効果は用途ごとの listener が `FindPath-item-used` を購読して処理する
-- 2026-09-28: チェックポイントへのリセットを、stage-07 の準備と proto-03 の実装で複数 PR にわたるためサブ issue #289 として分離した（[_issues/issue-289-checkpoint-reset](_issues/issue-289-checkpoint-reset/backlog.md)）
+- 2026-09-28: チェックポイントへのリセットを、stage-07 の準備と proto-03 の実装で複数 PR にわたるためサブ issue #289 として分離した（[_closed/issue-289-checkpoint-reset](_closed/issue-289-checkpoint-reset/backlog.md)）
