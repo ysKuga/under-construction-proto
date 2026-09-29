@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 
 import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
@@ -7,18 +7,10 @@ import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 import { EnergyDepletedBubbleHandle } from '../../../../_components/energy-depleted-bubble'
 import { useFindPathEventListener } from '../../../../_events'
 
-type UsePlayerEnergyDepletedBubbleReturn = {
-  /** `EnergyDepletedBubble` の imperative API。揺れを ref 経由で命令する */
-  bubbleRef: RefObject<EnergyDepletedBubbleHandle | null>
-  /** bot 頭上のオーバーレイ注入先コンテナ DOM（actors store） */
-  overlayContainer?: HTMLDivElement
-  /** 吹き出しを揺らす */
-  shake: () => void
-  /** 吹き出しを表示するか（player が EN 切れ中） */
-  visible: boolean
-}
+import { useRescue } from './_hooks/use-rescue'
+import { UsePlayerEnergyDepletedBubbleReturn } from './index.types'
 
-/** player の EN 切れ吹き出しの表示・揺れをまとめる */
+/** player の EN 切れ吹き出しの表示・揺れ・救済手段をまとめる */
 export const usePlayerEnergyDepletedBubble =
   (): UsePlayerEnergyDepletedBubbleReturn => {
     const bubbleRef = useRef<EnergyDepletedBubbleHandle>(null)
@@ -28,7 +20,9 @@ export const usePlayerEnergyDepletedBubble =
     const visible = useEnergyStore(
       (state) => state.getEnergyInfo(PLAYER_ACTOR_ID).current <= 0,
     )
+    const { handleRescueClick, rescueItemKind } = useRescue()
 
+    /** 吹き出しを揺らす */
     const shake = useCallback(() => {
       bubbleRef.current?.shake()
     }, [])
@@ -38,5 +32,11 @@ export const usePlayerEnergyDepletedBubble =
       allowMultiple: true,
     })
 
-    return { bubbleRef, overlayContainer, shake, visible }
+    return {
+      bubbleRef,
+      handleRescueClick,
+      overlayContainer,
+      rescueItemKind,
+      visible,
+    }
   }
