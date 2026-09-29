@@ -29,6 +29,6 @@ issue: #137 / PR: #295（backlog「EN 切れ時に bubble で救済手段を表�
 
 ## 実装計画
 
-- [ ] `BotBubbleHandle.shake()` を追加する
-- [ ] `FindPath-shake-bot-bubble` を追加し、提示拒否時に発行する
-- [ ] `EnergyDepletedBubble` を追加し、bot 頭上へ表示する
+- [x] `BotBubbleHandle.shake()` を追加する
+- [x] `FindPath-shake-bot-bubble` を追加し、提示拒否時に発行する
+- [x] `EnergyDepletedBubble` を追加し、bot 頭上へ表示する
