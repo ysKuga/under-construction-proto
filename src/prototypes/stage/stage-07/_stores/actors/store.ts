@@ -36,11 +36,13 @@ export const createActorsStore = (
         ),
       }))
     },
-    moveActor: (actorId, target) => {
+    moveActor: (actorId, target, options) => {
       set((state) => ({
         actors: { ...state.actors, [actorId]: target },
+        moveKinds: { ...state.moveKinds, [actorId]: options?.kind ?? 'move' },
       }))
     },
+    moveKinds: {},
     overlayAnchors: {},
     overlayContainers: {},
     registerOverlayAnchor: (actorId, el) => {

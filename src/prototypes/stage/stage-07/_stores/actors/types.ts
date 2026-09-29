@@ -5,6 +5,15 @@ import { ActorId } from '@/prototypes/time-control/time-control-03/types'
 import { HexCell } from '../../_lib/hex'
 
 /**
+ * actor の直近の移動種別
+ *
+ * - `move`: 移動アニメーションあり
+ * - `warp`: 移動アニメーションなし。通過マスを経由しないため、通過マスの到達\
+ *   (`Stage07-cell-reach`)は発行されない
+ */
+export type ActorMoveKind = 'move' | 'warp'
+
+/**
  * hex グリッド上の actor(player・mob 共通)位置を保持する store
  *
  * - player・mob を区別せず `actorId` で一元管理する。player 固有の移動検証(隣接判定・
@@ -15,8 +24,22 @@ export type ActorsState = {
   actors: Record<ActorId, HexCell>
   /** actor を取り除く */
   despawnActor: (actorId: ActorId) => void
-  /** actor を target セルへ移動する */
-  moveActor: (actorId: ActorId, target: HexCell) => void
+  /**
+   * actor を target セルへ移動する
+   *
+   * - `options.kind` で移動種別を指定する（省略時は `move`）
+   */
+  moveActor: (
+    actorId: ActorId,
+    target: HexCell,
+    options?: { kind?: ActorMoveKind },
+  ) => void
+  /**
+   * actorId ごとの直近の移動種別
+   *
+   * - `ActorsLayer` が位置の transition の有無を切り替えるのに使う。未設定は `move` 扱い
+   */
+  moveKinds: Partial<Record<ActorId, ActorMoveKind>>
   /**
    * actorId ごとのオーバーレイ追従先(アンカー) DOM
    *

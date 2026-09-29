@@ -10,7 +10,7 @@
   - 携行アイテムの没収は代価にならない（リセットは手持ちがない場合に提示するため）
   - チェックポイントの位置は当面 `START_POSITION` 定数とする。複数チェックポイントが必要になった時点で store 化する
 - 2026-09-28: stage-07 のワープ手段を決定
-  - actors store に `warpActor` を追加し、actor ごとの直近の移動種別（`'move' | 'warp'`）を持たせる
+  - actors store の `moveActor` に移動種別（`'move' | 'warp'`、省略時は `move`）を指定する引数を追加し、actor ごとの直近の移動種別を持たせる
   - `ActorsLayer` は移動種別が `warp` のとき `left`/`top` の transition を 0ms で描画する
     - CSS transition は変更後のスタイルの値が効くため、次の `moveActor` ではワープ先から通常どおり滑らかに移動する
     - `transform`（床の傾きへの追従）の transition は残す
@@ -22,4 +22,5 @@
     - DOM 直書き（ref で transition を外す → reflow → 戻す）: React 管理の `style` と競合し、戻すタイミングが reflow 依存で壊れやすい
     - player の `key` 変更による再マウント: box-bot の action 状態（向き・EN 切れ演出）まで初期化され、3D モデル再生成も重い
     - `moveDurationMs` の一時的な 0 化: `Stage07` の props 変更となり配下全体が再レンダリングされる
+    - 専用の `warpActor` の追加: 移動種別が増えるたびに store の action が増える。`moveActor` の引数で種別を渡せば、種別の追加は union への追加で済む
     - ワープ通知用の stage-07 イベント（`Stage07-warp` 等）: 購読側がなく、proto-03 の listener で直接処理すれば足りる
