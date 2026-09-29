@@ -7,8 +7,8 @@
   - 手持ちの表示と使用
 - [x] チェックポイント（開始位置）へのリセット（#294）
   - サブ issue #289 へ分離（[_closed/issue-289-checkpoint-reset](_closed/issue-289-checkpoint-reset/backlog.md)）
-- [ ] EN 切れ bubble へ救済手段を提示する
-  - 親 #137 の bubble 本体の実装後に着手する
+- [x] EN 切れ bubble へ救済手段を提示する（#296）
+  - 親 #137 の bubble 本体（#295）の上に実装した（[_pr/pr-296-energy-depleted-rescue](_pr/pr-296-energy-depleted-rescue/design.md)）
   - 手持ちがあれば使用、なければチェックポイントへのリセット
 - [ ] スポットマスでの停止中使用（検討）
   - 現状のスポットは踏むと即時回復
