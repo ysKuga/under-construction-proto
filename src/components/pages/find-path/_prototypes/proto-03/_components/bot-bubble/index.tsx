@@ -37,6 +37,8 @@ export type BotBubbleHandle = {
   setSpeech: (next: boolean) => void
   /** 周期的に半透明にするか。hover 中は不透明になる */
   setTranslucent: (next: boolean) => void
+  /** 左右に小刻みに揺らす（拒否された操作を知らせる等） */
+  shake: () => void
 }
 
 type BotBubbleProps = {
@@ -111,6 +113,7 @@ type BotBubbleProps = {
  *   変えても自動的に bot とのつながりを保つ（座標計算自体は
  *   `_lib/compute-connector-geometry.ts` へ分離）
  * - `onClose` 指定時は本体の右上へ close ボタン(×)を重ねる（issue #137）
+ * - `BotBubbleHandle.shake` で全体を左右に小刻みに揺らす（拒否された操作を知らせる、issue #137）
  * - 呼び出し元が `useActorsStore` の `overlayContainers` が公開するコンテナへ
  *   `createPortal` で注入し（複数の吹き出しを同時注入することも想定）、
  *   `offset` で相対位置（bot 頭上等）を指定する想定（issue #137）。コンテナは
@@ -137,6 +140,7 @@ export const BotBubble = memo(
     const speechHoverArmedCheckboxRef = useRef<HTMLInputElement>(null)
     const translucentCheckboxRef = useRef<HTMLInputElement>(null)
     const rippleRef = useRef<HTMLSpanElement>(null)
+    const rootRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
       setVisible(visible)
@@ -154,9 +158,26 @@ export const BotBubble = memo(
       }
     }, [])
 
-    useImperativeHandle(ref, () => ({ setSpeech, setTranslucent }), [
+    /**
+     * 揺れのアニメーションを最初から再生する
+     *
+     * - 波紋（`handleClick`）と同じく、インライン `style.animation` の再設定で再生し直す
+     */
+    const shake = useCallback(() => {
+      const rootEl = rootRef.current
+
+      if (!rootEl) return
+
+      rootEl.style.animation = 'none'
+      // reflow を挟むことで CSS アニメーションを最初から再生させる
+      void rootEl.offsetHeight
+      rootEl.style.animation = `${styles.shake} 0.4s ease-in-out`
+    }, [])
+
+    useImperativeHandle(ref, () => ({ setSpeech, setTranslucent, shake }), [
       setSpeech,
       setTranslucent,
+      shake,
     ])
 
     /**
@@ -204,6 +225,7 @@ export const BotBubble = memo(
 
     return (
       <div
+        ref={rootRef}
         style={{
           left: offset.x,
           pointerEvents: 'none',
