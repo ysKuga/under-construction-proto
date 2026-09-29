@@ -33,6 +33,13 @@ export type FindPathEventMap = {
     cell: HexCell
   }
   /**
+   * チェックポイント（開始位置）へリセットする
+   *
+   * - EN 切れ中かつ停止中のみ受理する。それ以外は拒否される
+   * - 位置・EN を戻し、盤面の状態・携行アイテムは保持する（issue #289）
+   */
+  'FindPath-reset-to-checkpoint': undefined
+  /**
    * 携行中のアイテムを、指定した使用方法で使用する
    *
    * - 使用方法がアイテムに許可されていなければ拒否される（`getItemUsages`）

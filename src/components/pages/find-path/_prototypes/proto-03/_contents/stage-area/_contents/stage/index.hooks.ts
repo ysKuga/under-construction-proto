@@ -18,6 +18,7 @@ import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
 import { useHandleNonAdjacentClick } from './_hooks/use-handle-non-adjacent-click'
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
 import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
+import { useResetToCheckpointEventListener } from './_hooks/use-reset-to-checkpoint-event-listener'
 import { useVisibilityNodeRegistrars } from './_hooks/use-visibility-node-registrars'
 import { UseStageReturn } from './index.types'
 
@@ -60,6 +61,7 @@ export const useStage = (): UseStageReturn => {
   useRegisterPlayerEnergyOut()
   useCancelWaypointFlowOnEscape()
   useClearWaypointFlowOnEnergyDepleted()
+  useResetToCheckpointEventListener()
 
   // 経路プレビューの点は、bot がマスの中心に着いた時点で消す（進行の記録を到達時に行う）
   useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
