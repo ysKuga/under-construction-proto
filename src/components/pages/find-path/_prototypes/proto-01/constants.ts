@@ -31,7 +31,7 @@ export const ONE_WAY_CELLS = [
 ] as const
 
 /**
- * 回復アイテム一覧（踏むと回復、1個ずつ使い切り）
+ * EN 回復アイテム一覧（踏むと回復、1個ずつ使い切り）
  *
  * - 配置・回復量は仮値（design.md 懸念・リスク、後日バランス調整）
  */
@@ -47,7 +47,7 @@ export const RECOVERY_SPOT_CELLS = [
 ] as const
 
 /**
- * 携行可能な回復アイテムの上限数
+ * 携行可能な EN 回復アイテムの上限数
  *
  * - 仮値（design.md 懸念・リスク、後日バランス調整）
  */

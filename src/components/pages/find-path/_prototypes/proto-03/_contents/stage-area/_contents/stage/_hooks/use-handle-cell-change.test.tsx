@@ -67,7 +67,7 @@ const renderHandleCellChange = (capacity?: number) =>
     { wrapper: createWrapper(capacity) },
   )
 
-test('回復アイテムを踏むと即時回復せず携行し、その場から取り除く', async () => {
+test('EN 回復アイテムを踏むと即時回復せず携行し、その場から取り除く', async () => {
   const { result } = renderHandleCellChange()
   const { max } = result.current.energy
     .getState()
@@ -89,7 +89,7 @@ test('回復アイテムを踏むと即時回復せず携行し、その場か�
   )
 })
 
-test('携行が上限なら回復アイテムはその場に残る', () => {
+test('携行が上限なら EN 回復アイテムはその場に残る', () => {
   const { result } = renderHandleCellChange(0)
 
   act(() => result.current.handleCellChange(RECOVERY_ITEM.cell))

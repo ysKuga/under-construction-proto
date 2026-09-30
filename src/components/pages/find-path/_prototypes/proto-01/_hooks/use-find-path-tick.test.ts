@@ -235,7 +235,7 @@ test('再度「実行」すると reachedGoal がリセットされる', () => {
   expect(result.current.tickStatus.getState().reachedGoal).toBe(false)
 })
 
-test('回復アイテムのマスに到達すると携行する（即時回復しない）', () => {
+test('EN 回復アイテムのマスに到達すると携行する（即時回復しない）', () => {
   const { result } = renderTick()
   const item = RECOVERY_ITEM_CELLS[0]
 
@@ -247,7 +247,7 @@ test('回復アイテムのマスに到達すると携行する（即時回復�
   act(() => result.current.tick.execute())
   act(() => vi.advanceTimersByTime(TICK_MS * 2))
 
-  // 5(初期消費) + 2(移動2手分の消費) = 7 減。回復アイテムでは回復しない
+  // 5(初期消費) + 2(移動2手分の消費) = 7 減。EN 回復アイテムでは回復しない
   expect(
     result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
   ).toBe(10 - 5 - 2)
@@ -384,8 +384,8 @@ test('EN 切れ後、携行アイテムを使用すると energyOut が再度発
   act(() => vi.advanceTimersByTime(TICK_MS))
   expect(energyOut).toHaveBeenCalledTimes(1)
 
-  // 停止後、別経路で回復アイテムのマスへ向けて再度「実行」し携行する
-  // （回復アイテムは即時回復せず携行のみのため、この時点ではまだ復帰しない）
+  // 停止後、別経路で EN 回復アイテムのマスへ向けて再度「実行」し携行する
+  // （EN 回復アイテムは即時回復せず携行のみのため、この時点ではまだ復帰しない）
   seedPlanned(result, [item])
   act(() => result.current.tick.execute())
   act(() => vi.advanceTimersByTime(TICK_MS))

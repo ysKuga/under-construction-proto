@@ -31,7 +31,7 @@ import { FindPathProto03Props } from './index.types'
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
  *
- * - 回復アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
+ * - EN 回復アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
  *   （指定回数で枯渇しうる）で区別する（proto-01 と同型）
  */
 const INITIAL_ITEMS: ItemInstance[] = [

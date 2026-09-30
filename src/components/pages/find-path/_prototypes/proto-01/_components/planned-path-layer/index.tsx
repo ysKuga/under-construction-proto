@@ -121,7 +121,7 @@ const stackedStepStyle = (index: number, count: number): CSSProperties => ({
  *   ごと再レンダリングされるため）
  * - planned-path / tick-status / item store を購読。bot の移動（path / position）
  *   では再レンダリングしない
- * - セル本体（`button`）へ `title` を付与し、障害物・回復アイテム・EN スポットの
+ * - セル本体（`button`）へ `title` を付与し、障害物・EN 回復アイテム・EN スポットの
  *   説明を hover 表示する（issue #137）。対応する表示レイヤー（`ObstacleLayer` 等）は
  *   `pointerEvents: none` の非対話オーバーレイで hover を受け取れないため、実際に
  *   マウスオーバーを受けるここへ持たせる。説明対象は `getCellContents`（障害物・

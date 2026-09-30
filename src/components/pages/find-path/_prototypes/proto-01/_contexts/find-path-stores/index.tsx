@@ -29,7 +29,7 @@ import {
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
  *
- * - 回復アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
+ * - EN 回復アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
  *   （指定回数で枯渇しうる）で区別する
  */
 const INITIAL_ITEMS: ItemInstance[] = [
@@ -55,12 +55,12 @@ const INITIAL_ITEMS: ItemInstance[] = [
  *   （座標系非依存。セル座標は `Position` へ `{x: col, y: row}` で載せる）
  * - energy（画面表示は EN 表記、issue #181）は find-path 固有の store。\
  *   ゲームデザイン上の資源管理概念で時間管理ロジックの tc-03 へは持ち込まない
- * - item（回復アイテム/EN スポット、issue #181）は proto-01 固有の汎用アイテム
+ * - item（EN 回復アイテム/EN スポット、issue #181）は proto-01 固有の汎用アイテム
  *   store。energy store とは責務を分け、将来の種類拡張（`ItemKind`）に備える。
  *   障害物（`_lib/obstacle.ts`、静的定数）とは別管理のまま、セル上の要素を種類問わず
  *   取得する窓口は `_lib/get-cell-contents.ts`（pure function）が担う
  *   （issue #137、PR #196 レビュー対応）
- * - carried-item（携行中の回復アイテム、issue #181）も proto-01 固有。回復アイテムは
+ * - carried-item（携行中の EN 回復アイテム、issue #181）も proto-01 固有。EN 回復アイテムは
  *   踏んでも即時回復せず携行し、任意タイミングで使用する方式（EN スポットは据置型の
  *   ため対象外、即時回復のまま）
  * - tick-status（`isRunning`/`reachedGoal`、issue #137）は `useFindPathTick` の
