@@ -12,9 +12,9 @@ import { obstacleTerm } from './terms/obstacle'
 export const term = {
   /** エネルギー */
   energy: energyTerm,
-  /** 回復アイテム */
+  /** EN 回復アイテム */
   energyRecoveryItem: energyRecoveryItemTerm,
-  /** 回復スポット */
+  /** EN スポット */
   energyRecoverySpot: energyRecoverySpotTerm,
   /** 障害物 */
   obstacle: obstacleTerm,

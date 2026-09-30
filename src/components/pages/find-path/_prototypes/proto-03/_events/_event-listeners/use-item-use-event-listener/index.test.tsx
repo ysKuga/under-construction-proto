@@ -31,7 +31,7 @@ const Wrapper = (props: PropsWithChildren) => (
 )
 
 /**
- * 回復アイテムを1つ携行した状態で描画する
+ * EN 回復アイテムを1つ携行した状態で描画する
  *
  * - `onItemUsed`: `FindPath-item-used` の detail を受け取る spy
  */

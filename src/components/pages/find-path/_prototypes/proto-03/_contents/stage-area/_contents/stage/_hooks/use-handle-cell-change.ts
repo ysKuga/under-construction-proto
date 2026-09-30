@@ -18,8 +18,8 @@ import { UseStageReturn } from '../index.types'
  * 現在地セル変更時（移動成立時）の処理を返す
  *
  * - 目標・中継点をクリアし、視界を到達済みとして記録する
- * - 移動先セルの回復アイテムは携行する（上限に達していればその場に残す）
- * - 移動先セルの回復スポットは消費し即時回復する
+ * - 移動先セルの EN 回復アイテムは携行する（上限に達していればその場に残す）
+ * - 移動先セルの EN スポットは消費し即時回復する
  * - EN を消費量設定（`consumePerMove`）分消費する
  * - 消費量 0（EN 無限）なら消費しない
  * - ゴールセルなら到達を記録する
@@ -40,18 +40,18 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
 
       const item = itemStoreApi.getState().getItemAtCell(cell)
 
-      /** 回復アイテム（`stock` 未指定）を携行できたか。上限に達していれば携行しない */
+      /** EN 回復アイテム（`stock` 未指定）を携行できたか。上限に達していれば携行しない */
       const pickedUp =
         item !== undefined &&
         item.stock === undefined &&
         carriedItemStoreApi.getState().pickUp(item)
 
-      // 回復アイテムを携行した: その場から取り除く（回復は使用時）
+      // EN 回復アイテムを携行した: その場から取り除く（回復は使用時）
       if (pickedUp) {
         itemStoreApi.getState().consumeItem(item.id)
       }
 
-      /** 即時回復する回復スポット（`stock` 指定）を消費した結果 */
+      /** 即時回復する EN スポット（`stock` 指定）を消費した結果 */
       const consumed =
         item?.stock !== undefined
           ? itemStoreApi.getState().consumeItem(item.id)
