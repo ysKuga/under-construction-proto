@@ -38,8 +38,12 @@ export type WaypointBubbleHandle = {
 }
 
 type WaypointBubbleProps = {
-  /** bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照 */
-  offset: { x: number; y: number }
+  /**
+   * bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照
+   *
+   * - 未指定なら `BotBubble.Provider` の既定値を使う
+   */
+  offset?: { x: number; y: number }
   /** クリック時。中継点選択モードへ移行する（選択中なら解除する） */
   onClick: () => void
   /** 表示するか（`waypointFlowState !== 'idle'`） */

@@ -2,6 +2,7 @@
 
 import { createPortal } from 'react-dom'
 
+import { BotBubble } from '../../../../_components/bot-bubble'
 import {
   EXECUTE_BUBBLE_OFFSET,
   ExecuteBubble,
@@ -47,13 +48,15 @@ export const BubblePair = (props: BubblePairProps) => {
         ref={waypointBubbleRef}
         visible={visible}
       />
-      <ExecuteBubble
-        offset={EXECUTE_BUBBLE_OFFSET}
-        onClick={handleExecuteClick}
-        onClose={handleExecuteClose}
-        ref={executeBubbleRef}
-        visible={visible}
-      />
+      <BotBubble.Provider placement="left">
+        <ExecuteBubble
+          offset={EXECUTE_BUBBLE_OFFSET}
+          onClick={handleExecuteClick}
+          onClose={handleExecuteClose}
+          ref={executeBubbleRef}
+          visible={visible}
+        />
+      </BotBubble.Provider>
     </>,
     overlayContainer,
   )

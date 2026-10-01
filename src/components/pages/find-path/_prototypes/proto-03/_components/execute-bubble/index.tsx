@@ -30,8 +30,12 @@ export type ExecuteBubbleHandle = {
 }
 
 type ExecuteBubbleProps = {
-  /** bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照 */
-  offset: { x: number; y: number }
+  /**
+   * bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照
+   *
+   * - 未指定なら `BotBubble.Provider` の既定値を使う
+   */
+  offset?: { x: number; y: number }
   /** クリック時。経路に沿った自動移動を開始する */
   onClick: () => void
   /** 右上の close ボタン(×)クリック時。目標設定をキャンセルする */
@@ -44,6 +48,7 @@ type ExecuteBubbleProps = {
  * 経路に沿った自動移動を開始する「実行」吹き出し
  *
  * - bot を挟んで `WaypointBubble` の反対側(左)に置く（issue #226）。
+ *   左配置は呼び出し元が `BotBubble.Provider` の `placement` で指定する。
  *   見た目・表示切替は `BotBubble` に委ねる
  * - 文言は hover 中のみ発言吹き出し「実行！」、それ以外は思考吹き出し「実行？」
  *   （`BotBubble` の hover 時の切替）
@@ -74,7 +79,6 @@ export const ExecuteBubble = memo(
           offset={offset}
           onClick={onClick}
           onClose={onClose}
-          placement="left"
           ref={botBubbleRef}
           speechText="実行！"
           thoughtText="実行？"
