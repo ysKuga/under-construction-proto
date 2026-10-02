@@ -14,10 +14,19 @@ import { BubbleSlots as StoryComponent } from '.'
 /** bot(box-bot-01)の一辺 px */
 const BOT_SIZE = 56
 
+/** 仮の操作。story では吹き出しの操作を接続しない */
+const noop = () => {}
+
+/** 中継点の吹き出し（操作は未接続） */
+const StoryWaypointBubble = () => <WaypointBubble onClick={noop} />
+
+/** 実行の吹き出し（操作は未接続） */
+const StoryExecuteBubble = () => <ExecuteBubble onClick={noop} onClose={noop} />
+
 /** 格納する吹き出し */
 const INITIAL_BUBBLES: BubbleSlotEntry[] = [
-  { Bubble: WaypointBubble, id: 'waypoint', visible$: of(true) },
-  { Bubble: ExecuteBubble, id: 'execute', visible$: of(true) },
+  { Bubble: StoryWaypointBubble, id: 'waypoint', visible$: of(true) },
+  { Bubble: StoryExecuteBubble, id: 'execute', visible$: of(true) },
 ]
 
 const meta: Meta<typeof StoryComponent> = {
@@ -56,13 +65,13 @@ export const HiddenByKind: Story = {
       <BubbleSlotsStoreProvider
         initialBubbles={[
           {
-            Bubble: WaypointBubble,
+            Bubble: StoryWaypointBubble,
             id: 'waypoint',
             kinds: ['action'],
             visible$: of(true),
           },
           {
-            Bubble: ExecuteBubble,
+            Bubble: StoryExecuteBubble,
             hides: ['action'],
             id: 'execute',
             visible$: of(true),

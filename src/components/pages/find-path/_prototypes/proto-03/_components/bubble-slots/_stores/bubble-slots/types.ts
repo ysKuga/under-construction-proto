@@ -2,20 +2,14 @@ import { ComponentType } from 'react'
 import { Observable } from 'rxjs'
 import { StoreApi } from 'zustand/vanilla'
 
-/** スロットへ格納する吹き出しが受け取る props */
-export type BubbleSlotBubbleProps = {
-  /** クリック時 */
-  onClick: () => void
-  /** close ボタン(×)クリック時（close ボタンを持つ吹き出しのみ使う） */
-  onClose: () => void
-  /** 表示するか */
-  visible: boolean
-}
-
 /** スロットへ格納する吹き出し 1 つ */
 export type BubbleSlotEntry = {
-  /** 吹き出しのコンポーネント */
-  Bubble: ComponentType<BubbleSlotBubbleProps>
+  /**
+   * 吹き出しのコンポーネント
+   *
+   * - 位置・表示状態は props でなく `BotBubble.Provider` 経由で受け取る
+   */
+  Bubble: ComponentType
   /**
    * 表示中に隠す吹き出しの種類
    *

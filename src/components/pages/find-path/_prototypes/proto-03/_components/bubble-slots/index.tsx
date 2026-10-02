@@ -43,14 +43,11 @@ const BUBBLE_POSITIONS = {
 /** 吹き出しを置く位置の並び。store の `bubbles` の先頭から順に割り当てる */
 const SLOT_POSITIONS: readonly BubblePosition[] = ['top-right', 'top-left']
 
-/** 仮の操作。吹き出しの操作は未接続 */
-const noop = () => {}
-
 /**
  * 吹き出しを一元的に格納するスロット
  *
  * - children(bot)の左上を原点に、格納した吹き出しを配列の順に位置へ置く
- *   - 位置は `BotBubble.Provider` 経由で各吹き出しの props の既定値として渡す
+ *   - 位置・表示状態は `BotBubble.Provider` 経由で各吹き出しの props の既定値として渡す
  * - 格納する吹き出しと表示制御状態は `BubbleSlotsStoreProvider` の store から受け取る
  * - 表示中の吹き出しの `hides` に含まれる種類(`kinds`)の吹き出しは非表示にする
  */
@@ -61,20 +58,23 @@ export const BubbleSlots = (props: BubbleSlotsProps) => {
   const visibility = useBubbleSlotsStore((state) => state.visibility)
   /** 種類による排他を適用した、吹き出しごとの表示状態 */
   const resolvedVisibility = resolveVisibility(bubbles, visibility)
+  /** 表示中の吹き出しの識別子。この順に `SLOT_POSITIONS` を割り当てる */
+  const visibleIds = bubbles
+    .filter(({ id }) => resolvedVisibility[id])
+    .map(({ id }) => id)
 
   return (
     <div style={{ position: 'relative', width: 'fit-content' }}>
       {children}
-      {bubbles.map(({ Bubble, id }, index) => (
+      {bubbles.map(({ Bubble, id }) => (
         <BotBubble.Provider
           key={id}
-          {...BUBBLE_POSITIONS[SLOT_POSITIONS[index]]}
+          {...BUBBLE_POSITIONS[
+            SLOT_POSITIONS[visibleIds.indexOf(id)] ?? SLOT_POSITIONS[0]
+          ]}
+          visible={resolvedVisibility[id]}
         >
-          <Bubble
-            onClick={noop}
-            onClose={noop}
-            visible={resolvedVisibility[id]}
-          />
+          <Bubble />
         </BotBubble.Provider>
       ))}
     </div>
