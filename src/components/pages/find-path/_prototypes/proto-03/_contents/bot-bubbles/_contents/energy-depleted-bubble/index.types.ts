@@ -3,7 +3,7 @@ import { RefObject } from 'react'
 import { EnergyDepletedBubbleHandle } from '../../../../_components/energy-depleted-bubble'
 import { ItemKind } from '../../../../_stores/items/types'
 
-export type UsePlayerEnergyDepletedBubbleReturn = {
+export type UseEnergyDepletedBubbleContentReturn = {
   /** `EnergyDepletedBubble` の imperative API。揺れを ref 経由で命令する */
   bubbleRef: RefObject<EnergyDepletedBubbleHandle | null>
   /**
@@ -12,8 +12,6 @@ export type UsePlayerEnergyDepletedBubbleReturn = {
    * - 拒否されたら吹き出しを揺らす（`FindPath-shake-bot-bubble`）
    */
   handleRescueClick: () => Promise<void>
-  /** bot 頭上のオーバーレイ注入先コンテナ DOM（actors store） */
-  overlayContainer?: HTMLDivElement
   /**
    * 救済手段として使う手持ちのアイテムの種類
    *
@@ -21,6 +19,4 @@ export type UsePlayerEnergyDepletedBubbleReturn = {
    *   （チェックポイントへのリセットを提示する）
    */
   rescueItemKind?: ItemKind
-  /** 吹き出しを表示するか（player が EN 切れ中） */
-  visible: boolean
 }
