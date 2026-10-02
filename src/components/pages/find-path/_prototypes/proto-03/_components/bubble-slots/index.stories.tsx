@@ -47,3 +47,30 @@ export const Default: Story = {
     ),
   },
 }
+
+/** 「実行」の表示中、`action` 種類の「中継点」を隠す */
+export const HiddenByKind: Story = {
+  ...Default,
+  decorators: [
+    (Story) => (
+      <BubbleSlotsStoreProvider
+        initialBubbles={[
+          {
+            Bubble: WaypointBubble,
+            id: 'waypoint',
+            kinds: ['action'],
+            visible$: of(true),
+          },
+          {
+            Bubble: ExecuteBubble,
+            hides: ['action'],
+            id: 'execute',
+            visible$: of(true),
+          },
+        ]}
+      >
+        <Story />
+      </BubbleSlotsStoreProvider>
+    ),
+  ],
+}

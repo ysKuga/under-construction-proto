@@ -4,6 +4,7 @@ import { PropsWithChildren } from 'react'
 
 import { BotBubble } from '../bot-bubble'
 
+import { resolveVisibility } from './_lib/resolve-visibility'
 import { useBubbleSlotsStore } from './_stores/bubble-slots'
 
 /** 吹き出しの表示位置の名前。bot に対する上・中・下と左右の組 */
@@ -51,12 +52,15 @@ const noop = () => {}
  * - children(bot)の左上を原点に、格納した吹き出しを配列の順に位置へ置く
  *   - 位置は `BotBubble.Provider` 経由で各吹き出しの props の既定値として渡す
  * - 格納する吹き出しと表示制御状態は `BubbleSlotsStoreProvider` の store から受け取る
+ * - 表示中の吹き出しの `hides` に含まれる種類(`kinds`)の吹き出しは非表示にする
  */
 export const BubbleSlots = (props: BubbleSlotsProps) => {
   const { children } = props
 
   const bubbles = useBubbleSlotsStore((state) => state.bubbles)
   const visibility = useBubbleSlotsStore((state) => state.visibility)
+  /** 種類による排他を適用した、吹き出しごとの表示状態 */
+  const resolvedVisibility = resolveVisibility(bubbles, visibility)
 
   return (
     <div style={{ position: 'relative', width: 'fit-content' }}>
@@ -69,7 +73,7 @@ export const BubbleSlots = (props: BubbleSlotsProps) => {
           <Bubble
             onClick={noop}
             onClose={noop}
-            visible={visibility[id] ?? false}
+            visible={resolvedVisibility[id]}
           />
         </BotBubble.Provider>
       ))}

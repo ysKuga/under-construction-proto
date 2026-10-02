@@ -16,8 +16,16 @@ export type BubbleSlotBubbleProps = {
 export type BubbleSlotEntry = {
   /** 吹き出しのコンポーネント */
   Bubble: ComponentType<BubbleSlotBubbleProps>
+  /**
+   * 表示中に隠す吹き出しの種類
+   *
+   * - ここに含まれる種類を `kinds` に持つ吹き出しは、この吹き出しの表示中は非表示になる
+   */
+  hides?: string[]
   /** 吹き出しの識別子。表示制御の対象指定に使う */
   id: string
+  /** 吹き出しの種類。他の吹き出しの `hides` による排他の対象指定に使う */
+  kinds?: string[]
   /**
    * 表示条件を満たすかの流れ
    *
