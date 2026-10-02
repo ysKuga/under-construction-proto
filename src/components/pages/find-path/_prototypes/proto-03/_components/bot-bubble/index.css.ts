@@ -151,6 +151,11 @@ export const bubbleButton = style({
   padding: '2px 6px',
   position: 'relative',
   selectors: {
+    // 表示専用（`onClick` 未指定）は押せる見た目にしない
+    '&:disabled': {
+      color: 'inherit',
+      cursor: 'default',
+    },
     [`${speechCheckbox}:checked ~ &, &:hover`]: {
       animation: 'none',
       borderStyle: 'solid',
