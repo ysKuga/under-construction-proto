@@ -2,18 +2,28 @@ import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { BoxBot01 } from '@/components/theater/figure/box-bot'
 
+import { ExecuteBubble } from '../execute-bubble'
+import { WaypointBubble } from '../waypoint-bubble'
+
 import { BubbleSlotsStoreProvider } from './_stores/bubble-slots'
+import { BubbleSlotEntry } from './_stores/bubble-slots/types'
 
 import { BubbleSlots as StoryComponent } from '.'
 
 /** bot(box-bot-01)の一辺 px */
 const BOT_SIZE = 56
 
+/** 格納する吹き出し */
+const INITIAL_BUBBLES: BubbleSlotEntry[] = [
+  { Bubble: WaypointBubble, id: 'waypoint', visible: true },
+  { Bubble: ExecuteBubble, id: 'execute', visible: true },
+]
+
 const meta: Meta<typeof StoryComponent> = {
   component: StoryComponent,
   decorators: [
     (Story) => (
-      <BubbleSlotsStoreProvider>
+      <BubbleSlotsStoreProvider initialBubbles={INITIAL_BUBBLES}>
         <div style={{ padding: 80 }}>
           <Story />
         </div>

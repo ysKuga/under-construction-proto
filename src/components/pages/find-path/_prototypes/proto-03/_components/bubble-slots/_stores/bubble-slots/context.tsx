@@ -6,7 +6,7 @@ import { StoreApi } from 'zustand/vanilla'
 import { createStoreContext } from '@/stores/utils/create-store-context'
 
 import { createBubbleSlotsStore } from './store'
-import { BubbleSlotsStoreState } from './types'
+import { BubbleSlotEntry, BubbleSlotsStoreState } from './types'
 
 const { StoreContext, useStoreApi, useStoreSelector } =
   createStoreContext<BubbleSlotsStoreState>('BubbleSlots')
@@ -14,11 +14,24 @@ const { StoreContext, useStoreApi, useStoreSelector } =
 /** BubbleSlots store 用 Context */
 export const BubbleSlotsStoreContext = StoreContext
 
-/** BubbleSlots store を生成し Context 経由で配布する */
-export const BubbleSlotsStoreProvider = (props: PropsWithChildren) => {
-  const { children } = props
+type BubbleSlotsStoreProviderProps = PropsWithChildren<{
+  /**
+   * 格納する吹き出しの初期値
+   *
+   * - store 生成時に 1 回だけ使う。以降の変更は反映しない
+   */
+  initialBubbles: BubbleSlotEntry[]
+}>
 
-  const [bubbleSlotsStore] = useState(createBubbleSlotsStore)
+/** BubbleSlots store を生成し Context 経由で配布する */
+export const BubbleSlotsStoreProvider = (
+  props: BubbleSlotsStoreProviderProps,
+) => {
+  const { children, initialBubbles } = props
+
+  const [bubbleSlotsStore] = useState(() =>
+    createBubbleSlotsStore(initialBubbles),
+  )
 
   return (
     <BubbleSlotsStoreContext.Provider value={bubbleSlotsStore}>
