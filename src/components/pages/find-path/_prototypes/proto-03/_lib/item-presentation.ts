@@ -35,7 +35,7 @@ const ITEM_PRESENTATIONS: Record<
     spot: {
       className: term.energyRecoverySpot.className,
       icon: term.energyRecoverySpot.icon,
-      title: `${term.energyRecoverySpot.name}（到達するとエネルギー回復、在庫が尽きるまで複数回）`,
+      title: `${term.energyRecoverySpot.name}（停止中に使用するとエネルギー回復、残量が尽きるまで）`,
     },
   },
 }

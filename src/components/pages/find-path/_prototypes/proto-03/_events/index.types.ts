@@ -47,6 +47,14 @@ export type FindPathEventMap = {
    */
   'FindPath-shake-bot-bubble': undefined
   /**
+   * player の現在セルの EN スポットを使用し、EN を回復する
+   *
+   * - 停止中かつ EN が上限未満の場合のみ受理する。それ以外は拒否される
+   * - 回復量は「上限までの不足分」と「スポットの残量」の小さい方とし、\
+   *   1 回復あたり 300 ms の時間を経過させる（中断なし。issue #297）
+   */
+  'FindPath-use-energy-spot': undefined
+  /**
    * 携行中のアイテムを、指定した使用方法で使用する
    *
    * - 使用方法がアイテムに許可されていなければ拒否される（`getItemUsages`）
