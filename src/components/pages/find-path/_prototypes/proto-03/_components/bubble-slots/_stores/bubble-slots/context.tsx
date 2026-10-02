@@ -1,12 +1,17 @@
 'use client'
 
-import { PropsWithChildren, useState } from 'react'
+import { PropsWithChildren, useEffect, useState } from 'react'
+import { map, merge } from 'rxjs'
 import { StoreApi } from 'zustand/vanilla'
 
 import { createStoreContext } from '@/stores/utils/create-store-context'
 
 import { createBubbleSlotsStore } from './store'
-import { BubbleSlotEntry, BubbleSlotsStoreState } from './types'
+import {
+  BubbleSlotEntry,
+  BubbleSlotsStore,
+  BubbleSlotsStoreState,
+} from './types'
 
 const { StoreContext, useStoreApi, useStoreSelector } =
   createStoreContext<BubbleSlotsStoreState>('BubbleSlots')
@@ -23,7 +28,32 @@ type BubbleSlotsStoreProviderProps = PropsWithChildren<{
   initialBubbles: BubbleSlotEntry[]
 }>
 
-/** BubbleSlots store を生成し Context 経由で配布する */
+/**
+ * 各吹き出しの表示条件(`visible$`)を購読し、store の表示状態へ反映する
+ *
+ * - React の再レンダリングを経ずに反映する。再レンダリングされるのは表示状態を購読する側のみ
+ *
+ * @param bubbleSlotsStore 反映先の store
+ */
+const useEffectSyncVisibility = (bubbleSlotsStore: BubbleSlotsStore) => {
+  useEffect(() => {
+    // 全吹き出しの表示条件の変化を store へ反映する
+    const { bubbles, setVisible } = bubbleSlotsStore.getState()
+    const subscription = merge(
+      ...bubbles.map(({ id, visible$ }) =>
+        visible$.pipe(map((visible) => ({ id, visible }))),
+      ),
+    ).subscribe(({ id, visible }) => setVisible(id, visible))
+
+    return () => subscription.unsubscribe()
+  }, [bubbleSlotsStore])
+}
+
+/**
+ * BubbleSlots store を生成し Context 経由で配布する
+ *
+ * - 各吹き出しの表示条件(`visible$`)を購読し、表示状態を store へ反映する
+ */
 export const BubbleSlotsStoreProvider = (
   props: BubbleSlotsStoreProviderProps,
 ) => {
@@ -32,6 +62,8 @@ export const BubbleSlotsStoreProvider = (
   const [bubbleSlotsStore] = useState(() =>
     createBubbleSlotsStore(initialBubbles),
   )
+
+  useEffectSyncVisibility(bubbleSlotsStore)
 
   return (
     <BubbleSlotsStoreContext.Provider value={bubbleSlotsStore}>

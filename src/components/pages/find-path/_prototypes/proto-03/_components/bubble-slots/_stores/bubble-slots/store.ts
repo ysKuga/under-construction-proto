@@ -17,10 +17,11 @@ export const createBubbleSlotsStore = (
   createStore<BubbleSlotsStoreState>((set) => ({
     bubbles: initialBubbles,
     setVisible: (id, visible) => {
-      set((state) => ({
-        bubbles: state.bubbles.map((bubble) =>
-          bubble.id === id ? { ...bubble, visible } : bubble,
-        ),
-      }))
+      set((state) =>
+        state.visibility[id] === visible
+          ? state
+          : { visibility: { ...state.visibility, [id]: visible } },
+      )
     },
+    visibility: {},
   }))

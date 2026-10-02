@@ -56,16 +56,21 @@ export const BubbleSlots = (props: BubbleSlotsProps) => {
   const { children } = props
 
   const bubbles = useBubbleSlotsStore((state) => state.bubbles)
+  const visibility = useBubbleSlotsStore((state) => state.visibility)
 
   return (
     <div style={{ position: 'relative', width: 'fit-content' }}>
       {children}
-      {bubbles.map(({ Bubble, id, visible }, index) => (
+      {bubbles.map(({ Bubble, id }, index) => (
         <BotBubble.Provider
           key={id}
           {...BUBBLE_POSITIONS[SLOT_POSITIONS[index]]}
         >
-          <Bubble onClick={noop} onClose={noop} visible={visible} />
+          <Bubble
+            onClick={noop}
+            onClose={noop}
+            visible={visibility[id] ?? false}
+          />
         </BotBubble.Provider>
       ))}
     </div>

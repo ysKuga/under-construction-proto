@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { of } from 'rxjs'
 
 import { BoxBot01 } from '@/components/theater/figure/box-bot'
 
@@ -15,8 +16,8 @@ const BOT_SIZE = 56
 
 /** 格納する吹き出し */
 const INITIAL_BUBBLES: BubbleSlotEntry[] = [
-  { Bubble: WaypointBubble, id: 'waypoint', visible: true },
-  { Bubble: ExecuteBubble, id: 'execute', visible: true },
+  { Bubble: WaypointBubble, id: 'waypoint', visible$: of(true) },
+  { Bubble: ExecuteBubble, id: 'execute', visible$: of(true) },
 ]
 
 const meta: Meta<typeof StoryComponent> = {

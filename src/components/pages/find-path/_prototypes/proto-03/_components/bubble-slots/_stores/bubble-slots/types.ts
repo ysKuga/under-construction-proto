@@ -1,4 +1,5 @@
 import { ComponentType } from 'react'
+import { Observable } from 'rxjs'
 import { StoreApi } from 'zustand/vanilla'
 
 /** スロットへ格納する吹き出しが受け取る props */
@@ -17,8 +18,12 @@ export type BubbleSlotEntry = {
   Bubble: ComponentType<BubbleSlotBubbleProps>
   /** 吹き出しの識別子。表示制御の対象指定に使う */
   id: string
-  /** 表示するか */
-  visible: boolean
+  /**
+   * 表示条件を満たすかの流れ
+   *
+   * - 最初の値が流れるまでは非表示とする
+   */
+  visible$: Observable<boolean>
 }
 
 export type BubbleSlotsStore = StoreApi<BubbleSlotsStoreState>
@@ -34,4 +39,6 @@ export type BubbleSlotsStoreState = {
    * @param visible 表示するか
    */
   setVisible: (id: string, visible: boolean) => void
+  /** 吹き出しの識別子ごとの表示状態。未登録の識別子は非表示 */
+  visibility: Record<string, boolean>
 }
