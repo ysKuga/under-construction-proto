@@ -5,7 +5,7 @@ import { useFindPathEventDispatcher } from '../../../../../_events'
 import { usePreviewPath } from '../../../../../_hooks/use-preview-path'
 import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
-import { UseBubblePairReturn } from '../index.types'
+import { UseExecuteBubbleContentReturn } from '../index.types'
 
 /**
  * 「実行」吹き出しクリック時の処理。表示中の経路に沿って自動移動を開始する
@@ -18,7 +18,7 @@ import { UseBubblePairReturn } from '../index.types'
  *   開始しない。経路提示後に EN が切れた場合の対策
  */
 export const useHandleExecuteClick =
-  (): UseBubblePairReturn['handleExecuteClick'] => {
+  (): UseExecuteBubbleContentReturn['handleClick'] => {
     const previewPath = usePreviewPath()
     const stage07HandleRef = useStage07HandleRef()
     const findPathEventDispatcher = useFindPathEventDispatcher()

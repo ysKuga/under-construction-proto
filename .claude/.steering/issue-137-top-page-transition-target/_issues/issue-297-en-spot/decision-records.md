@@ -8,3 +8,18 @@
   - 中断は想定しない。移動と同じく完了まで時間を経過させる
   - 回復量を先に指定し、その量に応じた時間（1 回復あたり 300 ms）を経過させる
   - 時間経過の管理は time-control の時間管理へ載せる想定とし、移動と回復を同列のログとして保持する（本 issue では導入しない）
+- 2026-10-03: 吹き出しの表示管理の形を決めた（PR-2）
+  - 吹き出しを一元的に格納する `BubbleSlots`（`_components/bubble-slots`）を設ける
+    - 格納する吹き出しと表示状態は slots 用 store（`BubbleSlotsStoreProvider`）で保持する
+    - 位置は上・中・下 × 左右の名前付きで定義し、表示中の吹き出しから順に割り当てる
+    - 位置・表示状態は `BotBubble.Provider` 経由で吹き出しの props の既定値として渡す
+  - 表示条件は吹き出しごとに Observable（`visible$`）で指定する
+    - ゲーム側の store を `fromStore` で Observable へ変換して組み立てる
+    - Provider が購読して store へ反映する。React の再レンダリングは表示状態を購読する slots のみ
+  - 吹き出し間の排他は種類で指定する
+    - 吹き出しへ種類 `kinds` と、表示中に隠す種類 `hides` を配列で指定する
+    - EN 切れ（`hides: ['action']`）の表示中は、中継点・実行（`kinds: ['action']`）を隠す
+    - 各吹き出しの表示条件へ「EN 切れでない」を書き込む形は採らない
+  - 操作（クリック等）はゲーム側の hook に依存するため、slots でなく `_contents` 側の吹き出し（`*BubbleContent`）で結び付ける
+  - 当初の案（表示順・スロット割当を `_contents` 側の hook で求める形）は変更箇所が大きく、上記へ作り直した
+

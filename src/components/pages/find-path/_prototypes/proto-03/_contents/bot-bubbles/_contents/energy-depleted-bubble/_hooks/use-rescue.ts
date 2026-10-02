@@ -7,7 +7,7 @@ import {
   useCarriedItemStoreApi,
 } from '../../../../../_stores/carried-items'
 import { ItemInstance } from '../../../../../_stores/items/types'
-import { UsePlayerEnergyDepletedBubbleReturn } from '../index.types'
+import { UseEnergyDepletedBubbleContentReturn } from '../index.types'
 
 /** EN 回復に使えるアイテムか */
 const canRecoverEnergy = (item: ItemInstance) =>
@@ -21,7 +21,7 @@ const canRecoverEnergy = (item: ItemInstance) =>
  * - 受理の判定・効果は各 listener が担う。拒否されたら吹き出しを揺らすのみ
  */
 export const useRescue = (): Pick<
-  UsePlayerEnergyDepletedBubbleReturn,
+  UseEnergyDepletedBubbleContentReturn,
   'handleRescueClick' | 'rescueItemKind'
 > => {
   const rescueItemKind = useCarriedItemStore(

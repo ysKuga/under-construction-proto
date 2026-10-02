@@ -2,13 +2,17 @@
 
 import { Cross2Icon } from '@radix-ui/react-icons'
 import {
+  createContext,
   ForwardedRef,
   forwardRef,
   memo,
+  PropsWithChildren,
   ReactNode,
   useCallback,
+  useContext,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
 } from 'react'
 
@@ -24,6 +28,21 @@ import * as styles from './index.css'
  *   が返す座標(コネクタ長 26px 前後)を描画するのに十分な余白を持たせる
  */
 const CONNECTOR_SVG_SIZE_PX = 80
+
+/** `offset` が props・`BotBubble.Provider` のどちらでも未指定の場合の表示位置(px) */
+const DEFAULT_OFFSET = { x: 0, y: 0 }
+
+/**
+ * `BotBubble` の props の既定値
+ *
+ * - `BotBubble.Provider` で配下の `BotBubble` へ渡す
+ */
+type BotBubbleDefaults = Partial<
+  Pick<BotBubbleProps, 'offset' | 'placement' | 'visible'>
+>
+
+/** `BotBubble.Provider` が配る props の既定値。未 Provider 時は既定値なし */
+const BotBubbleDefaultsContext = createContext<BotBubbleDefaults>({})
 
 /**
  * `BotBubble` が呼び出し元へ公開する imperative API
@@ -56,7 +75,7 @@ type BotBubbleProps = {
    *   変えて表示位置を動かしても、コネクタは自動的に bot の方を向く
    * - `placement: 'left'` の場合は本体の右端をこの位置へ合わせる
    */
-  offset: { x: number; y: number }
+  offset?: { x: number; y: number }
   /** クリック時 */
   onClick: () => void
   /**
@@ -84,8 +103,12 @@ type BotBubbleProps = {
   speechText: ReactNode
   /** 思考吹き出し時の文言 */
   thoughtText: string
-  /** 表示するか */
-  visible: boolean
+  /**
+   * 表示するか
+   *
+   * - 未指定なら `BotBubble.Provider` の既定値を使う（それもなければ非表示）
+   */
+  visible?: boolean
 }
 
 /**
@@ -121,19 +144,20 @@ type BotBubbleProps = {
  *   floor の 3D 空間外で bot の画面上の位置へ追従するため、この吹き出し自身は
  *   tilt を意識しなくてよい
  */
-export const BotBubble = memo(
+const BotBubbleBase = memo(
   forwardRef((props: BotBubbleProps, ref: ForwardedRef<BotBubbleHandle>) => {
+    const defaults = useContext(BotBubbleDefaultsContext)
     const {
       ariaLabel,
       closeAriaLabel,
-      offset,
+      offset = defaults.offset ?? DEFAULT_OFFSET,
       onClick,
       onClose,
-      placement = 'right',
+      placement = defaults.placement ?? 'right',
       speechText,
       speechHoverText = speechText,
       thoughtText,
-      visible,
+      visible = defaults.visible ?? false,
     } = props
 
     const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
@@ -324,4 +348,35 @@ export const BotBubble = memo(
   }),
 )
 
-BotBubble.displayName = 'BotBubble'
+BotBubbleBase.displayName = 'BotBubble'
+
+/**
+ * 配下の `BotBubble` へ props の既定値（位置・表示）を渡す Provider
+ *
+ * - 配下の `BotBubble` は props 未指定の項目にこの値を使う（props の指定が優先）
+ * - 渡した値が変わらない限り context value を作り直さない。`offset` は参照で比較するため、
+ *   定数等の参照が安定した値を渡す
+ */
+const BotBubbleProvider = (props: PropsWithChildren<BotBubbleDefaults>) => {
+  const { children, offset, placement, visible } = props
+
+  const value = useMemo(
+    () => ({ offset, placement, visible }),
+    [offset, placement, visible],
+  )
+
+  return (
+    <BotBubbleDefaultsContext.Provider value={value}>
+      {children}
+    </BotBubbleDefaultsContext.Provider>
+  )
+}
+
+/**
+ * bot から伸びる吹き出し（`BotBubbleBase` 参照）
+ *
+ * - `BotBubble.Provider` で配下の `BotBubble` へ props の既定値（位置指定等）を渡せる
+ */
+export const BotBubble = Object.assign(BotBubbleBase, {
+  Provider: BotBubbleProvider,
+})
