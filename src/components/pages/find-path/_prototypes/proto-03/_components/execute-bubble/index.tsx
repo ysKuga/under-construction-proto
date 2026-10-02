@@ -40,8 +40,12 @@ type ExecuteBubbleProps = {
   onClick: () => void
   /** 右上の close ボタン(×)クリック時。目標設定をキャンセルする */
   onClose: () => void
-  /** 表示するか（`waypointFlowState !== 'idle'`） */
-  visible: boolean
+  /**
+   * 表示するか（`waypointFlowState !== 'idle'`）
+   *
+   * - 未指定なら `BotBubble.Provider` の既定値を使う
+   */
+  visible?: boolean
 }
 
 /**

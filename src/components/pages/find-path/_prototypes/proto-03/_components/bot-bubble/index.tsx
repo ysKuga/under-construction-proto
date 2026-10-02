@@ -37,7 +37,9 @@ const DEFAULT_OFFSET = { x: 0, y: 0 }
  *
  * - `BotBubble.Provider` で配下の `BotBubble` へ渡す
  */
-type BotBubbleDefaults = Partial<Pick<BotBubbleProps, 'offset' | 'placement'>>
+type BotBubbleDefaults = Partial<
+  Pick<BotBubbleProps, 'offset' | 'placement' | 'visible'>
+>
 
 /** `BotBubble.Provider` が配る props の既定値。未 Provider 時は既定値なし */
 const BotBubbleDefaultsContext = createContext<BotBubbleDefaults>({})
@@ -101,8 +103,12 @@ type BotBubbleProps = {
   speechText: ReactNode
   /** 思考吹き出し時の文言 */
   thoughtText: string
-  /** 表示するか */
-  visible: boolean
+  /**
+   * 表示するか
+   *
+   * - 未指定なら `BotBubble.Provider` の既定値を使う（それもなければ非表示）
+   */
+  visible?: boolean
 }
 
 /**
@@ -151,7 +157,7 @@ const BotBubbleBase = memo(
       speechText,
       speechHoverText = speechText,
       thoughtText,
-      visible,
+      visible = defaults.visible ?? false,
     } = props
 
     const { checkbox, set: setVisible, toggledClassName } = useCssToggle()
@@ -345,16 +351,19 @@ const BotBubbleBase = memo(
 BotBubbleBase.displayName = 'BotBubble'
 
 /**
- * 配下の `BotBubble` へ props の既定値を渡す Provider
+ * 配下の `BotBubble` へ props の既定値（位置・表示）を渡す Provider
  *
  * - 配下の `BotBubble` は props 未指定の項目にこの値を使う（props の指定が優先）
  * - 渡した値が変わらない限り context value を作り直さない。`offset` は参照で比較するため、
  *   定数等の参照が安定した値を渡す
  */
 const BotBubbleProvider = (props: PropsWithChildren<BotBubbleDefaults>) => {
-  const { children, offset, placement } = props
+  const { children, offset, placement, visible } = props
 
-  const value = useMemo(() => ({ offset, placement }), [offset, placement])
+  const value = useMemo(
+    () => ({ offset, placement, visible }),
+    [offset, placement, visible],
+  )
 
   return (
     <BotBubbleDefaultsContext.Provider value={value}>

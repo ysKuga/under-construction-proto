@@ -46,8 +46,12 @@ type WaypointBubbleProps = {
   offset?: { x: number; y: number }
   /** クリック時。中継点選択モードへ移行する（選択中なら解除する） */
   onClick: () => void
-  /** 表示するか（`waypointFlowState !== 'idle'`） */
-  visible: boolean
+  /**
+   * 表示するか（`waypointFlowState !== 'idle'`）
+   *
+   * - 未指定なら `BotBubble.Provider` の既定値を使う
+   */
+  visible?: boolean
 }
 
 /**

@@ -32,7 +32,7 @@ export type EnergyDepletedBubbleHandle = {
 
 type EnergyDepletedBubbleProps = {
   /** bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照 */
-  offset: { x: number; y: number }
+  offset?: { x: number; y: number }
   /** クリック時。提示中の救済手段を実行する */
   onClick: () => void
   /**
@@ -41,8 +41,12 @@ type EnergyDepletedBubbleProps = {
    * - 未指定なら手持ちなしとし、チェックポイントへのリセットを提示する
    */
   rescueItemKind?: ItemKind
-  /** 表示するか（EN 切れ中） */
-  visible: boolean
+  /**
+   * 表示するか（EN 切れ中）
+   *
+   * - 未指定なら `BotBubble.Provider` の既定値を使う
+   */
+  visible?: boolean
 }
 
 /**
