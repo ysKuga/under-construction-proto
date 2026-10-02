@@ -57,6 +57,9 @@ export const RECOVERY_SPOT_CELLS = [
 /** EN スポットでの 1 回復あたりの所要時間（ms。issue #297） */
 export const ENERGY_SPOT_RECOVERY_INTERVAL_MS = 300
 
+/** EN スポットでの回復の完了（「補給完了！」）を表示し続ける時間（ms。issue #297） */
+export const ENERGY_SPOT_RECOVERED_NOTICE_MS = 1500
+
 /**
  * 初期表示モード `partial` で霧（非表示対象）とするセル一覧
  *
