@@ -1,16 +1,17 @@
 import { renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 
-import {
-  EnergyStoreProvider,
-  useEnergyStoreApi,
-} from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
 
 import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
-import { PlayerActivityStoreProvider } from '../../../_stores/player-activity'
+import {
+  PlayerActivityStoreProvider,
+  usePlayerActivityStoreApi,
+} from '../../../_stores/player-activity'
 import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
 import { FindPathEventProvider } from '../../index.contexts'
+
+vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
@@ -26,12 +27,12 @@ const renderGuard = () =>
   renderHook(
     () => ({
       dispatcher: useFindPathEventDispatcher(),
-      energy: useEnergyStoreApi(),
+      playerActivity: usePlayerActivityStoreApi(),
     }),
     { wrapper: Wrapper },
   )
 
-test('EN が残っていれば経路の提示・実行を許可する', async () => {
+test('停止中なら経路の提示・実行を許可する', async () => {
   const { result } = renderGuard()
   const { dispatcher } = result.current
 
@@ -43,11 +44,10 @@ test('EN が残っていれば経路の提示・実行を許可する', async ()
   ).resolves.toBe(true)
 })
 
-test('EN 切れなら経路の提示・実行を拒否する', async () => {
+test('EN スポットで回復中なら経路の提示・実行を拒否する', async () => {
   const { result } = renderGuard()
-  const { dispatcher, energy } = result.current
-  const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
-  energy.getState().consume(PLAYER_ACTOR_ID, max)
+  const { dispatcher, playerActivity } = result.current
+  playerActivity.getState().setActivity('recovering')
 
   await expect(
     dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),

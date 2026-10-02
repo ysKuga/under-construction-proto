@@ -22,6 +22,7 @@ import {
 } from '../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
 import { FogStoreProvider, useFogStoreApi } from '../../../../../_stores/fog'
+import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
 import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
@@ -35,15 +36,17 @@ vi.unmock('zustand')
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
     <CarriedItemStoreProvider>
-      <FindPathEventProvider>
-        <Stage07EventProvider>
-          <FogStoreProvider initialMode="all-hidden">
-            <WaypointFlowStoreProvider>
-              <Stage07HandleProvider>{props.children}</Stage07HandleProvider>
-            </WaypointFlowStoreProvider>
-          </FogStoreProvider>
-        </Stage07EventProvider>
-      </FindPathEventProvider>
+      <PlayerActivityStoreProvider>
+        <FindPathEventProvider>
+          <Stage07EventProvider>
+            <FogStoreProvider initialMode="all-hidden">
+              <WaypointFlowStoreProvider>
+                <Stage07HandleProvider>{props.children}</Stage07HandleProvider>
+              </WaypointFlowStoreProvider>
+            </FogStoreProvider>
+          </Stage07EventProvider>
+        </FindPathEventProvider>
+      </PlayerActivityStoreProvider>
     </CarriedItemStoreProvider>
   </EnergyStoreProvider>
 )
