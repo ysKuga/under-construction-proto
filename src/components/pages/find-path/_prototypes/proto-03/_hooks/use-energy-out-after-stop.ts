@@ -15,7 +15,7 @@ import { ActorId } from '@/prototypes/time-control/time-control-03/types'
  *   演出が始まる。EN の値・判定は変えず、演出の発火だけを停止箇所まで遅らせる
  * - 移動の開始・停止は `Stage07-move-start`/`Stage07-move-stop` を購読して知る。
  *   `actorId` が一致するイベントのみ扱う（mob を追加する際は actor ごとに呼ぶ）
- * - `energyOut` は切替式（EN 切れ/回復で同じ action を呼ぶ）のため、保留した
+ * - `energyOut` は切替式（EN 切れ/復帰で同じ action を呼ぶ）のため、保留した
  *   回数の偶奇で反映の要否を決める（偶数なら打ち消し合うため呼ばない）
  * - 到着の二重通知で `Stage07-move-stop` が 2 回届いても、移動中でなければ何もしない
  * - 移動の開始・停止は他の hook（チェックポイントへのリセットの受理判定等）も購読するため\

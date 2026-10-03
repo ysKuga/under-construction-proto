@@ -54,10 +54,10 @@ import { FindPathProto03Props } from './index.types'
  *   1 マスごとの隣接クリック移動でも到着後に行進が続く不自然さが解消したため既定有効化。
  *   無効化との比較用にチェックボックスは残す
 
- * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費、アイテム回復量ぶん
- *   回復する。予定経路・tick 駆動の「実行」は proto-01 と異なり導入しない（1 マス
+ * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費、アイテムの補給量ぶん
+ *   補給する。予定経路・tick 駆動の「実行」は proto-01 と異なり導入しない（1 マス
  *   ごとの隣接クリック移動のまま）ため、`canEnterCell` へ残量判定を加え、移動成立時
- *   に `Energy-consume`/`Energy-recover` イベントを dispatch する（実消費・実回復・
+ *   に `Energy-consume`/`Energy-recover` イベントを dispatch する（実消費・実補給・
  *   0 以下/より大きくなった判定・`Energy-depleted`/`Energy-recovered` 発行は energy
  *   store 側の consume/recover-listener が担う。proto-01 の `use-find-path-tick`
  *   と同じ経路）
@@ -74,10 +74,10 @@ import { FindPathProto03Props } from './index.types'
  *   持たないため、`CellTitleProvider`（`stage-07/_contexts/cell-title`）で
  *   `getCellTitle` の中身（障害物・アイテムの説明、`getCellContents`/
  *   `describeCellContent`）を注入する（PR #196 レビュー対応）
- * - EN 回復アイテム/EN スポット（issue #181、proto-01 から移植）: proto-01 と同じ
+ * - EN 補給アイテム/EN スポット（issue #181、proto-01 から移植）: proto-01 と同じ
  *   `ItemStore` を axial 座標へ移植した固有実装（`_stores/items`）。stage content の
- *   `handleCellChange` で、EN 回復アイテムは携行（`_stores/carried-items`、issue #281）、
- *   EN スポットは即時回復する
+ *   `handleCellChange` で、EN 補給アイテムは携行（`_stores/carried-items`、issue #281）、
+ *   EN スポットは即時補給する
 
  * - 経路の提示・実行（issue #226）: UI は `FindPathEventProvider`（`_events`）の
  *   EventTarget へ担当範囲の情報を発行し、EN 等のゲーム要素による実行可否は

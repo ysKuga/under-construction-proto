@@ -6,9 +6,9 @@ import { defineTerm } from './define-term'
 describe('defineTerm', () => {
   it('英語名称から className を導出する', () => {
     const term = defineTerm({
-      description: 'エネルギーを回復するアイテム',
+      description: 'エネルギーを補給するアイテム',
       englishName: 'energy-recovery-item',
-      name: '回復アイテム',
+      name: '補給アイテム',
     })
 
     expect(term.className).toBe('ui-term-energy-recovery-item')
@@ -27,9 +27,9 @@ describe('defineTerm', () => {
   it('component へ className 付与済みの用語情報を渡し、displayName を付与する', () => {
     const term = defineTerm(
       {
-        description: 'エネルギーを回復するアイテム',
+        description: 'エネルギーを補給するアイテム',
         englishName: 'energy-recovery-item',
-        name: '回復アイテム',
+        name: '補給アイテム',
       },
       (info) => () => info.className,
     )

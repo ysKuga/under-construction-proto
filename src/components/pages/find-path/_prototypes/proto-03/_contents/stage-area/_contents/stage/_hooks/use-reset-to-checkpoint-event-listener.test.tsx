@@ -78,7 +78,7 @@ const setupResetToCheckpoint = () => {
 }
 
 describe('useResetToCheckpointEventListener', () => {
-  it('EN 切れ中かつ停止中なら、目標設定を消して開始位置へワープし EN を上限まで回復する', async () => {
+  it('EN 切れ中かつ停止中なら、目標設定を消して開始位置へワープし EN を上限まで補給する', async () => {
     const { energy, findPathDispatch, fog, warp, waypointFlow } =
       setupResetToCheckpoint()
     const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)

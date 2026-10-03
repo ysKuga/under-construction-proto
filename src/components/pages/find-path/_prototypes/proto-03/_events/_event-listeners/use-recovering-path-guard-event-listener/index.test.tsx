@@ -44,7 +44,7 @@ test('停止中なら経路の提示・実行を許可する', async () => {
   ).resolves.toBe(true)
 })
 
-test('EN スポットで回復中なら経路の提示・実行を拒否する', async () => {
+test('EN スポットで補給中なら経路の提示・実行を拒否する', async () => {
   const { result } = renderGuard()
   const { dispatcher, playerActivity } = result.current
   playerActivity.getState().setActivity('recovering')

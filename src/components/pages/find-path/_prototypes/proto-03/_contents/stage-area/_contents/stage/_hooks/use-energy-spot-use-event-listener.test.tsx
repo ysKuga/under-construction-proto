@@ -93,7 +93,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-test('不足分だけ時間経過ごとに 1 ずつ回復し、完了で停止中へ戻る', async () => {
+test('不足分だけ時間経過ごとに 1 ずつ補給し、完了で停止中へ戻る', async () => {
   const { dispatcher, energy, items, playerActivity } = setupEnergySpotUse(2)
   const before = currentEnergy(energy)
 
@@ -122,7 +122,7 @@ test('不足分だけ時間経過ごとに 1 ずつ回復し、完了で停止�
   expect(items.getState().itemsById[RECOVERY_SPOT.id].stock).toBe(2)
 })
 
-test('不足分が残量を超える場合、残量の分だけ回復する', async () => {
+test('不足分が残量を超える場合、残量の分だけ補給する', async () => {
   const { dispatcher, energy, items } = setupEnergySpotUse(10)
   const before = currentEnergy(energy)
 
@@ -144,7 +144,7 @@ test('EN が上限なら使用を拒否する', async () => {
   expect(playerActivity.getState().activity).toBe('idle')
 })
 
-test('移動中・回復中なら使用を拒否する', async () => {
+test('移動中・補給中なら使用を拒否する', async () => {
   const { dispatcher, playerActivity } = setupEnergySpotUse(2)
 
   playerActivity.getState().setActivity('moving')

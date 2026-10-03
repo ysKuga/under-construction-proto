@@ -5,8 +5,8 @@ import { ItemInstance } from '../items/types'
 /**
  * 携行中アイテムを保持する store
  *
- * - EN 回復アイテム（`ItemInstance.stock` 未指定）専用。EN スポットは据置型の
- *   ため対象外（即時回復のまま）。proto-01 の同型を移植（issue #281）
+ * - EN 補給アイテム（`ItemInstance.stock` 未指定）専用。EN スポットは据置型の
+ *   ため対象外（即時補給のまま）。proto-01 の同型を移植（issue #281）
  */
 export type CarriedItemState = {
   /** 携行可能な上限数 */

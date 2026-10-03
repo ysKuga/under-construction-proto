@@ -9,14 +9,14 @@ import {
 import { ItemInstance } from '../../../../../_stores/items/types'
 import { UseEnergyDepletedBubbleContentReturn } from '../index.types'
 
-/** EN 回復に使えるアイテムか */
+/** EN 補給に使えるアイテムか */
 const canRecoverEnergy = (item: ItemInstance) =>
   getItemUsages(item).includes('recover-energy')
 
 /**
  * EN 切れの救済手段を決め、実行する操作を返す
  *
- * - 手持ち（EN 回復を許可された携行アイテム）があれば最古のものを使う（`FindPath-use-item`）
+ * - 手持ち（EN 補給を許可された携行アイテム）があれば最古のものを使う（`FindPath-use-item`）
  * - なければチェックポイントへのリセットを要求する（`FindPath-reset-to-checkpoint`）
  * - 受理の判定・効果は各 listener が担う。拒否されたら吹き出しを揺らすのみ
  */

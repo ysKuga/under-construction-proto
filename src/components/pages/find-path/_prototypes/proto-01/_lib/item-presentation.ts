@@ -29,12 +29,12 @@ const ITEM_PRESENTATIONS: Record<
     item: {
       className: term.energyRecoveryItem.className,
       icon: term.energyRecoveryItem.icon,
-      title: `${term.energyRecoveryItem.name}（踏むとエネルギー回復、1個限り）`,
+      title: `${term.energyRecoveryItem.name}（踏むとエネルギー補給、1個限り）`,
     },
     spot: {
       className: term.energyRecoverySpot.className,
       icon: term.energyRecoverySpot.icon,
-      title: `${term.energyRecoverySpot.name}（到達するとエネルギー回復、在庫が尽きるまで複数回）`,
+      title: `${term.energyRecoverySpot.name}（到達するとエネルギー補給、在庫が尽きるまで複数回）`,
     },
   },
 }

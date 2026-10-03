@@ -85,9 +85,9 @@ type UseFindPathTickReturn = {
    */
   execute: () => void
   /**
-   * 携行中の EN 回復アイテムを1つ使用する
+   * 携行中の EN 補給アイテムを1つ使用する
    *
-   * - 最古のものから消費し、その回復量ぶん EN を回復する。携行中アイテムが
+   * - 最古のものから消費し、その補給量ぶん EN を補給する。携行中アイテムが
    *   なければ何もしない
    */
   useCarriedItem: () => void
@@ -114,10 +114,10 @@ type UseFindPathTickReturn = {
  *   異なり、実行全体を 1 周期として on/off するため tick 単位のちらつきが起きない
  * - `options.face`(省略可、box-bot-01 の face action dispatcher)を渡すと、1 tick
  *   消化ごとに bot を進行方向へ向ける
- * - EN 回復アイテム（`ItemInstance.stock` 未指定）は踏んでも即時回復せず携行する
+ * - EN 補給アイテム（`ItemInstance.stock` 未指定）は踏んでも即時補給せず携行する
  *   （`CarriedItemStore`、上限に達していればその場に残る）。EN スポットは据置型
- *   のため対象外、従来通り即時回復。携行アイテムの使用は `useCarriedItem`（issue #181）
- * - EN 消費・回復とも `Energy-consume`/`Energy-recover` イベントを dispatch する
+ *   のため対象外、従来通り即時補給。携行アイテムの使用は `useCarriedItem`（issue #181）
+ * - EN 消費・補給とも `Energy-consume`/`Energy-recover` イベントを dispatch する
  *   だけにし、実処理・0 以下/より大きくなった判定・`Energy-depleted`/
  *   `Energy-recovered` 発行は energy store 側の consume/recover-listener が担う
  *   （issue #181、tick 処理を box-bot action の直接呼出しから切り離す密結合解消の
@@ -239,12 +239,12 @@ export const useFindPathTick = (
       const item = items.getState().getItemAtCell(target)
 
       if (item && item.stock === undefined) {
-        // EN 回復アイテム: 即時回復せず携行する。上限に達していればその場に残す
+        // EN 補給アイテム: 即時補給せず携行する。上限に達していればその場に残す
         if (carriedItems.getState().pickUp(item)) {
           items.getState().consumeItem(item.id)
         }
       } else if (item) {
-        // EN スポット（据置型）: 従来通り即時回復
+        // EN スポット（据置型）: 従来通り即時補給
         const consumed = items.getState().consumeItem(item.id)
 
         if (consumed) {

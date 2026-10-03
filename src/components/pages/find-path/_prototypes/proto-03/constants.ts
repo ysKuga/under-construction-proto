@@ -34,30 +34,30 @@ export const ONE_WAY_CELLS = [
 ] as const
 
 /**
- * EN 回復アイテム一覧（踏むと携行、使用で回復、1個ずつ使い切り）
+ * EN 補給アイテム一覧（踏むと携行、使用で補給、1個ずつ使い切り）
  *
- * - 配置・回復量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
+ * - 配置・補給量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
  * - `(1,1)`: 当初 `(0,1)` だったが、START `(0,0)` の隣接セルで実際に表示される
  *   のは障害物 `(1,0)` とこのマスのみ（座標変換の関係で他の隣接は画面外）だった
- *   ため、EN デバッグ操作で EN 切れを作ろうとしても必ず EN 回復アイテムを踏んでしまい
+ *   ため、EN デバッグ操作で EN 切れを作ろうとしても必ず EN 補給アイテムを踏んでしまい
  *   検証できなかった。START 隣接から外すため移動（issue-181-en）
  */
 export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
 
 /**
- * EN スポット一覧（停止中に使用して回復、残量が尽きると枯渇する）
+ * EN スポット一覧（停止中に使用して補給、残量が尽きると枯渇する）
  *
- * - `amount` は 1 回復あたりの回復量、`stock` は残りの回復回数（issue #297）
+ * - `amount` は 1 回の補給あたりの補給量、`stock` は残りの補給回数（issue #297）
  * - 配置・残量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
  */
 export const RECOVERY_SPOT_CELLS = [
   { amount: 1, q: 0, r: 3, stock: 4 },
 ] as const
 
-/** EN スポットでの 1 回復あたりの所要時間（ms。issue #297） */
+/** EN スポットでの 1 回の補給あたりの所要時間（ms。issue #297） */
 export const ENERGY_SPOT_RECOVERY_INTERVAL_MS = 300
 
-/** EN スポットでの回復の完了（「補給完了！」）を表示し続ける時間（ms。issue #297） */
+/** EN スポットでの補給の完了（「補給完了！」）を表示し続ける時間（ms。issue #297） */
 export const ENERGY_SPOT_RECOVERED_NOTICE_MS = 1500
 
 /**

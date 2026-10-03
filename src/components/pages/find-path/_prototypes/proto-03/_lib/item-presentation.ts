@@ -30,12 +30,12 @@ const ITEM_PRESENTATIONS: Record<
     item: {
       className: term.energyRecoveryItem.className,
       icon: term.energyRecoveryItem.icon,
-      title: `${term.energyRecoveryItem.name}（踏むと携行、使用するとエネルギー回復、1個限り）`,
+      title: `${term.energyRecoveryItem.name}（踏むと携行、使用するとエネルギー補給、1個限り）`,
     },
     spot: {
       className: term.energyRecoverySpot.className,
       icon: term.energyRecoverySpot.icon,
-      title: `${term.energyRecoverySpot.name}（停止中に使用するとエネルギー回復、残量が尽きるまで）`,
+      title: `${term.energyRecoverySpot.name}（停止中に使用するとエネルギー補給、残量が尽きるまで）`,
     },
   },
 }

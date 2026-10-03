@@ -111,7 +111,7 @@ type FindPathContentProps = FindPathProto01Props & {
  *   （`useFindPathTick` へ dispatcher を渡す。stage-07 と同じ考え方）
  * - energyOut action(EN 切れ演出)は EN 切れでこれ以上進めなくなった tick でトグル発火する
  *   （`useFindPathTick` へ dispatcher を渡す。issue #181）
- * - EN 回復アイテムは踏んでも即時回復せず携行する。`ActionBar`「使用」ボタンは
+ * - EN 補給アイテムは踏んでも即時補給せず携行する。`ActionBar`「使用」ボタンは
  *   `FindPath-use-carried-item` イベントを dispatch するのみ。`useCarriedItem`
  *   （実処理）はここで `useFindPathEventListener` 購読して呼ぶ（issue #181、
  *   `ActionBar` から `useFindPathTick` 内部関数への直接 props 依存を切るため）

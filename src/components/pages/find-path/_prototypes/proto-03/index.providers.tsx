@@ -32,7 +32,7 @@ import { FindPathProto03Props } from './index.types'
 /**
  * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
  *
- * - EN 回復アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
+ * - EN 補給アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
  *   （指定回数で枯渇しうる）で区別する（proto-01 と同型）
  */
 const INITIAL_ITEMS: ItemInstance[] = [
@@ -62,7 +62,7 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  *   - `FindPathEventProvider` は `CarriedItemStoreProvider` の内側に置く\
  *     （携行アイテム使用の listener が携行 store を参照するため）
  *   - `FindPathEventProvider` は `PlayerActivityStoreProvider` の内側に置く\
- *     （EN スポットで回復中の操作を拒否する listener が行為 store を参照するため）
+ *     （EN スポットで補給中の操作を拒否する listener が行為 store を参照するため）
  *   - `VisibilityRegistryProvider` は `FogStoreProvider` の内側に置く\
  *     （fog store を購読するため）
  * - リセット（境界値テスト用、issue #181）: 最外の `ResetProvider`（`_contexts/reset`）が

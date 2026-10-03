@@ -3,13 +3,13 @@ import { EnergyInfo } from '@/components/pages/find-path/_prototypes/_stores/ene
 import { ItemInstance } from '../_stores/items/types'
 
 /**
- * EN スポットで回復する回数を求める
+ * EN スポットで補給する回数を求める
  *
  * - 「上限までの不足分」と「スポットの残量」の小さい方（issue #297）
  * - EN スポット（`stock` 指定）でなければ 0
  *
  * @param item 対象セルのアイテム
- * @param energyInfo 回復する actor のエネルギー情報
+ * @param energyInfo 補給する actor のエネルギー情報
  */
 export const countEnergySpotRecovery = (
   item: ItemInstance | undefined,
