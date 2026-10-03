@@ -3,9 +3,9 @@ import { useEnergyEventDispatcher } from '../../_hooks/use-energy-event-dispatch
 import { useEnergyEventListener } from '../../_hooks/use-energy-event-listener'
 
 /**
- * Energy-recover イベントを購読し、EN を回復する
+ * Energy-recover イベントを購読し、EN を補給する
  *
- * - 回復後の残量が 0 より大きくなったら Energy-recovered を発行する
+ * - 補給後の残量が 0 より大きくなったら Energy-recovered を発行する
  */
 export const useRecoverEnergyEventListener = () => {
   const energy = useEnergyStoreApi()

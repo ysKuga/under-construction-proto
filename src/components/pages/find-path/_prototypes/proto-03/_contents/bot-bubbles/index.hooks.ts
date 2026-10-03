@@ -35,11 +35,11 @@ import { UseBotBubblesReturn } from './index.types'
  *
  * - 表示条件
  *   - 中継点・実行: 経路提示中（中継点フローが `idle` 以外）
- *   - EN 切れ: player が EN 切れ中、かつ EN スポットで回復中でない。表示中は中継点・実行
+ *   - EN 切れ: player が EN 切れ中、かつ EN スポットで補給中でない。表示中は中継点・実行
  *     （種類 `action`）を隠す
- *   - EN スポット: player が EN スポット上で停止中、かつ回復できる（EN が上限未満・残量あり）
- *   - 補給中: player が EN スポットで回復中
- *   - 補給完了: EN スポットでの回復の完了後、一定時間（`ENERGY_SPOT_RECOVERED_NOTICE_MS`）
+ *   - EN スポット: player が EN スポット上で停止中、かつ補給できる（EN が上限未満・残量あり）
+ *   - 補給中: player が EN スポットで補給中
+ *   - 補給完了: EN スポットでの補給の完了後、一定時間（`ENERGY_SPOT_RECOVERED_NOTICE_MS`）
  *     または次の行為（移動等）まで
  * - 補給完了（種類 `notice`）は、他の吹き出しの表示中は隠す（他の全ての吹き出しへ
  *   `hides: ['notice']` を指定する）
@@ -63,7 +63,7 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
       map((state) => state.activity),
       distinctUntilChanged(),
     )
-    /** player が EN 切れ中か（回復中は救済手段を提示しないため除く） */
+    /** player が EN 切れ中か（補給中は救済手段を提示しないため除く） */
     const energyDepleted$ = combineLatest([
       fromStore(energyStoreApi),
       playerActivity$,
@@ -75,15 +75,15 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
       ),
       distinctUntilChanged(),
     )
-    /** player が EN スポットで回復中か */
+    /** player が EN スポットで補給中か */
     const recovering$ = playerActivity$.pipe(
       map((activity) => activity === 'recovering'),
       distinctUntilChanged(),
     )
     /**
-     * EN スポットでの回復の完了直後か
+     * EN スポットでの補給の完了直後か
      *
-     * - 回復中から停止中へ切り替わった時点で true にする
+     * - 補給中から停止中へ切り替わった時点で true にする
      * - `ENERGY_SPOT_RECOVERED_NOTICE_MS` の経過、または次の行為の切替で false にする
      */
     const recovered$ = playerActivity$.pipe(
@@ -98,7 +98,7 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
       ),
       distinctUntilChanged(),
     )
-    /** player が EN スポット上で停止中、かつ回復できるか */
+    /** player が EN スポット上で停止中、かつ補給できるか */
     const energySpotUsable$ = combineLatest([
       fromStore(actorsStoreApi),
       fromStore(itemStoreApi),

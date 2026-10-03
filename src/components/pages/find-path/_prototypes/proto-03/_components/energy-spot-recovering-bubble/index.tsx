@@ -12,7 +12,7 @@ type EnergySpotRecoveringBubbleProps = {
    */
   offset?: { x: number; y: number }
   /**
-   * 表示するか（EN スポットで回復中）
+   * 表示するか（EN スポットで補給中）
    *
    * - 未指定なら `BotBubble.Provider` の既定値を使う
    */
@@ -20,9 +20,9 @@ type EnergySpotRecoveringBubbleProps = {
 }
 
 /**
- * EN スポットで回復中であることを示す吹き出し（issue #297）
+ * EN スポットで補給中であることを示す吹き出し（issue #297）
  *
- * - 表示専用。押せない（回復は中断しないため操作を持たない）
+ * - 表示専用。押せない（補給は中断しないため操作を持たない）
  * - 見た目・表示切替は `BotBubble` に委ねる
  */
 export const EnergySpotRecoveringBubble = memo(

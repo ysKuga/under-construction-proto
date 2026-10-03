@@ -28,7 +28,7 @@ type EnergyOutHost = Pick<
 >
 
 /**
- * EN 切れ → 予防姿勢 → (EN 回復で)復帰 action
+ * EN 切れ → 予防姿勢 → (EN 補給で)復帰 action
  *
  * - 1 回の dispatch で状態をトグルする。通常時なら予防姿勢へ、予防姿勢で静止中なら復帰を起動する
  * - `phaseRef`: 0 通常 / 1 予防姿勢へ移行中 / 2 予防姿勢で静止 / 3 復帰中

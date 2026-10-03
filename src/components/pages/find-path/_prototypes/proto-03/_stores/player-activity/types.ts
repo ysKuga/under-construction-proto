@@ -5,8 +5,8 @@ import { StoreApi } from 'zustand/vanilla'
  *
  * - `idle`: 停止中。停止中前提の操作（EN スポットの使用等）を受け付ける
  * - `moving`: 移動中（隣接移動・自動移動とも）
- * - `recovering`: EN スポットで回復中。完了まで他の操作を受け付けない
- * - 移動・回復とも時間経過を必要とする行為として同列に扱う（issue #297）
+ * - `recovering`: EN スポットで補給中。完了まで他の操作を受け付けない
+ * - 移動・補給とも時間経過を必要とする行為として同列に扱う（issue #297）
  */
 export type PlayerActivity = 'idle' | 'moving' | 'recovering'
 

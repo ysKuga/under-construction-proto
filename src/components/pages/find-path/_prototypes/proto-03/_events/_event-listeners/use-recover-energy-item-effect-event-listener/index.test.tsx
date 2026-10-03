@@ -30,7 +30,7 @@ const Wrapper = (props: PropsWithChildren) => (
   </EnergyStoreProvider>
 )
 
-test('recover-energy で使用されたアイテムの amount 分 EN を回復する', async () => {
+test('recover-energy で使用されたアイテムの amount 分 EN を補給する', async () => {
   const { result } = renderHook(
     () => ({
       dispatcher: useFindPathEventDispatcher(),

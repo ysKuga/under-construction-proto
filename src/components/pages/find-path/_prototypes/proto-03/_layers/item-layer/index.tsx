@@ -36,7 +36,7 @@ type ItemLayerProps = {
  *   （proto-01 の `ItemLayer` と同型、issue #137）
  * - 座標計算は `ObstacleLayer` と同じ `computeHexGridBounds`/`hexCellCenter` を
  *   共有し、見た目位置がズレないようにする
- * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。実際の回復処理は
+ * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。実際の補給処理は
  *   `index.tsx` の `handleCellChange` が行う
  * - floor の tilt（`rotateX`）と一緒に寝ないよう、`ActorsLayer` の bot と同じく
  *   `rotateX(calc(-1 * var(--floor-tilt)))` で打ち消して直立させる（issue #137）

@@ -31,23 +31,23 @@ export const ONE_WAY_CELLS = [
 ] as const
 
 /**
- * EN 回復アイテム一覧（踏むと回復、1個ずつ使い切り）
+ * EN 補給アイテム一覧（踏むと補給、1個ずつ使い切り）
  *
- * - 配置・回復量は仮値（design.md 懸念・リスク、後日バランス調整）
+ * - 配置・補給量は仮値（design.md 懸念・リスク、後日バランス調整）
  */
 export const RECOVERY_ITEM_CELLS = [{ amount: 3, col: 2, row: 0 }] as const
 
 /**
- * EN スポット一覧（踏むたび回復、指定回数で枯渇しうる）
+ * EN スポット一覧（踏むたび補給、指定回数で枯渇しうる）
  *
- * - 配置・回復量・回数は仮値（design.md 懸念・リスク、後日バランス調整）
+ * - 配置・補給量・回数は仮値（design.md 懸念・リスク、後日バランス調整）
  */
 export const RECOVERY_SPOT_CELLS = [
   { amount: 2, col: 4, row: 2, stock: 2 },
 ] as const
 
 /**
- * 携行可能な EN 回復アイテムの上限数
+ * 携行可能な EN 補給アイテムの上限数
  *
  * - 仮値（design.md 懸念・リスク、後日バランス調整）
  */

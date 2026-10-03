@@ -23,7 +23,7 @@ const BOT_SIZE = 56
  * ステージ（`Stage07` + find-path 固有のレイヤー群）
  *
  * - 隣接クリック移動は `Stage07` の `useHexMove` に内蔵済み（issue #162）。ここでは
- *   移動成立時の処理（EN 消費・アイテム回復・ゴール到達判定）を `onCellChange` で受ける
+ *   移動成立時の処理（EN 消費・アイテムによる補給・ゴール到達判定）を `onCellChange` で受ける
  * - 非隣接セルクリックで経路を求め `PathPreviewLayer` へ表示する（issue #137/#226）
  * - 中継点選択モード中は `Stage07` を非対話化し、`WaypointSelectLayer` がセルクリックを
  *   拾って中継点を設置/除去する（通常モードのクリックとは完全に別イベント）

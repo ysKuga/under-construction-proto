@@ -15,7 +15,7 @@ export type UseEnergyDepletedBubbleContentReturn = {
   /**
    * 救済手段として使う手持ちのアイテムの種類
    *
-   * - EN 回復を許可された携行アイテムのうち最古のもの。なければ `undefined`\
+   * - EN 補給を許可された携行アイテムのうち最古のもの。なければ `undefined`\
    *   （チェックポイントへのリセットを提示する）
    */
   rescueItemKind?: ItemKind

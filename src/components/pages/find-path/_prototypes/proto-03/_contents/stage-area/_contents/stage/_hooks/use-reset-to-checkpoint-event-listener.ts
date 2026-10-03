@@ -19,7 +19,7 @@ import { START_POSITION } from '../../../../../constants'
  *
  * - EN 切れ中かつ停止中でなければ `preventDefault()` で拒否する
  *   - 停止中かは `Stage07-move-start`/`Stage07-move-stop` の購読で知る
- *   - EN スポットで回復中も拒否する（issue #297）
+ *   - EN スポットで補給中も拒否する（issue #297）
  * - 戻すのは位置・EN（初期値まで）のみ。盤面の状態・携行アイテムは保持する\
  *   （decision-records.md 2026-09-28 案A）
  * - `Stage07Handle` を使うため、`Stage07` を描画する stage content で購読する
@@ -57,13 +57,13 @@ export const useResetToCheckpointEventListener = (): void => {
   useFindPathEventListener('FindPath-reset-to-checkpoint', async (event) => {
     const { current, max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
-    /** EN 切れ中かつ停止中（回復中でない）か（リセットを提示する状況） */
+    /** EN 切れ中かつ停止中（補給中でない）か（リセットを提示する状況） */
     const isAcceptable =
       current <= 0 &&
       !isMovingRef.current &&
       playerActivityStoreApi.getState().activity !== 'recovering'
 
-    // EN が残っている、移動中、または回復中: リセットを拒否する
+    // EN が残っている、移動中、または補給中: リセットを拒否する
     if (!isAcceptable) {
       event.preventDefault()
 

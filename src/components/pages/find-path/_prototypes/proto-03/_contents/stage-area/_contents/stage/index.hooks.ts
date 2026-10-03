@@ -46,7 +46,7 @@ export const useStage = (): UseStageReturn => {
   const followingPath = useFollowPathStore((state) => state.followingPath)
   /** 経路に沿った自動移動中か（`Stage07` を非対話化する） */
   const isAutoMoving = useFollowPathStore((state) => state.isFollowing())
-  /** EN スポットで回復中か（`Stage07` を非対話化する） */
+  /** EN スポットで補給中か（`Stage07` を非対話化する） */
   const isRecovering = usePlayerActivityStore(
     (state) => state.activity === 'recovering',
   )

@@ -35,7 +35,7 @@ const cellStyle = (col: number, row: number): CSSProperties => ({
  *   追記するだけで対応でき、このレイヤー自体を種類ごとに増やす必要はない
  *   （旧 `RecoveryItemLayer`/`RecoverySpotLayer` を統合、issue #137）
  * - `pointerEvents: none` でクリックを下層（`PlannedPathLayer`）へ通す。実際の
- *   携行処理（即時回復でなく `CarriedItemStore` へ pickup）は `use-find-path-tick`
+ *   携行処理（即時補給でなく `CarriedItemStore` へ pickup）は `use-find-path-tick`
  *   の `applyNextStep` が行う（issue #181）
  */
 export const ItemLayer = (props: ItemLayerProps) => {

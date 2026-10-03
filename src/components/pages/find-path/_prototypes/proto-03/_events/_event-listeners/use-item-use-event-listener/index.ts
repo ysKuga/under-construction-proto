@@ -9,7 +9,7 @@ import { useFindPathEventListener } from '../../_hooks/use-find-path-event-liste
  *
  * - 携行していないアイテム、または許可されていない使用方法（`getItemUsages`）なら\
  *   `preventDefault()` で拒否する
- * - EN スポットで回復中も拒否する（回復の完了まで他の操作を受け付けない。issue #297）
+ * - EN スポットで補給中も拒否する（補給の完了まで他の操作を受け付けない。issue #297）
  * - 受理したアイテムは携行から取り除き、`FindPath-item-used` を発行する
  * - 使用方法ごとの効果は扱わない（`FindPath-item-used` を購読する用途ごとの listener が担う）
  */
@@ -24,13 +24,13 @@ export const useItemUseEventListener = () => {
       .getState()
       .carriedItems.find((carried) => carried.id === itemId)
 
-    /** 回復中でなく、携行中のアイテムに指定された使用方法が許可されているか */
+    /** 補給中でなく、携行中のアイテムに指定された使用方法が許可されているか */
     const isUsable =
       playerActivityStoreApi.getState().activity !== 'recovering' &&
       item !== undefined &&
       getItemUsages(item).includes(usage)
 
-    // 回復中、携行していない、または許可されていない使用方法: 使用を拒否する
+    // 補給中、携行していない、または許可されていない使用方法: 使用を拒否する
     if (!isUsable) {
       event.preventDefault()
 

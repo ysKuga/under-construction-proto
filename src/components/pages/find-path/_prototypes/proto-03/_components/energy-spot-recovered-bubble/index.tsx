@@ -12,7 +12,7 @@ type EnergySpotRecoveredBubbleProps = {
    */
   offset?: { x: number; y: number }
   /**
-   * 表示するか（EN スポットでの回復の完了後、一定時間または次の行為まで）
+   * 表示するか（EN スポットでの補給の完了後、一定時間または次の行為まで）
    *
    * - 未指定なら `BotBubble.Provider` の既定値を使う
    */
@@ -20,7 +20,7 @@ type EnergySpotRecoveredBubbleProps = {
 }
 
 /**
- * EN スポットでの回復の完了を知らせる吹き出し（issue #297）
+ * EN スポットでの補給の完了を知らせる吹き出し（issue #297）
  *
  * - 表示専用。押せない
  * - 完了の発言として、常に発言吹き出しで表示する

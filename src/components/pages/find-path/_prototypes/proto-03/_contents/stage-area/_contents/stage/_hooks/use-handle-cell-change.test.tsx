@@ -67,7 +67,7 @@ const renderHandleCellChange = (capacity?: number) =>
     { wrapper: createWrapper(capacity) },
   )
 
-test('EN 回復アイテムを踏むと即時回復せず携行し、その場から取り除く', async () => {
+test('EN 補給アイテムを踏むと即時補給せず携行し、その場から取り除く', async () => {
   const { result } = renderHandleCellChange()
   const { max } = result.current.energy
     .getState()
@@ -81,7 +81,7 @@ test('EN 回復アイテムを踏むと即時回復せず携行し、その場�
   expect(
     result.current.items.getState().getItemAtCell(RECOVERY_ITEM.cell),
   ).toBeUndefined()
-  // 移動分の消費のみで回復しない
+  // 移動分の消費のみで補給しない
   await waitFor(() =>
     expect(
       result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
@@ -89,7 +89,7 @@ test('EN 回復アイテムを踏むと即時回復せず携行し、その場�
   )
 })
 
-test('携行が上限なら EN 回復アイテムはその場に残る', () => {
+test('携行が上限なら EN 補給アイテムはその場に残る', () => {
   const { result } = renderHandleCellChange(0)
 
   act(() => result.current.handleCellChange(RECOVERY_ITEM.cell))
@@ -100,7 +100,7 @@ test('携行が上限なら EN 回復アイテムはその場に残る', () => {
   ).toEqual(RECOVERY_ITEM)
 })
 
-test('EN スポットは携行せず、踏んでも回復しない', async () => {
+test('EN スポットは携行せず、踏んでも補給しない', async () => {
   const { result } = renderHandleCellChange()
   const { energy } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
@@ -111,7 +111,7 @@ test('EN スポットは携行せず、踏んでも回復しない', async () =>
   expect(
     result.current.items.getState().getItemAtCell(RECOVERY_SPOT.cell),
   ).toEqual(RECOVERY_SPOT)
-  // 移動分の消費のみで回復しない
+  // 移動分の消費のみで補給しない
   await waitFor(() =>
     expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(
       max - 1,

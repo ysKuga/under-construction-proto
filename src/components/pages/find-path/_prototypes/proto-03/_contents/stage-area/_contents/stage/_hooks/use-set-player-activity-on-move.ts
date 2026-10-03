@@ -9,7 +9,7 @@ import { usePlayerActivityStoreApi } from '../../../../../_stores/player-activit
  * player の移動の開始・停止を行為 store へ記録する
  *
  * - `Stage07-move-start` で移動中、`Stage07-move-stop` で停止中にする
- * - 停止は移動中の場合のみ反映する（回復中の行為を上書きしない）
+ * - 停止は移動中の場合のみ反映する（補給中の行為を上書きしない）
  */
 export const useSetPlayerActivityOnMove = (): void => {
   const playerActivityStoreApi = usePlayerActivityStoreApi()

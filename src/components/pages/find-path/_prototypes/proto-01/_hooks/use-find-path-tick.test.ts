@@ -235,7 +235,7 @@ test('再度「実行」すると reachedGoal がリセットされる', () => {
   expect(result.current.tickStatus.getState().reachedGoal).toBe(false)
 })
 
-test('EN 回復アイテムのマスに到達すると携行する（即時回復しない）', () => {
+test('EN 補給アイテムのマスに到達すると携行する（即時補給しない）', () => {
   const { result } = renderTick()
   const item = RECOVERY_ITEM_CELLS[0]
 
@@ -247,7 +247,7 @@ test('EN 回復アイテムのマスに到達すると携行する（即時回�
   act(() => result.current.tick.execute())
   act(() => vi.advanceTimersByTime(TICK_MS * 2))
 
-  // 5(初期消費) + 2(移動2手分の消費) = 7 減。EN 回復アイテムでは回復しない
+  // 5(初期消費) + 2(移動2手分の消費) = 7 減。EN 補給アイテムでは補給しない
   expect(
     result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
   ).toBe(10 - 5 - 2)
@@ -256,7 +256,7 @@ test('EN 回復アイテムのマスに到達すると携行する（即時回�
   expect(result.current.carriedItems.getState().carriedItems).toHaveLength(1)
 })
 
-test('useCarriedItem で携行中アイテムを使用すると EN が回復する', () => {
+test('useCarriedItem で携行中アイテムを使用すると EN を補給する', () => {
   const { result } = renderTick()
   const item = RECOVERY_ITEM_CELLS[0]
 
@@ -270,7 +270,7 @@ test('useCarriedItem で携行中アイテムを使用すると EN が回復す�
 
   act(() => result.current.tick.useCarriedItem())
 
-  // 7 減った状態から回復量ぶん回復する
+  // 7 減った状態から補給量ぶん補給する
   expect(
     result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
   ).toBe(10 - 5 - 2 + item.amount)
@@ -287,7 +287,7 @@ test('携行アイテムが空のとき useCarriedItem を呼んでも何も起�
   ).toBe(DEFAULT_ENERGY_INFO.current)
 })
 
-test('EN スポットは指定回数のみ回復し、枯渇後は回復しない', () => {
+test('EN スポットは指定回数のみ補給し、枯渇後は補給しない', () => {
   const { result } = renderTick()
   const spot = RECOVERY_SPOT_CELLS[0]
   const adjacent = { col: spot.col, row: spot.row - 1 }
@@ -302,7 +302,7 @@ test('EN スポットは指定回数のみ回復し、枯渇後は回復しな�
   act(() => vi.advanceTimersByTime(TICK_MS * 5))
 
   // 1: current=1→(+2→3)→consume→2 / 2: 2→1 / 3: 1→(+2→3)→consume→2
-  // 4: 2→1 / 5(枯渇後、回復なし): 1→consume→0
+  // 4: 2→1 / 5(枯渇後、補給なし): 1→consume→0
   expect(
     result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
   ).toBe(0)
@@ -356,7 +356,7 @@ test('EN 切れで energyOut が発火する', () => {
   expect(energyOut).toHaveBeenCalledTimes(1)
 })
 
-test('通常の回復（EN 切れを経ていない）では energyOut は発火しない', () => {
+test('通常の補給（EN 切れを経ていない）では energyOut は発火しない', () => {
   const energyOut = vi.fn<() => Promise<void>>(() => Promise.resolve())
   const { result } = renderTick(energyOut)
   const item = RECOVERY_ITEM_CELLS[0]
@@ -384,14 +384,14 @@ test('EN 切れ後、携行アイテムを使用すると energyOut が再度発
   act(() => vi.advanceTimersByTime(TICK_MS))
   expect(energyOut).toHaveBeenCalledTimes(1)
 
-  // 停止後、別経路で EN 回復アイテムのマスへ向けて再度「実行」し携行する
-  // （EN 回復アイテムは即時回復せず携行のみのため、この時点ではまだ復帰しない）
+  // 停止後、別経路で EN 補給アイテムのマスへ向けて再度「実行」し携行する
+  // （EN 補給アイテムは即時補給せず携行のみのため、この時点ではまだ復帰しない）
   seedPlanned(result, [item])
   act(() => result.current.tick.execute())
   act(() => vi.advanceTimersByTime(TICK_MS))
   expect(energyOut).toHaveBeenCalledTimes(1)
 
-  // useCarriedItem で使用して初めて EN が回復し、復帰する
+  // useCarriedItem で使用して初めて EN を補給し、復帰する
   act(() => result.current.tick.useCarriedItem())
   expect(energyOut).toHaveBeenCalledTimes(2)
 })

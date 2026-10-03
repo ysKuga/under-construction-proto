@@ -16,13 +16,13 @@ import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { ENERGY_SPOT_RECOVERY_INTERVAL_MS } from '../../../../../constants'
 
 /**
- * player の現在セルの EN スポットの使用を受け付け、時間経過とともに EN を回復する
+ * player の現在セルの EN スポットの使用を受け付け、時間経過とともに EN を補給する
  *
- * - 停止中かつ回復できる（EN が上限未満・スポットの残量あり）場合のみ受理する。\
+ * - 停止中かつ補給できる（EN が上限未満・スポットの残量あり）場合のみ受理する。\
  *   それ以外は `preventDefault()` で拒否する
- * - 回復回数（`countEnergySpotRecovery`）を先に決め、`ENERGY_SPOT_RECOVERY_INTERVAL_MS`
- *   ごとにスポットを 1 回分消費し回復する。中断はしない（issue #297）
- * - 回復中は行為 store を `recovering` にし、完了で `idle` へ戻す
+ * - 補給回数（`countEnergySpotRecovery`）を先に決め、`ENERGY_SPOT_RECOVERY_INTERVAL_MS`
+ *   ごとにスポットを 1 回分消費し補給する。中断はしない（issue #297）
+ * - 補給中は行為 store を `recovering` にし、完了で `idle` へ戻す
  * - 時間経過は time-control 導入までの暫定として rxjs の `interval` で持つ
  */
 export const useEnergySpotUseEventListener = (): void => {
@@ -32,35 +32,35 @@ export const useEnergySpotUseEventListener = (): void => {
   const itemStoreApi = useItemStoreApi()
   const playerActivityStoreApi = usePlayerActivityStoreApi()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
-  /** 回復の時間経過の購読 */
+  /** 補給の時間経過の購読 */
   const recoverySubscriptionRef = useRef<Subscription>(undefined)
 
-  // unmount（リセットによる再マウント含む）: 回復の時間経過を止める
+  // unmount（リセットによる再マウント含む）: 補給の時間経過を止める
   useEffect(() => () => recoverySubscriptionRef.current?.unsubscribe(), [])
 
   useFindPathEventListener('FindPath-use-energy-spot', (event) => {
     const cell = actorsStoreApi.getState().actors[PLAYER_ACTOR_ID]
     const spot = cell && itemStoreApi.getState().getItemAtCell(cell)
-    /** 回復回数 */
+    /** 補給回数 */
     const count = countEnergySpotRecovery(
       spot,
       energy.getState().getEnergyInfo(PLAYER_ACTOR_ID),
     )
 
-    /** 停止中かつ回復できるか */
+    /** 停止中かつ補給できるか */
     const isAcceptable =
       spot !== undefined &&
       count > 0 &&
       playerActivityStoreApi.getState().activity === 'idle'
 
-    // 移動中・回復中、または回復できない: 使用を拒否する
+    // 移動中・補給中、または補給できない: 使用を拒否する
     if (!isAcceptable) {
       event.preventDefault()
 
       return
     }
 
-    // 回復中は経路の提示・実行を受け付けないため、提示中の目標・中継点を消す
+    // 補給中は経路の提示・実行を受け付けないため、提示中の目標・中継点を消す
     waypointFlowStoreApi.getState().clear()
     playerActivityStoreApi.getState().setActivity('recovering')
 

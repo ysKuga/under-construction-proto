@@ -39,7 +39,7 @@ export const EnergyDebugPanel = ({ style }: EnergyDebugPanelProps) => {
         max={energyInfo.max}
         min={0}
         onChange={(e) => {
-          /** スライダー値と現在の EN 残量の差分(正: 回復 / 負: 消費) */
+          /** スライダー値と現在の EN 残量の差分(正: 補給 / 負: 消費) */
           const diff = Number(e.target.value) - energyInfo.current
 
           // 差分なし: イベントを発行しない
