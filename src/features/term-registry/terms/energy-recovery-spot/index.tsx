@@ -5,7 +5,7 @@ import { TermComponentProps } from '../../types'
 /** 用語: EN スポット */
 export const energyRecoverySpotTerm = defineTerm(
   {
-    description: 'エネルギーを回復する据置の地点。在庫が尽きるまで複数回使える',
+    description: 'エネルギーを補給する据置の地点。在庫が尽きるまで複数回使える',
     englishName: 'energy-recovery-spot',
     icon: '⛽',
     name: 'EN スポット',

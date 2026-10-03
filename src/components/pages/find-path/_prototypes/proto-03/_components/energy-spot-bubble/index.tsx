@@ -27,10 +27,10 @@ type EnergySpotBubbleProps = {
    * - 未指定なら `BotBubble.Provider` の既定値を使う
    */
   offset?: { x: number; y: number }
-  /** クリック時。EN スポットを使用して回復する */
+  /** クリック時。EN スポットを使用して補給する */
   onClick: () => void
   /**
-   * 表示するか（EN スポット上で停止中、かつ回復できる）
+   * 表示するか（EN スポット上で停止中、かつ補給できる）
    *
    * - 未指定なら `BotBubble.Provider` の既定値を使う
    */
@@ -41,7 +41,7 @@ type EnergySpotBubbleProps = {
  * 現在セルの EN スポットを使用する吹き出し（issue #297）
  *
  * - 見た目・表示切替は `BotBubble` に委ねる
- * - 文言は hover 中のみ発言吹き出し「回復！」、それ以外は思考吹き出し「回復？」
+ * - 文言は hover 中のみ発言吹き出し「補給！」、それ以外は思考吹き出し「補給？」
  * - 拒否された操作を知らせるために揺らす（`EnergySpotBubbleHandle.shake`）
  */
 export const EnergySpotBubble = memo(
@@ -64,12 +64,12 @@ export const EnergySpotBubble = memo(
 
       return (
         <BotBubble
-          ariaLabel="EN スポットを使用して回復"
+          ariaLabel="EN スポットを使用して補給"
           offset={offset}
           onClick={onClick}
           ref={botBubbleRef}
-          speechText="回復！"
-          thoughtText="回復？"
+          speechText="補給！"
+          thoughtText="補給？"
           visible={visible}
         />
       )
