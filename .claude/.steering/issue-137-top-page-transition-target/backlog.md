@@ -1,6 +1,6 @@
 # 実装計画（issue #137）
 
-- [ ] EN 切れ時に bubble で救済手段を表示する（decision-records 2026-09-27）
+- [x] EN 切れ時に bubble で救済手段を表示する（decision-records 2026-09-27）
   - 役割
     - 状態表示: 動けない理由（EN 切れ）を伝える
     - 救済の入口: 代価を払って EN 切れを脱する手段を選ばせる
@@ -10,7 +10,7 @@
     - 上記以外の手段があれば表示する（例: スポットマスに停止中なら使用）
       - 可能な手段の提示は補助輪にあたる。自明なもの（アイテム使用）は提示してよい
       - スポットは難易度次第。いじわるな難易度ではあえて表示しない
-      - スポットマスでの停止中使用はサブ issue #297 へ分離（[_issues/issue-297-en-spot](_issues/issue-297-en-spot/backlog.md)）
+      - スポットマスでの停止中使用はサブ issue #297 へ分離（[_closed/issue-297-en-spot](_closed/issue-297-en-spot/backlog.md)）
   - 救済手段（手持ち・チェックポイント・bubble への提示）はサブ issue #281 へ分離（[_closed/issue-281-en-rescue](_closed/issue-281-en-rescue/backlog.md)）
   - 本 issue では bubble 本体（状態表示・揺らす挙動）を扱う（[#295](_closed/pr-295-energy-depleted-bubble/design.md)）
   - 拒否時に bot の bubble を揺らす
@@ -18,8 +18,8 @@
     - 対象: EN 切れ中の非隣接クリック（`FindPath-propose-path` の拒否）
   - 他 bubble との競合は、発生した時点で検討する
     - 案: bubble の表示箇所をスロットとして定義し、表示対象を指定順に表示する
-    - 吹き出しの表示管理（配列管理・表示順）の検討は #297 で扱う
-- [ ] マスホバー/選択時の内包要素一覧表示を検討
+    - 吹き出しの表示管理（配列管理・表示順）は #297 で `BubbleSlots` として対応（#300）
+- [ ] マスホバー/選択時の内包要素一覧表示を検討（[#305](_pr/pr-305-cell-hover-display/design.md)）
   - (design.md 懸念・リスク)
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
 - [x] 目標設定後に EN 切れを発生させると、吹き出しが表示されたまま残る
