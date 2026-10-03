@@ -17,9 +17,21 @@
 - [ ] 文言の統一
   - EN の「回復」を「補給」へ改める（回復中・完了の吹き出しは「補給中」「補給完了」としたため）
     - 対象例: EN スポットの吹き出し「回復？／回復！」、EN 回復アイテム等の日本語表記
-  - 識別子の `recovery` を `charge` 等へ改めるか検討する
-    - 対象例: `energy-recovery`・`Energy-recover`・`RECOVERY_SPOT_CELLS`・`countEnergySpotRecovery`
-    - proto-01/02 と共有する energy store の範囲に及ぶため、影響範囲を確認してから決める
+  - 識別子の `recover`/`recovery` を `charge` へ改める（案）
+    - 対象例: `energy-recovery`・`Energy-recover`・`RECOVERY_SPOT_CELLS`・`countEnergySpotRecovery`、行為 `recovering`
+    - `charge` を選ぶ理由
+      - EN（エネルギー）・box-bot（ロボット）・🔋 アイコンと意味が合う
+      - 消費 `Energy-consume` と対になる
+      - 活用形が揃う（`charging`・`charged`、行為 `recovering` → `charging`）
+      - `recover` は「失ったもの・傷んだ状態から戻る」意味が強く、HP 向き
+    - 比較した候補
+      - `refill`: 容器を満たす語感（弾薬・薬瓶等）。部分的な補給にはやや合わない
+      - `replenish`: 「補給」の直訳に近いが、長く綴りを誤りやすい。コード上で一般的でない
+    - EN 切れからの復帰の通知 `Energy-recovered` は「復帰」の意味のため据え置く（操作の `charge` と区別できる）
+    - ゲームでは `charge` が溜め攻撃・突進を指すことがあるが、別途その意味で使うことは許容する（文脈で区別できるため）
+  - 日本語表記は「補給」とするか「充電」とするか検討する
+    - `charge` との対応は「充電」が素直。「補給」のままでも実用上の支障はない
+  - proto-01/02 と共有する energy store・term-registry（className 含む）に及ぶため、改名のみの独立した PR とする
 
 ## PR 分割
 
