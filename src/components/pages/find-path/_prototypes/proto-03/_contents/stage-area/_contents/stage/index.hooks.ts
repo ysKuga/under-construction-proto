@@ -7,11 +7,13 @@ import { useAdvanceFollowPathOnCellReach } from '../../../../_hooks/use-advance-
 import { usePreviewPath } from '../../../../_hooks/use-preview-path'
 import { useDisplaySettingsStore } from '../../../../_stores/display-settings'
 import { useFollowPathStore } from '../../../../_stores/follow-path'
+import { usePlayerActivityStore } from '../../../../_stores/player-activity'
 import { useWaypointFlowStore } from '../../../../_stores/waypoint-flow'
 
 import { useCanEnterCell } from './_hooks/use-can-enter-cell'
 import { useCancelWaypointFlowOnEscape } from './_hooks/use-cancel-waypoint-flow-on-escape'
 import { useClearWaypointFlowOnEnergyDepleted } from './_hooks/use-clear-waypoint-flow-on-energy-depleted'
+import { useEnergySpotUseEventListener } from './_hooks/use-energy-spot-use-event-listener'
 import { useGetCellTitle } from './_hooks/use-get-cell-title'
 import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
@@ -19,6 +21,7 @@ import { useHandleNonAdjacentClick } from './_hooks/use-handle-non-adjacent-clic
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
 import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
 import { useResetToCheckpointEventListener } from './_hooks/use-reset-to-checkpoint-event-listener'
+import { useSetPlayerActivityOnMove } from './_hooks/use-set-player-activity-on-move'
 import { useVisibilityNodeRegistrars } from './_hooks/use-visibility-node-registrars'
 import { UseStageReturn } from './index.types'
 
@@ -43,6 +46,10 @@ export const useStage = (): UseStageReturn => {
   const followingPath = useFollowPathStore((state) => state.followingPath)
   /** 経路に沿った自動移動中か（`Stage07` を非対話化する） */
   const isAutoMoving = useFollowPathStore((state) => state.isFollowing())
+  /** EN スポットで回復中か（`Stage07` を非対話化する） */
+  const isRecovering = usePlayerActivityStore(
+    (state) => state.activity === 'recovering',
+  )
   const stage07HandleRef = useStage07HandleRef()
   const previewPath = usePreviewPath()
   const actorEventTarget = usePlayerActorEventTarget()
@@ -62,6 +69,8 @@ export const useStage = (): UseStageReturn => {
   useCancelWaypointFlowOnEscape()
   useClearWaypointFlowOnEnergyDepleted()
   useResetToCheckpointEventListener()
+  useSetPlayerActivityOnMove()
+  useEnergySpotUseEventListener()
 
   // 経路プレビューの点は、bot がマスの中心に着いた時点で消す（進行の記録を到達時に行う）
   useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
@@ -78,7 +87,7 @@ export const useStage = (): UseStageReturn => {
     handleFollowPathEnd,
     handleNonAdjacentClick,
     handleWaypointCellClick,
-    interactive: !waypointSelecting && !isAutoMoving,
+    interactive: !waypointSelecting && !isAutoMoving && !isRecovering,
     objectiveMarkerCell: isAutoMoving ? followingPath.at(-1) : objectiveCell,
     previewPath,
     registerFloorVisibilityNode,

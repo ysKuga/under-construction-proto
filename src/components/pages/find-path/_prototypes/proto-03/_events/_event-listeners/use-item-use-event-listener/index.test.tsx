@@ -9,6 +9,7 @@ import {
   useCarriedItemStoreApi,
 } from '../../../_stores/carried-items'
 import { ItemInstance } from '../../../_stores/items/types'
+import { PlayerActivityStoreProvider } from '../../../_stores/player-activity'
 import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
 import {
   FindPathEventProvider,
@@ -25,7 +26,9 @@ const RECOVERY_ITEM: ItemInstance = {
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
     <CarriedItemStoreProvider>
-      <FindPathEventProvider>{props.children}</FindPathEventProvider>
+      <PlayerActivityStoreProvider>
+        <FindPathEventProvider>{props.children}</FindPathEventProvider>
+      </PlayerActivityStoreProvider>
     </CarriedItemStoreProvider>
   </EnergyStoreProvider>
 )

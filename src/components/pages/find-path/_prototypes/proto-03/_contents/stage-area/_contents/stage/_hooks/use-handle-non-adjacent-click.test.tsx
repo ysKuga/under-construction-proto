@@ -13,6 +13,7 @@ import {
   useFindPathEventListener,
 } from '../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
+import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
 import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
@@ -25,15 +26,17 @@ vi.unmock('zustand')
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
     <CarriedItemStoreProvider>
-      <FindPathEventProvider>
-        <ActorsStoreProvider
-          initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
-        >
-          <WaypointFlowStoreProvider>
-            {props.children}
-          </WaypointFlowStoreProvider>
-        </ActorsStoreProvider>
-      </FindPathEventProvider>
+      <PlayerActivityStoreProvider>
+        <FindPathEventProvider>
+          <ActorsStoreProvider
+            initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+          >
+            <WaypointFlowStoreProvider>
+              {props.children}
+            </WaypointFlowStoreProvider>
+          </ActorsStoreProvider>
+        </FindPathEventProvider>
+      </PlayerActivityStoreProvider>
     </CarriedItemStoreProvider>
   </EnergyStoreProvider>
 )

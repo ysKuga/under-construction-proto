@@ -100,17 +100,21 @@ test('携行が上限なら EN 回復アイテムはその場に残る', () => {
   ).toEqual(RECOVERY_ITEM)
 })
 
-test('EN スポットは携行せず即時回復する', async () => {
+test('EN スポットは携行せず、踏んでも回復しない', async () => {
   const { result } = renderHandleCellChange()
   const { energy } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
-  energy.getState().consume(PLAYER_ACTOR_ID, max)
 
   act(() => result.current.handleCellChange(RECOVERY_SPOT.cell))
 
   expect(result.current.carriedItems.getState().carriedItems).toEqual([])
-  // 回復 2・移動消費 1
+  expect(
+    result.current.items.getState().getItemAtCell(RECOVERY_SPOT.cell),
+  ).toEqual(RECOVERY_SPOT)
+  // 移動分の消費のみで回復しない
   await waitFor(() =>
-    expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(1),
+    expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(
+      max - 1,
+    ),
   )
 })

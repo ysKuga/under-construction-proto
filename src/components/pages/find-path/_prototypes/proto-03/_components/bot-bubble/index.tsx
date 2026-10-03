@@ -76,8 +76,12 @@ type BotBubbleProps = {
    * - `placement: 'left'` の場合は本体の右端をこの位置へ合わせる
    */
   offset?: { x: number; y: number }
-  /** クリック時 */
-  onClick: () => void
+  /**
+   * クリック時
+   *
+   * - 未指定なら本体を押せない表示専用の吹き出しにする（`disabled`）
+   */
+  onClick?: () => void
   /**
    * 右上の close ボタン(×)クリック時
    *
@@ -233,7 +237,7 @@ const BotBubbleBase = memo(
         rippleEl.style.animation = `${styles.rippleSpread} 0.5s ease-out`
       }
 
-      onClick()
+      onClick?.()
     }, [onClick])
 
     /** hover を外した時。発言中 hover 時の `speechHoverText` 表示を許可する */
@@ -295,6 +299,7 @@ const BotBubbleBase = memo(
           <button
             aria-label={ariaLabel}
             className={styles.bubbleButton}
+            disabled={!onClick}
             onClick={handleClick}
             onPointerLeave={handlePointerLeave}
             type="button"

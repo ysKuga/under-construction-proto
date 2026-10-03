@@ -45,13 +45,20 @@ export const ONE_WAY_CELLS = [
 export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
 
 /**
- * EN スポット一覧（踏むたび回復、指定回数で枯渇しうる）
+ * EN スポット一覧（停止中に使用して回復、残量が尽きると枯渇する）
  *
- * - 配置・回復量・回数は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
+ * - `amount` は 1 回復あたりの回復量、`stock` は残りの回復回数（issue #297）
+ * - 配置・残量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
  */
 export const RECOVERY_SPOT_CELLS = [
-  { amount: 2, q: 0, r: 3, stock: 2 },
+  { amount: 1, q: 0, r: 3, stock: 4 },
 ] as const
+
+/** EN スポットでの 1 回復あたりの所要時間（ms。issue #297） */
+export const ENERGY_SPOT_RECOVERY_INTERVAL_MS = 300
+
+/** EN スポットでの回復の完了（「補給完了！」）を表示し続ける時間（ms。issue #297） */
+export const ENERGY_SPOT_RECOVERED_NOTICE_MS = 1500
 
 /**
  * 初期表示モード `partial` で霧（非表示対象）とするセル一覧

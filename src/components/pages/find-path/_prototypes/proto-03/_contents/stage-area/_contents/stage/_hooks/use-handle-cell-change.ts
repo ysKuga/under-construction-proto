@@ -19,7 +19,7 @@ import { UseStageReturn } from '../index.types'
  *
  * - 目標・中継点をクリアし、視界を到達済みとして記録する
  * - 移動先セルの EN 回復アイテムは携行する（上限に達していればその場に残す）
- * - 移動先セルの EN スポットは消費し即時回復する
+ * - 移動先セルの EN スポットは扱わない（停止中に吹き出しから使用する。issue #297）
  * - EN を消費量設定（`consumePerMove`）分消費する
  * - 消費量 0（EN 無限）なら消費しない
  * - ゴールセルなら到達を記録する
@@ -51,25 +51,11 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
         itemStoreApi.getState().consumeItem(item.id)
       }
 
-      /** 即時回復する EN スポット（`stock` 指定）を消費した結果 */
-      const consumed =
-        item?.stock !== undefined
-          ? itemStoreApi.getState().consumeItem(item.id)
-          : undefined
-
-      // 消費・回復とも energy store 側の consume/recover-listener が実処理・閾値判定・
-      // Energy-depleted/Energy-recovered 発行を担う（proto-01 の `use-find-path-tick`
-      // と同じ経路）。EN 切れ演出の発火・復帰は `useOutOfEnergyEventListener` 側が
-      // 担うため、ここでは dispatch するだけでよい
-      if (consumed) {
-        void energyDispatch['Energy-recover']({
-          actorId: PLAYER_ACTOR_ID,
-          amount: consumed.amount,
-        })
-      }
-
       const { consumePerMove } = energySettingsStoreApi.getState()
 
+      // 消費は energy store 側の consume-listener が実処理・閾値判定・Energy-depleted
+      // 発行を担う（proto-01 の `use-find-path-tick` と同じ経路）。EN 切れ演出の発火は
+      // `useOutOfEnergyEventListener` 側が担うため、ここでは dispatch するだけでよい
       if (consumePerMove > 0) {
         void energyDispatch['Energy-consume']({
           actorId: PLAYER_ACTOR_ID,
