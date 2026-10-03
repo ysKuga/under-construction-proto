@@ -25,25 +25,25 @@ import { useHandleCellChange } from './use-handle-cell-change'
 
 vi.unmock('zustand')
 
-const RECOVERY_ITEM: ItemInstance = {
+const CHARGE_ITEM: ItemInstance = {
   amount: 3,
   cell: { q: 1, r: 1 },
   id: 'item-1',
-  kind: 'energy-recovery',
+  kind: 'energy-charge',
 }
 
-const RECOVERY_SPOT: ItemInstance = {
+const CHARGE_SPOT: ItemInstance = {
   amount: 2,
   cell: { q: 0, r: 3 },
   id: 'spot-1',
-  kind: 'energy-recovery',
+  kind: 'energy-charge',
   stock: 2,
 }
 
 const createWrapper = (capacity?: number) => (props: PropsWithChildren) => (
   <EnergyStoreProvider>
     <CarriedItemStoreProvider capacity={capacity}>
-      <ItemStoreProvider initialItems={[RECOVERY_ITEM, RECOVERY_SPOT]}>
+      <ItemStoreProvider initialItems={[CHARGE_ITEM, CHARGE_SPOT]}>
         <FogStoreProvider initialMode="all-visible">
           <WaypointFlowStoreProvider>
             <EnergySettingsStoreProvider>
@@ -73,13 +73,13 @@ test('EN 補給アイテムを踏むと即時補給せず携行し、その場�
     .getState()
     .getEnergyInfo(PLAYER_ACTOR_ID)
 
-  act(() => result.current.handleCellChange(RECOVERY_ITEM.cell))
+  act(() => result.current.handleCellChange(CHARGE_ITEM.cell))
 
   expect(result.current.carriedItems.getState().carriedItems).toEqual([
-    RECOVERY_ITEM,
+    CHARGE_ITEM,
   ])
   expect(
-    result.current.items.getState().getItemAtCell(RECOVERY_ITEM.cell),
+    result.current.items.getState().getItemAtCell(CHARGE_ITEM.cell),
   ).toBeUndefined()
   // 移動分の消費のみで補給しない
   await waitFor(() =>
@@ -92,12 +92,12 @@ test('EN 補給アイテムを踏むと即時補給せず携行し、その場�
 test('携行が上限なら EN 補給アイテムはその場に残る', () => {
   const { result } = renderHandleCellChange(0)
 
-  act(() => result.current.handleCellChange(RECOVERY_ITEM.cell))
+  act(() => result.current.handleCellChange(CHARGE_ITEM.cell))
 
   expect(result.current.carriedItems.getState().carriedItems).toEqual([])
   expect(
-    result.current.items.getState().getItemAtCell(RECOVERY_ITEM.cell),
-  ).toEqual(RECOVERY_ITEM)
+    result.current.items.getState().getItemAtCell(CHARGE_ITEM.cell),
+  ).toEqual(CHARGE_ITEM)
 })
 
 test('EN スポットは携行せず、踏んでも補給しない', async () => {
@@ -105,12 +105,12 @@ test('EN スポットは携行せず、踏んでも補給しない', async () =>
   const { energy } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
-  act(() => result.current.handleCellChange(RECOVERY_SPOT.cell))
+  act(() => result.current.handleCellChange(CHARGE_SPOT.cell))
 
   expect(result.current.carriedItems.getState().carriedItems).toEqual([])
   expect(
-    result.current.items.getState().getItemAtCell(RECOVERY_SPOT.cell),
-  ).toEqual(RECOVERY_SPOT)
+    result.current.items.getState().getItemAtCell(CHARGE_SPOT.cell),
+  ).toEqual(CHARGE_SPOT)
   // 移動分の消費のみで補給しない
   await waitFor(() =>
     expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(

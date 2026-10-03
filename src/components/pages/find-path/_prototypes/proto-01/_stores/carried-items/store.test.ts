@@ -8,7 +8,7 @@ const item = (id: string): ItemInstance => ({
   amount: 3,
   cell: { col: 2, row: 0 },
   id,
-  kind: 'energy-recovery',
+  kind: 'energy-charge',
 })
 
 test('pickUp で携行し、上限未満なら true を返す', () => {

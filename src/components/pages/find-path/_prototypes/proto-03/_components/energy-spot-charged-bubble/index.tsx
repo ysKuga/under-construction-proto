@@ -4,7 +4,7 @@ import { memo, useEffect, useRef } from 'react'
 
 import { BotBubble, BotBubbleHandle } from '../bot-bubble'
 
-type EnergySpotRecoveredBubbleProps = {
+type EnergySpotChargedBubbleProps = {
   /**
    * bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照
    *
@@ -26,8 +26,8 @@ type EnergySpotRecoveredBubbleProps = {
  * - 完了の発言として、常に発言吹き出しで表示する
  * - 見た目・表示切替は `BotBubble` に委ねる
  */
-export const EnergySpotRecoveredBubble = memo(
-  (props: EnergySpotRecoveredBubbleProps) => {
+export const EnergySpotChargedBubble = memo(
+  (props: EnergySpotChargedBubbleProps) => {
     const { offset, visible } = props
 
     const botBubbleRef = useRef<BotBubbleHandle>(null)
@@ -50,4 +50,4 @@ export const EnergySpotRecoveredBubble = memo(
   },
 )
 
-EnergySpotRecoveredBubble.displayName = 'EnergySpotRecoveredBubble'
+EnergySpotChargedBubble.displayName = 'EnergySpotChargedBubble'

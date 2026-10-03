@@ -47,7 +47,7 @@ test('停止中なら経路の提示・実行を許可する', async () => {
 test('EN スポットで補給中なら経路の提示・実行を拒否する', async () => {
   const { result } = renderGuard()
   const { dispatcher, playerActivity } = result.current
-  playerActivity.getState().setActivity('recovering')
+  playerActivity.getState().setActivity('charging')
 
   await expect(
     dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),

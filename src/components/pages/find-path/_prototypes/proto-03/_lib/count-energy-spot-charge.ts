@@ -11,7 +11,7 @@ import { ItemInstance } from '../_stores/items/types'
  * @param item 対象セルのアイテム
  * @param energyInfo 補給する actor のエネルギー情報
  */
-export const countEnergySpotRecovery = (
+export const countEnergySpotCharge = (
   item: ItemInstance | undefined,
   energyInfo: EnergyInfo,
 ): number => {

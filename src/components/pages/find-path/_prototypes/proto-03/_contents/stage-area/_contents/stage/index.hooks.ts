@@ -47,8 +47,8 @@ export const useStage = (): UseStageReturn => {
   /** 経路に沿った自動移動中か（`Stage07` を非対話化する） */
   const isAutoMoving = useFollowPathStore((state) => state.isFollowing())
   /** EN スポットで補給中か（`Stage07` を非対話化する） */
-  const isRecovering = usePlayerActivityStore(
-    (state) => state.activity === 'recovering',
+  const isCharging = usePlayerActivityStore(
+    (state) => state.activity === 'charging',
   )
   const stage07HandleRef = useStage07HandleRef()
   const previewPath = usePreviewPath()
@@ -87,7 +87,7 @@ export const useStage = (): UseStageReturn => {
     handleFollowPathEnd,
     handleNonAdjacentClick,
     handleWaypointCellClick,
-    interactive: !waypointSelecting && !isAutoMoving && !isRecovering,
+    interactive: !waypointSelecting && !isAutoMoving && !isCharging,
     objectiveMarkerCell: isAutoMoving ? followingPath.at(-1) : objectiveCell,
     previewPath,
     registerFloorVisibilityNode,

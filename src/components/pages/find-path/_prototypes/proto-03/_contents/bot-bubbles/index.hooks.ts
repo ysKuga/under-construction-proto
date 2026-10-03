@@ -16,13 +16,13 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useActorsStoreApi } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { BubbleSlotEntry } from '../../_components/bubble-slots/_stores/bubble-slots/types'
-import { EnergySpotRecoveredBubble } from '../../_components/energy-spot-recovered-bubble'
-import { EnergySpotRecoveringBubble } from '../../_components/energy-spot-recovering-bubble'
-import { countEnergySpotRecovery } from '../../_lib/count-energy-spot-recovery'
+import { EnergySpotChargedBubble } from '../../_components/energy-spot-charged-bubble'
+import { EnergySpotChargingBubble } from '../../_components/energy-spot-charging-bubble'
+import { countEnergySpotCharge } from '../../_lib/count-energy-spot-charge'
 import { useItemStoreApi } from '../../_stores/items'
 import { usePlayerActivityStoreApi } from '../../_stores/player-activity'
 import { useWaypointFlowStoreApi } from '../../_stores/waypoint-flow'
-import { ENERGY_SPOT_RECOVERED_NOTICE_MS } from '../../constants'
+import { ENERGY_SPOT_CHARGED_NOTICE_MS } from '../../constants'
 
 import { EnergyDepletedBubbleContent } from './_contents/energy-depleted-bubble'
 import { EnergySpotBubbleContent } from './_contents/energy-spot-bubble'
@@ -39,7 +39,7 @@ import { UseBotBubblesReturn } from './index.types'
  *     （種類 `action`）を隠す
  *   - EN スポット: player が EN スポット上で停止中、かつ補給できる（EN が上限未満・残量あり）
  *   - 補給中: player が EN スポットで補給中
- *   - 補給完了: EN スポットでの補給の完了後、一定時間（`ENERGY_SPOT_RECOVERED_NOTICE_MS`）
+ *   - 補給完了: EN スポットでの補給の完了後、一定時間（`ENERGY_SPOT_CHARGED_NOTICE_MS`）
  *     または次の行為（移動等）まで
  * - 補給完了（種類 `notice`）は、他の吹き出しの表示中は隠す（他の全ての吹き出しへ
  *   `hides: ['notice']` を指定する）
@@ -71,28 +71,28 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
       map(
         ([state, activity]) =>
           state.getEnergyInfo(PLAYER_ACTOR_ID).current <= 0 &&
-          activity !== 'recovering',
+          activity !== 'charging',
       ),
       distinctUntilChanged(),
     )
     /** player が EN スポットで補給中か */
-    const recovering$ = playerActivity$.pipe(
-      map((activity) => activity === 'recovering'),
+    const charging$ = playerActivity$.pipe(
+      map((activity) => activity === 'charging'),
       distinctUntilChanged(),
     )
     /**
      * EN スポットでの補給の完了直後か
      *
      * - 補給中から停止中へ切り替わった時点で true にする
-     * - `ENERGY_SPOT_RECOVERED_NOTICE_MS` の経過、または次の行為の切替で false にする
+     * - `ENERGY_SPOT_CHARGED_NOTICE_MS` の経過、または次の行為の切替で false にする
      */
-    const recovered$ = playerActivity$.pipe(
+    const charged$ = playerActivity$.pipe(
       pairwise(),
       switchMap(([prev, next]) =>
-        prev === 'recovering' && next === 'idle'
+        prev === 'charging' && next === 'idle'
           ? concat(
               of(true),
-              timer(ENERGY_SPOT_RECOVERED_NOTICE_MS).pipe(map(() => false)),
+              timer(ENERGY_SPOT_CHARGED_NOTICE_MS).pipe(map(() => false)),
             )
           : of(false),
       ),
@@ -111,7 +111,7 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
         return (
           activity === 'idle' &&
           cell !== undefined &&
-          countEnergySpotRecovery(
+          countEnergySpotCharge(
             items.getItemAtCell(cell),
             energy.getEnergyInfo(PLAYER_ACTOR_ID),
           ) > 0
@@ -155,16 +155,16 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
           visible$: energySpotUsable$,
         },
         {
-          Bubble: EnergySpotRecoveringBubble,
+          Bubble: EnergySpotChargingBubble,
           hides: ['notice'],
-          id: 'energy-spot-recovering',
-          visible$: recovering$,
+          id: 'energy-spot-charging',
+          visible$: charging$,
         },
         {
-          Bubble: EnergySpotRecoveredBubble,
-          id: 'energy-spot-recovered',
+          Bubble: EnergySpotChargedBubble,
+          id: 'energy-spot-charged',
           kinds: ['notice'],
-          visible$: recovered$,
+          visible$: charged$,
         },
       ],
     }

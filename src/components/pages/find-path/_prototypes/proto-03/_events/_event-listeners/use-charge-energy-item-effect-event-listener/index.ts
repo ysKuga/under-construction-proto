@@ -4,12 +4,12 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useFindPathEventListener } from '../../_hooks/use-find-path-event-listener'
 
 /**
- * 使用方法 `recover-energy` で使用されたアイテムの効果として、EN を補給する
+ * 使用方法 `charge-energy` で使用されたアイテムの効果として、EN を補給する
  *
  * - 補給量はアイテムの `amount`。補給の実処理は energy store 側の listener
  * - 用途ごとの効果 listener が同じ `FindPath-item-used` を購読するため `allowMultiple` で購読する
  */
-export const useRecoverEnergyItemEffectEventListener = () => {
+export const useChargeEnergyItemEffectEventListener = () => {
   const energyDispatch = useEnergyEventDispatcher()
 
   useFindPathEventListener(
@@ -18,11 +18,11 @@ export const useRecoverEnergyItemEffectEventListener = () => {
       const { item, usage } = event.detail
 
       // 別の使用方法: この listener の対象外
-      if (usage !== 'recover-energy') {
+      if (usage !== 'charge-energy') {
         return
       }
 
-      await energyDispatch['Energy-recover']({
+      await energyDispatch['Energy-charge']({
         actorId: PLAYER_ACTOR_ID,
         amount: item.amount,
       })

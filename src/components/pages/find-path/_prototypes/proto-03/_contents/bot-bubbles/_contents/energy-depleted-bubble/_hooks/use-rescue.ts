@@ -10,8 +10,8 @@ import { ItemInstance } from '../../../../../_stores/items/types'
 import { UseEnergyDepletedBubbleContentReturn } from '../index.types'
 
 /** EN 補給に使えるアイテムか */
-const canRecoverEnergy = (item: ItemInstance) =>
-  getItemUsages(item).includes('recover-energy')
+const canChargeEnergy = (item: ItemInstance) =>
+  getItemUsages(item).includes('charge-energy')
 
 /**
  * EN 切れの救済手段を決め、実行する操作を返す
@@ -25,7 +25,7 @@ export const useRescue = (): Pick<
   'handleRescueClick' | 'rescueItemKind'
 > => {
   const rescueItemKind = useCarriedItemStore(
-    (state) => state.carriedItems.find(canRecoverEnergy)?.kind,
+    (state) => state.carriedItems.find(canChargeEnergy)?.kind,
   )
   const carriedItemStoreApi = useCarriedItemStoreApi()
   const findPathEventDispatcher = useFindPathEventDispatcher()
@@ -33,13 +33,13 @@ export const useRescue = (): Pick<
   const handleRescueClick = useCallback(async () => {
     const rescueItem = carriedItemStoreApi
       .getState()
-      .carriedItems.find(canRecoverEnergy)
+      .carriedItems.find(canChargeEnergy)
 
     /** listener が救済手段を受理したか */
     const accepted = rescueItem
       ? await findPathEventDispatcher['FindPath-use-item']({
           itemId: rescueItem.id,
-          usage: 'recover-energy',
+          usage: 'charge-energy',
         })
       : await findPathEventDispatcher['FindPath-reset-to-checkpoint'](undefined)
 

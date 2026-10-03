@@ -6,8 +6,8 @@ describe('createPlayerActivityStore', () => {
 
     expect(store.getState().activity).toBe('idle')
 
-    store.getState().setActivity('recovering')
+    store.getState().setActivity('charging')
 
-    expect(store.getState().activity).toBe('recovering')
+    expect(store.getState().activity).toBe('charging')
   })
 })

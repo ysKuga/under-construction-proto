@@ -30,11 +30,11 @@ test('consume は current を 0 未満にしない', () => {
   expect(store.getState().getEnergyInfo(ACTOR_ID).current).toBe(0)
 })
 
-test('recover で current が増える', () => {
+test('charge で current が増える', () => {
   const store = createEnergyStore()
 
   store.getState().consume(ACTOR_ID, 5)
-  store.getState().recover(ACTOR_ID, 2)
+  store.getState().charge(ACTOR_ID, 2)
 
   expect(store.getState().getEnergyInfo(ACTOR_ID)).toEqual({
     ...DEFAULT_ENERGY_INFO,
@@ -42,11 +42,11 @@ test('recover で current が増える', () => {
   })
 })
 
-test('recover は current を max より増やさない', () => {
+test('charge は current を max より増やさない', () => {
   const store = createEnergyStore()
 
   store.getState().consume(ACTOR_ID, 1)
-  store.getState().recover(ACTOR_ID, 100)
+  store.getState().charge(ACTOR_ID, 100)
 
   expect(store.getState().getEnergyInfo(ACTOR_ID).current).toBe(
     DEFAULT_ENERGY_INFO.max,

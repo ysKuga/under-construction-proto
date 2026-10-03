@@ -32,11 +32,11 @@ const Wrapper = (props: PropsWithChildren) => (
   </EnergyStoreProvider>
 )
 
-const recoveryItem: ItemInstance = {
+const chargeItem: ItemInstance = {
   amount: 3,
   cell: { q: 1, r: 1 },
   id: 'item-a',
-  kind: 'energy-recovery',
+  kind: 'energy-charge',
 }
 
 /**
@@ -74,16 +74,16 @@ test('手持ちがあれば、そのアイテムを救済手段として使う',
 
   act(() => {
     energy.getState().consume(PLAYER_ACTOR_ID, max)
-    carriedItems.getState().pickUp(recoveryItem)
+    carriedItems.getState().pickUp(chargeItem)
   })
 
-  expect(result.current.rescue.rescueItemKind).toBe('energy-recovery')
+  expect(result.current.rescue.rescueItemKind).toBe('energy-charge')
 
   await act(() => result.current.rescue.handleRescueClick())
 
   expect(carriedItems.getState().carriedItems).toEqual([])
   expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(
-    recoveryItem.amount,
+    chargeItem.amount,
   )
   expect(onResetToCheckpoint).not.toHaveBeenCalled()
 })

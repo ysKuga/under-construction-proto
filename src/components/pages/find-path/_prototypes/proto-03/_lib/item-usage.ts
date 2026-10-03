@@ -7,7 +7,7 @@ import { ItemInstance, ItemKind } from '../_stores/items/types'
  * - 用途を増やす際はここへ追加し、`ITEM_USAGES` へ許可するアイテムを足す。\
  *   効果は `FindPath-item-used` を購読する listener を用途ごとに追加して実装する
  */
-export type ItemUsage = 'recover-energy'
+export type ItemUsage = 'charge-energy'
 
 /**
  * アイテム種別ごとに許可する使用方法（ホワイトリスト）
@@ -17,7 +17,7 @@ export type ItemUsage = 'recover-energy'
  *   （ローグライクでは想定外の用途が活路を開くことがあるため、用途を UI 側で制限しない）
  */
 const ITEM_USAGES: Record<ItemKind, readonly [ItemUsage, ...ItemUsage[]]> = {
-  'energy-recovery': ['recover-energy'],
+  'energy-charge': ['charge-energy'],
 }
 
 /**

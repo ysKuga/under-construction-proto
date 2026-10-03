@@ -1,21 +1,21 @@
 import { energyTerm } from './terms/energy'
-import { energyRecoveryItemTerm } from './terms/energy-recovery-item'
-import { energyRecoverySpotTerm } from './terms/energy-recovery-spot'
+import { energyChargeItemTerm } from './terms/energy-charge-item'
+import { energyChargeSpotTerm } from './terms/energy-charge-spot'
 import { obstacleTerm } from './terms/obstacle'
 
 /**
  * 用語の一覧
  *
- * - キーは英語名称の camelCase（例: `energy-recovery-item` → `energyRecoveryItem`）
+ * - キーは英語名称の camelCase（例: `energy-charge-item` → `energyChargeItem`）
  * - 参照例: `term.obstacle.className`
  */
 export const term = {
   /** エネルギー */
   energy: energyTerm,
   /** EN 補給アイテム */
-  energyRecoveryItem: energyRecoveryItemTerm,
+  energyChargeItem: energyChargeItemTerm,
   /** EN スポット */
-  energyRecoverySpot: energyRecoverySpotTerm,
+  energyChargeSpot: energyChargeSpotTerm,
   /** 障害物 */
   obstacle: obstacleTerm,
 }

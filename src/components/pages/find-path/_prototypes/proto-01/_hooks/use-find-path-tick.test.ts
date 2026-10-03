@@ -23,8 +23,8 @@ import { useTickStatusStoreApi } from '../_stores/tick-status'
 import {
   GOAL_POSITION,
   OBSTACLE_CELLS,
-  RECOVERY_ITEM_CELLS,
-  RECOVERY_SPOT_CELLS,
+  CHARGE_ITEM_CELLS,
+  CHARGE_SPOT_CELLS,
   TICK_MS,
 } from '../constants'
 
@@ -237,7 +237,7 @@ test('再度「実行」すると reachedGoal がリセットされる', () => {
 
 test('EN 補給アイテムのマスに到達すると携行する（即時補給しない）', () => {
   const { result } = renderTick()
-  const item = RECOVERY_ITEM_CELLS[0]
+  const item = CHARGE_ITEM_CELLS[0]
 
   act(() => {
     result.current.energy.getState().consume(PLAYER_ACTOR_ID, 5)
@@ -258,7 +258,7 @@ test('EN 補給アイテムのマスに到達すると携行する（即時補�
 
 test('useCarriedItem で携行中アイテムを使用すると EN を補給する', () => {
   const { result } = renderTick()
-  const item = RECOVERY_ITEM_CELLS[0]
+  const item = CHARGE_ITEM_CELLS[0]
 
   act(() => {
     result.current.energy.getState().consume(PLAYER_ACTOR_ID, 5)
@@ -289,7 +289,7 @@ test('携行アイテムが空のとき useCarriedItem を呼んでも何も起�
 
 test('EN スポットは指定回数のみ補給し、枯渇後は補給しない', () => {
   const { result } = renderTick()
-  const spot = RECOVERY_SPOT_CELLS[0]
+  const spot = CHARGE_SPOT_CELLS[0]
   const adjacent = { col: spot.col, row: spot.row - 1 }
 
   act(() => {
@@ -359,7 +359,7 @@ test('EN 切れで energyOut が発火する', () => {
 test('通常の補給（EN 切れを経ていない）では energyOut は発火しない', () => {
   const energyOut = vi.fn<() => Promise<void>>(() => Promise.resolve())
   const { result } = renderTick(energyOut)
-  const item = RECOVERY_ITEM_CELLS[0]
+  const item = CHARGE_ITEM_CELLS[0]
 
   seedPlanned(result, [item])
   act(() => result.current.tick.execute())
@@ -371,7 +371,7 @@ test('通常の補給（EN 切れを経ていない）では energyOut は発火
 test('EN 切れ後、携行アイテムを使用すると energyOut が再度発火する（復帰）', () => {
   const energyOut = vi.fn<() => Promise<void>>(() => Promise.resolve())
   const { result } = renderTick(energyOut)
-  const item = RECOVERY_ITEM_CELLS[0]
+  const item = CHARGE_ITEM_CELLS[0]
 
   seedPlanned(result, [{ col: 1, row: 0 }])
   act(() => {

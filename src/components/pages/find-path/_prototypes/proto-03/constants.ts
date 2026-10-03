@@ -42,7 +42,7 @@ export const ONE_WAY_CELLS = [
  *   ため、EN デバッグ操作で EN 切れを作ろうとしても必ず EN 補給アイテムを踏んでしまい
  *   検証できなかった。START 隣接から外すため移動（issue-181-en）
  */
-export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
+export const CHARGE_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
 
 /**
  * EN スポット一覧（停止中に使用して補給、残量が尽きると枯渇する）
@@ -50,15 +50,15 @@ export const RECOVERY_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
  * - `amount` は 1 回の補給あたりの補給量、`stock` は残りの補給回数（issue #297）
  * - 配置・残量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
  */
-export const RECOVERY_SPOT_CELLS = [
+export const CHARGE_SPOT_CELLS = [
   { amount: 1, q: 0, r: 3, stock: 4 },
 ] as const
 
 /** EN スポットでの 1 回の補給あたりの所要時間（ms。issue #297） */
-export const ENERGY_SPOT_RECOVERY_INTERVAL_MS = 300
+export const ENERGY_SPOT_CHARGE_INTERVAL_MS = 300
 
 /** EN スポットでの補給の完了（「補給完了！」）を表示し続ける時間（ms。issue #297） */
-export const ENERGY_SPOT_RECOVERED_NOTICE_MS = 1500
+export const ENERGY_SPOT_CHARGED_NOTICE_MS = 1500
 
 /**
  * 初期表示モード `partial` で霧（非表示対象）とするセル一覧

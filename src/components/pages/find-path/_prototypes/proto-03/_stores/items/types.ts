@@ -40,7 +40,7 @@ export type ItemInstance = {
 /**
  * アイテムの種類
  *
- * - 今後の拡張を見込み種類で判別する（issue #181 時点では energy-recovery のみ）
+ * - 今後の拡張を見込み種類で判別する（issue #181 時点では energy-charge のみ）
  * - 種類の追加は `ITEM_KINDS`（`constants.ts`）へ行う
  */
 export type ItemKind = (typeof ITEM_KINDS)[number]

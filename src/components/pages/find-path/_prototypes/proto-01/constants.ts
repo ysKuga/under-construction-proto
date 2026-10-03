@@ -35,14 +35,14 @@ export const ONE_WAY_CELLS = [
  *
  * - 配置・補給量は仮値（design.md 懸念・リスク、後日バランス調整）
  */
-export const RECOVERY_ITEM_CELLS = [{ amount: 3, col: 2, row: 0 }] as const
+export const CHARGE_ITEM_CELLS = [{ amount: 3, col: 2, row: 0 }] as const
 
 /**
  * EN スポット一覧（踏むたび補給、指定回数で枯渇しうる）
  *
  * - 配置・補給量・回数は仮値（design.md 懸念・リスク、後日バランス調整）
  */
-export const RECOVERY_SPOT_CELLS = [
+export const CHARGE_SPOT_CELLS = [
   { amount: 2, col: 4, row: 2, stock: 2 },
 ] as const
 

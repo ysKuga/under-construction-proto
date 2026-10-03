@@ -20,8 +20,8 @@
 ```
 terms/
   energy/
-  energy-recovery-item/
-  energy-recovery-spot/
+  energy-charge-item/
+  energy-charge-spot/
   obstacle/
 ```
 
@@ -40,7 +40,7 @@ terms/
 
 `src/features/term-registry/` へ実装済み(issue #284)。
 
-- 用語: `energy`・`energy-recovery-item`・`energy-recovery-spot`・`obstacle`
+- 用語: `energy`・`energy-charge-item`・`energy-charge-spot`・`obstacle`
 - 画像は当面、絵文字で代用している(`icon`、`ReactNode` のためアイコン component 等へ差し替え可)
 - 表示 component は `title` 属性による暫定の hover 説明表示
 - 用語一覧は Storybook の `features/term-registry` で確認できる

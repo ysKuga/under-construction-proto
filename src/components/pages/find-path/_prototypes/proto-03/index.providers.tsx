@@ -23,30 +23,30 @@ import { ItemInstance } from './_stores/items/types'
 import { PlayerActivityStoreProvider } from './_stores/player-activity'
 import { WaypointFlowStoreProvider } from './_stores/waypoint-flow'
 import {
-  RECOVERY_ITEM_CELLS,
-  RECOVERY_SPOT_CELLS,
+  CHARGE_ITEM_CELLS,
+  CHARGE_SPOT_CELLS,
   START_POSITION,
 } from './constants'
 import { FindPathProto03Props } from './index.types'
 
 /**
- * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
+ * 初期配置するアイテム一覧（`CHARGE_ITEM_CELLS`/`CHARGE_SPOT_CELLS` から組み立てる）
  *
  * - EN 補給アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
  *   （指定回数で枯渇しうる）で区別する（proto-01 と同型）
  */
 const INITIAL_ITEMS: ItemInstance[] = [
-  ...RECOVERY_ITEM_CELLS.map((cell, index): ItemInstance => ({
+  ...CHARGE_ITEM_CELLS.map((cell, index): ItemInstance => ({
     amount: cell.amount,
     cell: { q: cell.q, r: cell.r },
-    id: `recovery-item-${index}`,
-    kind: 'energy-recovery',
+    id: `charge-item-${index}`,
+    kind: 'energy-charge',
   })),
-  ...RECOVERY_SPOT_CELLS.map((cell, index): ItemInstance => ({
+  ...CHARGE_SPOT_CELLS.map((cell, index): ItemInstance => ({
     amount: cell.amount,
     cell: { q: cell.q, r: cell.r },
-    id: `recovery-spot-${index}`,
-    kind: 'energy-recovery',
+    id: `charge-spot-${index}`,
+    kind: 'energy-charge',
     stock: cell.stock,
   })),
 ]

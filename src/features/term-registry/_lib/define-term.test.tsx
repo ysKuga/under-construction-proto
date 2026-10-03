@@ -7,11 +7,11 @@ describe('defineTerm', () => {
   it('英語名称から className を導出する', () => {
     const term = defineTerm({
       description: 'エネルギーを補給するアイテム',
-      englishName: 'energy-recovery-item',
+      englishName: 'energy-charge-item',
       name: '補給アイテム',
     })
 
-    expect(term.className).toBe('ui-term-energy-recovery-item')
+    expect(term.className).toBe('ui-term-energy-charge-item')
   })
 
   it('component 未指定時は何も描画しない component とする', () => {
@@ -28,15 +28,15 @@ describe('defineTerm', () => {
     const term = defineTerm(
       {
         description: 'エネルギーを補給するアイテム',
-        englishName: 'energy-recovery-item',
+        englishName: 'energy-charge-item',
         name: '補給アイテム',
       },
       (info) => () => info.className,
     )
 
     expect(render(<term.component />).container).toHaveTextContent(
-      'ui-term-energy-recovery-item',
+      'ui-term-energy-charge-item',
     )
-    expect(term.component.displayName).toBe('EnergyRecoveryItemComponent')
+    expect(term.component.displayName).toBe('EnergyChargeItemComponent')
   })
 })

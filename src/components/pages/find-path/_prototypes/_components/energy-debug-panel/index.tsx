@@ -16,8 +16,8 @@ import { useEnergyEventDispatcher, useEnergyStore } from '../../_stores/energy'
  *   EN store 単体のリセットは想定しない
  * - proto-01/03 共通。単一の親に属さないため `_prototypes/_components/` へ配置
  * - EN 残量はここでのみ購読する。EN 変化で再レンダリングされるのは本パネルのみ
- * - スライダー値と現在の残量の差分を `Energy-consume`/`Energy-recover` イベントで発行（実処理・\
- *   `Energy-depleted`/`Energy-recovered` 発行は consume/recover-listener が担う。\
+ * - スライダー値と現在の残量の差分を `Energy-consume`/`Energy-charge` イベントで発行（実処理・\
+ *   `Energy-depleted`/`Energy-recovered` 発行は consume/charge-listener が担う。\
  *   proto-01 の `use-find-path-tick` と同じ経路のため、デバッグパネル操作でも\
  *   EN 切れ演出（予防姿勢）の発火・復帰を検証できる）
  */
@@ -45,7 +45,7 @@ export const EnergyDebugPanel = ({ style }: EnergyDebugPanelProps) => {
           // 差分なし: イベントを発行しない
           if (diff === 0) return
 
-          void energyDispatch[diff > 0 ? 'Energy-recover' : 'Energy-consume']({
+          void energyDispatch[diff > 0 ? 'Energy-charge' : 'Energy-consume']({
             actorId: PLAYER_ACTOR_ID,
             amount: Math.abs(diff),
           })
