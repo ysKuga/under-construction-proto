@@ -22,28 +22,28 @@ import { ItemInstance } from '../../_stores/items/types'
 import { TickStatusStoreProvider } from '../../_stores/tick-status'
 import {
   CARRIED_ITEM_CAPACITY,
-  RECOVERY_ITEM_CELLS,
-  RECOVERY_SPOT_CELLS,
+  CHARGE_ITEM_CELLS,
+  CHARGE_SPOT_CELLS,
 } from '../../constants'
 
 /**
- * 初期配置するアイテム一覧（`RECOVERY_ITEM_CELLS`/`RECOVERY_SPOT_CELLS` から組み立てる）
+ * 初期配置するアイテム一覧（`CHARGE_ITEM_CELLS`/`CHARGE_SPOT_CELLS` から組み立てる）
  *
  * - EN 補給アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
  *   （指定回数で枯渇しうる）で区別する
  */
 const INITIAL_ITEMS: ItemInstance[] = [
-  ...RECOVERY_ITEM_CELLS.map((cell, index): ItemInstance => ({
+  ...CHARGE_ITEM_CELLS.map((cell, index): ItemInstance => ({
     amount: cell.amount,
     cell: { col: cell.col, row: cell.row },
-    id: `recovery-item-${index}`,
-    kind: 'energy-recovery',
+    id: `charge-item-${index}`,
+    kind: 'energy-charge',
   })),
-  ...RECOVERY_SPOT_CELLS.map((cell, index): ItemInstance => ({
+  ...CHARGE_SPOT_CELLS.map((cell, index): ItemInstance => ({
     amount: cell.amount,
     cell: { col: cell.col, row: cell.row },
-    id: `recovery-spot-${index}`,
-    kind: 'energy-recovery',
+    id: `charge-spot-${index}`,
+    kind: 'energy-charge',
     stock: cell.stock,
   })),
 ]

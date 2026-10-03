@@ -16,11 +16,11 @@ import {
   useFindPathEventTarget,
 } from '../../index.contexts'
 
-const RECOVERY_ITEM: ItemInstance = {
+const CHARGE_ITEM: ItemInstance = {
   amount: 3,
   cell: { q: 1, r: 1 },
   id: 'item-1',
-  kind: 'energy-recovery',
+  kind: 'energy-charge',
 }
 
 const Wrapper = (props: PropsWithChildren) => (
@@ -48,7 +48,7 @@ const renderListener = () => {
     { wrapper: Wrapper },
   )
   const { carriedItems, eventTarget } = rendered.result.current
-  carriedItems.getState().pickUp(RECOVERY_ITEM)
+  carriedItems.getState().pickUp(CHARGE_ITEM)
   const onItemUsed = vi.fn<(detail: unknown) => void>()
   eventTarget.addEventListener('FindPath-item-used', (event) =>
     onItemUsed((event as CustomEvent).detail),
@@ -63,14 +63,14 @@ test('受理すると携行から取り除き、使用を通知する', async ()
 
   await expect(
     dispatcher['FindPath-use-item']({
-      itemId: RECOVERY_ITEM.id,
-      usage: 'recover-energy',
+      itemId: CHARGE_ITEM.id,
+      usage: 'charge-energy',
     }),
   ).resolves.toBe(true)
   expect(carriedItems.getState().carriedItems).toEqual([])
   expect(onItemUsed).toHaveBeenCalledWith({
-    item: RECOVERY_ITEM,
-    usage: 'recover-energy',
+    item: CHARGE_ITEM,
+    usage: 'charge-energy',
   })
 })
 
@@ -81,10 +81,10 @@ test('携行していないアイテムは使用を拒否する', async () => {
   await expect(
     dispatcher['FindPath-use-item']({
       itemId: 'unknown',
-      usage: 'recover-energy',
+      usage: 'charge-energy',
     }),
   ).resolves.toBe(false)
-  expect(carriedItems.getState().carriedItems).toEqual([RECOVERY_ITEM])
+  expect(carriedItems.getState().carriedItems).toEqual([CHARGE_ITEM])
   expect(onItemUsed).not.toHaveBeenCalled()
 })
 
@@ -94,11 +94,11 @@ test('許可されていない使用方法は拒否し、アイテムを残す',
 
   await expect(
     dispatcher['FindPath-use-item']({
-      itemId: RECOVERY_ITEM.id,
+      itemId: CHARGE_ITEM.id,
       // ホワイトリスト外の使用方法（型上は存在しないため cast する）
       usage: 'throw' as ItemUsage,
     }),
   ).resolves.toBe(false)
-  expect(carriedItems.getState().carriedItems).toEqual([RECOVERY_ITEM])
+  expect(carriedItems.getState().carriedItems).toEqual([CHARGE_ITEM])
   expect(onItemUsed).not.toHaveBeenCalled()
 })

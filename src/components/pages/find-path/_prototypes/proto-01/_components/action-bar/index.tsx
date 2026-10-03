@@ -10,7 +10,7 @@ import { usePlannedPathSteps } from '../../_hooks/use-planned-path-steps'
 import { useCarriedItemStore } from '../../_stores/carried-items'
 import { useItemStore } from '../../_stores/items'
 import { useTickStatusStore } from '../../_stores/tick-status'
-import { RECOVERY_SPOT_CELLS } from '../../constants'
+import { CHARGE_SPOT_CELLS } from '../../constants'
 
 type ActionBarProps = {
   /** 「実行」。`useFindPathTick` から親経由で受け取る */
@@ -36,7 +36,7 @@ type ActionBarProps = {
  * - 「使用」: `FindPath-use-carried-item` イベントを dispatch する（実処理は
  *   `FindPathContent` が `useFindPathEventListener` 購読、issue #181）。携行数 0、
  *   または走行中は disabled
- * - 携行数表示: `携行: n/上限`。スタンド残り表示: `スタンド: n/初期在庫`（`RECOVERY_SPOT_CELLS`
+ * - 携行数表示: `携行: n/上限`。スタンド残り表示: `スタンド: n/初期在庫`（`CHARGE_SPOT_CELLS`
  *   は現状1箇所のみのため単一表示。複数箇所になった場合は再設計が要る）
  * - 「リセット」: 全 store を初期状態に戻す（境界値テスト用、issue #181）。走行中は disabled
  * - `isRunning`/`reachedGoal` は `TickStatusStore` を直接 selector 購読する（props
@@ -107,7 +107,7 @@ export const ActionBar = (props: ActionBarProps) => {
       </Button>
       {spotStock !== undefined && (
         <span>
-          スタンド: {spotStock}/{RECOVERY_SPOT_CELLS[0].stock}
+          スタンド: {spotStock}/{CHARGE_SPOT_CELLS[0].stock}
         </span>
       )}
       <Button

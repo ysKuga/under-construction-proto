@@ -57,9 +57,9 @@ import { FindPathProto03Props } from './index.types'
  * - EN（エネルギー、issue #181）: 1 マス移動するごとに 1 消費、アイテムの補給量ぶん
  *   補給する。予定経路・tick 駆動の「実行」は proto-01 と異なり導入しない（1 マス
  *   ごとの隣接クリック移動のまま）ため、`canEnterCell` へ残量判定を加え、移動成立時
- *   に `Energy-consume`/`Energy-recover` イベントを dispatch する（実消費・実補給・
+ *   に `Energy-consume`/`Energy-charge` イベントを dispatch する（実消費・実補給・
  *   0 以下/より大きくなった判定・`Energy-depleted`/`Energy-recovered` 発行は energy
- *   store 側の consume/recover-listener が担う。proto-01 の `use-find-path-tick`
+ *   store 側の consume/charge-listener が担う。proto-01 の `use-find-path-tick`
  *   と同じ経路）
  * - EN 切れ演出（予防姿勢、issue #181、proto-01 の `energyOutAction` 相当）:
  *   `Stage07` が `actorEventTarget` prop 経由で bot と共有する EventTarget を公開

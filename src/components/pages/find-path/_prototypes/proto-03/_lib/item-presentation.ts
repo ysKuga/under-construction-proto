@@ -26,16 +26,16 @@ const ITEM_PRESENTATIONS: Record<
   ItemKind,
   { item: ItemPresentation; spot: ItemPresentation }
 > = {
-  'energy-recovery': {
+  'energy-charge': {
     item: {
-      className: term.energyRecoveryItem.className,
-      icon: term.energyRecoveryItem.icon,
-      title: `${term.energyRecoveryItem.name}（踏むと携行、使用するとエネルギー補給、1個限り）`,
+      className: term.energyChargeItem.className,
+      icon: term.energyChargeItem.icon,
+      title: `${term.energyChargeItem.name}（踏むと携行、使用するとエネルギー補給、1個限り）`,
     },
     spot: {
-      className: term.energyRecoverySpot.className,
-      icon: term.energyRecoverySpot.icon,
-      title: `${term.energyRecoverySpot.name}（停止中に使用するとエネルギー補給、残量が尽きるまで）`,
+      className: term.energyChargeSpot.className,
+      icon: term.energyChargeSpot.icon,
+      title: `${term.energyChargeSpot.name}（停止中に使用するとエネルギー補給、残量が尽きるまで）`,
     },
   },
 }

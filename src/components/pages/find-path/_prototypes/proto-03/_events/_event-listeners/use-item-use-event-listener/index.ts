@@ -26,7 +26,7 @@ export const useItemUseEventListener = () => {
 
     /** 補給中でなく、携行中のアイテムに指定された使用方法が許可されているか */
     const isUsable =
-      playerActivityStoreApi.getState().activity !== 'recovering' &&
+      playerActivityStoreApi.getState().activity !== 'charging' &&
       item !== undefined &&
       getItemUsages(item).includes(usage)
 

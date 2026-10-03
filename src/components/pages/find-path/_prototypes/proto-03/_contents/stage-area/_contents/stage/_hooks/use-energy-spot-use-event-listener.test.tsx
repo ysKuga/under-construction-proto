@@ -23,17 +23,17 @@ import {
   usePlayerActivityStoreApi,
 } from '../../../../../_stores/player-activity'
 import { WaypointFlowStoreProvider } from '../../../../../_stores/waypoint-flow'
-import { ENERGY_SPOT_RECOVERY_INTERVAL_MS } from '../../../../../constants'
+import { ENERGY_SPOT_CHARGE_INTERVAL_MS } from '../../../../../constants'
 
 import { useEnergySpotUseEventListener } from './use-energy-spot-use-event-listener'
 
 vi.unmock('zustand')
 
-const RECOVERY_SPOT: ItemInstance = {
+const CHARGE_SPOT: ItemInstance = {
   amount: 1,
   cell: { q: 0, r: 3 },
   id: 'spot-1',
-  kind: 'energy-recovery',
+  kind: 'energy-charge',
   stock: 4,
 }
 
@@ -42,9 +42,9 @@ const Wrapper = (props: PropsWithChildren) => (
     <CarriedItemStoreProvider>
       <PlayerActivityStoreProvider>
         <FindPathEventProvider>
-          <ItemStoreProvider initialItems={[RECOVERY_SPOT]}>
+          <ItemStoreProvider initialItems={[CHARGE_SPOT]}>
             <ActorsStoreProvider
-              initialActors={{ [PLAYER_ACTOR_ID]: RECOVERY_SPOT.cell }}
+              initialActors={{ [PLAYER_ACTOR_ID]: CHARGE_SPOT.cell }}
             >
               <WaypointFlowStoreProvider>
                 {props.children}
@@ -103,23 +103,23 @@ test('不足分だけ時間経過ごとに 1 ずつ補給し、完了で停止�
     ).resolves.toBe(true)
   })
 
-  expect(playerActivity.getState().activity).toBe('recovering')
+  expect(playerActivity.getState().activity).toBe('charging')
 
   await act(async () => {
-    await vi.advanceTimersByTimeAsync(ENERGY_SPOT_RECOVERY_INTERVAL_MS)
+    await vi.advanceTimersByTimeAsync(ENERGY_SPOT_CHARGE_INTERVAL_MS)
   })
 
   expect(currentEnergy(energy)).toBe(before + 1)
-  expect(playerActivity.getState().activity).toBe('recovering')
+  expect(playerActivity.getState().activity).toBe('charging')
 
   await act(async () => {
-    await vi.advanceTimersByTimeAsync(ENERGY_SPOT_RECOVERY_INTERVAL_MS)
+    await vi.advanceTimersByTimeAsync(ENERGY_SPOT_CHARGE_INTERVAL_MS)
   })
 
   expect(currentEnergy(energy)).toBe(before + 2)
   expect(playerActivity.getState().activity).toBe('idle')
   // 残量 4 のうち 2 回分を消費する
-  expect(items.getState().itemsById[RECOVERY_SPOT.id].stock).toBe(2)
+  expect(items.getState().itemsById[CHARGE_SPOT.id].stock).toBe(2)
 })
 
 test('不足分が残量を超える場合、残量の分だけ補給する', async () => {
@@ -128,11 +128,11 @@ test('不足分が残量を超える場合、残量の分だけ補給する', as
 
   await act(async () => {
     await dispatcher['FindPath-use-energy-spot'](undefined)
-    await vi.advanceTimersByTimeAsync(ENERGY_SPOT_RECOVERY_INTERVAL_MS * 10)
+    await vi.advanceTimersByTimeAsync(ENERGY_SPOT_CHARGE_INTERVAL_MS * 10)
   })
 
-  expect(currentEnergy(energy)).toBe(before + RECOVERY_SPOT.stock!)
-  expect(items.getState().getItemAtCell(RECOVERY_SPOT.cell)).toBeUndefined()
+  expect(currentEnergy(energy)).toBe(before + CHARGE_SPOT.stock!)
+  expect(items.getState().getItemAtCell(CHARGE_SPOT.cell)).toBeUndefined()
 })
 
 test('EN が上限なら使用を拒否する', async () => {
@@ -153,7 +153,7 @@ test('移動中・補給中なら使用を拒否する', async () => {
     false,
   )
 
-  playerActivity.getState().setActivity('recovering')
+  playerActivity.getState().setActivity('charging')
 
   await expect(dispatcher['FindPath-use-energy-spot'](undefined)).resolves.toBe(
     false,

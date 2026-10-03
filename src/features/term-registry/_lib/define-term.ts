@@ -14,7 +14,7 @@ const EmptyComponent = () => null
 /**
  * 英語名称（kebab-case）から表示 component の displayName を導出する
  *
- * - 例: `energy-recovery-item` → `EnergyRecoveryItemComponent`
+ * - 例: `energy-charge-item` → `EnergyChargeItemComponent`
  */
 const toDisplayName = (englishName: string) =>
   `${englishName

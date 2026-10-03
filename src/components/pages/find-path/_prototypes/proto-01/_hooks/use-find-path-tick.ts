@@ -117,9 +117,9 @@ type UseFindPathTickReturn = {
  * - EN 補給アイテム（`ItemInstance.stock` 未指定）は踏んでも即時補給せず携行する
  *   （`CarriedItemStore`、上限に達していればその場に残る）。EN スポットは据置型
  *   のため対象外、従来通り即時補給。携行アイテムの使用は `useCarriedItem`（issue #181）
- * - EN 消費・補給とも `Energy-consume`/`Energy-recover` イベントを dispatch する
+ * - EN 消費・補給とも `Energy-consume`/`Energy-charge` イベントを dispatch する
  *   だけにし、実処理・0 以下/より大きくなった判定・`Energy-depleted`/
- *   `Energy-recovered` 発行は energy store 側の consume/recover-listener が担う
+ *   `Energy-recovered` 発行は energy store 側の consume/charge-listener が担う
  *   （issue #181、tick 処理を box-bot action の直接呼出しから切り離す密結合解消の
  *   リファクタ）。tick 継続可否の判定自体は「読むだけ」のため対象外、引き続き
  *   `energy.getState().getEnergyInfo(...)` を直接読む
@@ -248,7 +248,7 @@ export const useFindPathTick = (
         const consumed = items.getState().consumeItem(item.id)
 
         if (consumed) {
-          void energyDispatch['Energy-recover']({
+          void energyDispatch['Energy-charge']({
             actorId: PLAYER_ACTOR_ID,
             amount: consumed.amount,
           })
@@ -456,7 +456,7 @@ export const useFindPathTick = (
     const item = carriedItems.getState().useItem()
 
     if (item) {
-      void energyDispatch['Energy-recover']({
+      void energyDispatch['Energy-charge']({
         actorId: PLAYER_ACTOR_ID,
         amount: item.amount,
       })

@@ -8,12 +8,12 @@ import { useFindPathEventListener } from '../../_hooks/use-find-path-event-liste
  *   （issue #297）
  * - EN 判定（`useEnergyPathGuardEventListener`）と同じイベントを `allowMultiple` で購読する
  */
-export const useRecoveringPathGuardEventListener = () => {
+export const useChargingPathGuardEventListener = () => {
   const playerActivityStoreApi = usePlayerActivityStoreApi()
 
   /** 補給中なら拒否する */
   const guard = (event: Event) => {
-    if (playerActivityStoreApi.getState().activity === 'recovering') {
+    if (playerActivityStoreApi.getState().activity === 'charging') {
       event.preventDefault()
     }
   }

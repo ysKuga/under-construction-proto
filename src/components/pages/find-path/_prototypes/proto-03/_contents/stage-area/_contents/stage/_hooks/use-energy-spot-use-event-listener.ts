@@ -9,20 +9,20 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useActorsStoreApi } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { useFindPathEventListener } from '../../../../../_events'
-import { countEnergySpotRecovery } from '../../../../../_lib/count-energy-spot-recovery'
+import { countEnergySpotCharge } from '../../../../../_lib/count-energy-spot-charge'
 import { useItemStoreApi } from '../../../../../_stores/items'
 import { usePlayerActivityStoreApi } from '../../../../../_stores/player-activity'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
-import { ENERGY_SPOT_RECOVERY_INTERVAL_MS } from '../../../../../constants'
+import { ENERGY_SPOT_CHARGE_INTERVAL_MS } from '../../../../../constants'
 
 /**
  * player の現在セルの EN スポットの使用を受け付け、時間経過とともに EN を補給する
  *
  * - 停止中かつ補給できる（EN が上限未満・スポットの残量あり）場合のみ受理する。\
  *   それ以外は `preventDefault()` で拒否する
- * - 補給回数（`countEnergySpotRecovery`）を先に決め、`ENERGY_SPOT_RECOVERY_INTERVAL_MS`
+ * - 補給回数（`countEnergySpotCharge`）を先に決め、`ENERGY_SPOT_CHARGE_INTERVAL_MS`
  *   ごとにスポットを 1 回分消費し補給する。中断はしない（issue #297）
- * - 補給中は行為 store を `recovering` にし、完了で `idle` へ戻す
+ * - 補給中は行為 store を `charging` にし、完了で `idle` へ戻す
  * - 時間経過は time-control 導入までの暫定として rxjs の `interval` で持つ
  */
 export const useEnergySpotUseEventListener = (): void => {
@@ -33,16 +33,16 @@ export const useEnergySpotUseEventListener = (): void => {
   const playerActivityStoreApi = usePlayerActivityStoreApi()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   /** 補給の時間経過の購読 */
-  const recoverySubscriptionRef = useRef<Subscription>(undefined)
+  const chargeSubscriptionRef = useRef<Subscription>(undefined)
 
   // unmount（リセットによる再マウント含む）: 補給の時間経過を止める
-  useEffect(() => () => recoverySubscriptionRef.current?.unsubscribe(), [])
+  useEffect(() => () => chargeSubscriptionRef.current?.unsubscribe(), [])
 
   useFindPathEventListener('FindPath-use-energy-spot', (event) => {
     const cell = actorsStoreApi.getState().actors[PLAYER_ACTOR_ID]
     const spot = cell && itemStoreApi.getState().getItemAtCell(cell)
     /** 補給回数 */
-    const count = countEnergySpotRecovery(
+    const count = countEnergySpotCharge(
       spot,
       energy.getState().getEnergyInfo(PLAYER_ACTOR_ID),
     )
@@ -62,9 +62,9 @@ export const useEnergySpotUseEventListener = (): void => {
 
     // 補給中は経路の提示・実行を受け付けないため、提示中の目標・中継点を消す
     waypointFlowStoreApi.getState().clear()
-    playerActivityStoreApi.getState().setActivity('recovering')
+    playerActivityStoreApi.getState().setActivity('charging')
 
-    recoverySubscriptionRef.current = interval(ENERGY_SPOT_RECOVERY_INTERVAL_MS)
+    chargeSubscriptionRef.current = interval(ENERGY_SPOT_CHARGE_INTERVAL_MS)
       .pipe(take(count))
       .subscribe({
         complete: () => {
@@ -75,7 +75,7 @@ export const useEnergySpotUseEventListener = (): void => {
 
           if (!consumed) return
 
-          void energyDispatch['Energy-recover']({
+          void energyDispatch['Energy-charge']({
             actorId: PLAYER_ACTOR_ID,
             amount: consumed.amount,
           })

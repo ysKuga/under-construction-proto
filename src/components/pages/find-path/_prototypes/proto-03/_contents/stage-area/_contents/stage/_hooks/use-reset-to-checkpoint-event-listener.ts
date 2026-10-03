@@ -61,7 +61,7 @@ export const useResetToCheckpointEventListener = (): void => {
     const isAcceptable =
       current <= 0 &&
       !isMovingRef.current &&
-      playerActivityStoreApi.getState().activity !== 'recovering'
+      playerActivityStoreApi.getState().activity !== 'charging'
 
     // EN が残っている、移動中、または補給中: リセットを拒否する
     if (!isAcceptable) {
@@ -75,7 +75,7 @@ export const useResetToCheckpointEventListener = (): void => {
     stage07HandleRef.current?.warp(START_POSITION)
     fogStoreApi.getState().markVisited(START_POSITION)
 
-    await energyDispatch['Energy-recover']({
+    await energyDispatch['Energy-charge']({
       actorId: PLAYER_ACTOR_ID,
       amount: max - current,
     })

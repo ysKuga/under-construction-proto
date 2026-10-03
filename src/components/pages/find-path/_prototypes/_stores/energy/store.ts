@@ -27,7 +27,7 @@ export const createEnergyStore = (): EnergyStore =>
     },
     getEnergyInfo: (actorId) =>
       get().energyById[actorId] ?? DEFAULT_ENERGY_INFO,
-    recover: (actorId, amount) => {
+    charge: (actorId, amount) => {
       set((state) => {
         const info = state.energyById[actorId] ?? DEFAULT_ENERGY_INFO
 

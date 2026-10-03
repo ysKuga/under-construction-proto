@@ -26,7 +26,7 @@ export type EnergyState = {
   /** actor のエネルギー情報を取得する（未設定時はデフォルト値を返す） */
   getEnergyInfo: (actorId: ActorId) => EnergyInfo
   /** エネルギーを補給する（上限を超えない） */
-  recover: (actorId: ActorId, amount: number) => void
+  charge: (actorId: ActorId, amount: number) => void
   /** エネルギーを初期状態に戻す */
   reset: () => void
 }

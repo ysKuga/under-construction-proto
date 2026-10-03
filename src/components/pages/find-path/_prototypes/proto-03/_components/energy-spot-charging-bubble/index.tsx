@@ -4,7 +4,7 @@ import { memo } from 'react'
 
 import { BotBubble } from '../bot-bubble'
 
-type EnergySpotRecoveringBubbleProps = {
+type EnergySpotChargingBubbleProps = {
   /**
    * bot 基準点(0, 0)から見た表示位置(px)。`BotBubble` の `offset` 参照
    *
@@ -25,8 +25,8 @@ type EnergySpotRecoveringBubbleProps = {
  * - 表示専用。押せない（補給は中断しないため操作を持たない）
  * - 見た目・表示切替は `BotBubble` に委ねる
  */
-export const EnergySpotRecoveringBubble = memo(
-  (props: EnergySpotRecoveringBubbleProps) => {
+export const EnergySpotChargingBubble = memo(
+  (props: EnergySpotChargingBubbleProps) => {
     const { offset, visible } = props
 
     return (
@@ -41,4 +41,4 @@ export const EnergySpotRecoveringBubble = memo(
   },
 )
 
-EnergySpotRecoveringBubble.displayName = 'EnergySpotRecoveringBubble'
+EnergySpotChargingBubble.displayName = 'EnergySpotChargingBubble'

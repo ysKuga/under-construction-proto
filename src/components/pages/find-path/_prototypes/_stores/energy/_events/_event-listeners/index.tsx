@@ -1,6 +1,6 @@
 import { useConsumeEnergyEventListener } from './use-consume-energy-event-listener'
 import { useOutOfEnergyEventListener } from './use-out-of-energy-event-listener'
-import { useRecoverEnergyEventListener } from './use-recover-energy-event-listener'
+import { useChargeEnergyEventListener } from './use-charge-energy-event-listener'
 
 /**
  * energy scope 全体のイベント購読をまとめて有効化する
@@ -9,7 +9,7 @@ import { useRecoverEnergyEventListener } from './use-recover-energy-event-listen
  */
 export const EnergyEventListeners = () => {
   useConsumeEnergyEventListener()
-  useRecoverEnergyEventListener()
+  useChargeEnergyEventListener()
   useOutOfEnergyEventListener()
 
   return null

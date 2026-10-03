@@ -36,9 +36,9 @@ export type ItemInstance = {
 /**
  * アイテムの種類
  *
- * - 今後の拡張を見込み種類で判別する（issue #181 時点では energy-recovery のみ）
+ * - 今後の拡張を見込み種類で判別する（issue #181 時点では energy-charge のみ）
  */
-export type ItemKind = 'energy-recovery'
+export type ItemKind = 'energy-charge'
 
 /**
  * グリッド上のアイテムを保持する store
