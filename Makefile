@@ -52,6 +52,9 @@ lint:
 lint/fix:
 	yarn lint --fix
 
+playwright-install: ## Playwright の Chromium と OS 依存ライブラリを導入する(sudo 要)
+	yarn playwright-install
+
 prepare:
 	yarn prepare
 

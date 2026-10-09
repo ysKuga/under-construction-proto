@@ -129,10 +129,10 @@ export const reducePointerState = (
 
 ## 実ブラウザ動作確認
 
-Storybook + Playwright ヘッドレス Chromium 検証、コンテナに依存ライブラリ (`libnss3` 等) 未導入の場合あり。
+Storybook + Playwright ヘッドレス Chromium 検証、端末に Chromium 本体・依存ライブラリ (`libnss3` 等) 未導入の場合あり。
 
-- 事前に `npx playwright install-deps` 実行要 (Claude からは実行不可、ユーザー側で実行)。\
-  `sudo npx ...` は不可 (npx が現在ユーザ環境に導入されており sudo の PATH に無い)。npx 自体は非 sudo で起動、内部で apt 導入が必要な箇所のみ権限昇格される。
+- 事前に `make playwright-install` 実行要 (sudo 要のため Claude からは実行不可、ユーザー側で実行)。\
+  詳細・導入漏れの症状は [docs/package/testing/@playwright/test](docs/package/testing/@playwright/test/README.md)。
 - 導入済なら Playwright script で `chromium.launch()` 直接可、`chromium-cli` 不在時の代替手段。
 - 検証スクリプトは `scratch/verify.mjs` 固定名で作成(都度別名 `verify-xxx.mjs` は禁止)。\
   許可リスト肥大化防止のため。内容は毎回上書き、`scratch/` は gitignore 対象。
