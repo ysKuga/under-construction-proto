@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react'
 
 import { PLAYER_ACTOR_ID } from '../stage-06/constants'
 
+import { CellHoverProvider } from './_contexts/cell-hover'
 import { Stage07EventProvider, useStage07EventListener } from './_events'
 import { colRowToAxial, HexCell } from './_lib/hex'
 import { ActorsStoreProvider, useActorsStore } from './_stores/actors'
@@ -160,4 +161,36 @@ export const Warp: Story = {
     ),
   ],
   render: (args) => <WarpRender {...args} />,
+}
+
+/** hover 中セルを表示する story 用 render(`CellHoverProvider` の hover 通知の動作確認用) */
+const CellHoverRender = (args: Story['args']) => {
+  /** hover 中のセル(layer 外では `undefined`) */
+  const [hoveredCell, setHoveredCell] = useState<HexCell>()
+
+  return (
+    <>
+      <p aria-label="hover 中のセル">
+        {hoveredCell ? `q=${hoveredCell.q}, r=${hoveredCell.r}` : 'なし'}
+      </p>
+      <CellHoverProvider onCellHover={setHoveredCell}>
+        <StoryComponent {...DEFAULT_ARGS} {...args} />
+      </CellHoverProvider>
+    </>
+  )
+}
+
+// セル間の移動では解除(なし)を挟まず、layer 外へ出た時のみ「なし」になる(PR #308)
+export const CellHover: Story = {
+  args: DEFAULT_ARGS,
+  decorators: [
+    (Story) => (
+      <ActorsStoreProvider
+        initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+      >
+        <Story />
+      </ActorsStoreProvider>
+    ),
+  ],
+  render: (args) => <CellHoverRender {...args} />,
 }
