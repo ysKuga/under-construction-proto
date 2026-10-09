@@ -45,7 +45,8 @@
       "Read(.claude/**)",
       "Bash(find / -path *)",
       "Bash(mkdir -p *)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(python3 -I .claude/skills/steering-close/scripts/move-and-relink.py *)"
     ],
     "additionalDirectories": ["./src"]
   },
