@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useEffectEvent } from 'react'
 
 import {
   registerListener,
@@ -21,6 +21,8 @@ export type UseEventListenerOptions = {
  * EventTarget のイベントを購読する
  *
  * - イベント名には scope prefix (例: `ComponentName-`) の付与を検討する(grep 検索性のため)
+ * - `handler` は `useEffectEvent` 経由で常に最新のものを呼ぶ。呼出側で `useCallback`\
+ *   によるメモ化は不要、`handler` の参照が変わっても再登録しない
  *
  * @param type イベント名
  * @param handler イベント発火時に呼ぶ処理。Promise を返す場合、dispatcher の\
@@ -33,13 +35,15 @@ export const useEventListener = <E extends Event = Event>(
   options: UseEventListenerOptions = {},
 ) => {
   const { allowMultiple = false, target = window } = options
+  /** 最新の `handler` を呼ぶ(参照が変わっても listener を再登録しない) */
+  const onEvent = useEffectEvent((event: E) => handler(event))
 
   // target へ listener を登録、cleanup で解除
   useEffect(() => {
     registerListener(target, type, allowMultiple)
 
     const listener = (event: Event) => {
-      const result = handler(event as E)
+      const result = onEvent(event as E)
 
       if (result instanceof Promise) {
         registerPendingPromise(target, type, result)
@@ -55,5 +59,5 @@ export const useEventListener = <E extends Event = Event>(
       target.removeEventListener(type, listener)
       unregisterListener(target, type)
     }
-  }, [target, type, handler, allowMultiple])
+  }, [target, type, allowMultiple])
 }
