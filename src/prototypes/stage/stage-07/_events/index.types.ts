@@ -6,7 +6,7 @@ import { HexCell } from '../_lib/hex'
  * イベント名 → payload 型の対応表
  *
  * - key prefix: `Stage07-`
- * - `Stage07` が actor の状態変化を通知する。find-path 固有の概念は持たない
+ * - `Stage07` が actor の状態変化・セルの hover を通知する。find-path 固有の概念は持たない
  */
 export type Stage07EventMap = {
   /**
@@ -22,6 +22,17 @@ export type Stage07EventMap = {
     actorId: ActorId
     /** 到達したセル */
     cell: HexCell
+  }
+  /**
+   * pointer の hover 中セルが変わった
+   *
+   * - セル進入時にそのセル、layer 外へ出た時に `undefined`（hover 解除）
+   * - セル間の移動では解除を挟まず、移動先のセルのみ発行する
+   * - 非対話（`interactive=false`）のセルでは発行しない（`pointerEvents: none`）
+   */
+  'Stage07-cell-hover': {
+    /** hover 中のセル（`undefined` は hover 解除） */
+    cell: HexCell | undefined
   }
   /** actor がセル間の移動を開始した（自動移動では 1 マスごとに発行する） */
   'Stage07-move-start': {

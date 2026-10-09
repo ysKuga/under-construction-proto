@@ -3,7 +3,6 @@ import { useCallback, useRef, useState } from 'react'
 
 import { PLAYER_ACTOR_ID } from '../stage-06/constants'
 
-import { CellHoverProvider } from './_contexts/cell-hover'
 import { Stage07EventProvider, useStage07EventListener } from './_events'
 import { colRowToAxial, HexCell } from './_lib/hex'
 import { ActorsStoreProvider, useActorsStore } from './_stores/actors'
@@ -163,20 +162,24 @@ export const Warp: Story = {
   render: (args) => <WarpRender {...args} />,
 }
 
-/** hover 中セルを表示する story 用 render(`CellHoverProvider` の hover 通知の動作確認用) */
-const CellHoverRender = (args: Story['args']) => {
+/**
+ * hover 中セルを表示する(`Stage07-cell-hover` の動作確認用)
+ *
+ * - 購読側の本 component だけが再レンダリングされ、`Stage07` は再レンダリングされない
+ */
+const HoveredCellLabel = () => {
   /** hover 中のセル(layer 外では `undefined`) */
   const [hoveredCell, setHoveredCell] = useState<HexCell>()
 
+  useStage07EventListener(
+    'Stage07-cell-hover',
+    useCallback((event) => setHoveredCell(event.detail.cell), []),
+  )
+
   return (
-    <>
-      <p aria-label="hover 中のセル">
-        {hoveredCell ? `q=${hoveredCell.q}, r=${hoveredCell.r}` : 'なし'}
-      </p>
-      <CellHoverProvider onCellHover={setHoveredCell}>
-        <StoryComponent {...DEFAULT_ARGS} {...args} />
-      </CellHoverProvider>
-    </>
+    <p aria-label="hover 中のセル">
+      {hoveredCell ? `q=${hoveredCell.q}, r=${hoveredCell.r}` : 'なし'}
+    </p>
   )
 }
 
@@ -188,9 +191,11 @@ export const CellHover: Story = {
       <ActorsStoreProvider
         initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
       >
-        <Story />
+        <Stage07EventProvider>
+          <HoveredCellLabel />
+          <Story />
+        </Stage07EventProvider>
       </ActorsStoreProvider>
     ),
   ],
-  render: (args) => <CellHoverRender {...args} />,
 }

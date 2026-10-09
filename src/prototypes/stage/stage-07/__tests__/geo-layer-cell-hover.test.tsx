@@ -2,12 +2,26 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { GeoLayer } from '../_components/geo-layer'
-import { CellHoverProvider } from '../_contexts/cell-hover'
+import { Stage07EventProvider, useStage07EventListener } from '../_events'
 import { HexCell } from '../_lib/hex'
+
+/** `Stage07-cell-hover` の発行を `onCellHover` へ中継する */
+const CellHoverListener = (props: {
+  onCellHover: (cell: HexCell | undefined) => void
+}) => {
+  const { onCellHover } = props
+
+  useStage07EventListener('Stage07-cell-hover', (event) =>
+    onCellHover(event.detail.cell),
+  )
+
+  return null
+}
 
 const renderGeoLayer = (onCellHover: (cell: HexCell | undefined) => void) =>
   render(
-    <CellHoverProvider onCellHover={onCellHover}>
+    <Stage07EventProvider>
+      <CellHoverListener onCellHover={onCellHover} />
       <GeoLayer
         cols={2}
         hexSize={20}
@@ -15,10 +29,10 @@ const renderGeoLayer = (onCellHover: (cell: HexCell | undefined) => void) =>
         onCellClick={() => {}}
         rows={1}
       />
-    </CellHoverProvider>,
+    </Stage07EventProvider>,
   )
 
-describe('GeoLayer のセル hover 通知', () => {
+describe('GeoLayer の Stage07-cell-hover 発行', () => {
   it('セルへ入ると、そのセルを通知する', () => {
     const onCellHover = vi.fn<(cell: HexCell | undefined) => void>()
     renderGeoLayer(onCellHover)
@@ -47,10 +61,12 @@ describe('GeoLayer のセル hover 通知', () => {
 
   it('layer 外へ出ると、hover 解除（undefined）を通知する', () => {
     const onCellHover = vi.fn<(cell: HexCell | undefined) => void>()
-    const { container } = renderGeoLayer(onCellHover)
+    renderGeoLayer(onCellHover)
 
     fireEvent.pointerEnter(screen.getByRole('button', { name: 'hex 0-0' }))
-    fireEvent.pointerLeave(container.firstElementChild as Element)
+    fireEvent.pointerLeave(
+      screen.getByRole('button', { name: 'hex 0-0' }).parentElement as Element,
+    )
 
     expect(onCellHover).toHaveBeenLastCalledWith(undefined)
   })

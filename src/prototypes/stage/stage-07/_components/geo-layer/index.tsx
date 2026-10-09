@@ -1,7 +1,7 @@
 import { CSSProperties, memo } from 'react'
 
-import { useHandleCellHover } from '../../_contexts/cell-hover'
 import { useGetCellTitle } from '../../_contexts/cell-title'
+import { useStage07EventDispatcher } from '../../_events'
 import { colRowToAxial, HexCell } from '../../_lib/hex'
 import {
   computeHexGridBounds,
@@ -69,10 +69,9 @@ type GeoLayerProps = {
  *   issue #137、PR #196 レビュー対応）。stage-07 自体は find-path 固有の概念
  *   （障害物・アイテム等）を持たないため、実体は呼び出し元（`CellTitleProvider`）
  *   が注入する。Provider がなければ何も付与しない
- * - hover 通知は `CellHoverContext` から取得する（`CellTitleContext` と同方針、
- *   PR #308）。セル進入時にそのセル、layer 外へ出た時に `undefined` を通知する。
- *   セル単位の leave では通知しない（セル間移動で解除 → 進入の2回通知を避ける）。
- *   `interactive=false` のセルは `pointerEvents: none` のため通知されない
+ * - hover 中セルの変化は `Stage07-cell-hover` で発行する（PR #308）。購読側だけが
+ *   再レンダリングされ、本 layer は再レンダリングされない。解除は layer 外へ出た時
+ *   のみ発行する（セル間移動で解除 → 進入の2回発行を避ける）
  * - `React.memo` 化済み（issue-181-en backlog）。`canEnterCell`/`onCellClick` は
  *   呼び出し元の状態（EN 残量等）に依存し毎レンダー新規参照になりうるため、
  *   現状は memo 化の効果が限定的
@@ -89,7 +88,7 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
   } = props
 
   const getCellTitle = useGetCellTitle()
-  const handleCellHover = useHandleCellHover()
+  const stage07EventDispatcher = useStage07EventDispatcher()
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   const cells = Array.from({ length: rows }).flatMap((_, row) =>
@@ -104,7 +103,9 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
 
   return (
     <div
-      onPointerLeave={() => handleCellHover(undefined)}
+      onPointerLeave={() =>
+        void stage07EventDispatcher['Stage07-cell-hover']({ cell: undefined })
+      }
       style={containerStyle}
     >
       {cells.map((axial) => {
@@ -137,7 +138,9 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
             aria-label={`hex ${axial.q}-${axial.r}`}
             key={`${axial.q}-${axial.r}`}
             onClick={() => onCellClick(axial)}
-            onPointerEnter={() => handleCellHover(axial)}
+            onPointerEnter={() =>
+              void stage07EventDispatcher['Stage07-cell-hover']({ cell: axial })
+            }
             ref={(el) => registerVisibilityNode?.(axial, el)}
             style={{ ...cellStyle, cursor: selectable ? 'pointer' : 'default' }}
             title={getCellTitle(axial)}
