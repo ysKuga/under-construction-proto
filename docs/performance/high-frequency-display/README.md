@@ -27,6 +27,22 @@ hover・pointer 位置・ゲーム内の状態など、短い間隔で何度も�
 - 初期表示は ref callback でマウント時に1度だけ書き込む
 - レンダー中に `ref.current` を読まない（[.claude/rules/react/r3f-state.md](../../../.claude/rules/react/r3f-state.md) と同じ `react-hooks/refs` の制約）
 
+### `useCallback` の要否
+
+ref 書換の component は通常再レンダリングされないが、親の更新に巻き込まれれば再レンダリングされる。\
+「外しても再レンダリングが起きない」は要否の根拠にならない（`useCallback` の有無で再レンダリング回数は変わらない）。\
+判断基準は「再レンダリングされた時、メモ化がないと何が壊れるか」。
+
+| 対象 | メモ化なしで再レンダリングされた場合 | 要否 |
+|---|---|---|
+| 初期表示を書き込む ref callback | 呼び直され、表示が初期値へ戻る | 必要 |
+| event の購読処理 | `useEventListener` が listener を再登録する | `useEventListener` の実装次第 |
+
+- 購読処理: `useEventListener` が `useEffectEvent` で handler を呼ぶ形なら再登録されず、不要
+  - 現状は handler を `useEffect` の deps に含むため再登録される。`useEffectEvent` 化は別 PR で対応中
+- ref callback: 冪等にすればメモ化なしでも表示は壊れない（`if (el && !el.textContent)` で未表示時のみ書込）
+  - ただし再レンダリングごとに ref の付け外し（`null` → 要素）が走るため、`useCallback` で包むのが素直
+
 ```tsx
 /** hover 中セルの表示文言 */
 const formatHoveredCell = (cell: HexCell | undefined) =>
