@@ -161,3 +161,56 @@ export const Warp: Story = {
   ],
   render: (args) => <WarpRender {...args} />,
 }
+
+/** hover 中セルの表示文言 */
+const formatHoveredCell = (cell: HexCell | undefined) =>
+  cell ? `q=${cell.q}, r=${cell.r}` : 'なし'
+
+/**
+ * hover 中セルを表示する(`Stage07-cell-hover` の動作確認用)
+ *
+ * - hover の変化を state に持たず、ref 経由で DOM の `textContent` を直接書き換える。\
+ *   hover しても本 component・`Stage07` とも再レンダリングされない
+ * - React が子要素を描画しない空要素へのみ書き込む(React の差分更新と衝突させない)
+ */
+const HoveredCellLabel = () => {
+  /** 表示先の要素 */
+  const labelRef = useRef<HTMLParagraphElement>(null)
+
+  useStage07EventListener(
+    'Stage07-cell-hover',
+    useCallback((event) => {
+      if (!labelRef.current) return
+
+      labelRef.current.textContent = formatHoveredCell(event.detail.cell)
+    }, []),
+  )
+
+  return (
+    <p
+      aria-label="hover 中のセル"
+      // 初期表示(hover なし)。マウント時に1度だけ書き込む
+      ref={useCallback((el: HTMLParagraphElement | null) => {
+        labelRef.current = el
+        if (el) el.textContent = formatHoveredCell(undefined)
+      }, [])}
+    />
+  )
+}
+
+// セル間の移動では解除(なし)を挟まず、layer 外へ出た時のみ「なし」になる(PR #308)
+export const CellHover: Story = {
+  args: DEFAULT_ARGS,
+  decorators: [
+    (Story) => (
+      <ActorsStoreProvider
+        initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+      >
+        <Stage07EventProvider>
+          <HoveredCellLabel />
+          <Story />
+        </Stage07EventProvider>
+      </ActorsStoreProvider>
+    ),
+  ],
+}
