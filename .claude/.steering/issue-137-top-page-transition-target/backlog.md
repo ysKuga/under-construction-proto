@@ -22,6 +22,10 @@
 - [ ] マスホバー/選択時の内包要素一覧表示を検討（[#305](_pr/pr-305-cell-hover-display/design.md)）
   - (design.md 懸念・リスク)
   - 下準備: stage-07 `GeoLayer` の hover 通知（[#308](_pr/pr-308-geo-layer-cell-hover/design.md)）
+  - 本対応: proto-03 のセル情報パネル（hover 中マスの store・パネル component）
+  - 再レンダリング量を計測し、トリガー方式（ホバー継続 / クリック固定）を確定
+  - 不要になる `title` 表示（`useGetCellTitle`・`CellTitleProvider`）の扱いを決める
+  - (#305 decision-records.md 2026-10-09)
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
 - [x] 目標設定後に EN 切れを発生させると、吹き出しが表示されたまま残る
   - デバッグ操作（値調整 UI）での EN 切れで発生
