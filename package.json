@@ -13,6 +13,7 @@
     "lint:eslint": "eslint .",
     "test": "vitest",
     "test-e2e": "playwright test",
+    "playwright-install": "playwright install --with-deps chromium",
     "prepare": "sh scripts/prepare.sh",
     "check-types": "tsc --project tsconfig.json --pretty --noEmit",
     "generate": "plop",
