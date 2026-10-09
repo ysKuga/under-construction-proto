@@ -22,6 +22,14 @@
 - 派生した boolean (しきい値超え判定) のみを state 化し、累積は ref で持つ。
 - 累積の更新時に、境界を通過した時だけ `setState` する。
 
+### 高頻度に変化する値の表示
+
+hover・pointer 位置等、短い間隔で変化する値の表示。\
+表示の性質で切り分ける ([high-frequency-display/](high-frequency-display/README.md))。
+
+- **単純な表示 (JSX の構造が変わらない)** → ref で DOM を直接書き換える。再レンダリングなし。
+- **ゲーム内情報の表示 (JSX の構造が変わる)** → state で持ち、スロットル・デバウンス・`useTransition` 等で更新頻度を抑える。
+
 ## ゲームロジック本体の方針
 
 actor 移動・進入判定・EN 等、ゲームの仕組み本体を成す値は `useState` を既定で避け、`ref` または store 直接購読で持つ。`useState` は「JSX の出力に直接使う値」のみ例外的に許容する。
