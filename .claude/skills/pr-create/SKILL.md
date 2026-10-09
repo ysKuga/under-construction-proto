@@ -3,6 +3,12 @@ name: pr-create
 description: プロジェクトの PR ルール(タイトルの issue 番号・ベースブランチ・Storybook リンク・steering close 確認)に従って PR を作成・更新する。「PR を作成」「PR を出す」「PR 本文を書いて」等の依頼時に使用する。
 ---
 
+## サブエージェントの呼出
+
+本スキルで使う `story-verifier`・`workflow-retro` は、`.claude/agents/` へ追加・更新した直後のセッションでは未登録の場合がある。
+
+- 呼出が `Agent type '...' not found` で失敗した場合、general-purpose エージェントへ `.claude/agents/<name>.md` を読ませ、本文の指示どおりに動かす
+
 ## 手順
 
 ### 1. 差分を把握する
