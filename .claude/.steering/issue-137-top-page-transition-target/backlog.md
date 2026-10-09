@@ -21,6 +21,7 @@
     - 吹き出しの表示管理（配列管理・表示順）は #297 で `BubbleSlots` として対応（#300）
 - [ ] マスホバー/選択時の内包要素一覧表示を検討（[#305](_pr/pr-305-cell-hover-display/design.md)）
   - (design.md 懸念・リスク)
+  - 下準備: stage-07 `GeoLayer` の hover 通知（[#308](_pr/pr-308-geo-layer-cell-hover/design.md)）
 - [ ] find-path は現状固定ステージだが、ランダム生成を検討中
 - [x] 目標設定後に EN 切れを発生させると、吹き出しが表示されたまま残る
   - デバッグ操作（値調整 UI）での EN 切れで発生
