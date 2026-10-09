@@ -76,3 +76,11 @@ gh pr create --base <base> --title "<タイトル>" --body "<本文>"
 
 - 先行作成済みの空 PR([steering-start-pr](../steering-start-pr/SKILL.md))がある場合は `gh pr edit` で本文・タイトルを更新し、draft を解除する(`gh pr ready`)
 - 作成した PR の URL をユーザーへ伝える
+
+### 7. 作業を振り返る
+
+`workflow-retro` サブエージェントへ現在のブランチ名を渡し、定型化の候補を受け取る。
+
+- 「候補なし」なら何も伝えない
+- 候補があれば PR の URL と併せて提示する
+- 作成・追記はユーザーの承認後に行う(本 PR へ積むか別 PR にするかも確認する)
