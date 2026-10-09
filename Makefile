@@ -24,6 +24,10 @@ help: ## print this message
 #   echo
 # done
 
+sync-main: ## main ブランチに切り替えてマージを反映する
+	git switch main
+	git pull -p
+
 build:
 	yarn build
 
