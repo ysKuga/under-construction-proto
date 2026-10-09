@@ -39,7 +39,7 @@ ref 書換の component は通常再レンダリングされないが、親の�
 | event の購読処理 | `useEventListener` が listener を再登録する | `useEventListener` の実装次第 |
 
 - 購読処理: `useEventListener` が `useEffectEvent` で handler を呼ぶ形なら再登録されず、不要
-  - 現状は handler を `useEffect` の deps に含むため再登録される。`useEffectEvent` 化は別 PR で対応中
+  - 現状は handler を `useEffect` の deps に含むため再登録される。`useEffectEvent` 化は PR #309 で対応中
 - ref callback: 冪等にすればメモ化なしでも表示は壊れない（`if (el && !el.textContent)` で未表示時のみ書込）
   - ただし再レンダリングごとに ref の付け外し（`null` → 要素）が走るため、`useCallback` で包むのが素直
 
