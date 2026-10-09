@@ -14,16 +14,23 @@ issue: #137 / PR: #305（backlog「マスホバー/選択時の内包要素一�
   - 汎用方針は [docs/concept/ideas](../../../../../docs/concept/ideas/README.md)「ユーザビリティ・用語説明」参照
 - 用語情報の集約案: [term-registry](../../../../../docs/concept/ideas/term-registry/README.md)
 
-## 検討事項
+## 現状
 
-- 表示手段
-  - `title` 属性による暫定表示
-  - マス単位の内包要素一覧（ホバー・選択時）
-- 表示のトリガー
-  - ホバー（マウス操作）
-  - 選択（タッチ操作ではホバーがないため）
-- 既存の bubble（`BubbleSlots`）・目標設定の操作との干渉
+- hover 表示は `GeoLayer` セル `<button>` の `title` 属性のみ
+  - 実体: proto-03 `useGetCellTitle`（`CellTitleProvider` 経由で注入）
+- stage-07 に hover を外部へ通知する口がない（`onCellClick` のみ）
+- floor は `rotateX` の 3D 空間
 
-## 実装計画
+## 表示内容
 
-- [ ] 表示手段・トリガーを決める
+- 全 contents の一覧（term-registry の icon・名称）
+- 説明（`item-presentation.ts` の title 文言）
+- 状態（スポット残量等）
+- 操作ヒント（目標キャンセル等、現 `title` 先頭の文言）
+
+## 懸念・リスク
+
+- `title` 表示は `contents[0]` のみ。複数要素あるマスで2件目以降が出ない
+- hover による再レンダリング量（仮実装で計測）
+- 移動中（`interactive=false`）は `pointerEvents: none`、hover 不可
+  - 3D ヒットテスト対策（issue #181 PR-C）
