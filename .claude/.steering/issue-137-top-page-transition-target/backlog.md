@@ -19,7 +19,7 @@
   - 他 bubble との競合は、発生した時点で検討する
     - 案: bubble の表示箇所をスロットとして定義し、表示対象を指定順に表示する
     - 吹き出しの表示管理（配列管理・表示順）は #297 で `BubbleSlots` として対応（#300）
-- [ ] マスホバー/選択時の内包要素一覧表示を検討（[#305](_pr/pr-305-cell-hover-display/design.md)）
+- [ ] マスホバー/選択時の内包要素一覧表示を検討（[#305](_closed/pr-305-cell-hover-display/design.md)）
   - (design.md 懸念・リスク)
   - 下準備: stage-07 `GeoLayer` の hover 通知（[#308](_pr/pr-308-geo-layer-cell-hover/design.md)）
   - 本対応: proto-03 のセル情報パネル（hover 中マスの store・パネル component）
