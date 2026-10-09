@@ -162,24 +162,39 @@ export const Warp: Story = {
   render: (args) => <WarpRender {...args} />,
 }
 
+/** hover 中セルの表示文言 */
+const formatHoveredCell = (cell: HexCell | undefined) =>
+  cell ? `q=${cell.q}, r=${cell.r}` : 'なし'
+
 /**
  * hover 中セルを表示する(`Stage07-cell-hover` の動作確認用)
  *
- * - 購読側の本 component だけが再レンダリングされ、`Stage07` は再レンダリングされない
+ * - hover の変化を state に持たず、ref 経由で DOM の `textContent` を直接書き換える。\
+ *   hover しても本 component・`Stage07` とも再レンダリングされない
+ * - React が子要素を描画しない空要素へのみ書き込む(React の差分更新と衝突させない)
  */
 const HoveredCellLabel = () => {
-  /** hover 中のセル(layer 外では `undefined`) */
-  const [hoveredCell, setHoveredCell] = useState<HexCell>()
+  /** 表示先の要素 */
+  const labelRef = useRef<HTMLParagraphElement>(null)
 
   useStage07EventListener(
     'Stage07-cell-hover',
-    useCallback((event) => setHoveredCell(event.detail.cell), []),
+    useCallback((event) => {
+      if (!labelRef.current) return
+
+      labelRef.current.textContent = formatHoveredCell(event.detail.cell)
+    }, []),
   )
 
   return (
-    <p aria-label="hover 中のセル">
-      {hoveredCell ? `q=${hoveredCell.q}, r=${hoveredCell.r}` : 'なし'}
-    </p>
+    <p
+      aria-label="hover 中のセル"
+      // 初期表示(hover なし)。マウント時に1度だけ書き込む
+      ref={useCallback((el: HTMLParagraphElement | null) => {
+        labelRef.current = el
+        if (el) el.textContent = formatHoveredCell(undefined)
+      }, [])}
+    />
   )
 }
 
