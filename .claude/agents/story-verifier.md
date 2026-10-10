@@ -60,6 +60,66 @@ node scratch/verify.mjs
 - 見た目の確認が必要な場合は `scratch/` へスクリーンショットを保存し、Read で確認する
 - `chromium.launch()` が共有ライブラリ不足(`libnss3` 等)で失敗した場合、ユーザー側で `npx playwright install-deps` の実行が必要と報告して終了する(自分では実行しない、sudo も使わない)
 
+#### stage-07 系 story(hex グリッド)の操作
+
+find-path proto-03 等、`Stage07` を使う story が対象。
+
+- マスは `getByRole('button', { name: 'hex <q>-<r>', exact: true })` で取る
+  - `<q>`・`<r>` は axial 座標。行・列からの推測で指定しない
+  - 一覧が必要なら `$$eval('button[aria-label^="hex "]', ...)` で aria-label を列挙する
+- 霧で隠れたマスは hover・click がタイムアウトする(`locator.hover: Timeout 30000ms exceeded`)
+  - proto-03 では操作前に `getByLabel('初期表示').selectOption('all-visible')` で全て表示する
+
+#### 再レンダリング回数の計測
+
+「操作で無関係な component が再レンダリングされないか」を確認する場合に使う。
+
+- `addInitScript` で React DevTools の hook を差し込み、commit ごとに fiber を辿る
+- props・state の参照が前回から変わった component のみ数える
+  - fiber の `flags` は、描画されなかった fiber に前回の値が残るため判定に使わない
+- 計測したい操作の直前に `window.__renders = {}` で初期化する
+
+```js
+await page.addInitScript(() => {
+  window.__renders = {}
+  window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+    supportsFiber: true,
+    renderers: new Map(),
+    inject() { return 1 },
+    onCommitFiberRoot(_id, root) {
+      const snap = (window.__snap ||= new WeakMap())
+      const walk = (f) => {
+        for (; f; f = f.sibling) {
+          const isComponent =
+            typeof f.type === 'function' ||
+            typeof f.type?.type === 'function' ||
+            typeof f.type?.render === 'function'
+          if (isComponent) {
+            const prev = snap.get(f) || (f.alternate && snap.get(f.alternate))
+            if (prev && (prev.p !== f.memoizedProps || prev.s !== f.memoizedState)) {
+              const name =
+                f.type.displayName || f.type.name || f.type.type?.name || f.type.render?.name || '?'
+              window.__renders[name] = (window.__renders[name] || 0) + 1
+            }
+            const v = { p: f.memoizedProps, s: f.memoizedState }
+            snap.set(f, v)
+            if (f.alternate) snap.set(f.alternate, v)
+          }
+          walk(f.child)
+        }
+      }
+      walk(root.current.child)
+    },
+    onCommitFiberUnmount() {},
+    onPostCommitFiberRoot() {},
+  }
+})
+// ... 計測したい操作の直前
+await page.evaluate(() => { window.__renders = {} })
+// ... 操作
+console.log(await page.evaluate(() => window.__renders))
+```
+
 ### 4. 後片付け
 
 ```bash
