@@ -1,6 +1,7 @@
 'use client'
 
 import { BotBubbles } from './bot-bubbles'
+import { CellInfoPanel } from './cell-info-panel'
 import { ControlPanel } from './control-panel'
 import { StageArea } from './stage-area'
 import { Title } from './title'
@@ -17,5 +18,6 @@ export const FindPathProto03Contents = () => (
     <StageArea />
     <BotBubbles />
     <ControlPanel />
+    <CellInfoPanel />
   </div>
 )
