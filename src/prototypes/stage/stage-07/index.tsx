@@ -68,6 +68,12 @@ type Stage07Props = PropsWithChildren<{
    *   したい action がある場合に渡す（stage-06 と同じ方式）
    */
   actorEventTarget?: EventTarget
+  /**
+   * 床の直下へ置く要素（省略可）
+   *
+   * - 調整スライダー群より上、床と同じ幅で置く（find-path proto-03 のセル情報パネル等）
+   */
+  belowFloor?: ReactNode
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
   /**
@@ -237,6 +243,7 @@ const INITIAL_FACING_MAX_RETRY_FRAMES = 30
 export const Stage07 = (props: Stage07Props) => {
   const {
     actorEventTarget,
+    belowFloor,
     botSize,
     canEnterCell,
     children,
@@ -433,31 +440,41 @@ export const Stage07 = (props: Stage07Props) => {
 
   return (
     <div style={{ position: 'relative' }}>
-      <div style={sceneStyle}>
-        <div ref={floorRef} style={floorStyle}>
-          <GeoLayer
-            canEnterCell={canEnterCell}
-            cols={cols}
-            hexSize={hexSize}
-            interactive={interactive}
-            onCellClick={handleCellClick}
-            registerVisibilityNode={registerCellVisibilityNode}
-            rows={rows}
-          />
-          <ActorsLayer
-            bodyBobHeight={bodyBobHeight}
-            cols={cols}
-            eventTarget={eventTarget}
-            hexSize={hexSize}
-            legSwingAngle={legSwingAngle}
-            maxWalkCycleSec={maxWalkCycleSec}
-            moveDurationMs={moveDurationMs}
-            onArrived={handleArrived}
-            rows={rows}
-            size={botSize}
-          />
-          {children}
+      {/* 床と belowFloor を縦に並べ、belowFloor の幅を床に合わせる */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: 'min-content',
+        }}
+      >
+        <div style={sceneStyle}>
+          <div ref={floorRef} style={floorStyle}>
+            <GeoLayer
+              canEnterCell={canEnterCell}
+              cols={cols}
+              hexSize={hexSize}
+              interactive={interactive}
+              onCellClick={handleCellClick}
+              registerVisibilityNode={registerCellVisibilityNode}
+              rows={rows}
+            />
+            <ActorsLayer
+              bodyBobHeight={bodyBobHeight}
+              cols={cols}
+              eventTarget={eventTarget}
+              hexSize={hexSize}
+              legSwingAngle={legSwingAngle}
+              maxWalkCycleSec={maxWalkCycleSec}
+              moveDurationMs={moveDurationMs}
+              onArrived={handleArrived}
+              rows={rows}
+              size={botSize}
+            />
+            {children}
+          </div>
         </div>
+        {belowFloor}
       </div>
       <ActorOverlayLayer />
       <label style={SLIDER_LABEL_STYLE}>
