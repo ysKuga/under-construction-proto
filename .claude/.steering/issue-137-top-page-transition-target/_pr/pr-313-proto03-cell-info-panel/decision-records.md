@@ -13,3 +13,5 @@
 - 表示対象へ bot（EN 残量付き）・ゴール（到達状況付き）を追加。並び: bot → ゴール → 障害物・アイテム
   - bot の EN は bot が hover 中セルにいる時のみ購読値を返す（無関係な EN 変化で再レンダリングさせない）
   - 表示要素は今後も増える想定。`CellInfoEntry` の配列へ追加する形で拡張する
+- パネル位置: 床の直下（slider 群の上）、床と同じ幅。stage-07 へ `belowFloor` prop を追加して差し込む
+  - 配置先: `stage/_components/cell-info-panel`（使用元が `Stage` のみ）
