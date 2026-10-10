@@ -22,7 +22,7 @@
 - [ ] マスホバー/選択時の内包要素一覧表示を検討（[#305](_closed/pr-305-cell-hover-display/design.md)）
   - (design.md 懸念・リスク)
   - 下準備（完了）: stage-07 `GeoLayer` の hover 通知（[#308](_closed/pr-308-geo-layer-cell-hover/design.md)）
-  - 本対応: proto-03 のセル情報パネル（[#313](_pr/pr-313-proto03-cell-info-panel/design.md)）
+  - 本対応: proto-03 のセル情報パネル（[#313](_closed/pr-313-proto03-cell-info-panel/design.md)）
   - 再レンダリング量を計測し、トリガー方式（ホバー継続 / クリック固定）を確定
   - 不要になる `title` 表示（`useGetCellTitle`・`CellTitleProvider`）の扱いを決める
   - (#305 decision-records.md 2026-10-09)

@@ -9,11 +9,11 @@ PR: #313（親: #137）
 
 ## 背景・制約
 
-- 下準備: stage-07 `GeoLayer` の `Stage07-cell-hover` 発行（[#308](../../_closed/pr-308-geo-layer-cell-hover/design.md)）
+- 下準備: stage-07 `GeoLayer` の `Stage07-cell-hover` 発行（[#308](../pr-308-geo-layer-cell-hover/design.md)）
   - `Stage07EventProvider` は `index.providers.tsx` でページ全体を包む。`_contents/` 直下の content から購読可
-- 表示方針の検討経緯: [pr-305-cell-hover-display](../../_closed/pr-305-cell-hover-display/decision-records.md)
+- 表示方針の検討経緯: [pr-305-cell-hover-display](../pr-305-cell-hover-display/decision-records.md)
   - 表示手段: ステージ外の固定パネル。要素が多い場合はパネル内スクロール
-- 表示内容（[#305 design.md](../../_closed/pr-305-cell-hover-display/design.md)「表示内容」）
+- 表示内容（[#305 design.md](../pr-305-cell-hover-display/design.md)「表示内容」）
   - 全 contents の一覧（term-registry の icon・名称）
   - 説明（`item-presentation.ts` の title 文言）
   - 状態（スポット残量等）
