@@ -1,7 +1,6 @@
 'use client'
 
 import { Stage07 } from '@/prototypes/stage/stage-07'
-import { CellTitleProvider } from '@/prototypes/stage/stage-07/_contexts/cell-title'
 
 import { GoalMarkerLayer } from '../../../../_layers/goal-marker-layer'
 import { ItemLayer } from '../../../../_layers/item-layer'
@@ -37,7 +36,6 @@ export const Stage = () => {
     currentCell,
     displayMode,
     enableWalking,
-    getCellTitle,
     handleCellChange,
     handleFollowPathEnd,
     handleNonAdjacentClick,
@@ -56,80 +54,78 @@ export const Stage = () => {
   return (
     // Stage07 は操作 slider 群が横に広がるため、min-content で床(scene)の幅へ合わせる
     <div className="w-min">
-      <CellTitleProvider getCellTitle={getCellTitle}>
-        <Stage07
-          actorEventTarget={actorEventTarget}
-          botSize={BOT_SIZE}
-          canEnterCell={canEnterCell}
+      <Stage07
+        actorEventTarget={actorEventTarget}
+        botSize={BOT_SIZE}
+        canEnterCell={canEnterCell}
+        cols={GRID.cols}
+        enableWalking={enableWalking}
+        extraSliders={<EnergySliders />}
+        hexSize={HEX_SIZE}
+        initialTiltDeg={55}
+        interactive={interactive}
+        onCellChange={handleCellChange}
+        onFollowPathEnd={handleFollowPathEnd}
+        onNonAdjacentClick={handleNonAdjacentClick}
+        ref={stage07HandleRef}
+        registerCellVisibilityNode={registerFloorVisibilityNode}
+        rows={GRID.rows}
+      >
+        <GoalMarkerLayer
           cols={GRID.cols}
-          enableWalking={enableWalking}
-          extraSliders={<EnergySliders />}
           hexSize={HEX_SIZE}
-          initialTiltDeg={55}
-          interactive={interactive}
-          onCellChange={handleCellChange}
-          onFollowPathEnd={handleFollowPathEnd}
-          onNonAdjacentClick={handleNonAdjacentClick}
-          ref={stage07HandleRef}
-          registerCellVisibilityNode={registerFloorVisibilityNode}
+          registerVisibilityNode={registerMarkerVisibilityNode}
           rows={GRID.rows}
-        >
-          <GoalMarkerLayer
-            cols={GRID.cols}
-            hexSize={HEX_SIZE}
-            registerVisibilityNode={registerMarkerVisibilityNode}
-            rows={GRID.rows}
-          />
-          <ObstacleLayer
-            cols={GRID.cols}
-            hexSize={HEX_SIZE}
-            registerVisibilityNode={registerMarkerVisibilityNode}
-            rows={GRID.rows}
-          />
-          <OneWayLayer
-            cols={GRID.cols}
-            hexSize={HEX_SIZE}
-            registerVisibilityNode={registerMarkerVisibilityNode}
-            rows={GRID.rows}
-          />
-          <ItemLayer
-            cols={GRID.cols}
-            hexSize={HEX_SIZE}
-            registerVisibilityNode={registerMarkerVisibilityNode}
-            rows={GRID.rows}
-          />
-          <MoveTargetLayer
-            canEnterCell={canEnterCellPerceived}
-            cols={GRID.cols}
-            currentCell={currentCell}
-            hexSize={HEX_SIZE}
-            mode={displayMode}
-            rows={GRID.rows}
-          />
-          <PathPreviewLayer
-            cols={GRID.cols}
-            hexSize={HEX_SIZE}
-            path={previewPath}
-            rows={GRID.rows}
-          />
-          <ObjectiveMarkerLayer
-            anchorSize={BOT_SIZE}
-            cols={GRID.cols}
-            hexSize={HEX_SIZE}
-            objectiveCell={objectiveMarkerCell}
-            rows={GRID.rows}
-          />
-          <WaypointSelectLayer
-            cols={GRID.cols}
-            hexSize={HEX_SIZE}
-            onCellClick={handleWaypointCellClick}
-            registerVisibilityNode={registerWaypointVisibilityNode}
-            rows={GRID.rows}
-            visible={waypointSelecting}
-            waypoints={waypoints}
-          />
-        </Stage07>
-      </CellTitleProvider>
+        />
+        <ObstacleLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          registerVisibilityNode={registerMarkerVisibilityNode}
+          rows={GRID.rows}
+        />
+        <OneWayLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          registerVisibilityNode={registerMarkerVisibilityNode}
+          rows={GRID.rows}
+        />
+        <ItemLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          registerVisibilityNode={registerMarkerVisibilityNode}
+          rows={GRID.rows}
+        />
+        <MoveTargetLayer
+          canEnterCell={canEnterCellPerceived}
+          cols={GRID.cols}
+          currentCell={currentCell}
+          hexSize={HEX_SIZE}
+          mode={displayMode}
+          rows={GRID.rows}
+        />
+        <PathPreviewLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          path={previewPath}
+          rows={GRID.rows}
+        />
+        <ObjectiveMarkerLayer
+          anchorSize={BOT_SIZE}
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          objectiveCell={objectiveMarkerCell}
+          rows={GRID.rows}
+        />
+        <WaypointSelectLayer
+          cols={GRID.cols}
+          hexSize={HEX_SIZE}
+          onCellClick={handleWaypointCellClick}
+          registerVisibilityNode={registerWaypointVisibilityNode}
+          rows={GRID.rows}
+          visible={waypointSelecting}
+          waypoints={waypoints}
+        />
+      </Stage07>
     </div>
   )
 }

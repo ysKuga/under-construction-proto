@@ -68,12 +68,10 @@ import { FindPathProto03Props } from './index.types'
  *   proto-01 と共通化）へ登録するだけでよく、トグル発火・復帰は
  *   `useOutOfEnergyEventListener`（scope 全体で 1 回だけ）が
  *   `Energy-depleted`/`Energy-recovered` 購読で一元的に担う
- * - 障害物の説明表示（issue #137）: `ObstacleLayer` は `pointerEvents: none` の
- *   非対話オーバーレイで hover を受け取れないため、実際にマウスオーバーを受ける
- *   `GeoLayer` のセル本体へ `title` を持たせる。stage-07 は find-path 固有の概念を
- *   持たないため、`CellTitleProvider`（`stage-07/_contexts/cell-title`）で
- *   `getCellTitle` の中身（障害物・アイテムの説明、`getCellContents`/
- *   `describeCellContent`）を注入する（PR #196 レビュー対応）
+ * - マスの情報表示（issue #137、PR #313）: `GeoLayer` が発行する `Stage07-cell-hover`
+ *   を `CellInfoPanel`（ステージ直下）が購読し、hover 中マスの内包要素を一覧表示する。
+ *   `ObstacleLayer` 等は `pointerEvents: none` の非対話オーバーレイのため、hover は
+ *   `GeoLayer` のセル本体が受ける
  * - EN 補給アイテム/EN スポット（issue #181、proto-01 から移植）: proto-01 と同じ
  *   `ItemStore` を axial 座標へ移植した固有実装（`_stores/items`）。stage content の
  *   `handleCellChange` で、EN 補給アイテムは携行（`_stores/carried-items`、issue #281）、

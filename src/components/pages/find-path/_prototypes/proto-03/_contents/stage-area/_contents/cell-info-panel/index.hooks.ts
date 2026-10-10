@@ -7,10 +7,12 @@ import { getItemPresentation } from '../../../../_lib/item-presentation'
 import { useItemStore } from '../../../../_stores/items'
 import { CellContent } from '../../../../_stores/items/types'
 import { useWaypointFlowStore } from '../../../../_stores/waypoint-flow'
-import { OBJECTIVE_CANCEL_TITLE } from '../stage/_hooks/use-get-cell-title'
 
 import { useHoveredCell } from './_hooks/use-hovered-cell'
 import { CellInfoEntry, UseCellInfoPanelReturn } from './index.types'
+
+/** 経路提示中の目標セルの操作ヒント（再クリックでキャンセルできる旨） */
+export const OBJECTIVE_CANCEL_HINT = 'クリックで目標設定をキャンセル'
 
 /** セル上の要素をパネルの表示要素へ変換する */
 const toCellInfoEntry = (content: CellContent): CellInfoEntry =>
@@ -55,7 +57,7 @@ export const useCellInfoPanel = (): UseCellInfoPanelReturn => {
 
   return {
     entries: getCellContents(hoveredCell, itemState).map(toCellInfoEntry),
-    hint: isCancelableObjective ? OBJECTIVE_CANCEL_TITLE : undefined,
+    hint: isCancelableObjective ? OBJECTIVE_CANCEL_HINT : undefined,
     hoveredCell,
   }
 }

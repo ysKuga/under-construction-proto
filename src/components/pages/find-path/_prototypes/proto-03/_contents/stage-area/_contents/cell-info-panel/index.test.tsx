@@ -8,10 +8,13 @@ import {
 
 import { ItemStoreProvider } from '../../../../_stores/items'
 import { ItemInstance } from '../../../../_stores/items/types'
-import { WaypointFlowStoreProvider } from '../../../../_stores/waypoint-flow'
+import {
+  useWaypointFlowStoreApi,
+  WaypointFlowStoreProvider,
+} from '../../../../_stores/waypoint-flow'
 import { OBSTACLE_CELLS } from '../../../../constants'
 
-import { useCellInfoPanel } from './index.hooks'
+import { OBJECTIVE_CANCEL_HINT, useCellInfoPanel } from './index.hooks'
 
 vi.unmock('zustand')
 
@@ -43,6 +46,7 @@ const renderCellInfoPanel = () => {
       return {
         cellInfoPanel: useCellInfoPanel(),
         dispatcher: useStage07EventDispatcher(),
+        waypointFlow: useWaypointFlowStoreApi(),
       }
     },
     { wrapper: Wrapper },
@@ -102,4 +106,27 @@ test('hover 解除で要素一覧を返さない', async () => {
 
   expect(result.current.cellInfoPanel.hoveredCell).toBeUndefined()
   expect(result.current.cellInfoPanel.entries).toEqual([])
+})
+
+test('経路提示中の目標セルにキャンセルの操作ヒントを返す', async () => {
+  const { hover, result } = renderCellInfoPanel()
+
+  act(() => {
+    result.current.waypointFlow.getState().propose({ q: 2, r: 3 })
+  })
+  await hover({ q: 2, r: 3 })
+
+  expect(result.current.cellInfoPanel.hint).toBe(OBJECTIVE_CANCEL_HINT)
+})
+
+test('中継点選択中の目標セルには操作ヒントを返さない', async () => {
+  const { hover, result } = renderCellInfoPanel()
+
+  act(() => {
+    result.current.waypointFlow.getState().propose({ q: 2, r: 3 })
+    result.current.waypointFlow.getState().setFlowState('selecting')
+  })
+  await hover({ q: 2, r: 3 })
+
+  expect(result.current.cellInfoPanel.hint).toBeUndefined()
 })
