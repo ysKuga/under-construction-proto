@@ -6,10 +6,10 @@ import {
   useStage07EventDispatcher,
 } from '@/prototypes/stage/stage-07/_events'
 
-import { ItemStoreProvider } from '../../_stores/items'
-import { ItemInstance } from '../../_stores/items/types'
-import { WaypointFlowStoreProvider } from '../../_stores/waypoint-flow'
-import { OBSTACLE_CELLS } from '../../constants'
+import { ItemStoreProvider } from '../../../../_stores/items'
+import { ItemInstance } from '../../../../_stores/items/types'
+import { WaypointFlowStoreProvider } from '../../../../_stores/waypoint-flow'
+import { OBSTACLE_CELLS } from '../../../../constants'
 
 import { useCellInfoPanel } from './index.hooks'
 
