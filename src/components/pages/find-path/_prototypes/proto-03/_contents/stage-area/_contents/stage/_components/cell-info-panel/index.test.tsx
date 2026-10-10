@@ -15,18 +15,18 @@ import {
   useActorsStoreApi,
 } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { GoalStoreProvider, useGoalStore } from '../../../../_stores/goal'
-import { ItemStoreProvider } from '../../../../_stores/items'
-import { ItemInstance } from '../../../../_stores/items/types'
+import { GoalStoreProvider, useGoalStore } from '../../../../../../_stores/goal'
+import { ItemStoreProvider } from '../../../../../../_stores/items'
+import { ItemInstance } from '../../../../../../_stores/items/types'
 import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
-} from '../../../../_stores/waypoint-flow'
+} from '../../../../../../_stores/waypoint-flow'
 import {
   GOAL_POSITION,
   OBSTACLE_CELLS,
   START_POSITION,
-} from '../../../../constants'
+} from '../../../../../../constants'
 
 import { OBJECTIVE_CANCEL_HINT, useCellInfoPanel } from './index.hooks'
 

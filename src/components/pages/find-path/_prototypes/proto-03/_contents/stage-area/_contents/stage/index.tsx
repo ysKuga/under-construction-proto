@@ -12,6 +12,7 @@ import { PathPreviewLayer } from '../../../../_layers/path-preview-layer'
 import { WaypointSelectLayer } from '../../../../_layers/waypoint-select-layer'
 import { GRID, HEX_SIZE } from '../../../../constants'
 
+import { CellInfoPanel } from './_components/cell-info-panel'
 import { EnergySliders } from './_components/energy-sliders'
 import { useStage } from './index.hooks'
 
@@ -27,6 +28,7 @@ const BOT_SIZE = 56
  * - 中継点選択モード中は `Stage07` を非対話化し、`WaypointSelectLayer` がセルクリックを
  *   拾って中継点を設置/除去する（通常モードのクリックとは完全に別イベント）
  * - 各レイヤーの DOM は visibility registry へ登録し、未到達マスを非表示にする
+ * - 床の直下（`belowFloor`）へ、床と同じ幅でセル情報パネルを置く
  */
 export const Stage = () => {
   const {
@@ -56,6 +58,7 @@ export const Stage = () => {
     <div className="w-min">
       <Stage07
         actorEventTarget={actorEventTarget}
+        belowFloor={<CellInfoPanel />}
         botSize={BOT_SIZE}
         canEnterCell={canEnterCell}
         cols={GRID.cols}
