@@ -2,17 +2,31 @@ import { act, renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 
 import {
+  EnergyStoreProvider,
+  useEnergyStoreApi,
+} from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import {
   Stage07EventProvider,
   useStage07EventDispatcher,
 } from '@/prototypes/stage/stage-07/_events'
+import {
+  ActorsStoreProvider,
+  useActorsStoreApi,
+} from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { GoalStoreProvider, useGoalStore } from '../../../../_stores/goal'
 import { ItemStoreProvider } from '../../../../_stores/items'
 import { ItemInstance } from '../../../../_stores/items/types'
 import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
 } from '../../../../_stores/waypoint-flow'
-import { OBSTACLE_CELLS } from '../../../../constants'
+import {
+  GOAL_POSITION,
+  OBSTACLE_CELLS,
+  START_POSITION,
+} from '../../../../constants'
 
 import { OBJECTIVE_CANCEL_HINT, useCellInfoPanel } from './index.hooks'
 
@@ -28,11 +42,17 @@ const SPOT: ItemInstance = {
 }
 
 const Wrapper = (props: PropsWithChildren) => (
-  <Stage07EventProvider>
-    <ItemStoreProvider initialItems={[SPOT]}>
-      <WaypointFlowStoreProvider>{props.children}</WaypointFlowStoreProvider>
-    </ItemStoreProvider>
-  </Stage07EventProvider>
+  <EnergyStoreProvider>
+    <ActorsStoreProvider initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}>
+      <Stage07EventProvider>
+        <ItemStoreProvider initialItems={[SPOT]}>
+          <WaypointFlowStoreProvider>
+            <GoalStoreProvider>{props.children}</GoalStoreProvider>
+          </WaypointFlowStoreProvider>
+        </ItemStoreProvider>
+      </Stage07EventProvider>
+    </ActorsStoreProvider>
+  </EnergyStoreProvider>
 )
 
 /** hook の戻り値と描画回数・hover 発行を返す */
@@ -44,8 +64,11 @@ const renderCellInfoPanel = () => {
       renderCount += 1
 
       return {
+        actors: useActorsStoreApi(),
         cellInfoPanel: useCellInfoPanel(),
         dispatcher: useStage07EventDispatcher(),
+        energy: useEnergyStoreApi(),
+        reachGoal: useGoalStore((state) => state.reach),
         waypointFlow: useWaypointFlowStoreApi(),
       }
     },
@@ -129,4 +152,58 @@ test('中継点選択中の目標セルには操作ヒントを返さない', as
   await hover({ q: 2, r: 3 })
 
   expect(result.current.cellInfoPanel.hint).toBeUndefined()
+})
+
+test('bot のいるセルは bot と EN を返す', async () => {
+  const { hover, result } = renderCellInfoPanel()
+
+  await hover(START_POSITION)
+
+  expect(result.current.cellInfoPanel.entries).toEqual([
+    expect.objectContaining({ key: 'bot', status: 'EN 10/10' }),
+  ])
+})
+
+test('EN スポット上の bot は bot とスポットの両方を返す', async () => {
+  const { hover, result } = renderCellInfoPanel()
+
+  act(() => {
+    result.current.actors.getState().moveActor(PLAYER_ACTOR_ID, SPOT.cell)
+  })
+  await hover(SPOT.cell)
+
+  expect(
+    result.current.cellInfoPanel.entries.map((entry) => entry.key),
+  ).toEqual(['bot', SPOT.id])
+})
+
+test('ゴールのセルはゴールと到達状況を返す', async () => {
+  const { hover, result } = renderCellInfoPanel()
+
+  await hover(GOAL_POSITION)
+
+  expect(result.current.cellInfoPanel.entries).toEqual([
+    expect.objectContaining({ key: 'goal', status: undefined }),
+  ])
+
+  act(() => {
+    result.current.reachGoal()
+  })
+
+  expect(result.current.cellInfoPanel.entries).toEqual([
+    expect.objectContaining({ key: 'goal', status: '到達済み' }),
+  ])
+})
+
+test('bot のいないセルの hover 中は EN が変わっても再レンダリングしない', async () => {
+  const { getHookCallCount, hover, result } = renderCellInfoPanel()
+
+  await hover(SPOT.cell)
+  /** hover 後の hook 呼出回数（= 描画回数） */
+  const callCountAfterHover = getHookCallCount()
+  act(() => {
+    result.current.energy.getState().consume(PLAYER_ACTOR_ID, 1)
+  })
+
+  expect(getHookCallCount()).toBe(callCountAfterHover)
 })
