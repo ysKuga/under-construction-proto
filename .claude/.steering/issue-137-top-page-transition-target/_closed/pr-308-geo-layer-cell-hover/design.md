@@ -14,7 +14,7 @@ PR: #308（親: #137）
 - stage-07 に hover を外部へ通知する口がない（`onCellClick` のみ）
 - stage-07 は find-path 固有の概念を持たない。通知はセル座標のみ渡す
 - `GeoLayer` は `React.memo` 化済み。hover 通知で `Stage07` 配下を再レンダリングさせない
-- 表示方針の検討経緯: [pr-305-cell-hover-display](../../_closed/pr-305-cell-hover-display/decision-records.md)
+- 表示方針の検討経緯: [pr-305-cell-hover-display](../pr-305-cell-hover-display/decision-records.md)
 
 ## 懸念・リスク
 
