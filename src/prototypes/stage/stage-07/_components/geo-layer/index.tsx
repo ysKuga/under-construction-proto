@@ -1,6 +1,5 @@
 import { CSSProperties, memo } from 'react'
 
-import { useGetCellTitle } from '../../_contexts/cell-title'
 import { useStage07EventDispatcher } from '../../_events'
 import { colRowToAxial, HexCell } from '../../_lib/hex'
 import {
@@ -65,10 +64,6 @@ type GeoLayerProps = {
  *   のみ付与する（issue #137、非隣接クリックの経路探索は今後実装）
  * - `interactive=false` のセルは非対話の `<div>` で描画する（stage-06 の
  *   `GeoLayer` と同じ方針）
- * - hover 説明文（`title` 属性）は `CellTitleContext` から取得する（props ではない、
- *   issue #137、PR #196 レビュー対応）。stage-07 自体は find-path 固有の概念
- *   （障害物・アイテム等）を持たないため、実体は呼び出し元（`CellTitleProvider`）
- *   が注入する。Provider がなければ何も付与しない
  * - hover 中セルの変化は `Stage07-cell-hover` で発行する（PR #308）。購読側だけが
  *   再レンダリングされ、本 layer は再レンダリングされない。解除は layer 外へ出た時
  *   のみ発行する（セル間移動で解除 → 進入の2回発行を避ける）
@@ -87,7 +82,6 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
     rows,
   } = props
 
-  const getCellTitle = useGetCellTitle()
   const stage07EventDispatcher = useStage07EventDispatcher()
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
@@ -143,7 +137,6 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
             }
             ref={(el) => registerVisibilityNode?.(axial, el)}
             style={{ ...cellStyle, cursor: selectable ? 'pointer' : 'default' }}
-            title={getCellTitle(axial)}
             type="button"
           >
             {hexagon}

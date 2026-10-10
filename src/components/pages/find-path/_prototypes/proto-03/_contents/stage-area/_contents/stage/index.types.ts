@@ -38,8 +38,6 @@ export type UseStageReturn = {
   displayMode: MoveTargetDisplayMode
   /** 歩行モーションの有無 */
   enableWalking: boolean
-  /** セル hover 時の説明（障害物・アイテム） */
-  getCellTitle: (cell: HexCell) => string | undefined
   /** 現在地セル変更時（移動成立時） */
   handleCellChange: (cell: HexCell) => void
   /** 自動移動の終了時 */

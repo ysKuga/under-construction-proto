@@ -14,7 +14,6 @@ import { useCanEnterCell } from './_hooks/use-can-enter-cell'
 import { useCancelWaypointFlowOnEscape } from './_hooks/use-cancel-waypoint-flow-on-escape'
 import { useClearWaypointFlowOnEnergyDepleted } from './_hooks/use-clear-waypoint-flow-on-energy-depleted'
 import { useEnergySpotUseEventListener } from './_hooks/use-energy-spot-use-event-listener'
-import { useGetCellTitle } from './_hooks/use-get-cell-title'
 import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
 import { useHandleNonAdjacentClick } from './_hooks/use-handle-non-adjacent-click'
@@ -54,7 +53,6 @@ export const useStage = (): UseStageReturn => {
   const previewPath = usePreviewPath()
   const actorEventTarget = usePlayerActorEventTarget()
   const { canEnterCell, canEnterCellPerceived } = useCanEnterCell()
-  const getCellTitle = useGetCellTitle()
   const handleCellChange = useHandleCellChange()
   const handleFollowPathEnd = useHandleFollowPathEnd()
   const handleNonAdjacentClick = useHandleNonAdjacentClick()
@@ -82,7 +80,6 @@ export const useStage = (): UseStageReturn => {
     currentCell,
     displayMode,
     enableWalking,
-    getCellTitle,
     handleCellChange,
     handleFollowPathEnd,
     handleNonAdjacentClick,
