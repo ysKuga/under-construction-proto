@@ -137,6 +137,8 @@ Storybook + Playwright ヘッドレス Chromium 検証、端末に Chromium 本�
 - 検証スクリプトは `scratch/verify.mjs` 固定名で作成(都度別名 `verify-xxx.mjs` は禁止)。\
   許可リスト肥大化防止のため。内容は毎回上書き、`scratch/` は gitignore 対象。
 - 検証完了後、`scratch/verify.mjs` 削除する。放置禁止。
+- 実装途中の UI 確認も `story-verifier` サブエージェントへ委譲。メインで `scratch/verify.mjs` 直接回さない。
+  - 理由: 検証出力・スクリーンショット大量でメインのコンテキスト圧迫。使うのは OK/NG・観測値のみ
 
 ### Storybook 常駐
 
