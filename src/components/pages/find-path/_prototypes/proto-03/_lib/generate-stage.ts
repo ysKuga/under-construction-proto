@@ -1,5 +1,9 @@
 import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
-import { colRowToAxial, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import {
+  colRowToAxial,
+  hexDistance,
+  HexCell,
+} from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { OneWayDirection, StageLayout } from '../_contexts/stage-layout/types'
 
@@ -34,6 +38,8 @@ export type GenerateStageParams = {
   }
   /** 生成をやり直す上限回数 */
   maxAttempts: number
+  /** 開始セルとゴールの距離の下限（隣接等の自明な盤面を避ける） */
+  minGoalDistance: number
   /** 障害物の個数 */
   obstacleCount: number
   /** 一方通行の個数 */
@@ -126,9 +132,10 @@ const isGoalReachable = (
  *
  * - 同じ seed・params からは同じ配置を返す
  * - 各要素は互いに重ならないセルへ置く
+ * - 開始セルとゴールの距離が `minGoalDistance` 未満の配置は捨てて作り直す（issue #315）
  * - ゴールへ到達できない配置は捨てて作り直す（issue #315）
  *   - 到達性は障害物・一方通行の壁のみで判定する。EN は考慮しない
- * - `maxAttempts` 回作り直しても到達可能な配置が得られなければ `undefined`
+ * - `maxAttempts` 回作り直しても条件を満たす配置が得られなければ `undefined`
  * - 要素の総数がグリッドのセル数を超える場合は例外を投げる
  *
  * @param seed 乱数の種
@@ -157,8 +164,12 @@ export const generateStage = (
 
   for (let attempt = 0; attempt < params.maxAttempts; attempt++) {
     const layout = buildLayout(params, random)
+    /** 開始セルとゴールが十分に離れているか */
+    const isGoalFarEnough =
+      hexDistance(layout.start, layout.goal) >= params.minGoalDistance
 
-    if (isGoalReachable(layout, params)) {
+    // 十分に離れ、かつ到達できる: この配置を採用する
+    if (isGoalFarEnough && isGoalReachable(layout, params)) {
       return layout
     }
   }

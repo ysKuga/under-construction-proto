@@ -10,6 +10,7 @@ export const GENERATE_STAGE_PARAMS: GenerateStageParams = {
   grid: GRID,
   items: { amount: 3, count: 1 },
   maxAttempts: 100,
+  minGoalDistance: 3,
   obstacleCount: 3,
   oneWayCount: 2,
   spots: { amount: 1, count: 1, stock: 4 },
