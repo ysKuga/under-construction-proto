@@ -8,6 +8,8 @@
 - [ ] 組込み: proto-03 へ seed 入力・再生成を追加
   - [_pr/pr-319-stage-seed-input](_pr/pr-319-stage-seed-input/design.md)
 - [ ] リセット時に盤面ごと初期状態へ戻す
+- [ ] ギミック: 障害物を排除する仕組みの検討
+  - (_pr/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
 - [ ] 履歴: 手数の記録と表示
   - 手数はリセットをまたいで通算
   - リセット自体も履歴へ追加（検討）
