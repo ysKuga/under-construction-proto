@@ -8,7 +8,7 @@ import { FogState, FogStore, FogStoreOptions } from './types'
 const cellKey = (cell: HexCell): string => `${cell.q},${cell.r}`
 
 /** cell 自身とその6近傍（視界）を列挙する */
-const visibleAreaOf = (cell: HexCell): HexCell[] => [
+export const visibleAreaOf = (cell: HexCell): HexCell[] => [
   cell,
   ...HEX_DIRECTIONS.map((direction) => ({
     q: cell.q + direction.q,

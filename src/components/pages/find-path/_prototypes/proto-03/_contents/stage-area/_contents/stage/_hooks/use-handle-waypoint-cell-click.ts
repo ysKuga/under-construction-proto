@@ -5,6 +5,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { canEnterForPath } from '../../../../../_lib/can-enter-for-path'
 import { findHexPathViaWaypoints } from '../../../../../_lib/find-hex-path-via-waypoints'
 import { isSameCell } from '../../../../../_lib/is-same-cell'
@@ -28,6 +29,7 @@ export const useHandleWaypointCellClick =
     const waypoints = useWaypointFlowStore((state) => state.waypoints)
     const waypointFlowStoreApi = useWaypointFlowStoreApi()
     const addNotification = useNotifications((state) => state.addNotification)
+    const stageLayout = useStageLayout()
 
     return useCallback(
       (cell: HexCell) => {
@@ -52,7 +54,7 @@ export const useHandleWaypointCellClick =
             objectiveCell,
             GRID.cols,
             GRID.rows,
-            canEnterForPath,
+            (from, to) => canEnterForPath(from, to, stageLayout),
           )
 
         if (!path) {
@@ -71,6 +73,7 @@ export const useHandleWaypointCellClick =
         addNotification,
         currentCell,
         objectiveCell,
+        stageLayout,
         waypointFlowStoreApi,
         waypoints,
       ],

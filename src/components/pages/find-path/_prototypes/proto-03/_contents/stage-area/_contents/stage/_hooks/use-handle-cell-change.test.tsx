@@ -7,6 +7,8 @@ import {
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
+import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
+import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'
 import {
   CarriedItemStoreProvider,
   useCarriedItemStoreApi,
@@ -41,19 +43,21 @@ const CHARGE_SPOT: ItemInstance = {
 }
 
 const createWrapper = (capacity?: number) => (props: PropsWithChildren) => (
-  <EnergyStoreProvider>
-    <CarriedItemStoreProvider capacity={capacity}>
-      <ItemStoreProvider initialItems={[CHARGE_ITEM, CHARGE_SPOT]}>
-        <FogStoreProvider initialMode="all-visible">
-          <WaypointFlowStoreProvider>
-            <EnergySettingsStoreProvider>
-              <GoalStoreProvider>{props.children}</GoalStoreProvider>
-            </EnergySettingsStoreProvider>
-          </WaypointFlowStoreProvider>
-        </FogStoreProvider>
-      </ItemStoreProvider>
-    </CarriedItemStoreProvider>
-  </EnergyStoreProvider>
+  <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
+    <EnergyStoreProvider>
+      <CarriedItemStoreProvider capacity={capacity}>
+        <ItemStoreProvider initialItems={[CHARGE_ITEM, CHARGE_SPOT]}>
+          <FogStoreProvider initialMode="all-visible">
+            <WaypointFlowStoreProvider>
+              <EnergySettingsStoreProvider>
+                <GoalStoreProvider>{props.children}</GoalStoreProvider>
+              </EnergySettingsStoreProvider>
+            </WaypointFlowStoreProvider>
+          </FogStoreProvider>
+        </ItemStoreProvider>
+      </CarriedItemStoreProvider>
+    </EnergyStoreProvider>
+  </StageLayoutProvider>
 )
 
 const renderHandleCellChange = (capacity?: number) =>

@@ -6,7 +6,7 @@ import {
   hexCellCenter,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
-import { GOAL_POSITION } from '../../constants'
+import { useStageLayout } from '../../_contexts/stage-layout'
 
 type GoalMarkerLayerProps = {
   /** 列数 */
@@ -27,8 +27,8 @@ type GoalMarkerLayerProps = {
 /**
  * ゴールセルの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。`GOAL_POSITION`
- *   (axial) のセル中心へマーカーを表示するだけの非対話層
+ * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
+ *   ゴール (axial) のセル中心へマーカーを表示するだけの非対話層
  * - 座標計算は `GeoLayer`/`ActorsLayer` と同じ `computeHexGridBounds`/`hexCellCenter`
  *   を共有し、見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す
@@ -43,8 +43,10 @@ type GoalMarkerLayerProps = {
 export const GoalMarkerLayer = memo((props: GoalMarkerLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
+  const { goal } = useStageLayout()
+
   const bounds = computeHexGridBounds(cols, rows, hexSize)
-  const center = hexCellCenter(GOAL_POSITION, hexSize, bounds)
+  const center = hexCellCenter(goal, hexSize, bounds)
 
   const style: CSSProperties = {
     alignItems: 'center',
@@ -62,10 +64,7 @@ export const GoalMarkerLayer = memo((props: GoalMarkerLayerProps) => {
   }
 
   return (
-    <div
-      ref={(el) => registerVisibilityNode?.(GOAL_POSITION, el)}
-      style={style}
-    >
+    <div ref={(el) => registerVisibilityNode?.(goal, el)} style={style}>
       🚩
     </div>
   )

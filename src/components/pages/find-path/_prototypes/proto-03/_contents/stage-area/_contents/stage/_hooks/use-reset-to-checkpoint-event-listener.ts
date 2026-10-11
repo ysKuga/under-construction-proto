@@ -7,12 +7,12 @@ import {
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
 
+import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { useStage07HandleRef } from '../../../../../_contexts/stage07-handle'
 import { useFindPathEventListener } from '../../../../../_events'
 import { useFogStoreApi } from '../../../../../_stores/fog'
 import { usePlayerActivityStoreApi } from '../../../../../_stores/player-activity'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
-import { START_POSITION } from '../../../../../constants'
 
 /**
  * チェックポイント（開始位置）へのリセットを受け付け、player の位置・EN を戻す
@@ -30,6 +30,7 @@ export const useResetToCheckpointEventListener = (): void => {
   const fogStoreApi = useFogStoreApi()
   const playerActivityStoreApi = usePlayerActivityStoreApi()
   const stage07HandleRef = useStage07HandleRef()
+  const stageLayout = useStageLayout()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   /** player が移動中か */
   const isMovingRef = useRef(false)
@@ -72,8 +73,8 @@ export const useResetToCheckpointEventListener = (): void => {
 
     // ワープ先の到達で自動移動が進まないよう、ワープより先に目標・中継点を消す
     waypointFlowStoreApi.getState().clear()
-    stage07HandleRef.current?.warp(START_POSITION)
-    fogStoreApi.getState().markVisited(START_POSITION)
+    stage07HandleRef.current?.warp(stageLayout.start)
+    fogStoreApi.getState().markVisited(stageLayout.start)
 
     await energyDispatch['Energy-charge']({
       actorId: PLAYER_ACTOR_ID,

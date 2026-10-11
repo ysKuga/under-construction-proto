@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
+import { DEFAULT_STAGE_LAYOUT } from '../_contexts/stage-layout/constants'
 import { createItemStore } from '../_stores/items/store'
 import { ItemInstance } from '../_stores/items/types'
-import { OBSTACLE_CELLS } from '../constants'
 
 import { getCellContents } from './get-cell-contents'
 
@@ -16,23 +16,29 @@ const CHARGE_ITEM: ItemInstance = {
 test('障害物セルは obstacle を返す', () => {
   const store = createItemStore([])
 
-  expect(getCellContents(OBSTACLE_CELLS[0], store.getState())).toEqual([
-    { kind: 'obstacle' },
-  ])
+  expect(
+    getCellContents(
+      DEFAULT_STAGE_LAYOUT.obstacles[0],
+      store.getState(),
+      DEFAULT_STAGE_LAYOUT,
+    ),
+  ).toEqual([{ kind: 'obstacle' }])
 })
 
 test('アイテムのあるセルは item を返す', () => {
   const store = createItemStore([CHARGE_ITEM])
 
-  expect(getCellContents({ q: 0, r: 1 }, store.getState())).toEqual([
-    { item: CHARGE_ITEM, kind: 'item' },
-  ])
+  expect(
+    getCellContents({ q: 0, r: 1 }, store.getState(), DEFAULT_STAGE_LAYOUT),
+  ).toEqual([{ item: CHARGE_ITEM, kind: 'item' }])
 })
 
 test('何もないセルは空配列を返す', () => {
   const store = createItemStore([])
 
-  expect(getCellContents({ q: 4, r: 4 }, store.getState())).toEqual([])
+  expect(
+    getCellContents({ q: 4, r: 4 }, store.getState(), DEFAULT_STAGE_LAYOUT),
+  ).toEqual([])
 })
 
 test('消費済みアイテムは返さない', () => {
@@ -40,5 +46,7 @@ test('消費済みアイテムは返さない', () => {
 
   store.getState().consumeItem('item-1')
 
-  expect(getCellContents({ q: 0, r: 1 }, store.getState())).toEqual([])
+  expect(
+    getCellContents({ q: 0, r: 1 }, store.getState(), DEFAULT_STAGE_LAYOUT),
+  ).toEqual([])
 })

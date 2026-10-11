@@ -7,8 +7,9 @@ import {
   hexCellCenter,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
-import { OneWayDirection, OPPOSITE_DIRECTION } from '../../_lib/one-way'
-import { ONE_WAY_CELLS } from '../../constants'
+import { useStageLayout } from '../../_contexts/stage-layout'
+import { OneWayDirection } from '../../_contexts/stage-layout/types'
+import { OPPOSITE_DIRECTION } from '../../_lib/one-way'
 
 type OneWayLayerProps = {
   /** 列数 */
@@ -57,8 +58,8 @@ const hexVertex = (index: number, hexSize: number) => {
 /**
  * 一方通行セルの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。`ONE_WAY_CELLS`
- *   の各セルへ進入禁止方向（退出方向の反対側）の辺だけバリア線を引く非対話層
+ * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
+ *   一方通行の各セルへ進入禁止方向（退出方向の反対側）の辺だけバリア線を引く非対話層
  * - 矢印表示（退出方向を指す）は「その方向にしか行けない」ように見え、実際の判定
  *   （進入方向が退出方向の逆のときだけ拒否。それ以外は自由に出入り可）と見た目が
  *   食い違うため不採用（issue #137 検討。proto-01 `_components/one-way-layer` と同じ方針）
@@ -72,11 +73,13 @@ const hexVertex = (index: number, hexSize: number) => {
 export const OneWayLayer = memo((props: OneWayLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
+  const { oneWays } = useStageLayout()
+
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   return (
     <>
-      {ONE_WAY_CELLS.map((cell) => {
+      {oneWays.map((cell) => {
         const center = hexCellCenter(cell, hexSize, bounds)
         const blockedDirection = OPPOSITE_DIRECTION[cell.exitDirection]
         const [i1, i2] = BARRIER_VERTEX_PAIR[blockedDirection]

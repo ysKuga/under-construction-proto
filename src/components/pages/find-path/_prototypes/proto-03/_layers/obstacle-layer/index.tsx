@@ -7,7 +7,7 @@ import {
   hexCellCenter,
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
-import { OBSTACLE_CELLS } from '../../constants'
+import { useStageLayout } from '../../_contexts/stage-layout'
 
 type ObstacleLayerProps = {
   /** 列数 */
@@ -35,8 +35,8 @@ const UPRIGHT_STYLE: CSSProperties = {
 /**
  * 障害物セルの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。`OBSTACLE_CELLS`
- *   (axial) のセルを塗りつぶすだけの非対話層
+ * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
+ *   障害物 (axial) のセルを塗りつぶすだけの非対話層
  * - 座標計算は `GeoLayer`/`ActorsLayer` と同じ `computeHexGridBounds`/`hexCellCenter`
  *   を共有し、見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。選択拒否自体は
@@ -52,11 +52,13 @@ const UPRIGHT_STYLE: CSSProperties = {
 export const ObstacleLayer = memo((props: ObstacleLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
+  const { obstacles } = useStageLayout()
+
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   return (
     <>
-      {OBSTACLE_CELLS.map((cell) => {
+      {obstacles.map((cell) => {
         const center = hexCellCenter(cell, hexSize, bounds)
 
         const style: CSSProperties = {

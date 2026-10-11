@@ -5,6 +5,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { useFindPathEventDispatcher } from '../../../../../_events'
 import { canEnterForPath } from '../../../../../_lib/can-enter-for-path'
 import { findHexPathViaWaypoints } from '../../../../../_lib/find-hex-path-via-waypoints'
@@ -32,6 +33,7 @@ export const useHandleNonAdjacentClick =
     const waypointFlowStoreApi = useWaypointFlowStoreApi()
     const addNotification = useNotifications((state) => state.addNotification)
     const findPathEventDispatcher = useFindPathEventDispatcher()
+    const stageLayout = useStageLayout()
 
     return useCallback(
       async (cell: HexCell) => {
@@ -67,7 +69,7 @@ export const useHandleNonAdjacentClick =
           cell,
           GRID.cols,
           GRID.rows,
-          canEnterForPath,
+          (from, to) => canEnterForPath(from, to, stageLayout),
         )
 
         // 到達不能: 通知し、前の目標も消す
@@ -89,6 +91,7 @@ export const useHandleNonAdjacentClick =
         addNotification,
         currentCell,
         findPathEventDispatcher,
+        stageLayout,
         waypointFlowStoreApi,
       ],
     )
