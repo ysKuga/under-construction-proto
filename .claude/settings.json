@@ -47,7 +47,8 @@
       "Bash(mkdir -p *)",
       "Bash(echo \"exit: $?\")",
       "Bash(python3 -I .claude/skills/steering-close/scripts/move-and-relink.py *)",
-      "Bash(python3 -I -B .claude/scripts/extract-branch-log.py *)"
+      "Bash(python3 -I -B .claude/scripts/extract-branch-log.py *)",
+      "Bash(python3 -I -B .claude/scripts/replace-in-files.py *)"
     ],
     "additionalDirectories": ["./src"]
   },

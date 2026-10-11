@@ -120,6 +120,19 @@ export const reducePointerState = (
 
 @.claude/rules/naming-consistency.md
 
+## 複数ファイルの一括置換
+
+複数ファイルへまたがる文字列置換(import 切替等)、python ヒアドキュメントで置換関数を都度書かず `.claude/scripts/replace-in-files.py` 使用。
+
+```bash
+python3 -I -B .claude/scripts/replace-in-files.py - <<'EOF'
+{"path/to/a.ts": [["置換前", "置換後"]]}
+EOF
+```
+
+- 置換前文字列が1つでも見つからなければ、全ファイル未変更で失敗
+- 同一ファイル内の置換は記述順に適用
+
 ## テスト実行
 
 一時検証テスト(`__verify__.test.tsx` 等)実行時、標準 `vitest.config.ts` 使用可。setupFiles 外した一時 config 作成不要。
