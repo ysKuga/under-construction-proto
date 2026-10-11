@@ -9,6 +9,8 @@ import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-target'
 import { ResetProvider } from './_contexts/reset'
+import { StageLayoutProvider } from './_contexts/stage-layout'
+import { DEFAULT_STAGE_LAYOUT } from './_contexts/stage-layout/constants'
 import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
 import { FindPathEventProvider } from './_events'
@@ -22,27 +24,22 @@ import { ItemStoreProvider } from './_stores/items'
 import { ItemInstance } from './_stores/items/types'
 import { PlayerActivityStoreProvider } from './_stores/player-activity'
 import { WaypointFlowStoreProvider } from './_stores/waypoint-flow'
-import {
-  CHARGE_ITEM_CELLS,
-  CHARGE_SPOT_CELLS,
-  START_POSITION,
-} from './constants'
 import { FindPathProto03Props } from './index.types'
 
 /**
- * 初期配置するアイテム一覧（`CHARGE_ITEM_CELLS`/`CHARGE_SPOT_CELLS` から組み立てる）
+ * 初期配置するアイテム一覧（盤面配置の `items`/`spots` から組み立てる）
  *
  * - EN 補給アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
  *   （指定回数で枯渇しうる）で区別する（proto-01 と同型）
  */
 const INITIAL_ITEMS: ItemInstance[] = [
-  ...CHARGE_ITEM_CELLS.map((cell, index): ItemInstance => ({
+  ...DEFAULT_STAGE_LAYOUT.items.map((cell, index): ItemInstance => ({
     amount: cell.amount,
     cell: { q: cell.q, r: cell.r },
     id: `charge-item-${index}`,
     kind: 'energy-charge',
   })),
-  ...CHARGE_SPOT_CELLS.map((cell, index): ItemInstance => ({
+  ...DEFAULT_STAGE_LAYOUT.spots.map((cell, index): ItemInstance => ({
     amount: cell.amount,
     cell: { q: cell.q, r: cell.r },
     id: `charge-spot-${index}`,
@@ -65,6 +62,8 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  *     （EN スポットで補給中の操作を拒否する listener が行為 store を参照するため）
  *   - `VisibilityRegistryProvider` は `FogStoreProvider` の内側に置く\
  *     （fog store を購読するため）
+ *   - `FogStoreProvider` は `StageLayoutProvider` の内側に置く\
+ *     （霧セル・視界の初期中心を盤面配置から決めるため）
  * - リセット（境界値テスト用、issue #181）: 最外の `ResetProvider`（`_contexts/reset`）が
  *   配下の Provider 群（position 含む）へ `key` を付け、`reset` で丸ごと再マウントする
  *   （proto-01 と同じ方式）。表示設定・霧のモード含め全 store が初期状態へ戻る
@@ -86,41 +85,45 @@ export const FindPathProto03Providers = (
 
   return (
     <ResetProvider>
-      <EnergyStoreProvider>
-        <CarriedItemStoreProvider>
-          <PlayerActivityStoreProvider>
-            <FindPathEventProvider>
-              <ItemStoreProvider initialItems={INITIAL_ITEMS}>
-                <ActorsStoreProvider
-                  initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}
-                >
-                  <Stage07EventProvider>
-                    <FogStoreProvider initialMode={initialFogMode}>
-                      <VisibilityRegistryProvider>
-                        <FollowPathStoreProvider>
-                          <WaypointFlowStoreProvider>
-                            <DisplaySettingsStoreProvider>
-                              <EnergySettingsStoreProvider>
-                                <GoalStoreProvider>
-                                  <Stage07HandleProvider>
-                                    <PlayerActorEventTargetProvider>
-                                      {children}
-                                    </PlayerActorEventTargetProvider>
-                                  </Stage07HandleProvider>
-                                </GoalStoreProvider>
-                              </EnergySettingsStoreProvider>
-                            </DisplaySettingsStoreProvider>
-                          </WaypointFlowStoreProvider>
-                        </FollowPathStoreProvider>
-                      </VisibilityRegistryProvider>
-                    </FogStoreProvider>
-                  </Stage07EventProvider>
-                </ActorsStoreProvider>
-              </ItemStoreProvider>
-            </FindPathEventProvider>
-          </PlayerActivityStoreProvider>
-        </CarriedItemStoreProvider>
-      </EnergyStoreProvider>
+      <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
+        <EnergyStoreProvider>
+          <CarriedItemStoreProvider>
+            <PlayerActivityStoreProvider>
+              <FindPathEventProvider>
+                <ItemStoreProvider initialItems={INITIAL_ITEMS}>
+                  <ActorsStoreProvider
+                    initialActors={{
+                      [PLAYER_ACTOR_ID]: DEFAULT_STAGE_LAYOUT.start,
+                    }}
+                  >
+                    <Stage07EventProvider>
+                      <FogStoreProvider initialMode={initialFogMode}>
+                        <VisibilityRegistryProvider>
+                          <FollowPathStoreProvider>
+                            <WaypointFlowStoreProvider>
+                              <DisplaySettingsStoreProvider>
+                                <EnergySettingsStoreProvider>
+                                  <GoalStoreProvider>
+                                    <Stage07HandleProvider>
+                                      <PlayerActorEventTargetProvider>
+                                        {children}
+                                      </PlayerActorEventTargetProvider>
+                                    </Stage07HandleProvider>
+                                  </GoalStoreProvider>
+                                </EnergySettingsStoreProvider>
+                              </DisplaySettingsStoreProvider>
+                            </WaypointFlowStoreProvider>
+                          </FollowPathStoreProvider>
+                        </VisibilityRegistryProvider>
+                      </FogStoreProvider>
+                    </Stage07EventProvider>
+                  </ActorsStoreProvider>
+                </ItemStoreProvider>
+              </FindPathEventProvider>
+            </PlayerActivityStoreProvider>
+          </CarriedItemStoreProvider>
+        </EnergyStoreProvider>
+      </StageLayoutProvider>
     </ResetProvider>
   )
 }

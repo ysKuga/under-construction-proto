@@ -1,13 +1,8 @@
-import { HEX_DIRECTIONS, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
-
 /** グリッド形状 */
 export const GRID = { cols: 5, rows: 5 } as const
 
 /** 六角形の外接円半径 (px) */
 export const HEX_SIZE = 40
-
-/** bot の初期セル（axial 原点） */
-export const START_POSITION: HexCell = { q: 0, r: 0 }
 
 /**
  * 目標セルのオーバーレイアンカーを actors store へ登録する際の擬似 id
@@ -17,59 +12,8 @@ export const START_POSITION: HexCell = { q: 0, r: 0 }
  */
 export const OBJECTIVE_OVERLAY_ID = 'objective'
 
-/** ゴールセル */
-export const GOAL_POSITION: HexCell = { q: 3, r: 2 }
-
-/** 障害物セル一覧（通行不可） */
-export const OBSTACLE_CELLS: readonly HexCell[] = [
-  { q: 1, r: 0 },
-  { q: 2, r: 1 },
-  { q: 3, r: 0 },
-]
-
-/** 一方通行セル一覧（退出方向固定。exitDirection の逆方向からの進入を拒否） */
-export const ONE_WAY_CELLS = [
-  { exitDirection: 'right', q: 1, r: 3 },
-  { exitDirection: 'lower-left', q: 4, r: 0 },
-] as const
-
-/**
- * EN 補給アイテム一覧（踏むと携行、使用で補給、1個ずつ使い切り）
- *
- * - 配置・補給量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
- * - `(1,1)`: 当初 `(0,1)` だったが、START `(0,0)` の隣接セルで実際に表示される
- *   のは障害物 `(1,0)` とこのマスのみ（座標変換の関係で他の隣接は画面外）だった
- *   ため、EN デバッグ操作で EN 切れを作ろうとしても必ず EN 補給アイテムを踏んでしまい
- *   検証できなかった。START 隣接から外すため移動（issue-181-en）
- */
-export const CHARGE_ITEM_CELLS = [{ amount: 3, q: 1, r: 1 }] as const
-
-/**
- * EN スポット一覧（停止中に使用して補給、残量が尽きると枯渇する）
- *
- * - `amount` は 1 回の補給あたりの補給量、`stock` は残りの補給回数（issue #297）
- * - 配置・残量は仮値（issue-181-en design.md 懸念・リスク、後日バランス調整）
- */
-export const CHARGE_SPOT_CELLS = [
-  { amount: 1, q: 0, r: 3, stock: 4 },
-] as const
-
 /** EN スポットでの 1 回の補給あたりの所要時間（ms。issue #297） */
 export const ENERGY_SPOT_CHARGE_INTERVAL_MS = 300
 
 /** EN スポットでの補給の完了（「補給完了！」）を表示し続ける時間（ms。issue #297） */
 export const ENERGY_SPOT_CHARGED_NOTICE_MS = 1500
-
-/**
- * 初期表示モード `partial` で霧（非表示対象）とするセル一覧
- *
- * - ゴールとその6近傍（仮の領域。issue #137）
- * - 霧セル以外は常時表示する
- */
-export const PARTIAL_FOG_CELLS: readonly HexCell[] = [
-  GOAL_POSITION,
-  ...HEX_DIRECTIONS.map((direction) => ({
-    q: GOAL_POSITION.q + direction.q,
-    r: GOAL_POSITION.r + direction.r,
-  })),
-]

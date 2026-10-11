@@ -12,6 +12,8 @@ import {
   useStage07EventDispatcher,
 } from '@/prototypes/stage/stage-07/_events'
 
+import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
+import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'
 import {
   Stage07HandleProvider,
   useStage07HandleRef,
@@ -27,28 +29,31 @@ import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
 } from '../../../../../_stores/waypoint-flow'
-import { START_POSITION } from '../../../../../constants'
 
 import { useResetToCheckpointEventListener } from './use-reset-to-checkpoint-event-listener'
 
 vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
-  <EnergyStoreProvider>
-    <CarriedItemStoreProvider>
-      <PlayerActivityStoreProvider>
-        <FindPathEventProvider>
-          <Stage07EventProvider>
-            <FogStoreProvider initialMode="all-hidden">
-              <WaypointFlowStoreProvider>
-                <Stage07HandleProvider>{props.children}</Stage07HandleProvider>
-              </WaypointFlowStoreProvider>
-            </FogStoreProvider>
-          </Stage07EventProvider>
-        </FindPathEventProvider>
-      </PlayerActivityStoreProvider>
-    </CarriedItemStoreProvider>
-  </EnergyStoreProvider>
+  <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
+    <EnergyStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>
+            <Stage07EventProvider>
+              <FogStoreProvider initialMode="all-hidden">
+                <WaypointFlowStoreProvider>
+                  <Stage07HandleProvider>
+                    {props.children}
+                  </Stage07HandleProvider>
+                </WaypointFlowStoreProvider>
+              </FogStoreProvider>
+            </Stage07EventProvider>
+          </FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </EnergyStoreProvider>
+  </StageLayoutProvider>
 )
 
 const setupResetToCheckpoint = () => {
@@ -94,8 +99,8 @@ describe('useResetToCheckpointEventListener', () => {
     })
 
     expect(waypointFlow.getState().flowState).toBe('idle')
-    expect(warp).toHaveBeenCalledWith(START_POSITION)
-    expect(fog.getState().currentCell).toEqual(START_POSITION)
+    expect(warp).toHaveBeenCalledWith(DEFAULT_STAGE_LAYOUT.start)
+    expect(fog.getState().currentCell).toEqual(DEFAULT_STAGE_LAYOUT.start)
     expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(max)
   })
 
@@ -128,6 +133,6 @@ describe('useResetToCheckpointEventListener', () => {
         findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
       ).resolves.toBe(true)
     })
-    expect(warp).toHaveBeenCalledWith(START_POSITION)
+    expect(warp).toHaveBeenCalledWith(DEFAULT_STAGE_LAYOUT.start)
   })
 })

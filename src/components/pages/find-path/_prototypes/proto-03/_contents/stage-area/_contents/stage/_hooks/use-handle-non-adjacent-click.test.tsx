@@ -8,6 +8,8 @@ import {
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
+import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'
 import {
   FindPathEventProvider,
   useFindPathEventListener,
@@ -24,21 +26,23 @@ import { useHandleNonAdjacentClick } from './use-handle-non-adjacent-click'
 vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
-  <EnergyStoreProvider>
-    <CarriedItemStoreProvider>
-      <PlayerActivityStoreProvider>
-        <FindPathEventProvider>
-          <ActorsStoreProvider
-            initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
-          >
-            <WaypointFlowStoreProvider>
-              {props.children}
-            </WaypointFlowStoreProvider>
-          </ActorsStoreProvider>
-        </FindPathEventProvider>
-      </PlayerActivityStoreProvider>
-    </CarriedItemStoreProvider>
-  </EnergyStoreProvider>
+  <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
+    <EnergyStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>
+            <ActorsStoreProvider
+              initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+            >
+              <WaypointFlowStoreProvider>
+                {props.children}
+              </WaypointFlowStoreProvider>
+            </ActorsStoreProvider>
+          </FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </EnergyStoreProvider>
+  </StageLayoutProvider>
 )
 
 const renderHandler = (onShakeBotBubble = vi.fn<() => void>()) =>

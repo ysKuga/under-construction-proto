@@ -5,9 +5,9 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { createStoreContext } from '@/stores/utils/create-store-context'
 
-import { PARTIAL_FOG_CELLS, START_POSITION } from '../../constants'
+import { useStageLayout } from '../../_contexts/stage-layout'
 
-import { createFogStore } from './store'
+import { createFogStore, visibleAreaOf } from './store'
 import { FogMode, FogState } from './types'
 
 const { StoreContext, useStoreApi, useStoreSelector } =
@@ -24,16 +24,20 @@ type FogStoreProviderProps = PropsWithChildren<{
 /**
  * Fog store を生成し Context 経由で配布する
  *
- * - 霧セル（`partial`）は `PARTIAL_FOG_CELLS`、視界の初期中心は `START_POSITION` に固定
+ * - 盤面配置（`StageLayoutProvider`）から霧セル・視界の初期中心を決める
+ *   - 霧セル（`partial`）: ゴールとその6近傍（仮の領域。issue #137）
+ *   - 視界の初期中心: 開始位置
  */
 export const FogStoreProvider = (props: FogStoreProviderProps) => {
   const { children, initialMode } = props
 
+  const { goal, start } = useStageLayout()
+
   const [fogStore] = useState(() =>
     createFogStore({
       initialMode,
-      partialFogCells: PARTIAL_FOG_CELLS,
-      startCell: START_POSITION,
+      partialFogCells: visibleAreaOf(goal),
+      startCell: start,
     }),
   )
 

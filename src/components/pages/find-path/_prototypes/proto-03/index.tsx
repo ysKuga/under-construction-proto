@@ -47,7 +47,7 @@ import { FindPathProto03Props } from './index.types'
  *   その場で停止し、トーストで警告する
 
  * - 霧の適用範囲（初期表示）は「初期表示」select でプレイ中に切替可能。初期値は
- *   `initialFogMode`（既定 `all-hidden`）。`partial` の霧セルは `PARTIAL_FOG_CELLS`
+ *   `initialFogMode`（既定 `all-hidden`）。`partial` の霧セルはゴールとその6近傍
  * - 確認ダイアログは対象外（別途検討）
  * - 歩行モーション（`Stage07` の `enableWalking`）はチェックボックスで切替可能（既定 ON）。
  *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、

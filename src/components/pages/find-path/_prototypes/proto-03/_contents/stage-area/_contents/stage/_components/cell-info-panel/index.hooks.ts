@@ -3,6 +3,7 @@ import { term } from '@/features/term-registry'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { useStageLayout } from '../../../../../../_contexts/stage-layout'
 import { describeCellContent } from '../../../../../../_lib/describe-cell-content'
 import { getCellContents } from '../../../../../../_lib/get-cell-contents'
 import { isSameCell } from '../../../../../../_lib/is-same-cell'
@@ -11,7 +12,6 @@ import { useGoalStore } from '../../../../../../_stores/goal'
 import { useItemStore } from '../../../../../../_stores/items'
 import { CellContent } from '../../../../../../_stores/items/types'
 import { useWaypointFlowStore } from '../../../../../../_stores/waypoint-flow'
-import { GOAL_POSITION } from '../../../../../../constants'
 
 import { useHoveredCell } from './_hooks/use-hovered-cell'
 import { CellInfoEntry, UseCellInfoPanelReturn } from './index.types'
@@ -48,6 +48,7 @@ const toCellInfoEntry = (content: CellContent): CellInfoEntry =>
 export const useCellInfoPanel = (): UseCellInfoPanelReturn => {
   const { hoveredCell } = useHoveredCell()
   const itemState = useItemStore((state) => state)
+  const stageLayout = useStageLayout()
   /** 経路提示中の目標セル（中継点選択中などキャンセル不可の状態では `undefined`） */
   const cancelableObjectiveCell = useWaypointFlowStore((state) =>
     state.flowState === 'proposing' ? state.objectiveCell : undefined,
@@ -88,7 +89,7 @@ export const useCellInfoPanel = (): UseCellInfoPanelReturn => {
     : undefined
   /** ゴールの表示要素（hover 中セルがゴールでなければ `undefined`） */
   const goalEntry: CellInfoEntry | undefined = isSameCell(
-    GOAL_POSITION,
+    stageLayout.goal,
     hoveredCell,
   )
     ? {
@@ -108,7 +109,9 @@ export const useCellInfoPanel = (): UseCellInfoPanelReturn => {
     entries: [
       botEntry,
       goalEntry,
-      ...getCellContents(hoveredCell, itemState).map(toCellInfoEntry),
+      ...getCellContents(hoveredCell, itemState, stageLayout).map(
+        toCellInfoEntry,
+      ),
     ].filter((entry) => entry !== undefined),
     hint: isCancelableObjective ? OBJECTIVE_CANCEL_HINT : undefined,
     hoveredCell,

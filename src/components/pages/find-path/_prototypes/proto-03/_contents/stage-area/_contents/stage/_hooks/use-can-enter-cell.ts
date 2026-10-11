@@ -5,6 +5,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { isObstacleCell } from '../../../../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../../../../_lib/one-way'
 import { EnterGuard, UseStageReturn } from '../index.types'
@@ -22,6 +23,7 @@ export const useCanEnterCell = (): Pick<
   'canEnterCell' | 'canEnterCellPerceived'
 > => {
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
+  const stageLayout = useStageLayout()
   /** EN 残量があるか */
   const hasEnergy = useEnergyStore(
     (state) => state.getEnergyInfo(PLAYER_ACTOR_ID).current > 0,
@@ -29,13 +31,16 @@ export const useCanEnterCell = (): Pick<
 
   const enterGuards: EnterGuard[] = useMemo(
     () => [
-      { check: (cell) => !isObstacleCell(cell), kind: 'perceived' },
       {
-        check: (cell) => !isBlockedByOneWay(currentCell, cell),
+        check: (cell) => !isObstacleCell(cell, stageLayout),
+        kind: 'perceived',
+      },
+      {
+        check: (cell) => !isBlockedByOneWay(currentCell, cell, stageLayout),
         kind: 'perceived',
       },
     ],
-    [currentCell],
+    [currentCell, stageLayout],
   )
 
   const canEnterCellPerceived = useCallback(

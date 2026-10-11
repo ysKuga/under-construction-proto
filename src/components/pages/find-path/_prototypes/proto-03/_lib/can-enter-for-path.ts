@@ -1,5 +1,7 @@
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+import { StageLayout } from '../_contexts/stage-layout/types'
+
 import { isObstacleCell } from './obstacle'
 import { isBlockedByOneWay } from './one-way'
 
@@ -15,6 +17,11 @@ import { isBlockedByOneWay } from './one-way'
  *
  * @param from 移動元セル
  * @param to 移動先セル
+ * @param stageLayout 盤面配置
  */
-export const canEnterForPath = (from: HexCell, to: HexCell): boolean =>
-  !isObstacleCell(to) && !isBlockedByOneWay(from, to)
+export const canEnterForPath = (
+  from: HexCell,
+  to: HexCell,
+  stageLayout: Pick<StageLayout, 'obstacles' | 'oneWays'>,
+): boolean =>
+  !isObstacleCell(to, stageLayout) && !isBlockedByOneWay(from, to, stageLayout)

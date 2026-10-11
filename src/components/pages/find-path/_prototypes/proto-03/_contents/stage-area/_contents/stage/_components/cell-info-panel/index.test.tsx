@@ -15,6 +15,8 @@ import {
   useActorsStoreApi,
 } from '@/prototypes/stage/stage-07/_stores/actors'
 
+import { StageLayoutProvider } from '../../../../../../_contexts/stage-layout'
+import { DEFAULT_STAGE_LAYOUT } from '../../../../../../_contexts/stage-layout/constants'
 import { GoalStoreProvider, useGoalStore } from '../../../../../../_stores/goal'
 import { ItemStoreProvider } from '../../../../../../_stores/items'
 import { ItemInstance } from '../../../../../../_stores/items/types'
@@ -22,11 +24,6 @@ import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
 } from '../../../../../../_stores/waypoint-flow'
-import {
-  GOAL_POSITION,
-  OBSTACLE_CELLS,
-  START_POSITION,
-} from '../../../../../../constants'
 
 import { OBJECTIVE_CANCEL_HINT, useCellInfoPanel } from './index.hooks'
 
@@ -41,18 +38,22 @@ const SPOT: ItemInstance = {
   stock: 2,
 }
 
+const { goal, obstacles, start } = DEFAULT_STAGE_LAYOUT
+
 const Wrapper = (props: PropsWithChildren) => (
-  <EnergyStoreProvider>
-    <ActorsStoreProvider initialActors={{ [PLAYER_ACTOR_ID]: START_POSITION }}>
-      <Stage07EventProvider>
-        <ItemStoreProvider initialItems={[SPOT]}>
-          <WaypointFlowStoreProvider>
-            <GoalStoreProvider>{props.children}</GoalStoreProvider>
-          </WaypointFlowStoreProvider>
-        </ItemStoreProvider>
-      </Stage07EventProvider>
-    </ActorsStoreProvider>
-  </EnergyStoreProvider>
+  <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
+    <EnergyStoreProvider>
+      <ActorsStoreProvider initialActors={{ [PLAYER_ACTOR_ID]: start }}>
+        <Stage07EventProvider>
+          <ItemStoreProvider initialItems={[SPOT]}>
+            <WaypointFlowStoreProvider>
+              <GoalStoreProvider>{props.children}</GoalStoreProvider>
+            </WaypointFlowStoreProvider>
+          </ItemStoreProvider>
+        </Stage07EventProvider>
+      </ActorsStoreProvider>
+    </EnergyStoreProvider>
+  </StageLayoutProvider>
 )
 
 /** hook の戻り値と描画回数・hover 発行を返す */
@@ -93,7 +94,7 @@ test('hover なしは要素一覧を返さない', () => {
 test('障害物のセルは障害物を返す', async () => {
   const { hover, result } = renderCellInfoPanel()
 
-  await hover(OBSTACLE_CELLS[0])
+  await hover(obstacles[0])
 
   expect(result.current.cellInfoPanel.entries).toEqual([
     expect.objectContaining({ key: 'obstacle' }),
@@ -157,7 +158,7 @@ test('中継点選択中の目標セルには操作ヒントを返さない', as
 test('bot のいるセルは bot と EN を返す', async () => {
   const { hover, result } = renderCellInfoPanel()
 
-  await hover(START_POSITION)
+  await hover(start)
 
   expect(result.current.cellInfoPanel.entries).toEqual([
     expect.objectContaining({ key: 'bot', status: 'EN 10/10' }),
@@ -180,7 +181,7 @@ test('EN スポット上の bot は bot とスポットの両方を返す', asyn
 test('ゴールのセルはゴールと到達状況を返す', async () => {
   const { hover, result } = renderCellInfoPanel()
 
-  await hover(GOAL_POSITION)
+  await hover(goal)
 
   expect(result.current.cellInfoPanel.entries).toEqual([
     expect.objectContaining({ key: 'goal', status: undefined }),

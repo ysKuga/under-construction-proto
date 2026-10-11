@@ -1,10 +1,6 @@
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
-import { ONE_WAY_CELLS } from '../constants'
-
-/** 一方通行セルの退出方向（axial の6近傍、`HEX_DIRECTIONS` と対応） */
-export type OneWayDirection =
-  'left' | 'lower-left' | 'lower-right' | 'right' | 'upper-left' | 'upper-right'
+import { OneWayDirection, StageLayout } from '../_contexts/stage-layout/types'
 
 const DIRECTION_DELTA: Record<OneWayDirection, HexCell> = {
   left: { q: -1, r: 0 },
@@ -28,8 +24,14 @@ export const OPPOSITE_DIRECTION: Record<OneWayDirection, OneWayDirection> = {
 /**
  * a がバリアセルで、b が a の進入禁止方向（退出方向の反対側）にある隣接セルか判定する
  */
-const hasBarrierBetween = (a: HexCell, b: HexCell): boolean => {
-  const oneWay = ONE_WAY_CELLS.find((cell) => cell.q === a.q && cell.r === a.r)
+const hasBarrierBetween = (
+  a: HexCell,
+  b: HexCell,
+  stageLayout: Pick<StageLayout, 'oneWays'>,
+): boolean => {
+  const oneWay = stageLayout.oneWays.find(
+    (cell) => cell.q === a.q && cell.r === a.r,
+  )
 
   if (!oneWay) {
     return false
@@ -45,6 +47,15 @@ const hasBarrierBetween = (a: HexCell, b: HexCell): boolean => {
  *
  * - 一方通行セルの退出方向の反対側の辺には壁があり、跨ぐ移動は方向を問わず\
  *   常に拒否する（decision-records.md 2026-09-16 壁化）
+ *
+ * @param from 移動元セル
+ * @param to 移動先セル
+ * @param stageLayout 盤面配置
  */
-export const isBlockedByOneWay = (from: HexCell, to: HexCell): boolean =>
-  hasBarrierBetween(from, to) || hasBarrierBetween(to, from)
+export const isBlockedByOneWay = (
+  from: HexCell,
+  to: HexCell,
+  stageLayout: Pick<StageLayout, 'oneWays'>,
+): boolean =>
+  hasBarrierBetween(from, to, stageLayout) ||
+  hasBarrierBetween(to, from, stageLayout)
