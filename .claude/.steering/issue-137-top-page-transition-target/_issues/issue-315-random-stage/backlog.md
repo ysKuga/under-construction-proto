@@ -6,7 +6,7 @@
   - 進入禁止の解消のみ [_closed/pr-320-stage-blocker-placement](_closed/pr-320-stage-blocker-placement/design.md) で対応、経路への影響は一旦見送り
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
 - [ ] 生成: EN 込みの到達性検証（アイテム・スポット込みの状態空間探索）
-  - [_pr/pr-322-stage-en-reachability](_pr/pr-322-stage-en-reachability/design.md)
+  - [_pr/pr-322-stage-en-reachability](_closed/pr-322-stage-en-reachability/design.md)
   - (_closed/pr-318-stage-generator/decision-records.md 2026-10-11)
 - [ ] リセット時に盤面ごと初期状態へ戻す
 - [ ] ギミック: 障害物を排除する仕組みの検討
