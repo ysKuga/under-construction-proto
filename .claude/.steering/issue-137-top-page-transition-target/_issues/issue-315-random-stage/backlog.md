@@ -2,6 +2,7 @@
 
 - [ ] 生成: 通行不能箇所（障害物・一方通行）が意味のない箇所に置かれやすい
   - 経路に関与しない位置（盤面の隅等）へ置かれ、パズルとして効いていない
+  - [_pr/pr-320-stage-blocker-placement](_pr/pr-320-stage-blocker-placement/design.md)
 - [ ] 生成: EN 込みの到達性検証（アイテム・スポット込みの状態空間探索）
   - (_closed/pr-318-stage-generator/decision-records.md 2026-10-11)
 - [ ] 組込み: proto-03 へ seed 入力・再生成を追加
