@@ -11,10 +11,12 @@ import {
 import { StageLayout } from '../_contexts/stage-layout/types'
 
 import { canEnterForPath } from './can-enter-for-path'
+import { canReachGoalWithEnergy } from './can-reach-goal-with-energy'
 import { generateStage, GenerateStageParams } from './generate-stage'
 import { isObstacleCell } from './obstacle'
 
 const PARAMS: GenerateStageParams = {
+  energy: { carryCapacity: 3, consumePerMove: 1, current: 10, max: 10 },
   grid: { cols: 5, rows: 5 },
   items: { amount: 3, count: 1 },
   maxAttempts: 100,
@@ -103,6 +105,25 @@ test('障害物以外のセルはすべて開始セルから到達できる', ()
         ),
       ).toBeDefined()
     }
+  }
+})
+
+test('EN が少なくてもアイテム・スポット込みでゴールへ到達できる配置を返す', () => {
+  /** 補給なしでは遠いゴールへ届かない EN */
+  const params = {
+    ...PARAMS,
+    energy: { ...PARAMS.energy, current: 3, max: 3 },
+  }
+  const tightLayouts = Array.from({ length: 50 }, (_, i) =>
+    generateStage(i + 1, params),
+  ).filter((layout) => layout !== undefined)
+
+  expect(tightLayouts.length).toBeGreaterThan(0)
+
+  for (const layout of tightLayouts) {
+    expect(canReachGoalWithEnergy(layout, params.grid, params.energy)).toBe(
+      true,
+    )
   }
 })
 
