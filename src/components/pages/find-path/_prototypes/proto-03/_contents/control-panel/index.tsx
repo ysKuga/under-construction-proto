@@ -44,7 +44,14 @@ export const ControlPanel = () => {
   } = useControlPanel()
 
   return (
-    <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+    <div
+      style={{
+        alignItems: 'center',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}
+    >
       <label>
         初期表示{' '}
         <select
