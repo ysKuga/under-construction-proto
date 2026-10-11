@@ -13,6 +13,10 @@ import {
 } from '../_contexts/stage-layout/types'
 
 import { canEnterForPath } from './can-enter-for-path'
+import {
+  canReachGoalWithEnergy,
+  StageEnergyRule,
+} from './can-reach-goal-with-energy'
 import { createRandom } from './create-random'
 
 /** 一方通行の退出方向の候補 */
@@ -27,6 +31,8 @@ const ONE_WAY_DIRECTIONS: readonly OneWayDirection[] = [
 
 /** 盤面生成の条件 */
 export type GenerateStageParams = {
+  /** EN の条件（ゴールへの到達判定に使う） */
+  energy: StageEnergyRule
   /** グリッド形状 */
   grid: {
     /** 列数 */
@@ -181,7 +187,7 @@ const placeBlocker = (
 /**
  * 乱数で盤面を1つ組み立てる
  *
- * - 開始・ゴールが近すぎる、通行不能箇所を置ききれない場合は `undefined`
+ * - 開始・ゴールが近すぎる、通行不能箇所を置ききれない、EN が足りずゴールへ到達できない場合は `undefined`
  */
 const buildLayout = (
   params: GenerateStageParams,
@@ -245,6 +251,11 @@ const buildLayout = (
     )
   }
 
+  // EN が足りずゴールへ到達できない: 作り直す
+  if (!canReachGoalWithEnergy(layout, params.grid, params.energy)) {
+    return undefined
+  }
+
   return layout
 }
 
@@ -256,7 +267,8 @@ const buildLayout = (
  * - 開始セルとゴールの距離が `minGoalDistance` 未満の配置は捨てて作り直す（issue #315）
  * - 通行不能箇所（障害物・一方通行）は1つずつ置き、進入禁止が生じたら隣接セルへ移し直す（issue #315）
  *   - 障害物以外のセルはすべて開始セルから到達できる（ゴール含む）
- *   - 到達性は障害物・一方通行の壁のみで判定する。EN は考慮しない
+ *   - 進入禁止の判定は障害物・一方通行の壁のみで行う。EN は考慮しない
+ * - EN（アイテム・スポット込み）が足りずゴールへ到達できない配置は捨てて作り直す（issue #315）
  * - `maxAttempts` 回作り直しても条件を満たす配置が得られなければ `undefined`
  * - 要素の総数がグリッドのセル数を超える場合は例外を投げる
  *
