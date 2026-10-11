@@ -2,3 +2,4 @@
 
 - 2026-10-11: 親 #137 の backlog 項目「find-path のステージをランダム生成する」を、複数 PR にわたるため #315 として切り出した（方針は親 decision-records.md 2026-10-11）
 - 2026-10-11: 下準備（`StageLayout` 化）完了（[#316](_closed/pr-316-stage-layout/design.md)）
+- 2026-10-11: 生成（seed 付き乱数と `generateStage`）完了。EN 込みの到達性検証は別項目へ切り出した（[#318](_closed/pr-318-stage-generator/design.md)）
