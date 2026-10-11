@@ -26,10 +26,14 @@ description: プロジェクトの PR ルール(タイトルの issue 番号・�
 push 前に以下を通す。失敗した場合は PR 作成へ進まず報告する。
 
 ```bash
-yarn check-types
-yarn lint
+yarn -s check-types >/dev/null 2>&1; echo "types: $?"
+yarn -s lint >/dev/null 2>&1; echo "lint: $?"
 NEXT_PUBLIC_API_URL=http://localhost:3000 npx vitest run <変更箇所>
 ```
+
+- 型チェック・lint の成否は終了コードで判定する
+  - 成功時は無出力のため、`tail` 等で出力を切り詰めると成否が分からない
+  - 非 0 の場合のみ、リダイレクトを外して再実行しエラー内容を確認する
 
 - UI 変更がある場合、`story-verifier` サブエージェントで Storybook 上の動作を確認する
 
