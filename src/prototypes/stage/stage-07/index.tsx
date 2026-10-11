@@ -53,7 +53,7 @@ export type Stage07Handle = {
    *
    * - 通過マスの到達(`Stage07-cell-reach`)は発行せず、`cell` の到達のみ発行する
    * - 移動成立の通知(`onCellChange`・`Stage07-move-start`/`Stage07-move-stop`)は行わない
-   * - 向きは初期表示時と同じ規則(`pickInitialFacingTarget`)で決める
+   * - 向きは `pickInitialFacingTarget` で選んだ隣接マスへ向ける
    * - 停止中の呼出を前提とする（移動中の歩行・自動移動は止めない）
    */
   warp: (cell: HexCell) => void
@@ -179,8 +179,7 @@ type Stage07Props = PropsWithChildren<{
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
- * - 初期表示時は `pickInitialFacingTarget`(`_lib/hex`) が、現在セル(registry の
- *   初期値)の隣接に進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける（隅セル対策）
+ * - 初期表示時は向きを調整しない（表示後に向きが切り替わって見えるため）
  * - `enableWalking`(既定 `false`)が true のときのみ、移動開始で `walking` action を on
  *   にする（トグル方式のため `isWalkingRef` で on 済みかを追跡）。歩行は到着まで
  *   継続させ、位置決め div の CSS transition 完了（`ActorsLayer` の `onArrived`、
@@ -220,11 +219,11 @@ type Stage07Props = PropsWithChildren<{
  *   固定値)で調整不要とのユーザー判断のため UI なし
  */
 /**
- * 初期表示時の向き(yaw, rad)を返す
+ * ワープ時の向き(yaw, rad)を返す
  *
  * - `pickInitialFacingTarget` で選んだ隣接マスへ向ける。向ける先がなければ `undefined`
  */
-const computeInitialFacingRad = (
+const computeWarpFacingRad = (
   cell: HexCell,
   cols: number,
   rows: number,
@@ -237,8 +236,6 @@ const computeInitialFacingRad = (
 
 /** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
 const WALKING_RESET_DURATION_MS = 200
-/** 初期向き調整の face dispatch を打ち切るまでの最大フレーム数(listener attach 待ち) */
-const INITIAL_FACING_MAX_RETRY_FRAMES = 30
 
 export const Stage07 = (props: Stage07Props) => {
   const {
@@ -296,7 +293,7 @@ export const Stage07 = (props: Stage07Props) => {
 
   /** 歩行 action の on 状態(on 側はトグル方式のため呼び出し側で追跡する) */
   const isWalkingRef = useRef(false)
-  /** 初期向き調整(下記 useEffect)で最新の `face` を読むための ref */
+  /** `warp`(useCallback)で最新の `face` を読むための ref */
   const faceRef = useRef(face)
   /** `handleArrived`(useCallback 依存配列空)で最新の enableWalking を読むための ref */
   const enableWalkingRef = useRef(enableWalking)
@@ -310,35 +307,6 @@ export const Stage07 = (props: Stage07Props) => {
     enableWalkingRef.current = enableWalking
     walkingResetRef.current = walkingReset
   })
-
-  useEffect(() => {
-    // 初期表示時、隣接に進入不可(グリッド範囲外)マスがあれば進入可能マスへ向ける。
-    // マウント時に実行する。box-bot-01 の Canvas(r3f の別レンダラ)側で action の
-    // listener が attach されるまで数フレーム(実測で 8〜9 フレーム程度)かかるため、
-    // INITIAL_FACING_MAX_RETRY_FRAMES フレームの間 rAF で再送し続け、listener attach
-    // 後の 1 回を確実に届ける(絶対角度指定の dispatch のため、attach 済み以降の
-    // 重複送信は差分 0 の no-op になり無害)
-    const rad = computeInitialFacingRad(currentCell, cols, rows)
-
-    if (rad === undefined) return
-
-    let handle = 0
-    let frame = 0
-    const tick = () => {
-      frame += 1
-      void faceRef.current({ rad })
-
-      if (frame < INITIAL_FACING_MAX_RETRY_FRAMES) {
-        handle = requestAnimationFrame(tick)
-      }
-    }
-
-    handle = requestAnimationFrame(tick)
-
-    return () => cancelAnimationFrame(handle)
-    // マウント時の currentCell(初期値)/cols/rows のみで判定する。face は faceRef 経由
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const stage07EventDispatcher = useStage07EventDispatcher()
 
@@ -393,7 +361,7 @@ export const Stage07 = (props: Stage07Props) => {
     (cell: HexCell) => {
       moveActorTo(PLAYER_ACTOR_ID, cell, { kind: 'warp' })
 
-      const rad = computeInitialFacingRad(cell, cols, rows)
+      const rad = computeWarpFacingRad(cell, cols, rows)
 
       if (rad !== undefined) void faceRef.current({ rad })
     },
