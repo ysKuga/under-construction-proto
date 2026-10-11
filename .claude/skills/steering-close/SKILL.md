@@ -37,7 +37,7 @@ description: 対応完了した steering ディレクトリを `_closed/` へ移
 
 ### 3. 移動とリンク書換
 
-リポジトリルートで同梱スクリプトを実行する。先に `--dry-run` で書換内容を確認する。
+リポジトリルートで同梱スクリプトを実行する。先に `--dry-run` で書換内容を確認する(省略しない)。
 
 ```bash
 python3 -I .claude/skills/steering-close/scripts/move-and-relink.py <移動元> <移動先> --dry-run
@@ -48,6 +48,7 @@ python3 -I .claude/skills/steering-close/scripts/move-and-relink.py <移動元> 
   - 他ファイルから移動対象を指すリンク
   - 移動対象内から外を指すリンク(階層が変わる場合)
 - リンク先が実在しないリンクは触らない
+- 移動で空になった移動元の親ディレクトリ(`_pr/` 等)は削除する
 
 ### 4. 親 backlog へ反映する
 
