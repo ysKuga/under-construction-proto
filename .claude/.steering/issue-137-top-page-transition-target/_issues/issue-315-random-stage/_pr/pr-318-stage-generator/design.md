@@ -24,13 +24,11 @@ proto-03 への組込み（seed 入力・再生成 UI）は本 PR の対象外�
 - `generateStage(seed, params) => StageLayout`
   - params: グリッド・各要素の個数等
   - 生成 → 検証 → だめなら次の乱数で再生成（試行上限あり）
-- 到達性の検証
-  - まず障害物・一方通行のみの BFS で到達可能か
-  - EN 込み（`(cell, 残 EN, 取得済みアイテム)` の状態空間探索）は本 PR で扱うか要判断
-- 配置先: `_lib/`（`generate-stage.ts`・`random.ts` 等、テスト同列）
+- 到達性の検証: 障害物・一方通行のみ（既存 `findHexPath` + `canEnterForPath`）
+  - EN 込みは対象外、親 backlog へ (decision-records.md 2026-10-11)
+- 配置先: `_lib/create-random.ts`・`_lib/generate-stage.ts`（テスト同列）
 
 ## 懸念・リスク
 
-- EN 込み検証はスポットの残量・使用タイミングまで含めると状態空間が膨らむ
-- 試行上限に達した場合の扱い（`DEFAULT_STAGE_LAYOUT` へフォールバック等）
-- 一方通行の壁で開始・ゴール周辺が閉じる配置の検出
+- 試行上限に達した場合は `undefined`。呼出側の扱い（`DEFAULT_STAGE_LAYOUT` へフォールバック等）は組込み PR で決める
+- 開始・ゴールが隣接する等、自明な盤面も生成されうる（難易度制御は親 design の後段方式）
