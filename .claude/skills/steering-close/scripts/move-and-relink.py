@@ -5,6 +5,7 @@
   - 移動先を指すリンク(他ファイル → 移動対象)
   - 移動対象内から外を指すリンク(階層の深さが変わる場合)
 - リンク先が実在しないリンクは触らない(元から壊れているもの・プレースホルダ等)
+- 移動で空になった移動元の親ディレクトリ(`_pr/` 等)は削除する
 
 usage: move-and-relink.py <移動元> <移動先> [--dry-run]
 """
@@ -83,6 +84,12 @@ def main() -> None:
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     subprocess.run(["git", "mv", src, dst], check=True)
+    # git mv は空になった親ディレクトリを残すため、空である限り上へ辿って消す
+    parent = os.path.dirname(src)
+    while parent and os.path.isdir(parent) and not os.listdir(parent):
+        os.rmdir(parent)
+        print(f"空ディレクトリ削除 {parent}")
+        parent = os.path.dirname(parent)
     for f, text in updates.items():
         with open(f, "w", encoding="utf-8") as fp:
             fp.write(text)
