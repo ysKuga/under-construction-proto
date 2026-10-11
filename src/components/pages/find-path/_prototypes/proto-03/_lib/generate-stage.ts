@@ -1,4 +1,3 @@
-import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
 import {
   colRowToAxial,
   HEX_DIRECTIONS,
@@ -84,19 +83,6 @@ const pick = <T>(values: readonly T[], random: () => number): T | undefined =>
 const isSameCell = (a: HexCell, b: HexCell): boolean =>
   a.q === b.q && a.r === b.r
 
-/** 開始セルからゴールへの最短手数（到達不能なら undefined） */
-const shortestSteps = (
-  layout: StageLayout,
-  params: GenerateStageParams,
-): number | undefined =>
-  findHexPath(
-    layout.start,
-    layout.goal,
-    params.grid.cols,
-    params.grid.rows,
-    (from, to) => canEnterForPath(from, to, layout),
-  )?.length
-
 /** 障害物以外に、開始セルから到達できないセルがあるか */
 const hasSealedCell = (
   layout: StageLayout,
@@ -137,12 +123,10 @@ const withBlocker = (layout: StageLayout, blocker: Blocker): StageLayout =>
     : { ...layout, oneWays: [...layout.oneWays, blocker.cell] }
 
 /**
- * 通行不能箇所を1つ、経路に効き進入禁止を生まない位置へ置く
+ * 通行不能箇所を1つ、進入禁止を生まない位置へ置く
  *
- * - 進入禁止（開始から到達できないセル）が生じる: 隣接する空きセルへ移す
- * - 無意味（加えても最短手数が変わらない）
- *   - 一方通行: 未試行の向きがあれば同じセルのまま向きを変える
- *   - 障害物・全方向試行済みの一方通行: 別の空きセルへ移す
+ * - 進入禁止（開始から到達できないセル）が生じる: 隣接する空きセルへ移す（なければ任意の空きセル）
+ *   - 一方通行は向きを保ったまま移す
  * - `maxRelocations` 回移しても置けなければ `undefined`
  */
 const placeBlocker = (
@@ -152,95 +136,46 @@ const placeBlocker = (
   params: GenerateStageParams,
   random: () => number,
 ): { blocker: Blocker; layout: StageLayout } | undefined => {
-  /** 置く前の最短手数 */
-  const baseSteps = shortestSteps(layout, params)
-  /** 置き先のセル */
-  let cell = pick(freeCells, random)
-  /** 現在のセルで試した一方通行の向き */
-  let triedDirections: OneWayDirection[] = []
-  /** cell へ置く通行不能箇所を作る（一方通行は未試行の向きから選ぶ） */
-  const createBlocker = (at: HexCell): Blocker | undefined => {
-    if (kind === 'obstacle') return { cell: at, kind }
+  /** 最初の置き先のセル */
+  const initialCell = pick(freeCells, random)
 
-    const exitDirection = pick(
-      ONE_WAY_DIRECTIONS.filter((d) => !triedDirections.includes(d)),
-      random,
-    )
+  if (!initialCell) return undefined
 
-    if (!exitDirection) return undefined
-
-    triedDirections.push(exitDirection)
-
-    return { cell: { ...at, exitDirection }, kind }
-  }
-  /** cell 以外の空きセル */
-  const otherFreeCells = (at: HexCell) =>
-    freeCells.filter((free) => !isSameCell(free, at))
-
-  if (!cell) return undefined
-
+  /** 一方通行の退出方向（移しても保つ） */
+  const exitDirection = pick(ONE_WAY_DIRECTIONS, random)!
+  /** cell へ置く通行不能箇所を作る */
+  const createBlocker = (at: HexCell): Blocker =>
+    kind === 'obstacle'
+      ? { cell: at, kind }
+      : { cell: { ...at, exitDirection }, kind }
   /** 判定中の通行不能箇所 */
-  let blocker = createBlocker(cell)
+  let blocker = createBlocker(initialCell)
 
-  for (let i = 0; blocker && i <= params.maxRelocations; i++) {
+  for (let i = 0; i <= params.maxRelocations; i++) {
     const candidate = withBlocker(layout, blocker)
 
-    // 進入禁止が発生: 隣接する空きセルへ移す（なければ任意の空きセル）
-    if (hasSealedCell(candidate, params)) {
-      const from = blocker.cell
-      const neighbors = otherFreeCells(from).filter(
-        (free) => hexDistance(free, from) === 1,
-      )
-
-      cell = pick(neighbors, random) ?? pick(otherFreeCells(from), random)
-      triedDirections = []
-      blocker = cell && createBlocker(cell)
-      continue
+    // 進入禁止が発生しない: 採用する
+    if (!hasSealedCell(candidate, params)) {
+      return { blocker, layout: candidate }
     }
 
-    /** 加えたことで最短手数が延びたか */
-    const isEffective = shortestSteps(candidate, params)! > baseSteps!
+    const from = blocker.cell
+    /** 現在のセル以外の空きセル */
+    const otherFreeCells = freeCells.filter((free) => !isSameCell(free, from))
+    /** 移し先（隣接する空きセルを優先） */
+    const next =
+      pick(
+        otherFreeCells.filter((free) => hexDistance(free, from) === 1),
+        random,
+      ) ?? pick(otherFreeCells, random)
 
-    // 経路に効いている: 採用する
-    if (isEffective) return { blocker, layout: candidate }
+    // 移し先がない: 置けない
+    if (!next) return undefined
 
-    // 一方通行で未試行の向きがある: 同じセルで向きを変える
-    blocker = kind === 'one-way' ? createBlocker(blocker.cell) : undefined
-
-    if (blocker) continue
-
-    // 向きを試し尽くした・障害物: 別の空きセルへ移す
-    cell = pick(otherFreeCells(cell!), random)
-    triedDirections = []
-    blocker = cell && createBlocker(cell)
+    blocker = createBlocker(next)
   }
 
   return undefined
-}
-
-/** 通行不能箇所はどれも、取り除くと最短手数が縮むか */
-const isEveryBlockerEffective = (
-  layout: StageLayout,
-  params: GenerateStageParams,
-): boolean => {
-  const steps = shortestSteps(layout, params)!
-
-  return (
-    layout.obstacles.every(
-      (_, i) =>
-        shortestSteps(
-          { ...layout, obstacles: layout.obstacles.filter((__, j) => j !== i) },
-          params,
-        )! < steps,
-    ) &&
-    layout.oneWays.every(
-      (_, i) =>
-        shortestSteps(
-          { ...layout, oneWays: layout.oneWays.filter((__, j) => j !== i) },
-          params,
-        )! < steps,
-    )
-  )
 }
 
 /**
@@ -319,9 +254,8 @@ const buildLayout = (
  * - 同じ seed・params からは同じ配置を返す
  * - 各要素は互いに重ならないセルへ置く
  * - 開始セルとゴールの距離が `minGoalDistance` 未満の配置は捨てて作り直す（issue #315）
- * - 通行不能箇所（障害物・一方通行）は1つずつ置き、置くたびに判定して移し直す（issue #315）
+ * - 通行不能箇所（障害物・一方通行）は1つずつ置き、進入禁止が生じたら隣接セルへ移し直す（issue #315）
  *   - 障害物以外のセルはすべて開始セルから到達できる（ゴール含む）
- *   - どれも取り除くと最短手数が縮む。満たさない配置は捨てて作り直す
  *   - 到達性は障害物・一方通行の壁のみで判定する。EN は考慮しない
  * - `maxAttempts` 回作り直しても条件を満たす配置が得られなければ `undefined`
  * - 要素の総数がグリッドのセル数を超える場合は例外を投げる
@@ -353,8 +287,8 @@ export const generateStage = (
   for (let attempt = 0; attempt < params.maxAttempts; attempt++) {
     const layout = buildLayout(params, random)
 
-    // 組み立てられ、後から置いた要素で無意味化したものもない: この配置を採用する
-    if (layout && isEveryBlockerEffective(layout, params)) {
+    // 組み立てられた: この配置を採用する
+    if (layout) {
       return layout
     }
   }

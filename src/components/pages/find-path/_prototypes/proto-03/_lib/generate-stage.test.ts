@@ -18,7 +18,7 @@ const PARAMS: GenerateStageParams = {
   grid: { cols: 5, rows: 5 },
   items: { amount: 3, count: 1 },
   maxAttempts: 100,
-  maxRelocations: 100,
+  maxRelocations: 5,
   minGoalDistance: 3,
   obstacleCount: 3,
   oneWayCount: 2,
@@ -34,12 +34,6 @@ const layoutCells = (layout: StageLayout): HexCell[] => [
   ...layout.items,
   ...layout.spots,
 ]
-
-/** 開始セルからゴールへの最短手数（到達不能なら undefined） */
-const shortestSteps = (layout: StageLayout): number | undefined =>
-  findHexPath(layout.start, layout.goal, 5, 5, (from, to) =>
-    canEnterForPath(from, to, layout),
-  )?.length
 
 /** seed 1〜100 で生成した盤面（生成できなかった seed は除く） */
 const layouts = Array.from({ length: 100 }, (_, i) =>
@@ -65,8 +59,8 @@ test('指定した個数・補給量で配置する', () => {
   ])
 })
 
-test('ほとんどの seed で生成できる', () => {
-  expect(layouts.length).toBeGreaterThanOrEqual(95)
+test('seed 1〜100 はすべて生成できる', () => {
+  expect(layouts).toHaveLength(100)
 })
 
 test('要素はすべてグリッド内の互いに異なるセルに置く', () => {
@@ -93,29 +87,6 @@ test('開始セルからゴールへ到達できる配置を返す', () => {
 test('開始セルとゴールを minGoalDistance 以上離す', () => {
   for (const layout of layouts) {
     expect(hexDistance(layout.start, layout.goal)).toBeGreaterThanOrEqual(3)
-  }
-})
-
-test('通行不能箇所はどれも、取り除くと最短手数が縮む位置に置く', () => {
-  for (const layout of layouts) {
-    const steps = shortestSteps(layout)!
-
-    layout.obstacles.forEach((_, i) => {
-      const removed = {
-        ...layout,
-        obstacles: layout.obstacles.filter((__, j) => j !== i),
-      }
-
-      expect(shortestSteps(removed)).toBeLessThan(steps)
-    })
-    layout.oneWays.forEach((_, i) => {
-      const removed = {
-        ...layout,
-        oneWays: layout.oneWays.filter((__, j) => j !== i),
-      }
-
-      expect(shortestSteps(removed)).toBeLessThan(steps)
-    })
   }
 })
 
