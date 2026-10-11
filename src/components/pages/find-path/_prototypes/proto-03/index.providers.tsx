@@ -9,11 +9,12 @@ import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-target'
 import { ResetProvider } from './_contexts/reset'
-import { StageLayoutProvider } from './_contexts/stage-layout'
+import { StageLayoutProvider, useStageLayout } from './_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from './_contexts/stage-layout/constants'
 import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
 import { FindPathEventProvider } from './_events'
+import { createInitialItems } from './_lib/create-initial-items'
 import { CarriedItemStoreProvider } from './_stores/carried-items'
 import { DisplaySettingsStoreProvider } from './_stores/display-settings'
 import { EnergySettingsStoreProvider } from './_stores/energy-settings'
@@ -21,32 +22,9 @@ import { FogStoreProvider } from './_stores/fog'
 import { FollowPathStoreProvider } from './_stores/follow-path'
 import { GoalStoreProvider } from './_stores/goal'
 import { ItemStoreProvider } from './_stores/items'
-import { ItemInstance } from './_stores/items/types'
 import { PlayerActivityStoreProvider } from './_stores/player-activity'
 import { WaypointFlowStoreProvider } from './_stores/waypoint-flow'
 import { FindPathProto03Props } from './index.types'
-
-/**
- * 初期配置するアイテム一覧（盤面配置の `items`/`spots` から組み立てる）
- *
- * - EN 補給アイテムは `stock` 未指定（1個ずつ使い切り）、EN スポットは `stock` 指定
- *   （指定回数で枯渇しうる）で区別する（proto-01 と同型）
- */
-const INITIAL_ITEMS: ItemInstance[] = [
-  ...DEFAULT_STAGE_LAYOUT.items.map((cell, index): ItemInstance => ({
-    amount: cell.amount,
-    cell: { q: cell.q, r: cell.r },
-    id: `charge-item-${index}`,
-    kind: 'energy-charge',
-  })),
-  ...DEFAULT_STAGE_LAYOUT.spots.map((cell, index): ItemInstance => ({
-    amount: cell.amount,
-    cell: { q: cell.q, r: cell.r },
-    id: `charge-spot-${index}`,
-    kind: 'energy-charge',
-    stock: cell.stock,
-  })),
-]
 
 type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
 
@@ -81,49 +59,65 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
 export const FindPathProto03Providers = (
   props: FindPathProto03ProvidersProps,
 ) => {
-  const { children, initialFogMode = 'all-hidden' } = props
+  const { children, initialFogMode } = props
 
   return (
     <ResetProvider>
       <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
-        <EnergyStoreProvider>
-          <CarriedItemStoreProvider>
-            <PlayerActivityStoreProvider>
-              <FindPathEventProvider>
-                <ItemStoreProvider initialItems={INITIAL_ITEMS}>
-                  <ActorsStoreProvider
-                    initialActors={{
-                      [PLAYER_ACTOR_ID]: DEFAULT_STAGE_LAYOUT.start,
-                    }}
-                  >
-                    <Stage07EventProvider>
-                      <FogStoreProvider initialMode={initialFogMode}>
-                        <VisibilityRegistryProvider>
-                          <FollowPathStoreProvider>
-                            <WaypointFlowStoreProvider>
-                              <DisplaySettingsStoreProvider>
-                                <EnergySettingsStoreProvider>
-                                  <GoalStoreProvider>
-                                    <Stage07HandleProvider>
-                                      <PlayerActorEventTargetProvider>
-                                        {children}
-                                      </PlayerActorEventTargetProvider>
-                                    </Stage07HandleProvider>
-                                  </GoalStoreProvider>
-                                </EnergySettingsStoreProvider>
-                              </DisplaySettingsStoreProvider>
-                            </WaypointFlowStoreProvider>
-                          </FollowPathStoreProvider>
-                        </VisibilityRegistryProvider>
-                      </FogStoreProvider>
-                    </Stage07EventProvider>
-                  </ActorsStoreProvider>
-                </ItemStoreProvider>
-              </FindPathEventProvider>
-            </PlayerActivityStoreProvider>
-          </CarriedItemStoreProvider>
-        </EnergyStoreProvider>
+        <StageProviders initialFogMode={initialFogMode}>
+          {children}
+        </StageProviders>
       </StageLayoutProvider>
     </ResetProvider>
+  )
+}
+
+/**
+ * 盤面配置に依存する Provider 群（store・event・context）
+ *
+ * - アイテム・開始位置の初期値を `useStageLayout` の盤面配置から組み立てる
+ */
+const StageProviders = (props: FindPathProto03ProvidersProps) => {
+  const { children, initialFogMode = 'all-hidden' } = props
+  const stageLayout = useStageLayout()
+
+  return (
+    <EnergyStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>
+            <ItemStoreProvider initialItems={createInitialItems(stageLayout)}>
+              <ActorsStoreProvider
+                initialActors={{
+                  [PLAYER_ACTOR_ID]: stageLayout.start,
+                }}
+              >
+                <Stage07EventProvider>
+                  <FogStoreProvider initialMode={initialFogMode}>
+                    <VisibilityRegistryProvider>
+                      <FollowPathStoreProvider>
+                        <WaypointFlowStoreProvider>
+                          <DisplaySettingsStoreProvider>
+                            <EnergySettingsStoreProvider>
+                              <GoalStoreProvider>
+                                <Stage07HandleProvider>
+                                  <PlayerActorEventTargetProvider>
+                                    {children}
+                                  </PlayerActorEventTargetProvider>
+                                </Stage07HandleProvider>
+                              </GoalStoreProvider>
+                            </EnergySettingsStoreProvider>
+                          </DisplaySettingsStoreProvider>
+                        </WaypointFlowStoreProvider>
+                      </FollowPathStoreProvider>
+                    </VisibilityRegistryProvider>
+                  </FogStoreProvider>
+                </Stage07EventProvider>
+              </ActorsStoreProvider>
+            </ItemStoreProvider>
+          </FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </EnergyStoreProvider>
   )
 }
