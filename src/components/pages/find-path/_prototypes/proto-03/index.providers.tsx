@@ -9,8 +9,8 @@ import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-target'
 import { ResetProvider } from './_contexts/reset'
-import { StageLayoutProvider, useStageLayout } from './_contexts/stage-layout'
-import { DEFAULT_STAGE_LAYOUT } from './_contexts/stage-layout/constants'
+import { useStageLayout } from './_contexts/stage-layout'
+import { StageSeedProvider } from './_contexts/stage-seed'
 import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
 import { FindPathEventProvider } from './_events'
@@ -42,9 +42,11 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  *     （fog store を購読するため）
  *   - `FogStoreProvider` は `StageLayoutProvider` の内側に置く\
  *     （霧セル・視界の初期中心を盤面配置から決めるため）
- * - リセット（境界値テスト用、issue #181）: 最外の `ResetProvider`（`_contexts/reset`）が
+ * - 盤面生成（issue #315）: 最外の `StageSeedProvider`（`_contexts/stage-seed`）が
+ *   seed から盤面配置を生成して `StageLayoutProvider` で配り、seed 変更時は配下を丸ごと再マウントする
+ * - リセット（境界値テスト用、issue #181）: `StageSeedProvider` 直下の `ResetProvider`（`_contexts/reset`）が
  *   配下の Provider 群（position 含む）へ `key` を付け、`reset` で丸ごと再マウントする
- *   （proto-01 と同じ方式）。表示設定・霧のモード含め全 store が初期状態へ戻る
+ *   （proto-01 と同じ方式）。表示設定・霧のモード含め全 store が初期状態へ戻る。seed は保持されるため盤面は同じ配置
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。霧の状態・可視判定は `FogStoreProvider`（`_stores/fog`）が持ち、
  *   registry は DOM の登録・反映のみを担う。可視判定は霧セルについて「視界（現在地
@@ -59,16 +61,16 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
 export const FindPathProto03Providers = (
   props: FindPathProto03ProvidersProps,
 ) => {
-  const { children, initialFogMode } = props
+  const { children, initialFogMode, initialSeed } = props
 
   return (
-    <ResetProvider>
-      <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
+    <StageSeedProvider initialSeed={initialSeed}>
+      <ResetProvider>
         <StageProviders initialFogMode={initialFogMode}>
           {children}
         </StageProviders>
-      </StageLayoutProvider>
-    </ResetProvider>
+      </ResetProvider>
+    </StageSeedProvider>
   )
 }
 
