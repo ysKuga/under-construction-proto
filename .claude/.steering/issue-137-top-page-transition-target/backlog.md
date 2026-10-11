@@ -29,6 +29,9 @@
 - [ ] find-path のステージをランダム生成する（簡単なパズルとして作成）
   - サブ issue #315 へ分離（[_issues/issue-315-random-stage](_issues/issue-315-random-stage/backlog.md)）
   - (decision-records.md 2026-10-11)
+- [ ] `find-path` の名前を再検討する
+  - 現状の名前がやろうとしていることと合わない
+  - 案: ゴールを探す・探索するニュアンス
 - [x] 目標設定後に EN 切れを発生させると、吹き出しが表示されたまま残る
   - デバッグ操作（値調整 UI）での EN 切れで発生
   - 隣接選択は EN 切れで消える
