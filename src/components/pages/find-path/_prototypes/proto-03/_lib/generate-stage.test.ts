@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 
 import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
 import {
+  colRowToAxial,
   hexDistance,
   HexCell,
   isHexCellInGrid,
@@ -11,11 +12,13 @@ import { StageLayout } from '../_contexts/stage-layout/types'
 
 import { canEnterForPath } from './can-enter-for-path'
 import { generateStage, GenerateStageParams } from './generate-stage'
+import { isObstacleCell } from './obstacle'
 
 const PARAMS: GenerateStageParams = {
   grid: { cols: 5, rows: 5 },
   items: { amount: 3, count: 1 },
   maxAttempts: 100,
+  maxRelocations: 100,
   minGoalDistance: 3,
   obstacleCount: 3,
   oneWayCount: 2,
@@ -32,10 +35,16 @@ const layoutCells = (layout: StageLayout): HexCell[] => [
   ...layout.spots,
 ]
 
-/** seed 1〜100 で生成した盤面 */
+/** 開始セルからゴールへの最短手数（到達不能なら undefined） */
+const shortestSteps = (layout: StageLayout): number | undefined =>
+  findHexPath(layout.start, layout.goal, 5, 5, (from, to) =>
+    canEnterForPath(from, to, layout),
+  )?.length
+
+/** seed 1〜100 で生成した盤面（生成できなかった seed は除く） */
 const layouts = Array.from({ length: 100 }, (_, i) =>
   generateStage(i + 1, PARAMS),
-)
+).filter((layout) => layout !== undefined)
 
 test('同じ seed からは同じ配置を返す', () => {
   expect(generateStage(42, PARAMS)).toEqual(generateStage(42, PARAMS))
@@ -56,9 +65,13 @@ test('指定した個数・補給量で配置する', () => {
   ])
 })
 
+test('ほとんどの seed で生成できる', () => {
+  expect(layouts.length).toBeGreaterThanOrEqual(95)
+})
+
 test('要素はすべてグリッド内の互いに異なるセルに置く', () => {
   for (const layout of layouts) {
-    const cells = layoutCells(layout!)
+    const cells = layoutCells(layout)
 
     expect(cells.every((cell) => isHexCellInGrid(cell, 5, 5))).toBe(true)
     expect(new Set(cells.map((cell) => `${cell.q},${cell.r}`)).size).toBe(
@@ -70,8 +83,8 @@ test('要素はすべてグリッド内の互いに異なるセルに置く', ()
 test('開始セルからゴールへ到達できる配置を返す', () => {
   for (const layout of layouts) {
     expect(
-      findHexPath(layout!.start, layout!.goal, 5, 5, (from, to) =>
-        canEnterForPath(from, to, layout!),
+      findHexPath(layout.start, layout.goal, 5, 5, (from, to) =>
+        canEnterForPath(from, to, layout),
       ),
     ).toBeDefined()
   }
@@ -79,7 +92,46 @@ test('開始セルからゴールへ到達できる配置を返す', () => {
 
 test('開始セルとゴールを minGoalDistance 以上離す', () => {
   for (const layout of layouts) {
-    expect(hexDistance(layout!.start, layout!.goal)).toBeGreaterThanOrEqual(3)
+    expect(hexDistance(layout.start, layout.goal)).toBeGreaterThanOrEqual(3)
+  }
+})
+
+test('通行不能箇所はどれも、取り除くと最短手数が縮む位置に置く', () => {
+  for (const layout of layouts) {
+    const steps = shortestSteps(layout)!
+
+    layout.obstacles.forEach((_, i) => {
+      const removed = {
+        ...layout,
+        obstacles: layout.obstacles.filter((__, j) => j !== i),
+      }
+
+      expect(shortestSteps(removed)).toBeLessThan(steps)
+    })
+    layout.oneWays.forEach((_, i) => {
+      const removed = {
+        ...layout,
+        oneWays: layout.oneWays.filter((__, j) => j !== i),
+      }
+
+      expect(shortestSteps(removed)).toBeLessThan(steps)
+    })
+  }
+})
+
+test('障害物以外のセルはすべて開始セルから到達できる', () => {
+  for (const layout of layouts) {
+    for (let i = 0; i < 25; i++) {
+      const cell = colRowToAxial(i % 5, Math.floor(i / 5))
+
+      if (isObstacleCell(cell, layout)) continue
+
+      expect(
+        findHexPath(layout.start, cell, 5, 5, (from, to) =>
+          canEnterForPath(from, to, layout),
+        ),
+      ).toBeDefined()
+    }
   }
 })
 
