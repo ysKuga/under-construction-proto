@@ -1,6 +1,7 @@
 # 実装計画（find-path ステージのランダム生成）
 
 - [ ] 生成: seed 付き乱数と `generateStage`（純関数、到達性の検証付き）
+  - [design](_pr/pr-318-stage-generator/design.md)
 - [ ] 組込み: proto-03 へ seed 入力・再生成を追加
 - [ ] リセット時に盤面ごと初期状態へ戻す
 - [ ] 履歴: 手数の記録と表示
