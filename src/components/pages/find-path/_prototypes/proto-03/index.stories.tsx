@@ -10,6 +10,7 @@ const meta: Meta<typeof FindPathProto03> = {
       control: 'radio',
       options: ['all-visible', 'all-hidden', 'partial'],
     },
+    initialSeed: { control: 'number' },
   },
   component: FindPathProto03,
   decorators: [layoutDecorator],
@@ -29,5 +30,11 @@ export const AllVisible: Story = {
 export const PartialFog: Story = {
   args: {
     initialFogMode: 'partial',
+  },
+}
+
+export const Generated: Story = {
+  args: {
+    initialSeed: 1,
   },
 }

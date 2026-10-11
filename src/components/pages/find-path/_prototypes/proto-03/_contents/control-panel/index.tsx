@@ -14,9 +14,11 @@ const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
 ]
 
 /**
- * 操作パネル（表示設定の切替・リセット・ゴール到達・中継点選択状況）
+ * 操作パネル（表示設定の切替・リセット・盤面生成・ゴール到達・中継点選択状況）
  *
  * - 霧・歩行モーション・移動可能マス表示・状態表示の向き同期は各 store へ書き込み、stage content が購読する
+ * - 盤面生成（issue #315）: seed 入力欄の値で「生成」、新しい seed をランダムに選んで「再生成」する。\
+ *   生成で配下ごと再マウントされるため、入力欄は `defaultValue` で現在の seed を表示する
  * - 中継点選択モード中は `WaypointSelectingIndicator`（「完了」ボタン）を表示する
  */
 export const ControlPanel = () => {
@@ -25,9 +27,13 @@ export const ControlPanel = () => {
     enableWalking,
     fogModeDefault,
     goalReached,
+    handleGenerateClick,
+    handleRegenerateClick,
     handleReset,
     handleWaypointDoneClick,
     isSelectingWaypoint,
+    seed,
+    seedInputRef,
     setDisplayMode,
     setEnableWalking,
     setFogMode,
@@ -38,7 +44,14 @@ export const ControlPanel = () => {
   } = useControlPanel()
 
   return (
-    <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+    <div
+      style={{
+        alignItems: 'center',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}
+    >
       <label>
         初期表示{' '}
         <select
@@ -91,6 +104,22 @@ export const ControlPanel = () => {
       </label>
       <button onClick={handleReset} type="button">
         リセット
+      </button>
+      <label>
+        seed{' '}
+        <input
+          defaultValue={seed}
+          placeholder="既定"
+          ref={seedInputRef}
+          style={{ width: 80 }}
+          type="number"
+        />
+      </label>
+      <button onClick={handleGenerateClick} type="button">
+        生成
+      </button>
+      <button onClick={handleRegenerateClick} type="button">
+        再生成
       </button>
       <span hidden={!goalReached}>🎉 ゴール到達</span>
       <WaypointSelectingIndicator

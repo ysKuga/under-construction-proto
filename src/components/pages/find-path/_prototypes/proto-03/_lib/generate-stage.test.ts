@@ -1,7 +1,11 @@
 import { expect, test } from 'vitest'
 
 import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
-import { HexCell, isHexCellInGrid } from '@/prototypes/stage/stage-07/_lib/hex'
+import {
+  hexDistance,
+  HexCell,
+  isHexCellInGrid,
+} from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { StageLayout } from '../_contexts/stage-layout/types'
 
@@ -12,6 +16,7 @@ const PARAMS: GenerateStageParams = {
   grid: { cols: 5, rows: 5 },
   items: { amount: 3, count: 1 },
   maxAttempts: 100,
+  minGoalDistance: 3,
   obstacleCount: 3,
   oneWayCount: 2,
   spots: { amount: 1, count: 1, stock: 4 },
@@ -69,6 +74,12 @@ test('開始セルからゴールへ到達できる配置を返す', () => {
         canEnterForPath(from, to, layout!),
       ),
     ).toBeDefined()
+  }
+})
+
+test('開始セルとゴールを minGoalDistance 以上離す', () => {
+  for (const layout of layouts) {
+    expect(hexDistance(layout!.start, layout!.goal)).toBeGreaterThanOrEqual(3)
   }
 })
 

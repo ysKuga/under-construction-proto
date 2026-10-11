@@ -1,6 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 
 import { useReset } from '../../_contexts/reset'
+import { useStageSeed } from '../../_contexts/stage-seed'
 import { useDisplaySettingsStore } from '../../_stores/display-settings'
 import { useFogStore, useFogStoreApi } from '../../_stores/fog'
 import { useGoalStore } from '../../_stores/goal'
@@ -10,6 +11,9 @@ import {
 } from '../../_stores/waypoint-flow'
 
 import { UseControlPanelReturn } from './index.types'
+
+/** 「再生成」で選ぶ seed の上限（入力欄で扱いやすい桁数に収める） */
+const RANDOM_SEED_LIMIT = 1_000_000
 
 /** 操作パネルの表示値・操作を各 store から集める */
 export const useControlPanel = (): UseControlPanelReturn => {
@@ -37,6 +41,8 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const waypointCount = useWaypointFlowStore((state) => state.waypoints.length)
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   const reset = useReset()
+  const { seed, setSeed } = useStageSeed()
+  const seedInputRef = useRef<HTMLInputElement>(null)
 
   /**
    * 中継点選択を確定し、経路提示中(`proposing`)へ戻す
@@ -48,14 +54,36 @@ export const useControlPanel = (): UseControlPanelReturn => {
     waypointFlowStoreApi.getState().setFlowState('proposing')
   }, [waypointFlowStoreApi])
 
+  /** 入力欄の seed で盤面を生成する（数値でなければ何もしない） */
+  const handleGenerateClick = useCallback(() => {
+    /** 入力された seed */
+    const inputSeed = seedInputRef.current?.valueAsNumber
+
+    // 数値でない（未入力等）: 何もしない
+    if (inputSeed === undefined || !Number.isInteger(inputSeed)) {
+      return
+    }
+
+    setSeed(inputSeed)
+  }, [setSeed])
+
+  /** 新しい seed をランダムに選んで盤面を生成する */
+  const handleRegenerateClick = useCallback(() => {
+    setSeed(Math.floor(Math.random() * RANDOM_SEED_LIMIT))
+  }, [setSeed])
+
   return {
     displayMode,
     enableWalking,
     fogModeDefault: fogStoreApi.getState().mode,
     goalReached,
+    handleGenerateClick,
+    handleRegenerateClick,
     handleReset: reset,
     handleWaypointDoneClick,
     isSelectingWaypoint,
+    seed,
+    seedInputRef,
     setDisplayMode,
     setEnableWalking,
     setFogMode,
