@@ -36,7 +36,7 @@ export type FindPathEventMap = {
    * チェックポイント（開始位置）へリセットする
    *
    * - EN 切れ中かつ停止中のみ受理する。それ以外は拒否される
-   * - 位置・EN を戻し、盤面の状態・携行アイテムは保持する（issue #289）
+   * - 盤面ごと初期状態へ戻す（issue #315）。seed は保持されるため盤面は同じ配置
    */
   'FindPath-reset-to-checkpoint': undefined
   /**

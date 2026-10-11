@@ -44,7 +44,7 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  *     （霧セル・視界の初期中心を盤面配置から決めるため）
  * - 盤面生成（issue #315）: 最外の `StageSeedProvider`（`_contexts/stage-seed`）が
  *   seed から盤面配置を生成して `StageLayoutProvider` で配り、seed 変更時は配下を丸ごと再マウントする
- * - リセット（境界値テスト用、issue #181）: `StageSeedProvider` 直下の `ResetProvider`（`_contexts/reset`）が
+ * - リセット（境界値テスト用、issue #181。EN 切れ時のチェックポイントへのリセットも同じ、issue #315）: `StageSeedProvider` 直下の `ResetProvider`（`_contexts/reset`）が
  *   配下の Provider 群（position 含む）へ `key` を付け、`reset` で丸ごと再マウントする
  *   （proto-01 と同じ方式）。表示設定・霧のモード含め全 store が初期状態へ戻る。seed は保持されるため盤面は同じ配置
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
