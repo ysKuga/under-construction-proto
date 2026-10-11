@@ -5,8 +5,6 @@
   - 一方通行の壁が盤面外周の辺に置かれる（壁として効かない）
   - 進入禁止の解消のみ [_closed/pr-320-stage-blocker-placement](_closed/pr-320-stage-blocker-placement/design.md) で対応、経路への影響は一旦見送り
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
-- [ ] リセット時に盤面ごと初期状態へ戻す
-  - [_pr/pr-325-stage-reset](_closed/pr-325-stage-reset/design.md)
 - [ ] ギミック: 障害物を排除する仕組みの検討
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
 - [ ] 履歴: 手数の記録と表示
