@@ -8,4 +8,4 @@
 - [ ] ギミック: 障害物を排除する仕組みの検討
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
 - [ ] 履歴: アクションの結果（アイテムの携行・使用、ゴール到達等）を記録する
-  - [_pr/pr-329-stage-action-history](_pr/pr-329-stage-action-history/design.md)
+  - [_pr/pr-329-stage-action-history](_closed/pr-329-stage-action-history/design.md)

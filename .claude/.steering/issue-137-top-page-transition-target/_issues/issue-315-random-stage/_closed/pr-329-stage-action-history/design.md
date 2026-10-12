@@ -8,7 +8,7 @@ PR: #329（親: #315）
 
 ## 背景・制約
 
-- 履歴の記録・表示は #326・#327・#328 で対応済み（[../../_closed/pr-326-stage-move-history/design.md](../../_closed/pr-326-stage-move-history/design.md)）
+- 履歴の記録・表示は #326・#327・#328 で対応済み（[../../_closed/pr-326-stage-move-history/design.md](../pr-326-stage-move-history/design.md)）
   - 履歴 store（`_stores/move-history`）は `move`（1 手）と `reset` の 2 種類のみ
 - 手数に数えるのは `move` のみ。追加する種類は手数に数えない
 
