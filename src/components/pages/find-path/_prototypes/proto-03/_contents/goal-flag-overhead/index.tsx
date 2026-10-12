@@ -10,7 +10,7 @@ import { BOT_SIZE } from '../../constants'
 import { useGoalStore } from '../../_stores/goal'
 
 /** 旗の上昇後の位置（bot 上端からの y。px） */
-const FLAG_OVERHEAD_Y = -20
+const FLAG_OVERHEAD_Y = -14
 
 /** 旗が bot 位置から頭上へ上昇する時間（秒） */
 const FLAG_RISE_DURATION_S = 0.6
