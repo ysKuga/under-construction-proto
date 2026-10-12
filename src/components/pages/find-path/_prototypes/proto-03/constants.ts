@@ -4,6 +4,9 @@ export const GRID = { cols: 5, rows: 5 } as const
 /** 六角形の外接円半径 (px) */
 export const HEX_SIZE = 40
 
+/** bot(box-bot-01)の一辺 px */
+export const BOT_SIZE = 56
+
 /**
  * 目標セルのオーバーレイアンカーを actors store へ登録する際の擬似 id
  *

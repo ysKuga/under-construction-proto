@@ -19,6 +19,7 @@ import { BubbleSlotEntry } from '../../_components/bubble-slots/_stores/bubble-s
 import { EnergySpotChargedBubble } from '../../_components/energy-spot-charged-bubble'
 import { EnergySpotChargingBubble } from '../../_components/energy-spot-charging-bubble'
 import { countEnergySpotCharge } from '../../_lib/count-energy-spot-charge'
+import { useGoalStoreApi } from '../../_stores/goal'
 import { useItemStoreApi } from '../../_stores/items'
 import { usePlayerActivityStoreApi } from '../../_stores/player-activity'
 import { useWaypointFlowStoreApi } from '../../_stores/waypoint-flow'
@@ -41,6 +42,7 @@ import { UseBotBubblesReturn } from './index.types'
  *   - 補給中: player が EN スポットで補給中
  *   - 補給完了: EN スポットでの補給の完了後、一定時間（`ENERGY_SPOT_CHARGED_NOTICE_MS`）
  *     または次の行為（移動等）まで
+ * - ゴール到達後は全ての吹き出しを隠す（終了状態のため。頭上の旗との重なりも避ける、issue #137）
  * - 補給完了（種類 `notice`）は、他の吹き出しの表示中は隠す（他の全ての吹き出しへ
  *   `hides: ['notice']` を指定する）
  * - store api は参照が安定しているため、初回のみ組み立てる
@@ -51,8 +53,22 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
   const actorsStoreApi = useActorsStoreApi()
   const itemStoreApi = useItemStoreApi()
   const playerActivityStoreApi = usePlayerActivityStoreApi()
+  const goalStoreApi = useGoalStoreApi()
 
   const [botBubbles] = useState(() => {
+    /** ゴールへ到達済みか */
+    const goalReached$ = fromStore(goalStoreApi).pipe(
+      map((state) => state.reached),
+      distinctUntilChanged(),
+    )
+    /** 表示条件へ「ゴール未到達」を加える */
+    const hideOnGoalReached = (entry: BubbleSlotEntry): BubbleSlotEntry => ({
+      ...entry,
+      visible$: combineLatest([entry.visible$, goalReached$]).pipe(
+        map(([visible, goalReached]) => visible && !goalReached),
+        distinctUntilChanged(),
+      ),
+    })
     /** 経路提示中か */
     const proposing$ = fromStore(waypointFlowStoreApi).pipe(
       map((state) => state.flowState !== 'idle'),
@@ -138,7 +154,7 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
     ]
 
     return {
-      objectiveBubbles: pairBubbles,
+      objectiveBubbles: pairBubbles.map(hideOnGoalReached),
       playerBubbles: [
         ...pairBubbles,
         {
@@ -166,7 +182,7 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
           kinds: ['notice'],
           visible$: charged$,
         },
-      ],
+      ].map(hideOnGoalReached),
     }
   })
 
