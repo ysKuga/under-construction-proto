@@ -57,5 +57,8 @@ describe('useEffectRaiseArmsOnGoalFlag', () => {
     })
 
     expect(onArmToggle).toHaveBeenCalledTimes(1)
+    expect(
+      (onArmToggle.mock.calls[0][0] as CustomEvent).detail.upDelta,
+    ).toBeGreaterThan(0)
   })
 })
