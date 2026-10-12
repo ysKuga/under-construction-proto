@@ -7,7 +7,5 @@
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
 - [ ] ギミック: 障害物を排除する仕組みの検討
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
-- [ ] 履歴: bot の状態表示の横へ並べる
-  - [_pr/pr-328-stage-history-beside-bot](_pr/pr-328-stage-history-beside-bot/design.md)
 - [ ] 履歴: アクションの結果（アイテムの携行・使用、ゴール到達等）を記録する
   - [_pr/pr-329-stage-action-history](_pr/pr-329-stage-action-history/design.md)
