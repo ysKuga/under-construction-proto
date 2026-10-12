@@ -49,6 +49,7 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  *   配下の Provider 群（position 含む）へ `key` を付け、`reset` で丸ごと再マウントする
  *   （proto-01 と同じ方式）。表示設定・霧のモード含め全 store が初期状態へ戻る。seed は保持されるため盤面は同じ配置
  * - 手数の履歴（issue #315）: `MoveHistoryStoreProvider` は `ResetProvider` の外側に置き、リセットをまたいで通算する。
+ *   アイテム使用の listener が履歴へ記録するため、`FindPathEventProvider` の外側にもなる。
  *   `StageSeedProvider` の内側のため、seed 変更時は破棄される
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。霧の状態・可視判定は `FogStoreProvider`（`_stores/fog`）が持ち、

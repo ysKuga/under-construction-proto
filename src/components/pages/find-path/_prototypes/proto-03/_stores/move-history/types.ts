@@ -2,11 +2,19 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
+import { ItemKind } from '../items/types'
+
 /**
  * 手数の履歴の 1 件
  *
  * - `move`: 1 手。経路の実行 1 回、または隣接セルへの直接移動 1 回
- * - `reset`: EN 切れ時のチェックポイントへのリセット。手数には数えない
+ * - `move` 以外はアクションに伴う結果。手数には数えない
+ *   - `reset`: EN 切れ時のチェックポイントへのリセット
+ *   - `pick-up-item`: 移動先のアイテムの携行
+ *   - `use-item`: 携行アイテムの使用（受理されたもの）
+ *   - `use-energy-spot`: EN スポットでの補給（受理されたもの）
+ *   - `energy-depleted`: player の EN 切れ
+ *   - `reach-goal`: ゴールへの到達（初回のみ）
  */
 export type MoveHistoryEntry =
   | {
@@ -16,6 +24,25 @@ export type MoveHistoryEntry =
     }
   | {
       kind: 'reset'
+    }
+  | {
+      /** 携行したアイテムの種類 */
+      itemKind: ItemKind
+      kind: 'pick-up-item'
+    }
+  | {
+      /** 使用したアイテムの種類 */
+      itemKind: ItemKind
+      kind: 'use-item'
+    }
+  | {
+      kind: 'use-energy-spot'
+    }
+  | {
+      kind: 'energy-depleted'
+    }
+  | {
+      kind: 'reach-goal'
     }
 
 /**

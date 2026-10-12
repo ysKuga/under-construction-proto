@@ -9,6 +9,10 @@ import {
   useCarriedItemStoreApi,
 } from '../../../_stores/carried-items'
 import { ItemInstance } from '../../../_stores/items/types'
+import {
+  MoveHistoryStoreProvider,
+  useMoveHistoryStoreApi,
+} from '../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../_stores/player-activity'
 import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
 import {
@@ -25,11 +29,13 @@ const CHARGE_ITEM: ItemInstance = {
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <CarriedItemStoreProvider>
-      <PlayerActivityStoreProvider>
-        <FindPathEventProvider>{props.children}</FindPathEventProvider>
-      </PlayerActivityStoreProvider>
-    </CarriedItemStoreProvider>
+    <MoveHistoryStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </MoveHistoryStoreProvider>
   </EnergyStoreProvider>
 )
 
@@ -44,6 +50,7 @@ const renderListener = () => {
       carriedItems: useCarriedItemStoreApi(),
       dispatcher: useFindPathEventDispatcher(),
       eventTarget: useFindPathEventTarget(),
+      moveHistory: useMoveHistoryStoreApi(),
     }),
     { wrapper: Wrapper },
   )
@@ -57,9 +64,9 @@ const renderListener = () => {
   return { ...rendered, onItemUsed }
 }
 
-test('受理すると携行から取り除き、使用を通知する', async () => {
+test('受理すると携行から取り除き、使用を通知・記録する', async () => {
   const { onItemUsed, result } = renderListener()
-  const { carriedItems, dispatcher } = result.current
+  const { carriedItems, dispatcher, moveHistory } = result.current
 
   await expect(
     dispatcher['FindPath-use-item']({
@@ -72,11 +79,14 @@ test('受理すると携行から取り除き、使用を通知する', async ()
     item: CHARGE_ITEM,
     usage: 'charge-energy',
   })
+  expect(moveHistory.getState().entries).toEqual([
+    { itemKind: 'energy-charge', kind: 'use-item' },
+  ])
 })
 
-test('携行していないアイテムは使用を拒否する', async () => {
+test('携行していないアイテムは使用を拒否し、記録しない', async () => {
   const { onItemUsed, result } = renderListener()
-  const { carriedItems, dispatcher } = result.current
+  const { carriedItems, dispatcher, moveHistory } = result.current
 
   await expect(
     dispatcher['FindPath-use-item']({
@@ -86,6 +96,7 @@ test('携行していないアイテムは使用を拒否する', async () => {
   ).resolves.toBe(false)
   expect(carriedItems.getState().carriedItems).toEqual([CHARGE_ITEM])
   expect(onItemUsed).not.toHaveBeenCalled()
+  expect(moveHistory.getState().entries).toEqual([])
 })
 
 test('許可されていない使用方法は拒否し、アイテムを残す', async () => {

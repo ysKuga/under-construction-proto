@@ -19,6 +19,10 @@ import {
 } from '../../../../../_stores/items'
 import { ItemInstance } from '../../../../../_stores/items/types'
 import {
+  MoveHistoryStoreProvider,
+  useMoveHistoryStoreApi,
+} from '../../../../../_stores/move-history'
+import {
   PlayerActivityStoreProvider,
   usePlayerActivityStoreApi,
 } from '../../../../../_stores/player-activity'
@@ -39,21 +43,23 @@ const CHARGE_SPOT: ItemInstance = {
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <CarriedItemStoreProvider>
-      <PlayerActivityStoreProvider>
-        <FindPathEventProvider>
-          <ItemStoreProvider initialItems={[CHARGE_SPOT]}>
-            <ActorsStoreProvider
-              initialActors={{ [PLAYER_ACTOR_ID]: CHARGE_SPOT.cell }}
-            >
-              <WaypointFlowStoreProvider>
-                {props.children}
-              </WaypointFlowStoreProvider>
-            </ActorsStoreProvider>
-          </ItemStoreProvider>
-        </FindPathEventProvider>
-      </PlayerActivityStoreProvider>
-    </CarriedItemStoreProvider>
+    <MoveHistoryStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>
+            <ItemStoreProvider initialItems={[CHARGE_SPOT]}>
+              <ActorsStoreProvider
+                initialActors={{ [PLAYER_ACTOR_ID]: CHARGE_SPOT.cell }}
+              >
+                <WaypointFlowStoreProvider>
+                  {props.children}
+                </WaypointFlowStoreProvider>
+              </ActorsStoreProvider>
+            </ItemStoreProvider>
+          </FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </MoveHistoryStoreProvider>
   </EnergyStoreProvider>
 )
 
@@ -71,6 +77,7 @@ const setupEnergySpotUse = (consumed: number) => {
         dispatcher: useFindPathEventDispatcher(),
         energy: useEnergyStoreApi(),
         items: useItemStoreApi(),
+        moveHistory: useMoveHistoryStoreApi(),
         playerActivity: usePlayerActivityStoreApi(),
       }
     },
@@ -94,7 +101,8 @@ afterEach(() => {
 })
 
 test('不足分だけ時間経過ごとに 1 ずつ補給し、完了で停止中へ戻る', async () => {
-  const { dispatcher, energy, items, playerActivity } = setupEnergySpotUse(2)
+  const { dispatcher, energy, items, moveHistory, playerActivity } =
+    setupEnergySpotUse(2)
   const before = currentEnergy(energy)
 
   await act(async () => {
@@ -120,6 +128,8 @@ test('不足分だけ時間経過ごとに 1 ずつ補給し、完了で停止�
   expect(playerActivity.getState().activity).toBe('idle')
   // 残量 4 のうち 2 回分を消費する
   expect(items.getState().itemsById[CHARGE_SPOT.id].stock).toBe(2)
+  // 補給の回数によらず 1 件として記録する
+  expect(moveHistory.getState().entries).toEqual([{ kind: 'use-energy-spot' }])
 })
 
 test('不足分が残量を超える場合、残量の分だけ補給する', async () => {
@@ -136,12 +146,13 @@ test('不足分が残量を超える場合、残量の分だけ補給する', as
 })
 
 test('EN が上限なら使用を拒否する', async () => {
-  const { dispatcher, playerActivity } = setupEnergySpotUse(0)
+  const { dispatcher, moveHistory, playerActivity } = setupEnergySpotUse(0)
 
   await expect(dispatcher['FindPath-use-energy-spot'](undefined)).resolves.toBe(
     false,
   )
   expect(playerActivity.getState().activity).toBe('idle')
+  expect(moveHistory.getState().entries).toEqual([])
 })
 
 test('移動中・補給中なら使用を拒否する', async () => {

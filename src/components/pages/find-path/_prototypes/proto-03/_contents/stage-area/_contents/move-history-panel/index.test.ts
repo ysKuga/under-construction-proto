@@ -24,6 +24,27 @@ describe('toMoveHistoryView', () => {
     })
   })
 
+  it('アクションの結果を手数に数えず表示する', () => {
+    expect(
+      toMoveHistoryView([
+        { itemKind: 'energy-charge', kind: 'pick-up-item' },
+        { itemKind: 'energy-charge', kind: 'use-item' },
+        { kind: 'use-energy-spot' },
+        { kind: 'energy-depleted' },
+        { kind: 'reach-goal' },
+      ]),
+    ).toEqual({
+      moveCount: 0,
+      rows: [
+        { key: 4, label: 'ゴール到達' },
+        { key: 3, label: 'EN 切れ' },
+        { key: 2, label: 'EN スポットで補給' },
+        { key: 1, label: 'EN 補給アイテムを使用' },
+        { key: 0, label: 'EN 補給アイテムを携行' },
+      ],
+    })
+  })
+
   it('一覧は直近の上限件数に限り、手数は全件で数える', () => {
     const entries = Array.from(
       { length: MOVE_HISTORY_DISPLAY_LIMIT + 5 },

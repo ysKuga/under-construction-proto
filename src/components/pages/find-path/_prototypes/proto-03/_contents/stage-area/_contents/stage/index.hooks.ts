@@ -18,6 +18,7 @@ import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
 import { useHandleNonAdjacentClick } from './_hooks/use-handle-non-adjacent-click'
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
+import { useRecordHistoryOnEnergyDepleted } from './_hooks/use-record-history-on-energy-depleted'
 import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
 import { useResetToCheckpointEventListener } from './_hooks/use-reset-to-checkpoint-event-listener'
 import { useSetPlayerActivityOnMove } from './_hooks/use-set-player-activity-on-move'
@@ -66,6 +67,7 @@ export const useStage = (): UseStageReturn => {
   useRegisterPlayerEnergyOut()
   useCancelWaypointFlowOnEscape()
   useClearWaypointFlowOnEnergyDepleted()
+  useRecordHistoryOnEnergyDepleted()
   useResetToCheckpointEventListener()
   useSetPlayerActivityOnMove()
   useEnergySpotUseEventListener()
