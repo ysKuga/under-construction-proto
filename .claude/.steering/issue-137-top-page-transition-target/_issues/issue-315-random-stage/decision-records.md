@@ -7,3 +7,4 @@
 - 2026-10-11: EN 込みの到達性検証（`canReachGoalWithEnergy`）完了。携行アイテムは任意のタイミングで使える前提（[#322](_closed/pr-322-stage-en-reachability/design.md)）
 - 2026-10-11: EN 切れ時のリセットで盤面ごと初期状態へ戻す対応完了。表示設定等の設定系 store も初期化される（[#325](_closed/pr-325-stage-reset/design.md)）
 - 2026-10-12: 手数の履歴の記録・表示完了。リセットも履歴へ記録し、表示は直近 20 件に限る（[#326](_closed/pr-326-stage-move-history/design.md)、[#327](_closed/pr-327-stage-move-history-display/design.md)）
+- 2026-10-12: 履歴パネルを bot の状態表示の横へ同じ高さで並べる対応完了（[#328](_closed/pr-328-stage-history-beside-bot/design.md)）
