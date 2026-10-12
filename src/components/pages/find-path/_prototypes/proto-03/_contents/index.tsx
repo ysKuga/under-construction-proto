@@ -2,6 +2,7 @@
 
 import { BotBubbles } from './bot-bubbles'
 import { ControlPanel } from './control-panel'
+import { MoveHistoryPanel } from './move-history-panel'
 import { StageArea } from './stage-area'
 import { Title } from './title'
 
@@ -17,5 +18,6 @@ export const FindPathProto03Contents = () => (
     <StageArea />
     <BotBubbles />
     <ControlPanel />
+    <MoveHistoryPanel />
   </div>
 )
