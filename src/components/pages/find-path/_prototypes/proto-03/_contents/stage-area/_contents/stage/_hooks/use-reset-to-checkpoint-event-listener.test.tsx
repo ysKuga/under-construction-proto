@@ -20,6 +20,10 @@ import {
 } from '../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
 import { FogStoreProvider, useFogStoreApi } from '../../../../../_stores/fog'
+import {
+  MoveHistoryStoreProvider,
+  useMoveHistoryStoreApi,
+} from '../../../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
 
 import { useResetToCheckpointEventListener } from './use-reset-to-checkpoint-event-listener'
@@ -28,21 +32,23 @@ vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
-    <ResetProvider>
-      <EnergyStoreProvider>
-        <CarriedItemStoreProvider>
-          <PlayerActivityStoreProvider>
-            <FindPathEventProvider>
-              <Stage07EventProvider>
-                <FogStoreProvider initialMode="all-hidden">
-                  {props.children}
-                </FogStoreProvider>
-              </Stage07EventProvider>
-            </FindPathEventProvider>
-          </PlayerActivityStoreProvider>
-        </CarriedItemStoreProvider>
-      </EnergyStoreProvider>
-    </ResetProvider>
+    <MoveHistoryStoreProvider>
+      <ResetProvider>
+        <EnergyStoreProvider>
+          <CarriedItemStoreProvider>
+            <PlayerActivityStoreProvider>
+              <FindPathEventProvider>
+                <Stage07EventProvider>
+                  <FogStoreProvider initialMode="all-hidden">
+                    {props.children}
+                  </FogStoreProvider>
+                </Stage07EventProvider>
+              </FindPathEventProvider>
+            </PlayerActivityStoreProvider>
+          </CarriedItemStoreProvider>
+        </EnergyStoreProvider>
+      </ResetProvider>
+    </MoveHistoryStoreProvider>
   </StageLayoutProvider>
 )
 
@@ -55,6 +61,7 @@ const setupResetToCheckpoint = () =>
         energy: useEnergyStoreApi(),
         findPathDispatch: useFindPathEventDispatcher(),
         fog: useFogStoreApi(),
+        moveHistory: useMoveHistoryStoreApi(),
         stage07Dispatch: useStage07EventDispatcher(),
       }
     },
@@ -84,6 +91,10 @@ describe('useResetToCheckpointEventListener', () => {
       DEFAULT_STAGE_LAYOUT.start,
     )
     expect(result.current.fog.getState().visitedKeys.has('2,3')).toBe(false)
+    // 履歴は再マウントの外にあるため残り、リセットが記録される
+    expect(result.current.moveHistory.getState().entries).toEqual([
+      { kind: 'reset' },
+    ])
   })
 
   it('EN が残っていれば拒否する', async () => {
@@ -94,6 +105,7 @@ describe('useResetToCheckpointEventListener', () => {
       findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
     ).resolves.toBe(false)
     expect(result.current.energy).toBe(energy)
+    expect(result.current.moveHistory.getState().entries).toEqual([])
   })
 
   it('移動中は拒否し、停止後は受理する', async () => {

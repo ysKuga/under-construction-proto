@@ -6,6 +6,7 @@ import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
 
 import { useReset } from '../../../../../_contexts/reset'
 import { useFindPathEventListener } from '../../../../../_events'
+import { useMoveHistoryStoreApi } from '../../../../../_stores/move-history'
 import { usePlayerActivityStoreApi } from '../../../../../_stores/player-activity'
 
 /**
@@ -16,9 +17,11 @@ import { usePlayerActivityStoreApi } from '../../../../../_stores/player-activit
  *   - EN スポットで補給中も拒否する（issue #297）
  * - 受け付けたら `useReset` で配下を丸ごと再マウントする（issue #315）\
  *   位置・EN・アイテム・霧等の全 store が初期状態へ戻る。seed は保持されるため盤面は同じ配置
+ * - 受け付けたリセットは手数の履歴へ記録する（履歴は再マウント対象の外のため残る）
  */
 export const useResetToCheckpointEventListener = (): void => {
   const energy = useEnergyStoreApi()
+  const moveHistoryStoreApi = useMoveHistoryStoreApi()
   const playerActivityStoreApi = usePlayerActivityStoreApi()
   const reset = useReset()
   /** player が移動中か */
@@ -60,6 +63,7 @@ export const useResetToCheckpointEventListener = (): void => {
       return
     }
 
+    moveHistoryStoreApi.getState().recordReset()
     reset()
   })
 }
