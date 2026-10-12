@@ -35,7 +35,7 @@
   - 案
     - 到達時は移動関連の表示（移動可能マス等）を抑止する
     - ゴールのアイコンを到着時に animate で上昇させ、bot の頭上へ移動する
-  - 到達後の終了状態: [#332](_pr/pr-332-goal-end-state/design.md)
+  - 到達後の終了状態: [#332](_closed/pr-333-goal-end-state/design.md)
   - 旗の頭上移動演出: 未着手（#332 に依存）
     - 床上の旗を非表示にし、bot 頭上のオーバーレイ（`overlayContainers[PLAYER_ACTOR_ID]`）へ旗を表示する
     - 表示時に bot 位置から頭上へ上昇する animate を付ける
