@@ -26,5 +26,5 @@ export type ArmToggleOverride = {
 /** `host.config`(arm-toggle)の既定値。`actionConfig.armToggle` で部分上書きできる */
 export const ARM_TOGGLE_DEFAULTS: ArmToggleConfig = {
   approachRate: 9,
-  upDelta: 1.75,
+  upDelta: 2.2,
 }
