@@ -15,6 +15,7 @@ import { useBotBubbles } from './index.hooks'
  *     あるため、目標セル上にも同じ組を表示する（issue #137）
  *   - 両者は同じ waypoint-flow store を参照し、表示・選択モードの切替が同期する
  * - EN 切れ中は bot 頭上へ EN 切れの吹き出しを表示し、中継点・実行を隠す（issue #137/#297）
+ * - ゴール到達後は全ての吹き出しを隠す（issue #137）
  * - 表示の出し分け・位置は `BubbleSlots` が担う（issue #297）
  */
 export const BotBubbles = () => {
