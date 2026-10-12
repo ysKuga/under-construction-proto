@@ -46,7 +46,7 @@ export type UseStageReturn = {
   handleNonAdjacentClick: (cell: HexCell) => Promise<void>
   /** 中継点選択モード中のセルクリック時 */
   handleWaypointCellClick: (cell: HexCell) => void
-  /** `Stage07` を操作可能にするか（中継点選択中・自動移動中は不可） */
+  /** `Stage07` を操作可能にするか（中継点選択中・自動移動中・補給中・ゴール到達後は不可） */
   interactive: boolean
   /** 目標マーカーを置くセル（自動移動中は固定した経路の終点） */
   objectiveMarkerCell?: HexCell
