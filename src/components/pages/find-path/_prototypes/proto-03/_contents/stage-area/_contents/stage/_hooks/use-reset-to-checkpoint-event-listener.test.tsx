@@ -6,18 +6,14 @@ import {
   useEnergyStoreApi,
 } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { Stage07Handle } from '@/prototypes/stage/stage-07'
 import {
   Stage07EventProvider,
   useStage07EventDispatcher,
 } from '@/prototypes/stage/stage-07/_events'
 
+import { ResetProvider } from '../../../../../_contexts/reset'
 import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'
-import {
-  Stage07HandleProvider,
-  useStage07HandleRef,
-} from '../../../../../_contexts/stage07-handle'
 import {
   FindPathEventProvider,
   useFindPathEventDispatcher,
@@ -25,10 +21,6 @@ import {
 import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
 import { FogStoreProvider, useFogStoreApi } from '../../../../../_stores/fog'
 import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
-import {
-  useWaypointFlowStoreApi,
-  WaypointFlowStoreProvider,
-} from '../../../../../_stores/waypoint-flow'
 
 import { useResetToCheckpointEventListener } from './use-reset-to-checkpoint-event-listener'
 
@@ -36,28 +28,26 @@ vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
-    <EnergyStoreProvider>
-      <CarriedItemStoreProvider>
-        <PlayerActivityStoreProvider>
-          <FindPathEventProvider>
-            <Stage07EventProvider>
-              <FogStoreProvider initialMode="all-hidden">
-                <WaypointFlowStoreProvider>
-                  <Stage07HandleProvider>
-                    {props.children}
-                  </Stage07HandleProvider>
-                </WaypointFlowStoreProvider>
-              </FogStoreProvider>
-            </Stage07EventProvider>
-          </FindPathEventProvider>
-        </PlayerActivityStoreProvider>
-      </CarriedItemStoreProvider>
-    </EnergyStoreProvider>
+    <ResetProvider>
+      <EnergyStoreProvider>
+        <CarriedItemStoreProvider>
+          <PlayerActivityStoreProvider>
+            <FindPathEventProvider>
+              <Stage07EventProvider>
+                <FogStoreProvider initialMode="all-hidden">
+                  {props.children}
+                </FogStoreProvider>
+              </Stage07EventProvider>
+            </FindPathEventProvider>
+          </PlayerActivityStoreProvider>
+        </CarriedItemStoreProvider>
+      </EnergyStoreProvider>
+    </ResetProvider>
   </StageLayoutProvider>
 )
 
-const setupResetToCheckpoint = () => {
-  const { result } = renderHook(
+const setupResetToCheckpoint = () =>
+  renderHook(
     () => {
       useResetToCheckpointEventListener()
 
@@ -66,31 +56,19 @@ const setupResetToCheckpoint = () => {
         findPathDispatch: useFindPathEventDispatcher(),
         fog: useFogStoreApi(),
         stage07Dispatch: useStage07EventDispatcher(),
-        stage07HandleRef: useStage07HandleRef(),
-        waypointFlow: useWaypointFlowStoreApi(),
       }
     },
     { wrapper: Wrapper },
-  )
-  const warp = vi.fn<Stage07Handle['warp']>()
-
-  result.current.stage07HandleRef.current = {
-    followPath: vi.fn<Stage07Handle['followPath']>(),
-    warp,
-  }
-
-  return { ...result.current, warp }
-}
+  ).result
 
 describe('useResetToCheckpointEventListener', () => {
-  it('EN 切れ中かつ停止中なら、目標設定を消して開始位置へワープし EN を上限まで補給する', async () => {
-    const { energy, findPathDispatch, fog, warp, waypointFlow } =
-      setupResetToCheckpoint()
+  it('EN 切れ中かつ停止中なら、配下を再マウントして盤面ごと初期状態へ戻す', async () => {
+    const result = setupResetToCheckpoint()
+    const { energy, findPathDispatch, fog } = result.current
     const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
     energy.getState().consume(PLAYER_ACTOR_ID, max)
     fog.getState().markVisited({ q: 2, r: 3 })
-    waypointFlow.getState().propose({ q: 4, r: 4 })
 
     await act(async () => {
       await expect(
@@ -98,24 +76,29 @@ describe('useResetToCheckpointEventListener', () => {
       ).resolves.toBe(true)
     })
 
-    expect(waypointFlow.getState().flowState).toBe('idle')
-    expect(warp).toHaveBeenCalledWith(DEFAULT_STAGE_LAYOUT.start)
-    expect(fog.getState().currentCell).toEqual(DEFAULT_STAGE_LAYOUT.start)
-    expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(max)
+    expect(result.current.energy).not.toBe(energy)
+    expect(
+      result.current.energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current,
+    ).toBe(max)
+    expect(result.current.fog.getState().currentCell).toEqual(
+      DEFAULT_STAGE_LAYOUT.start,
+    )
+    expect(result.current.fog.getState().visitedKeys.has('2,3')).toBe(false)
   })
 
   it('EN が残っていれば拒否する', async () => {
-    const { findPathDispatch, warp } = setupResetToCheckpoint()
+    const result = setupResetToCheckpoint()
+    const { energy, findPathDispatch } = result.current
 
     await expect(
       findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
     ).resolves.toBe(false)
-    expect(warp).not.toHaveBeenCalled()
+    expect(result.current.energy).toBe(energy)
   })
 
   it('移動中は拒否し、停止後は受理する', async () => {
-    const { energy, findPathDispatch, stage07Dispatch, warp } =
-      setupResetToCheckpoint()
+    const result = setupResetToCheckpoint()
+    const { energy, findPathDispatch, stage07Dispatch } = result.current
     const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
     energy.getState().consume(PLAYER_ACTOR_ID, max)
@@ -124,7 +107,7 @@ describe('useResetToCheckpointEventListener', () => {
     await expect(
       findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
     ).resolves.toBe(false)
-    expect(warp).not.toHaveBeenCalled()
+    expect(result.current.energy).toBe(energy)
 
     await stage07Dispatch['Stage07-move-stop']({ actorId: PLAYER_ACTOR_ID })
 
@@ -133,6 +116,6 @@ describe('useResetToCheckpointEventListener', () => {
         findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
       ).resolves.toBe(true)
     })
-    expect(warp).toHaveBeenCalledWith(DEFAULT_STAGE_LAYOUT.start)
+    expect(result.current.energy).not.toBe(energy)
   })
 })
