@@ -144,8 +144,8 @@ test('隣接セルへの直接移動は 1 手として記録する', () => {
 
   act(() => result.current.handleCellChange({ q: 1, r: 0 }))
 
-  expect(result.current.moveHistory.getState().moves).toEqual([
-    [{ q: 1, r: 0 }],
+  expect(result.current.moveHistory.getState().entries).toEqual([
+    { kind: 'move', path: [{ q: 1, r: 0 }] },
   ])
 })
 
@@ -155,5 +155,5 @@ test('自動移動中の移動は記録しない（「実行」時に経路ご�
   act(() => result.current.followPath.getState().start([{ q: 1, r: 0 }]))
   act(() => result.current.handleCellChange({ q: 1, r: 0 }))
 
-  expect(result.current.moveHistory.getState().moves).toEqual([])
+  expect(result.current.moveHistory.getState().entries).toEqual([])
 })

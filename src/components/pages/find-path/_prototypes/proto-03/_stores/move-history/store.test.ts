@@ -1,23 +1,28 @@
 import { createMoveHistoryStore, MOVE_HISTORY_LIMIT } from './store'
 
 describe('createMoveHistoryStore', () => {
-  it('record で手を古い順に記録する', () => {
+  it('手・リセットを古い順に記録する', () => {
     const store = createMoveHistoryStore()
 
-    expect(store.getState().moves).toEqual([])
+    expect(store.getState().entries).toEqual([])
 
-    store.getState().record([{ q: 1, r: 0 }])
-    store.getState().record([
+    store.getState().recordMove([{ q: 1, r: 0 }])
+    store.getState().recordReset()
+    store.getState().recordMove([
       { q: 1, r: 1 },
       { q: 1, r: 2 },
     ])
 
-    expect(store.getState().moves).toEqual([
-      [{ q: 1, r: 0 }],
-      [
-        { q: 1, r: 1 },
-        { q: 1, r: 2 },
-      ],
+    expect(store.getState().entries).toEqual([
+      { kind: 'move', path: [{ q: 1, r: 0 }] },
+      { kind: 'reset' },
+      {
+        kind: 'move',
+        path: [
+          { q: 1, r: 1 },
+          { q: 1, r: 2 },
+        ],
+      },
     ])
   })
 
@@ -25,12 +30,12 @@ describe('createMoveHistoryStore', () => {
     const store = createMoveHistoryStore()
 
     for (let q = 0; q <= MOVE_HISTORY_LIMIT; q++) {
-      store.getState().record([{ q, r: 0 }])
+      store.getState().recordMove([{ q, r: 0 }])
     }
 
-    const { moves } = store.getState()
+    const { entries } = store.getState()
 
-    expect(moves).toHaveLength(MOVE_HISTORY_LIMIT)
-    expect(moves[0]).toEqual([{ q: 1, r: 0 }])
+    expect(entries).toHaveLength(MOVE_HISTORY_LIMIT)
+    expect(entries[0]).toEqual({ kind: 'move', path: [{ q: 1, r: 0 }] })
   })
 })
