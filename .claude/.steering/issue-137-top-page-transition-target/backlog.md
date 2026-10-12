@@ -30,15 +30,15 @@
   - サブ issue #315 へ分離（[_closed/issue-315-random-stage](_closed/issue-315-random-stage/decision-records.md)）
   - 残項目（通行不能箇所の配置改善・障害物を排除するギミック）は対応なしで close
   - (decision-records.md 2026-10-11)
-- [ ] ゴール到達時の演出を検討する
+- [x] ゴール到達時の演出を検討する
   - 現状: ゴールの旗が bot に重なって表示される
   - 案
     - 到達時は移動関連の表示（移動可能マス等）を抑止する
     - ゴールのアイコンを到着時に animate で上昇させ、bot の頭上へ移動する
   - 到達後の終了状態: 完了（[#333](_closed/pr-333-goal-end-state/design.md)）
-  - 旗の頭上移動演出: 着手（[#334](_closed/pr-334-goal-flag-overhead/design.md)）
-    - 床上の旗を非表示にし、bot 頭上のオーバーレイ（`overlayContainers[PLAYER_ACTOR_ID]`）へ旗を表示する
-    - 表示時に bot 位置から頭上へ上昇する animate を付ける
+  - 旗の頭上移動演出: 完了（[#334](_closed/pr-334-goal-flag-overhead/design.md)）
+    - 到達後は吹き出しを全て隠す
+- [ ] ゴール状態で bot の両手を上げる挙動を検討する
 - [ ] bot の現在マスをクリックすると目標設定（経路提示）が表示される
   - 現在マスは非隣接クリック扱いになり、目標として扱われる
 - [ ] 通行不能箇所で遮られた隣接マスのクリックを目標設定にする
