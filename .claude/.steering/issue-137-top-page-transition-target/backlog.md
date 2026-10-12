@@ -26,8 +26,9 @@
     - トリガー: ホバー継続（再レンダリングはパネルのみ）
     - `title` 表示は削除
   - (#305 decision-records.md 2026-10-09)
-- [ ] find-path のステージをランダム生成する（簡単なパズルとして作成）
-  - サブ issue #315 へ分離（[_issues/issue-315-random-stage](_closed/issue-315-random-stage/backlog.md)）
+- [x] find-path のステージをランダム生成する（簡単なパズルとして作成）
+  - サブ issue #315 へ分離（[_closed/issue-315-random-stage](_closed/issue-315-random-stage/decision-records.md)）
+  - 残項目（通行不能箇所の配置改善・障害物を排除するギミック）は対応なしで close
   - (decision-records.md 2026-10-11)
 - [ ] ゴール到達時の演出を検討する
   - 現状: ゴールの旗が bot に重なって表示される
