@@ -10,6 +10,8 @@ export type ItemPresentation = {
   className: string
   /** 表示アイコン */
   icon: ReactNode
+  /** 名称（履歴の表示等） */
+  name: string
   /** hover 説明文言 */
   title: string
 }
@@ -30,11 +32,13 @@ const ITEM_PRESENTATIONS: Record<
     item: {
       className: term.energyChargeItem.className,
       icon: term.energyChargeItem.icon,
+      name: term.energyChargeItem.name,
       title: `${term.energyChargeItem.name}（踏むと携行、使用するとエネルギー補給、1個限り）`,
     },
     spot: {
       className: term.energyChargeSpot.className,
       icon: term.energyChargeSpot.icon,
+      name: term.energyChargeSpot.name,
       title: `${term.energyChargeSpot.name}（停止中に使用するとエネルギー補給、残量が尽きるまで）`,
     },
   },
