@@ -10,6 +10,7 @@
   - {"start": "<開始>", "end": "<終了>", "new": "<置換後>"}: 範囲置換
     - 開始の目印から終了の目印の直前までを置換後の文字列へ差し替える(開始は含み、終了は含まない)
     - 終了は開始より後ろで最初に一致した箇所
+    - 終了を省略するとファイル末尾までを差し替える
     - 開始が複数箇所に一致する場合は曖昧なため失敗する
     - 範囲の削除は "new": ""
 
@@ -32,7 +33,7 @@ def load_spec(source: str) -> dict[str, list[Replacement]]:
 
 def replace_range(text: str, replacement: dict[str, str]) -> tuple[str, str | None]:
     """開始の目印から終了の目印の直前までを差し替える。失敗時は元の text とエラー内容を返す"""
-    start, end, new = replacement["start"], replacement["end"], replacement["new"]
+    start, end, new = replacement["start"], replacement.get("end"), replacement["new"]
     start_index = text.find(start)
 
     if start_index == -1:
@@ -40,6 +41,10 @@ def replace_range(text: str, replacement: dict[str, str]) -> tuple[str, str | No
 
     if text.count(start) > 1:
         return text, f"start is ambiguous: {start[:80]!r}"
+
+    # 終了の省略: ファイル末尾までを差し替える
+    if end is None:
+        return text[:start_index] + new, None
 
     end_index = text.find(end, start_index + len(start))
 
