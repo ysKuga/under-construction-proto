@@ -7,6 +7,7 @@ import {
 } from 'react'
 
 import {
+  armToggleAction,
   bodyBobbingAction,
   BoxBot01,
   energyOutAction,
@@ -101,7 +102,7 @@ type ActorsLayerProps = {
  *   クリックを奪われたため分離した
  */
 /**
- * face / walking / walkingReset / bodyBobbing / energyOut を有効化する(jump/spin 等は無効のまま)
+ * face / walking / walkingReset / bodyBobbing / energyOut / armToggle を有効化する(jump/spin 等は無効のまま)
  *
  * - 配列の順 = `useFrame` の実行順。bodyBobbing は walking が書いた脚 swing を読むため walking より後
  */
@@ -111,6 +112,7 @@ const ACTIONS = [
   walkingResetAction,
   bodyBobbingAction,
   energyOutAction,
+  armToggleAction,
 ]
 
 /**
