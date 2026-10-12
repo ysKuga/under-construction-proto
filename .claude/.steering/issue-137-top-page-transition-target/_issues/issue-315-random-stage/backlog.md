@@ -11,3 +11,4 @@
   - 手数はリセットをまたいで通算
   - リセット自体も履歴へ追加（検討）
   - 全件保持（上限 10000 件程度）
+  - [_pr/pr-326-stage-move-history](_pr/pr-326-stage-move-history/design.md)
