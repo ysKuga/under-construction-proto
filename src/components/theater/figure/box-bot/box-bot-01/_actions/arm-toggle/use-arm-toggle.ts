@@ -30,6 +30,7 @@ type ArmToggleHost = Pick<
  *   `host.applyArmLift`(adapter が左右の腕グループの `rotation.z` へ)で反映する。\
  *   現在角(`leftZRef` / `rightZRef`)はこの action がローカルに持ち、補間を所有する\
  *   (host は書くだけ)
+ * - `detail.upDelta` 指定時は持ち上げ角を上書きする(以後のトグルにも引き継ぐ)。省略時は `config.upDelta`
  * - fall の腕引き寄せ(`rotation.x`)とは軸が別なので、同時に適用されても破綻しない
  * - 上げ下げ状態(`*UpRef`)は `useState` でなく `useRef`。JSX 再レンダーに関与しないため\
  *   (r3f-state ルール)。両腕が下げきっている間は `useFrame` を早期 return する
@@ -47,12 +48,15 @@ export const useArmToggle = (host: ArmToggleHost): void => {
   const leftZRef = useRef(0)
   /** 右腕の現在の持ち上げ角 (rad) */
   const rightZRef = useRef(0)
+  /** dispatch で上書きされた持ち上げ角 (rad)。未指定なら `config.upDelta` */
+  const upDeltaRef = useRef<number | undefined>(undefined)
 
   const onArmToggle = (e: Event) => {
     if (!interactive) return
 
-    const side =
-      (e as CustomEvent<ArmToggleOverride | undefined>).detail?.side ?? 'both'
+    const detail = (e as CustomEvent<ArmToggleOverride | undefined>).detail
+    const side = detail?.side ?? 'both'
+    if (detail?.upDelta !== undefined) upDeltaRef.current = detail.upDelta
     if (side === 'left' || side === 'both')
       leftUpRef.current = !leftUpRef.current
     if (side === 'right' || side === 'both')
@@ -71,7 +75,8 @@ export const useArmToggle = (host: ArmToggleHost): void => {
     )
       return
 
-    const { approachRate, upDelta } = config
+    const { approachRate } = config
+    const upDelta = upDeltaRef.current ?? config.upDelta
     const leftTarget = leftUpRef.current ? -upDelta : 0
     const rightTarget = rightUpRef.current ? upDelta : 0
 

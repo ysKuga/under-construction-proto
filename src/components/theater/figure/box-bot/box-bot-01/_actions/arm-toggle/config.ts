@@ -17,14 +17,17 @@ export type ArmToggleConfig = {
  *
  * - dispatch(`useBoxBotActionDispatcher().armToggle(...)`)時に指定する
  * - `side` 省略時は `'both'`
+ * - `upDelta` 省略時は `host.config.upDelta`
  */
 export type ArmToggleOverride = {
   /** どの腕をトグルするか。省略時は両腕 */
   side?: ArmSide
+  /** 下げ位置からの持ち上げ角 (rad)。以後のトグルにも引き継ぐ */
+  upDelta?: number
 }
 
 /** `host.config`(arm-toggle)の既定値。`actionConfig.armToggle` で部分上書きできる */
 export const ARM_TOGGLE_DEFAULTS: ArmToggleConfig = {
   approachRate: 9,
-  upDelta: 2.2,
+  upDelta: 1.75,
 }
