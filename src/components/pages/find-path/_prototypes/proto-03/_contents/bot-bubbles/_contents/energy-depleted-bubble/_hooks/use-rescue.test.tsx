@@ -16,6 +16,7 @@ import {
   useCarriedItemStoreApi,
 } from '../../../../../_stores/carried-items'
 import { ItemInstance } from '../../../../../_stores/items/types'
+import { MoveHistoryStoreProvider } from '../../../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
 
 import { useRescue } from './use-rescue'
@@ -24,11 +25,13 @@ vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <CarriedItemStoreProvider>
-      <PlayerActivityStoreProvider>
-        <FindPathEventProvider>{props.children}</FindPathEventProvider>
-      </PlayerActivityStoreProvider>
-    </CarriedItemStoreProvider>
+    <MoveHistoryStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </MoveHistoryStoreProvider>
   </EnergyStoreProvider>
 )
 

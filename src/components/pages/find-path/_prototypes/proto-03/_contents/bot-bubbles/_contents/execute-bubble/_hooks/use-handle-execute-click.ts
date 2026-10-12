@@ -41,7 +41,7 @@ export const useHandleExecuteClick =
       waypointFlowStoreApi.getState().setFlowState('idle')
       followPathStoreApi.getState().start(previewPath)
       stage07HandleRef.current?.followPath(previewPath)
-      moveHistoryStoreApi.getState().recordMove(previewPath)
+      moveHistoryStoreApi.getState().record({ kind: 'move', path: previewPath })
     }, [
       findPathEventDispatcher,
       followPathStoreApi,

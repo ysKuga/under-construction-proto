@@ -11,6 +11,7 @@ import { useActorsStoreApi } from '@/prototypes/stage/stage-07/_stores/actors'
 import { useFindPathEventListener } from '../../../../../_events'
 import { countEnergySpotCharge } from '../../../../../_lib/count-energy-spot-charge'
 import { useItemStoreApi } from '../../../../../_stores/items'
+import { useMoveHistoryStoreApi } from '../../../../../_stores/move-history'
 import { usePlayerActivityStoreApi } from '../../../../../_stores/player-activity'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { ENERGY_SPOT_CHARGE_INTERVAL_MS } from '../../../../../constants'
@@ -23,6 +24,7 @@ import { ENERGY_SPOT_CHARGE_INTERVAL_MS } from '../../../../../constants'
  * - 補給回数（`countEnergySpotCharge`）を先に決め、`ENERGY_SPOT_CHARGE_INTERVAL_MS`
  *   ごとにスポットを 1 回分消費し補給する。中断はしない（issue #297）
  * - 補給中は行為 store を `charging` にし、完了で `idle` へ戻す
+ * - 受理した使用は手数の履歴へ記録する
  * - 時間経過は time-control 導入までの暫定として rxjs の `interval` で持つ
  */
 export const useEnergySpotUseEventListener = (): void => {
@@ -30,6 +32,7 @@ export const useEnergySpotUseEventListener = (): void => {
   const energy = useEnergyStoreApi()
   const energyDispatch = useEnergyEventDispatcher()
   const itemStoreApi = useItemStoreApi()
+  const moveHistoryStoreApi = useMoveHistoryStoreApi()
   const playerActivityStoreApi = usePlayerActivityStoreApi()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   /** 補給の時間経過の購読 */
@@ -63,6 +66,7 @@ export const useEnergySpotUseEventListener = (): void => {
     // 補給中は経路の提示・実行を受け付けないため、提示中の目標・中継点を消す
     waypointFlowStoreApi.getState().clear()
     playerActivityStoreApi.getState().setActivity('charging')
+    moveHistoryStoreApi.getState().record({ kind: 'use-energy-spot' })
 
     chargeSubscriptionRef.current = interval(ENERGY_SPOT_CHARGE_INTERVAL_MS)
       .pipe(take(count))

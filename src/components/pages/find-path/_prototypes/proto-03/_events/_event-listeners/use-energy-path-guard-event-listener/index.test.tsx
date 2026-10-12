@@ -8,17 +8,20 @@ import {
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
 import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
+import { MoveHistoryStoreProvider } from '../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../_stores/player-activity'
 import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
 import { FindPathEventProvider } from '../../index.contexts'
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <CarriedItemStoreProvider>
-      <PlayerActivityStoreProvider>
-        <FindPathEventProvider>{props.children}</FindPathEventProvider>
-      </PlayerActivityStoreProvider>
-    </CarriedItemStoreProvider>
+    <MoveHistoryStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </MoveHistoryStoreProvider>
   </EnergyStoreProvider>
 )
 

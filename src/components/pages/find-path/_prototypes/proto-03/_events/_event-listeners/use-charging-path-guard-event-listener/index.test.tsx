@@ -4,6 +4,7 @@ import { PropsWithChildren } from 'react'
 import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
 
 import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
+import { MoveHistoryStoreProvider } from '../../../_stores/move-history'
 import {
   PlayerActivityStoreProvider,
   usePlayerActivityStoreApi,
@@ -15,11 +16,13 @@ vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
-    <CarriedItemStoreProvider>
-      <PlayerActivityStoreProvider>
-        <FindPathEventProvider>{props.children}</FindPathEventProvider>
-      </PlayerActivityStoreProvider>
-    </CarriedItemStoreProvider>
+    <MoveHistoryStoreProvider>
+      <CarriedItemStoreProvider>
+        <PlayerActivityStoreProvider>
+          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+        </PlayerActivityStoreProvider>
+      </CarriedItemStoreProvider>
+    </MoveHistoryStoreProvider>
   </EnergyStoreProvider>
 )
 

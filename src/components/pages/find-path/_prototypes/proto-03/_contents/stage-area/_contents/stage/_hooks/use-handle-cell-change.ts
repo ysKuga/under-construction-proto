@@ -10,7 +10,7 @@ import { useCarriedItemStoreApi } from '../../../../../_stores/carried-items'
 import { useEnergySettingsStoreApi } from '../../../../../_stores/energy-settings'
 import { useFogStore } from '../../../../../_stores/fog'
 import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
-import { useGoalStore } from '../../../../../_stores/goal'
+import { useGoalStoreApi } from '../../../../../_stores/goal'
 import { useItemStoreApi } from '../../../../../_stores/items'
 import { useMoveHistoryStoreApi } from '../../../../../_stores/move-history'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
@@ -25,16 +25,17 @@ import { UseStageReturn } from '../index.types'
  * - EN を消費量設定（`consumePerMove`）分消費する
  * - 消費量 0（EN 無限）なら消費しない
  * - ゴールセルなら到達を記録する
+ * - アイテムの携行・ゴールへの初回到達を手数の履歴へ記録する
  * - 自動移動中でなければ（隣接セルへの直接移動）、1 手として手数の履歴へ記録する。\
  *   自動移動は「実行」時に経路ごと 1 手として記録済み
  */
 export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
   const markVisited = useFogStore((state) => state.markVisited)
-  const reachGoal = useGoalStore((state) => state.reach)
   const carriedItemStoreApi = useCarriedItemStoreApi()
   const energyDispatch = useEnergyEventDispatcher()
   const energySettingsStoreApi = useEnergySettingsStoreApi()
   const followPathStoreApi = useFollowPathStoreApi()
+  const goalStoreApi = useGoalStoreApi()
   const itemStoreApi = useItemStoreApi()
   const moveHistoryStoreApi = useMoveHistoryStoreApi()
   const stageLayout = useStageLayout()
@@ -44,7 +45,7 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
     (cell: HexCell) => {
       // 隣接セルへの直接移動: 1 手として記録する
       if (!followPathStoreApi.getState().isFollowing()) {
-        moveHistoryStoreApi.getState().recordMove([cell])
+        moveHistoryStoreApi.getState().record({ kind: 'move', path: [cell] })
       }
 
       waypointFlowStoreApi.getState().clear()
@@ -61,6 +62,9 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
       // EN 補給アイテムを携行した: その場から取り除く（補給は使用時）
       if (pickedUp) {
         itemStoreApi.getState().consumeItem(item.id)
+        moveHistoryStoreApi
+          .getState()
+          .record({ itemKind: item.kind, kind: 'pick-up-item' })
       }
 
       const { consumePerMove } = energySettingsStoreApi.getState()
@@ -75,8 +79,14 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
         })
       }
 
-      if (isSameCell(cell, stageLayout.goal)) {
-        reachGoal()
+      /** ゴールへ初めて到達したか */
+      const isFirstGoalReach =
+        isSameCell(cell, stageLayout.goal) && !goalStoreApi.getState().reached
+
+      // ゴールへ初めて到達した: 到達を記録する
+      if (isFirstGoalReach) {
+        goalStoreApi.getState().reach()
+        moveHistoryStoreApi.getState().record({ kind: 'reach-goal' })
       }
     },
     [
@@ -84,10 +94,10 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
       energyDispatch,
       energySettingsStoreApi,
       followPathStoreApi,
+      goalStoreApi,
       itemStoreApi,
       markVisited,
       moveHistoryStoreApi,
-      reachGoal,
       stageLayout,
       waypointFlowStoreApi,
     ],

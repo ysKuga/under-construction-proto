@@ -15,6 +15,7 @@ import {
   useFindPathEventListener,
 } from '../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
+import { MoveHistoryStoreProvider } from '../../../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
 import {
   useWaypointFlowStoreApi,
@@ -28,19 +29,21 @@ vi.unmock('zustand')
 const Wrapper = (props: PropsWithChildren) => (
   <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
     <EnergyStoreProvider>
-      <CarriedItemStoreProvider>
-        <PlayerActivityStoreProvider>
-          <FindPathEventProvider>
-            <ActorsStoreProvider
-              initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
-            >
-              <WaypointFlowStoreProvider>
-                {props.children}
-              </WaypointFlowStoreProvider>
-            </ActorsStoreProvider>
-          </FindPathEventProvider>
-        </PlayerActivityStoreProvider>
-      </CarriedItemStoreProvider>
+      <MoveHistoryStoreProvider>
+        <CarriedItemStoreProvider>
+          <PlayerActivityStoreProvider>
+            <FindPathEventProvider>
+              <ActorsStoreProvider
+                initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+              >
+                <WaypointFlowStoreProvider>
+                  {props.children}
+                </WaypointFlowStoreProvider>
+              </ActorsStoreProvider>
+            </FindPathEventProvider>
+          </PlayerActivityStoreProvider>
+        </CarriedItemStoreProvider>
+      </MoveHistoryStoreProvider>
     </EnergyStoreProvider>
   </StageLayoutProvider>
 )

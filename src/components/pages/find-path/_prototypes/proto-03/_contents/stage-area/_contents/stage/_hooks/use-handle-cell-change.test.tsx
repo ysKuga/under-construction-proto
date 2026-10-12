@@ -19,7 +19,7 @@ import {
   FollowPathStoreProvider,
   useFollowPathStoreApi,
 } from '../../../../../_stores/follow-path'
-import { GoalStoreProvider } from '../../../../../_stores/goal'
+import { GoalStoreProvider, useGoalStore } from '../../../../../_stores/goal'
 import {
   ItemStoreProvider,
   useItemStoreApi,
@@ -80,6 +80,7 @@ const renderHandleCellChange = (capacity?: number) =>
       carriedItems: useCarriedItemStoreApi(),
       energy: useEnergyStoreApi(),
       followPath: useFollowPathStoreApi(),
+      goalReached: useGoalStore((state) => state.reached),
       handleCellChange: useHandleCellChange(),
       items: useItemStoreApi(),
       moveHistory: useMoveHistoryStoreApi(),
@@ -101,6 +102,10 @@ test('EN 補給アイテムを踏むと即時補給せず携行し、その場�
   expect(
     result.current.items.getState().getItemAtCell(CHARGE_ITEM.cell),
   ).toBeUndefined()
+  expect(result.current.moveHistory.getState().entries).toEqual([
+    { kind: 'move', path: [CHARGE_ITEM.cell] },
+    { itemKind: 'energy-charge', kind: 'pick-up-item' },
+  ])
   // 移動分の消費のみで補給しない
   await waitFor(() =>
     expect(
@@ -156,4 +161,20 @@ test('自動移動中の移動は記録しない（「実行」時に経路ご�
   act(() => result.current.handleCellChange({ q: 1, r: 0 }))
 
   expect(result.current.moveHistory.getState().entries).toEqual([])
+})
+
+test('ゴールへの到達は初回のみ記録する', () => {
+  const { result } = renderHandleCellChange()
+  const { goal } = DEFAULT_STAGE_LAYOUT
+
+  act(() => result.current.handleCellChange(goal))
+  act(() => result.current.handleCellChange({ q: 0, r: 0 }))
+  act(() => result.current.handleCellChange(goal))
+
+  expect(result.current.goalReached).toBe(true)
+  expect(
+    result.current.moveHistory
+      .getState()
+      .entries.filter((entry) => entry.kind === 'reach-goal'),
+  ).toHaveLength(1)
 })
