@@ -9,3 +9,4 @@
 - 2026-10-12: 手数の履歴の記録・表示完了。リセットも履歴へ記録し、表示は直近 20 件に限る（[#326](_closed/pr-326-stage-move-history/design.md)、[#327](_closed/pr-327-stage-move-history-display/design.md)）
 - 2026-10-12: 履歴パネルを bot の状態表示の横へ同じ高さで並べる対応完了（[#328](_closed/pr-328-stage-history-beside-bot/design.md)）
 - 2026-10-12: アクションの結果（アイテムの携行・使用、EN スポットでの補給、EN 切れ、ゴール到達）を履歴へ記録する対応完了（[#329](_closed/pr-329-stage-action-history/design.md)）
+- 2026-10-12: backlog 残項目（通行不能箇所の配置改善・障害物を排除するギミックの検討）は対応なしとし、#315 を close した
