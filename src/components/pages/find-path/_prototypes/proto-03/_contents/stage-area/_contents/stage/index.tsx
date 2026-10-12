@@ -10,14 +10,11 @@ import { ObstacleLayer } from '../../../../_layers/obstacle-layer'
 import { OneWayLayer } from '../../../../_layers/one-way-layer'
 import { PathPreviewLayer } from '../../../../_layers/path-preview-layer'
 import { WaypointSelectLayer } from '../../../../_layers/waypoint-select-layer'
-import { GRID, HEX_SIZE } from '../../../../constants'
+import { BOT_SIZE, GRID, HEX_SIZE } from '../../../../constants'
 
 import { CellInfoPanel } from './_components/cell-info-panel'
 import { EnergySliders } from './_components/energy-sliders'
 import { useStage } from './index.hooks'
-
-/** bot(box-bot-01)の一辺 px */
-const BOT_SIZE = 56
 
 /**
  * ステージ（`Stage07` + find-path 固有のレイヤー群）
