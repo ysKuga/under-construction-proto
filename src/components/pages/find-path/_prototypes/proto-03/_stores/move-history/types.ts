@@ -29,13 +29,11 @@ export type MoveHistoryState = {
   /** 履歴（古い順） */
   entries: MoveHistoryEntry[]
   /**
-   * 1 手を記録する
+   * 履歴へ 1 件記録する
    *
-   * @param path その手で移動した経路
+   * @param entry 記録する項目
    */
-  recordMove: (path: HexCell[]) => void
-  /** リセットを記録する */
-  recordReset: () => void
+  record: (entry: MoveHistoryEntry) => void
 }
 
 export type MoveHistoryStore = StoreApi<MoveHistoryState>

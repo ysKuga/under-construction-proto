@@ -44,7 +44,7 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
     (cell: HexCell) => {
       // 隣接セルへの直接移動: 1 手として記録する
       if (!followPathStoreApi.getState().isFollowing()) {
-        moveHistoryStoreApi.getState().recordMove([cell])
+        moveHistoryStoreApi.getState().record({ kind: 'move', path: [cell] })
       }
 
       waypointFlowStoreApi.getState().clear()

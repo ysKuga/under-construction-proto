@@ -63,7 +63,7 @@ export const useResetToCheckpointEventListener = (): void => {
       return
     }
 
-    moveHistoryStoreApi.getState().recordReset()
+    moveHistoryStoreApi.getState().record({ kind: 'reset' })
     reset()
   })
 }

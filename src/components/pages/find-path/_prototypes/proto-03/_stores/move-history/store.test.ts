@@ -6,12 +6,15 @@ describe('createMoveHistoryStore', () => {
 
     expect(store.getState().entries).toEqual([])
 
-    store.getState().recordMove([{ q: 1, r: 0 }])
-    store.getState().recordReset()
-    store.getState().recordMove([
-      { q: 1, r: 1 },
-      { q: 1, r: 2 },
-    ])
+    store.getState().record({ kind: 'move', path: [{ q: 1, r: 0 }] })
+    store.getState().record({ kind: 'reset' })
+    store.getState().record({
+      kind: 'move',
+      path: [
+        { q: 1, r: 1 },
+        { q: 1, r: 2 },
+      ],
+    })
 
     expect(store.getState().entries).toEqual([
       { kind: 'move', path: [{ q: 1, r: 0 }] },
@@ -30,7 +33,7 @@ describe('createMoveHistoryStore', () => {
     const store = createMoveHistoryStore()
 
     for (let q = 0; q <= MOVE_HISTORY_LIMIT; q++) {
-      store.getState().recordMove([{ q, r: 0 }])
+      store.getState().record({ kind: 'move', path: [{ q, r: 0 }] })
     }
 
     const { entries } = store.getState()
