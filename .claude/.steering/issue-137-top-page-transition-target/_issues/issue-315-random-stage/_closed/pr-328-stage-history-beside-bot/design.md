@@ -8,7 +8,7 @@ PR: #328（親: #315）
 
 ## 背景・制約
 
-- 履歴パネルは #327 で操作パネルの下に置いた（[../../_closed/pr-327-stage-move-history-display/design.md](../../_closed/pr-327-stage-move-history-display/design.md)）
+- 履歴パネルは #327 で操作パネルの下に置いた（[../../_closed/pr-327-stage-move-history-display/design.md](../pr-327-stage-move-history-display/design.md)）
 - 子同士の配置は並べる側（`stage-area`）の className に集約する（`src/components/CLAUDE.md`「レイアウト」）
 - 履歴パネルは `stage-area` からのみ使うことになるため、`stage-area/_contents/` へネストする
 
