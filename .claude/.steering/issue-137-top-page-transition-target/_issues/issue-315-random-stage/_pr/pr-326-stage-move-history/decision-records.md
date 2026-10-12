@@ -5,3 +5,4 @@
 - 2026-10-12: 隣接セルへの直接移動（`useHexMove`、`FindPath-execute-path` を経由しない）も 1 手と数える
 - 2026-10-12: `_stores/move-history` を追加。記録は「実行」吹き出しの受理後（経路ごと）と `handleCellChange`（自動移動中でない時のみ）の2箇所
 - 2026-10-12: EN 切れ時のリセットも履歴へ記録する（手数には数えない）。コントロールパネルのデバッグ用リセットは記録しない
+- 2026-10-12: 表示は PR #327 へ分離した（../pr-327-stage-move-history-display/design.md）
