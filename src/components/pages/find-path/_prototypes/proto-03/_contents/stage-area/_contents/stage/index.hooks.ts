@@ -7,6 +7,7 @@ import { useAdvanceFollowPathOnCellReach } from '../../../../_hooks/use-advance-
 import { usePreviewPath } from '../../../../_hooks/use-preview-path'
 import { useDisplaySettingsStore } from '../../../../_stores/display-settings'
 import { useFollowPathStore } from '../../../../_stores/follow-path'
+import { useGoalStore } from '../../../../_stores/goal'
 import { usePlayerActivityStore } from '../../../../_stores/player-activity'
 import { useWaypointFlowStore } from '../../../../_stores/waypoint-flow'
 
@@ -50,6 +51,8 @@ export const useStage = (): UseStageReturn => {
   const isCharging = usePlayerActivityStore(
     (state) => state.activity === 'charging',
   )
+  /** ゴールへ到達済みか（終了状態として `Stage07` を非対話化する） */
+  const goalReached = useGoalStore((state) => state.reached)
   const stage07HandleRef = useStage07HandleRef()
   const previewPath = usePreviewPath()
   const actorEventTarget = usePlayerActorEventTarget()
@@ -86,7 +89,8 @@ export const useStage = (): UseStageReturn => {
     handleFollowPathEnd,
     handleNonAdjacentClick,
     handleWaypointCellClick,
-    interactive: !waypointSelecting && !isAutoMoving && !isCharging,
+    interactive:
+      !waypointSelecting && !isAutoMoving && !isCharging && !goalReached,
     objectiveMarkerCell: isAutoMoving ? followingPath.at(-1) : objectiveCell,
     previewPath,
     registerFloorVisibilityNode,
