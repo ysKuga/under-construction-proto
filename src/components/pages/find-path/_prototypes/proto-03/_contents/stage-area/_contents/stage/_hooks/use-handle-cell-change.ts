@@ -9,8 +9,10 @@ import { isSameCell } from '../../../../../_lib/is-same-cell'
 import { useCarriedItemStoreApi } from '../../../../../_stores/carried-items'
 import { useEnergySettingsStoreApi } from '../../../../../_stores/energy-settings'
 import { useFogStore } from '../../../../../_stores/fog'
+import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
 import { useGoalStore } from '../../../../../_stores/goal'
 import { useItemStoreApi } from '../../../../../_stores/items'
+import { useMoveHistoryStoreApi } from '../../../../../_stores/move-history'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { UseStageReturn } from '../index.types'
 
@@ -23,6 +25,8 @@ import { UseStageReturn } from '../index.types'
  * - EN を消費量設定（`consumePerMove`）分消費する
  * - 消費量 0（EN 無限）なら消費しない
  * - ゴールセルなら到達を記録する
+ * - 自動移動中でなければ（隣接セルへの直接移動）、1 手として手数の履歴へ記録する。\
+ *   自動移動は「実行」時に経路ごと 1 手として記録済み
  */
 export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
   const markVisited = useFogStore((state) => state.markVisited)
@@ -30,12 +34,19 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
   const carriedItemStoreApi = useCarriedItemStoreApi()
   const energyDispatch = useEnergyEventDispatcher()
   const energySettingsStoreApi = useEnergySettingsStoreApi()
+  const followPathStoreApi = useFollowPathStoreApi()
   const itemStoreApi = useItemStoreApi()
+  const moveHistoryStoreApi = useMoveHistoryStoreApi()
   const stageLayout = useStageLayout()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
 
   return useCallback(
     (cell: HexCell) => {
+      // 隣接セルへの直接移動: 1 手として記録する
+      if (!followPathStoreApi.getState().isFollowing()) {
+        moveHistoryStoreApi.getState().record([cell])
+      }
+
       waypointFlowStoreApi.getState().clear()
       markVisited(cell)
 
@@ -72,8 +83,10 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
       carriedItemStoreApi,
       energyDispatch,
       energySettingsStoreApi,
+      followPathStoreApi,
       itemStoreApi,
       markVisited,
+      moveHistoryStoreApi,
       reachGoal,
       stageLayout,
       waypointFlowStoreApi,

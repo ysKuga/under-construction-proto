@@ -4,6 +4,7 @@ import { useStage07HandleRef } from '../../../../../_contexts/stage07-handle'
 import { useFindPathEventDispatcher } from '../../../../../_events'
 import { usePreviewPath } from '../../../../../_hooks/use-preview-path'
 import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
+import { useMoveHistoryStoreApi } from '../../../../../_stores/move-history'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { UseExecuteBubbleContentReturn } from '../index.types'
 
@@ -16,6 +17,7 @@ import { UseExecuteBubbleContentReturn } from '../index.types'
  * - 自動移動中は `Stage07` を非対話化し、クリックによる割込みを防ぐ
  * - 開始前に `FindPath-execute-path` を発行し、listener に拒否されたら（EN 切れ等）
  *   開始しない。経路提示後に EN が切れた場合の対策
+ * - 開始した経路を 1 手として手数の履歴へ記録する
  */
 export const useHandleExecuteClick =
   (): UseExecuteBubbleContentReturn['handleClick'] => {
@@ -23,6 +25,7 @@ export const useHandleExecuteClick =
     const stage07HandleRef = useStage07HandleRef()
     const findPathEventDispatcher = useFindPathEventDispatcher()
     const followPathStoreApi = useFollowPathStoreApi()
+    const moveHistoryStoreApi = useMoveHistoryStoreApi()
     const waypointFlowStoreApi = useWaypointFlowStoreApi()
 
     return useCallback(async () => {
@@ -38,9 +41,11 @@ export const useHandleExecuteClick =
       waypointFlowStoreApi.getState().setFlowState('idle')
       followPathStoreApi.getState().start(previewPath)
       stage07HandleRef.current?.followPath(previewPath)
+      moveHistoryStoreApi.getState().record(previewPath)
     }, [
       findPathEventDispatcher,
       followPathStoreApi,
+      moveHistoryStoreApi,
       previewPath,
       stage07HandleRef,
       waypointFlowStoreApi,
