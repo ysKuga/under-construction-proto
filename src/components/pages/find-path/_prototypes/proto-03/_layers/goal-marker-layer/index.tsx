@@ -7,6 +7,7 @@ import {
 } from '@/prototypes/stage/stage-07/_lib/hex-layout'
 
 import { useStageLayout } from '../../_contexts/stage-layout'
+import { useGoalStore } from '../../_stores/goal'
 
 type GoalMarkerLayerProps = {
   /** 列数 */
@@ -39,11 +40,15 @@ type GoalMarkerLayerProps = {
  *   `rotateX(calc(-1 * var(--floor-tilt)))` で打ち消して直立させる（issue #137）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
  *   状態変化に巻き込まれて再レンダリングしない
+ * - 旗を bot 頭上へ掲げた後は床上の旗を透明にする。bot 頭上の旗（`GoalFlagOverhead`）へ表示を移す（issue #137）
+ *   - 可視状態は registry が `visibility` を直書きするため、`opacity` で消して競合を避ける
  */
 export const GoalMarkerLayer = memo((props: GoalMarkerLayerProps) => {
   const { cols, hexSize, registerVisibilityNode, rows } = props
 
   const { goal } = useStageLayout()
+  /** 旗を bot 頭上へ掲げたか */
+  const flagRaised = useGoalStore((state) => state.flagRaised)
 
   const bounds = computeHexGridBounds(cols, rows, hexSize)
   const center = hexCellCenter(goal, hexSize, bounds)
@@ -55,6 +60,7 @@ export const GoalMarkerLayer = memo((props: GoalMarkerLayerProps) => {
     height: bounds.cellHeight,
     justifyContent: 'center',
     left: center.x,
+    opacity: flagRaised ? 0 : 1,
     pointerEvents: 'none',
     position: 'absolute',
     top: center.y,
