@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
-import { useMoveHistoryStore } from '../../_stores/move-history'
-import { MoveHistoryEntry } from '../../_stores/move-history/types'
+import { useMoveHistoryStore } from '../../../../_stores/move-history'
+import { MoveHistoryEntry } from '../../../../_stores/move-history/types'
 
 import { MoveHistoryRow, UseMoveHistoryPanelReturn } from './index.types'
 
