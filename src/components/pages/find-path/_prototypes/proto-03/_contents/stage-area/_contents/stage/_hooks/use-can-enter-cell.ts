@@ -8,6 +8,7 @@ import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { isObstacleCell } from '../../../../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../../../../_lib/one-way'
+import { useGoalStore } from '../../../../../_stores/goal'
 import { EnterGuard, UseStageReturn } from '../index.types'
 
 /**
@@ -17,6 +18,8 @@ import { EnterGuard, UseStageReturn } from '../index.types'
  *   `MoveTargetLayer` 自身が EN store を直接購読して適用する（issue-181-en backlog:
  *   `EnergyDebugPanel` 操作で `Stage07` 配下ツリー全体が再レンダリングされる問題の解消）
  * - EN は残量の有無（boolean）のみ購読する。残量の増減だけでは再レンダリングしない
+ * - ゴール到達後は全セル進入不可（終了状態）。自動移動も次のマスで打ち切られ、\
+ *   移動可能マスも表示しない
  */
 export const useCanEnterCell = (): Pick<
   UseStageReturn,
@@ -29,8 +32,15 @@ export const useCanEnterCell = (): Pick<
     (state) => state.getEnergyInfo(PLAYER_ACTOR_ID).current > 0,
   )
 
-  const enterGuards: EnterGuard[] = useMemo(
+  /** ゴールへ到達済みか（到達後は終了状態として移動させない） */
+  const goalReached = useGoalStore((state) => state.reached)
+
+  const enterGuards = useMemo<EnterGuard[]>(
     () => [
+      {
+        check: () => !goalReached,
+        kind: 'perceived',
+      },
       {
         check: (cell) => !isObstacleCell(cell, stageLayout),
         kind: 'perceived',
@@ -40,7 +50,7 @@ export const useCanEnterCell = (): Pick<
         kind: 'perceived',
       },
     ],
-    [currentCell, stageLayout],
+    [currentCell, goalReached, stageLayout],
   )
 
   const canEnterCellPerceived = useCallback(
