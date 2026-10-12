@@ -9,5 +9,6 @@
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
 - [ ] 履歴: 手数の記録と表示
   - 手数はリセットをまたいで通算
-  - リセット自体も履歴へ追加（検討）
+  - リセット自体も履歴へ追加
   - 全件保持（上限 10000 件程度）
+  - [_pr/pr-326-stage-move-history](_pr/pr-326-stage-move-history/design.md)

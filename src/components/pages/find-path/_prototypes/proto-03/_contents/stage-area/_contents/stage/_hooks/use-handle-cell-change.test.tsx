@@ -15,12 +15,20 @@ import {
 } from '../../../../../_stores/carried-items'
 import { EnergySettingsStoreProvider } from '../../../../../_stores/energy-settings'
 import { FogStoreProvider } from '../../../../../_stores/fog'
+import {
+  FollowPathStoreProvider,
+  useFollowPathStoreApi,
+} from '../../../../../_stores/follow-path'
 import { GoalStoreProvider } from '../../../../../_stores/goal'
 import {
   ItemStoreProvider,
   useItemStoreApi,
 } from '../../../../../_stores/items'
 import { ItemInstance } from '../../../../../_stores/items/types'
+import {
+  MoveHistoryStoreProvider,
+  useMoveHistoryStoreApi,
+} from '../../../../../_stores/move-history'
 import { WaypointFlowStoreProvider } from '../../../../../_stores/waypoint-flow'
 
 import { useHandleCellChange } from './use-handle-cell-change'
@@ -50,7 +58,13 @@ const createWrapper = (capacity?: number) => (props: PropsWithChildren) => (
           <FogStoreProvider initialMode="all-visible">
             <WaypointFlowStoreProvider>
               <EnergySettingsStoreProvider>
-                <GoalStoreProvider>{props.children}</GoalStoreProvider>
+                <GoalStoreProvider>
+                  <FollowPathStoreProvider>
+                    <MoveHistoryStoreProvider>
+                      {props.children}
+                    </MoveHistoryStoreProvider>
+                  </FollowPathStoreProvider>
+                </GoalStoreProvider>
               </EnergySettingsStoreProvider>
             </WaypointFlowStoreProvider>
           </FogStoreProvider>
@@ -65,8 +79,10 @@ const renderHandleCellChange = (capacity?: number) =>
     () => ({
       carriedItems: useCarriedItemStoreApi(),
       energy: useEnergyStoreApi(),
+      followPath: useFollowPathStoreApi(),
       handleCellChange: useHandleCellChange(),
       items: useItemStoreApi(),
+      moveHistory: useMoveHistoryStoreApi(),
     }),
     { wrapper: createWrapper(capacity) },
   )
@@ -121,4 +137,23 @@ test('EN スポットは携行せず、踏んでも補給しない', async () =>
       max - 1,
     ),
   )
+})
+
+test('隣接セルへの直接移動は 1 手として記録する', () => {
+  const { result } = renderHandleCellChange()
+
+  act(() => result.current.handleCellChange({ q: 1, r: 0 }))
+
+  expect(result.current.moveHistory.getState().entries).toEqual([
+    { kind: 'move', path: [{ q: 1, r: 0 }] },
+  ])
+})
+
+test('自動移動中の移動は記録しない（「実行」時に経路ごと記録済み）', () => {
+  const { result } = renderHandleCellChange()
+
+  act(() => result.current.followPath.getState().start([{ q: 1, r: 0 }]))
+  act(() => result.current.handleCellChange({ q: 1, r: 0 }))
+
+  expect(result.current.moveHistory.getState().entries).toEqual([])
 })
