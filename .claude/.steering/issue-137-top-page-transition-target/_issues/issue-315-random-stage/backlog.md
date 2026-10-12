@@ -7,9 +7,3 @@
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
 - [ ] ギミック: 障害物を排除する仕組みの検討
   - (_closed/pr-320-stage-blocker-placement/decision-records.md 2026-10-11)
-- [ ] 履歴: 手数の記録と表示
-  - 手数はリセットをまたいで通算
-  - リセット自体も履歴へ追加
-  - 全件保持（上限 10000 件程度）
-  - [_pr/pr-326-stage-move-history](_closed/pr-326-stage-move-history/design.md)
-  - [_pr/pr-327-stage-move-history-display](_closed/pr-327-stage-move-history-display/design.md)
