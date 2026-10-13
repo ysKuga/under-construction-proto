@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import {
+  armToggleAction,
   bodyBobbingAction,
   energyOutAction,
   faceAction,
@@ -20,11 +21,13 @@ import { useRelayFacing } from './_hooks/use-relay-facing'
  * - face（向き）は含めない。同期の有無を切り替えるため `useRelayFacing` で別途中継する
  * - energyOut はステージ上の bot 宛てに停止待ち（`useEnergyOutAfterStop`）を経て
  *   dispatch されるため、独立 bot も停止後に演出する
+ * - armToggle はゴール到達時の両手上げ（issue #137）。`energyOut` より後に置き、腕の持ち上げ角を後勝ちで書く
  */
 export const STANDALONE_BOT_RELAYED_ACTIONS = [
   walkingAction,
   walkingResetAction,
   energyOutAction,
+  armToggleAction,
 ]
 
 /**
