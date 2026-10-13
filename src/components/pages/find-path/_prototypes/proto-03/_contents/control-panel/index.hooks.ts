@@ -4,7 +4,7 @@ import { useReset } from '../../_contexts/reset'
 import { useStageSeed } from '../../_contexts/stage-seed'
 import { useDisplaySettingsStore } from '../../_stores/display-settings'
 import { useFogStore, useFogStoreApi } from '../../_stores/fog'
-import { useGoalStore } from '../../_stores/goal'
+import { useGamePhaseStore } from '../../_stores/game-phase'
 import {
   useWaypointFlowStore,
   useWaypointFlowStoreApi,
@@ -34,7 +34,7 @@ export const useControlPanel = (): UseControlPanelReturn => {
   const setShowVisited = useFogStore((state) => state.setShowVisited)
   const setFogMode = useFogStore((state) => state.setMode)
   const fogStoreApi = useFogStoreApi()
-  const goalReached = useGoalStore((state) => state.reached)
+  const goalReached = useGamePhaseStore((state) => state.phase !== 'playing')
   const isSelectingWaypoint = useWaypointFlowStore(
     (state) => state.flowState === 'selecting',
   )

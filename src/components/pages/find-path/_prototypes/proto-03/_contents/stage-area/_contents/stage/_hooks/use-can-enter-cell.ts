@@ -8,7 +8,7 @@ import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { isObstacleCell } from '../../../../../_lib/obstacle'
 import { isBlockedByOneWay } from '../../../../../_lib/one-way'
-import { useGoalStore } from '../../../../../_stores/goal'
+import { useGamePhaseStore } from '../../../../../_stores/game-phase'
 import { EnterGuard, UseStageReturn } from '../index.types'
 
 /**
@@ -32,13 +32,15 @@ export const useCanEnterCell = (): Pick<
     (state) => state.getEnergyInfo(PLAYER_ACTOR_ID).current > 0,
   )
 
-  /** ゴールへ到達済みか（到達後は終了状態として移動させない） */
-  const goalReached = useGoalStore((state) => state.reached)
+  /** セルへの進入を許可するフェーズか（ゴール後の終了状態では移動させない） */
+  const enterCellAllowed = useGamePhaseStore((state) =>
+    state.allows('enterCell'),
+  )
 
   const enterGuards = useMemo<EnterGuard[]>(
     () => [
       {
-        check: () => !goalReached,
+        check: () => enterCellAllowed,
         kind: 'perceived',
       },
       {
@@ -50,7 +52,7 @@ export const useCanEnterCell = (): Pick<
         kind: 'perceived',
       },
     ],
-    [currentCell, goalReached, stageLayout],
+    [currentCell, enterCellAllowed, stageLayout],
   )
 
   const canEnterCellPerceived = useCallback(

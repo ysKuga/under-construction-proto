@@ -7,10 +7,11 @@ import { useAdvanceFollowPathOnCellReach } from '../../../../_hooks/use-advance-
 import { usePreviewPath } from '../../../../_hooks/use-preview-path'
 import { useDisplaySettingsStore } from '../../../../_stores/display-settings'
 import { useFollowPathStore } from '../../../../_stores/follow-path'
-import { useGoalStore } from '../../../../_stores/goal'
+import { useGamePhaseStore } from '../../../../_stores/game-phase'
 import { usePlayerActivityStore } from '../../../../_stores/player-activity'
 import { useWaypointFlowStore } from '../../../../_stores/waypoint-flow'
 
+import { useArriveAtGoalOnCellReach } from './_hooks/use-arrive-at-goal-on-cell-reach'
 import { useCanEnterCell } from './_hooks/use-can-enter-cell'
 import { useCancelWaypointFlowOnEscape } from './_hooks/use-cancel-waypoint-flow-on-escape'
 import { useClearWaypointFlowOnEnergyDepleted } from './_hooks/use-clear-waypoint-flow-on-energy-depleted'
@@ -20,7 +21,6 @@ import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
 import { useHandleNonAdjacentClick } from './_hooks/use-handle-non-adjacent-click'
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
-import { useRaiseGoalFlagOnCellReach } from './_hooks/use-raise-goal-flag-on-cell-reach'
 import { useRecordHistoryOnEnergyDepleted } from './_hooks/use-record-history-on-energy-depleted'
 import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
 import { useResetToCheckpointEventListener } from './_hooks/use-reset-to-checkpoint-event-listener'
@@ -53,8 +53,10 @@ export const useStage = (): UseStageReturn => {
   const isCharging = usePlayerActivityStore(
     (state) => state.activity === 'charging',
   )
-  /** ゴールへ到達済みか（終了状態として `Stage07` を非対話化する） */
-  const goalReached = useGoalStore((state) => state.reached)
+  /** ステージの操作を許可するフェーズか（ゴール後の終了状態では非対話化する） */
+  const operateStageAllowed = useGamePhaseStore((state) =>
+    state.allows('operateStage'),
+  )
   const stage07HandleRef = useStage07HandleRef()
   const previewPath = usePreviewPath()
   const actorEventTarget = usePlayerActorEventTarget()
@@ -79,7 +81,7 @@ export const useStage = (): UseStageReturn => {
 
   // 経路プレビューの点は、bot がマスの中心に着いた時点で消す（進行の記録を到達時に行う）
   useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
-  useRaiseGoalFlagOnCellReach(PLAYER_ACTOR_ID)
+  useArriveAtGoalOnCellReach(PLAYER_ACTOR_ID)
   useEffectRaiseArmsOnGoalFlag()
 
   return {
@@ -94,7 +96,7 @@ export const useStage = (): UseStageReturn => {
     handleNonAdjacentClick,
     handleWaypointCellClick,
     interactive:
-      !waypointSelecting && !isAutoMoving && !isCharging && !goalReached,
+      operateStageAllowed && !waypointSelecting && !isAutoMoving && !isCharging,
     objectiveMarkerCell: isAutoMoving ? followingPath.at(-1) : objectiveCell,
     previewPath,
     registerFloorVisibilityNode,

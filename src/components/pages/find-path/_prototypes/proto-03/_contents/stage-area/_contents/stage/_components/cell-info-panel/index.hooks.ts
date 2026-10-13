@@ -8,7 +8,7 @@ import { describeCellContent } from '../../../../../../_lib/describe-cell-conten
 import { getCellContents } from '../../../../../../_lib/get-cell-contents'
 import { isSameCell } from '../../../../../../_lib/is-same-cell'
 import { getItemPresentation } from '../../../../../../_lib/item-presentation'
-import { useGoalStore } from '../../../../../../_stores/goal'
+import { useGamePhaseStore } from '../../../../../../_stores/game-phase'
 import { useItemStore } from '../../../../../../_stores/items'
 import { CellContent } from '../../../../../../_stores/items/types'
 import { useWaypointFlowStore } from '../../../../../../_stores/waypoint-flow'
@@ -76,7 +76,7 @@ export const useCellInfoPanel = (): UseCellInfoPanelReturn => {
     return `${term.energy.abbreviation} ${current}/${max}`
   })
   /** ゴールへ到達済みか */
-  const goalReached = useGoalStore((state) => state.reached)
+  const goalReached = useGamePhaseStore((state) => state.phase !== 'playing')
 
   // hover なし: 一覧・ヒントを出さない
   if (!hoveredCell) {

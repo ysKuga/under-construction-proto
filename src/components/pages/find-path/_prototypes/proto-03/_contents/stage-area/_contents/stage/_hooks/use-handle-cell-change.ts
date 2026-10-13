@@ -10,7 +10,7 @@ import { useCarriedItemStoreApi } from '../../../../../_stores/carried-items'
 import { useEnergySettingsStoreApi } from '../../../../../_stores/energy-settings'
 import { useFogStore } from '../../../../../_stores/fog'
 import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
-import { useGoalStoreApi } from '../../../../../_stores/goal'
+import { useGamePhaseStoreApi } from '../../../../../_stores/game-phase'
 import { useItemStoreApi } from '../../../../../_stores/items'
 import { useMoveHistoryStoreApi } from '../../../../../_stores/move-history'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
@@ -35,7 +35,7 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
   const energyDispatch = useEnergyEventDispatcher()
   const energySettingsStoreApi = useEnergySettingsStoreApi()
   const followPathStoreApi = useFollowPathStoreApi()
-  const goalStoreApi = useGoalStoreApi()
+  const gamePhaseStoreApi = useGamePhaseStoreApi()
   const itemStoreApi = useItemStoreApi()
   const moveHistoryStoreApi = useMoveHistoryStoreApi()
   const stageLayout = useStageLayout()
@@ -81,11 +81,12 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
 
       /** ゴールへ初めて到達したか */
       const isFirstGoalReach =
-        isSameCell(cell, stageLayout.goal) && !goalStoreApi.getState().reached
+        isSameCell(cell, stageLayout.goal) &&
+        gamePhaseStoreApi.getState().phase === 'playing'
 
       // ゴールへ初めて到達した: 到達を記録する
       if (isFirstGoalReach) {
-        goalStoreApi.getState().reach()
+        gamePhaseStoreApi.getState().reachGoal()
         moveHistoryStoreApi.getState().record({ kind: 'reach-goal' })
       }
     },
@@ -94,7 +95,7 @@ export const useHandleCellChange = (): UseStageReturn['handleCellChange'] => {
       energyDispatch,
       energySettingsStoreApi,
       followPathStoreApi,
-      goalStoreApi,
+      gamePhaseStoreApi,
       itemStoreApi,
       markVisited,
       moveHistoryStoreApi,

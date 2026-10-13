@@ -17,7 +17,10 @@ import {
 
 import { StageLayoutProvider } from '../../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../../_contexts/stage-layout/constants'
-import { GoalStoreProvider, useGoalStore } from '../../../../../../_stores/goal'
+import {
+  GamePhaseStoreProvider,
+  useGamePhaseStore,
+} from '../../../../../../_stores/game-phase'
 import { ItemStoreProvider } from '../../../../../../_stores/items'
 import { ItemInstance } from '../../../../../../_stores/items/types'
 import {
@@ -47,7 +50,7 @@ const Wrapper = (props: PropsWithChildren) => (
         <Stage07EventProvider>
           <ItemStoreProvider initialItems={[SPOT]}>
             <WaypointFlowStoreProvider>
-              <GoalStoreProvider>{props.children}</GoalStoreProvider>
+              <GamePhaseStoreProvider>{props.children}</GamePhaseStoreProvider>
             </WaypointFlowStoreProvider>
           </ItemStoreProvider>
         </Stage07EventProvider>
@@ -69,7 +72,7 @@ const renderCellInfoPanel = () => {
         cellInfoPanel: useCellInfoPanel(),
         dispatcher: useStage07EventDispatcher(),
         energy: useEnergyStoreApi(),
-        reachGoal: useGoalStore((state) => state.reach),
+        reachGoal: useGamePhaseStore((state) => state.reachGoal),
         waypointFlow: useWaypointFlowStoreApi(),
       }
     },
