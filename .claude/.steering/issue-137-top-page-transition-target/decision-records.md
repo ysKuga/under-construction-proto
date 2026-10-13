@@ -92,3 +92,4 @@ backlog.md から参照される決定事項ログ。1 エントリ 1〜2 行目
 - 2026-10-11: ランダム生成を複数 PR にわたるためサブ issue #315 として分離した
 - 2026-10-12: #315 を close した。backlog 残項目は対応なし（[_closed/issue-315-random-stage](_closed/issue-315-random-stage/decision-records.md)）
 - 2026-10-12: ゴール到達後の終了状態を #333 で実装した（[_closed/pr-333-goal-end-state](_closed/pr-333-goal-end-state/design.md)）。旗の頭上移動演出は未着手
+- 2026-10-13: ゴール到達時の処理をフェーズ単位で `_game-phases/cleared` へまとめた（[_closed/pr-339-goal-performance](_closed/pr-339-goal-performance/decision-records.md)）。今後のフェーズ追加も `_game-phases/` へ並べる
