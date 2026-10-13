@@ -25,7 +25,10 @@ PR: #338（親: #137 backlog「ゲームフェーズを導入し、ゴール固�
   - `_layers/goal-marker-layer` の床上の旗を消す処理
 - 起点はフェーズ `cleared` への遷移に統一する
 - `use-effect-raise-arms-on-goal-flag` はフェーズ基準の名前へ改名する
+- 床上の旗は「消す判定」だけを goal-performance へ移す
+  - goal-performance が判定 hook（例: `useGoalFloorFlagHidden`）を export し、goal-marker-layer はそれを呼ぶだけにする
+  - 描画・visibility registry 登録・`React.memo` は goal-marker-layer に残す
 
 ## 懸念・リスク
 
-- 床上の旗の透明化は goal-marker-layer の描画に組み込まれている。goal-performance 側からどう制御するか（分離の仕方）は要検討
+なし
