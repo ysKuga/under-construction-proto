@@ -6,13 +6,13 @@ import { ACTION_ARM_TOGGLE } from '@/components/theater/figure/box-bot'
 import {
   PlayerActorEventTargetProvider,
   usePlayerActorEventTarget,
-} from '../../../../../_contexts/player-actor-event-target'
+} from '../../../_contexts/player-actor-event-target'
 import {
   GamePhaseStoreProvider,
   useGamePhaseStoreApi,
-} from '../../../../../_stores/game-phase'
+} from '../../../_stores/game-phase'
 
-import { useEffectRaiseArmsOnGoalFlag } from './use-effect-raise-arms-on-goal-flag'
+import { useEffectRaiseArmsOnPhaseCleared } from './use-effect-raise-arms-on-phase-cleared'
 
 const Wrapper = (props: PropsWithChildren) => {
   const { children } = props
@@ -27,7 +27,7 @@ const Wrapper = (props: PropsWithChildren) => {
 const renderRaiseArms = () => {
   const { result } = renderHook(
     () => {
-      useEffectRaiseArmsOnGoalFlag()
+      useEffectRaiseArmsOnPhaseCleared()
 
       return {
         actorEventTarget: usePlayerActorEventTarget(),
@@ -44,7 +44,7 @@ const renderRaiseArms = () => {
   return { gamePhaseStoreApi, onArmToggle }
 }
 
-describe('useEffectRaiseArmsOnGoalFlag', () => {
+describe('useEffectRaiseArmsOnPhaseCleared', () => {
   it('cleared へ入った時点で armToggle を 1 回発火する', () => {
     const { gamePhaseStoreApi, onArmToggle } = renderRaiseArms()
 

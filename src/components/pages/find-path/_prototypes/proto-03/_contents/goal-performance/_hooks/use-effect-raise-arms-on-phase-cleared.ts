@@ -5,8 +5,8 @@ import {
   useBoxBotActionDispatcher,
 } from '@/components/theater/figure/box-bot'
 
-import { usePlayerActorEventTarget } from '../../../../../_contexts/player-actor-event-target'
-import { useGamePhaseStoreApi } from '../../../../../_stores/game-phase'
+import { usePlayerActorEventTarget } from '../../../_contexts/player-actor-event-target'
+import { useGamePhaseStoreApi } from '../../../_stores/game-phase'
 
 /** ゴール到達時の両手の持ち上げ角 (rad、下げ位置から)。万歳に近づけ既定より高く上げる */
 const GOAL_ARMS_UP_DELTA = 2.2
@@ -20,7 +20,7 @@ const GOAL_ARMS_UP_DELTA = 2.2
  *   `armToggle` のままで下がることはない
  * - store を直接購読し、再レンダリングを起こさない
  */
-export const useEffectRaiseArmsOnGoalFlag = (): void => {
+export const useEffectRaiseArmsOnPhaseCleared = (): void => {
   const actorEventTarget = usePlayerActorEventTarget()
   const gamePhaseStoreApi = useGamePhaseStoreApi()
   const { armToggle } = useBoxBotActionDispatcher(actorEventTarget, [
