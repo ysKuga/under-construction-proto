@@ -1,8 +1,9 @@
 'use client'
 
+import { ClearedPhase } from '../_game-phases/cleared'
+
 import { BotBubbles } from './bot-bubbles'
 import { ControlPanel } from './control-panel'
-import { GoalPerformance } from './goal-performance'
 import { StageArea } from './stage-area'
 import { Title } from './title'
 
@@ -17,7 +18,7 @@ export const FindPathProto03Contents = () => (
     <Title />
     <StageArea />
     <BotBubbles />
-    <GoalPerformance />
+    <ClearedPhase />
     <ControlPanel />
   </div>
 )
