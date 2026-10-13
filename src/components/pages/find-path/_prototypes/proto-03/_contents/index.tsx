@@ -2,7 +2,7 @@
 
 import { BotBubbles } from './bot-bubbles'
 import { ControlPanel } from './control-panel'
-import { GoalFlagOverhead } from './goal-flag-overhead'
+import { GoalPerformance } from './goal-performance'
 import { StageArea } from './stage-area'
 import { Title } from './title'
 
@@ -17,7 +17,7 @@ export const FindPathProto03Contents = () => (
     <Title />
     <StageArea />
     <BotBubbles />
-    <GoalFlagOverhead />
+    <GoalPerformance />
     <ControlPanel />
   </div>
 )

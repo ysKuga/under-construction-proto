@@ -6,8 +6,8 @@ import { createPortal } from 'react-dom'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
 
-import { BOT_SIZE } from '../../constants'
-import { useGamePhaseStore } from '../../_stores/game-phase'
+import { BOT_SIZE } from '../../../../constants'
+import { useGamePhaseStore } from '../../../../_stores/game-phase'
 
 /** 旗の上昇後の位置（bot 上端からの y。px） */
 const FLAG_OVERHEAD_Y = -14
@@ -25,7 +25,7 @@ const FLAG_RISE_DURATION_S = 0.6
  *   ゴール判定（`clearing`）はセル進入時のため、そこで表示すると bot の移動中に上昇してしまう
  * - リセットで game-phase store が作り直され、`playing` へ戻ると表示しない
  */
-export const GoalFlagOverhead = () => {
+export const FlagOverhead = () => {
   /** bot がゴールセルの中心へ着いたか */
   const goalCleared = useGamePhaseStore((state) => state.phase === 'cleared')
   const overlayContainer = useActorsStore(

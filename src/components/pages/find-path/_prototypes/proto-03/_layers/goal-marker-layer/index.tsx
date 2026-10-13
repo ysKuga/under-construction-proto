@@ -40,7 +40,7 @@ type GoalMarkerLayerProps = {
  *   `rotateX(calc(-1 * var(--floor-tilt)))` で打ち消して直立させる（issue #137）
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
  *   状態変化に巻き込まれて再レンダリングしない
- * - bot がゴールセルの中心へ着いた後（フェーズ `cleared`）は床上の旗を透明にする。bot 頭上の旗（`GoalFlagOverhead`）へ表示を移す（issue #137）
+ * - bot がゴールセルの中心へ着いた後（フェーズ `cleared`）は床上の旗を透明にする。bot 頭上の旗（`GoalPerformance`）へ表示を移す（issue #137）
  *   - 可視状態は registry が `visibility` を直書きするため、`opacity` で消して競合を避ける
  */
 export const GoalMarkerLayer = memo((props: GoalMarkerLayerProps) => {
