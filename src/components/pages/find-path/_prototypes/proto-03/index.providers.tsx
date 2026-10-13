@@ -20,7 +20,7 @@ import { DisplaySettingsStoreProvider } from './_stores/display-settings'
 import { EnergySettingsStoreProvider } from './_stores/energy-settings'
 import { FogStoreProvider } from './_stores/fog'
 import { FollowPathStoreProvider } from './_stores/follow-path'
-import { GoalStoreProvider } from './_stores/goal'
+import { GamePhaseStoreProvider } from './_stores/game-phase'
 import { ItemStoreProvider } from './_stores/items'
 import { MoveHistoryStoreProvider } from './_stores/move-history'
 import { PlayerActivityStoreProvider } from './_stores/player-activity'
@@ -107,13 +107,13 @@ const StageProviders = (props: FindPathProto03ProvidersProps) => {
                         <WaypointFlowStoreProvider>
                           <DisplaySettingsStoreProvider>
                             <EnergySettingsStoreProvider>
-                              <GoalStoreProvider>
+                              <GamePhaseStoreProvider>
                                 <Stage07HandleProvider>
                                   <PlayerActorEventTargetProvider>
                                     {children}
                                   </PlayerActorEventTargetProvider>
                                 </Stage07HandleProvider>
-                              </GoalStoreProvider>
+                              </GamePhaseStoreProvider>
                             </EnergySettingsStoreProvider>
                           </DisplaySettingsStoreProvider>
                         </WaypointFlowStoreProvider>

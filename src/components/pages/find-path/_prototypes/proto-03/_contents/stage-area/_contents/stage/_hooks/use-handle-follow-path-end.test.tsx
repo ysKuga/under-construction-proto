@@ -7,7 +7,10 @@ import {
   FollowPathStoreProvider,
   useFollowPathStoreApi,
 } from '../../../../../_stores/follow-path'
-import { GoalStoreProvider, useGoalStoreApi } from '../../../../../_stores/goal'
+import {
+  GamePhaseStoreProvider,
+  useGamePhaseStoreApi,
+} from '../../../../../_stores/game-phase'
 import { WaypointFlowStoreProvider } from '../../../../../_stores/waypoint-flow'
 
 import { useHandleFollowPathEnd } from './use-handle-follow-path-end'
@@ -17,7 +20,7 @@ vi.unmock('zustand')
 const Wrapper = (props: PropsWithChildren) => (
   <FollowPathStoreProvider>
     <WaypointFlowStoreProvider>
-      <GoalStoreProvider>{props.children}</GoalStoreProvider>
+      <GamePhaseStoreProvider>{props.children}</GamePhaseStoreProvider>
     </WaypointFlowStoreProvider>
   </FollowPathStoreProvider>
 )
@@ -26,7 +29,7 @@ const renderHandleFollowPathEnd = () =>
   renderHook(
     () => ({
       followPath: useFollowPathStoreApi(),
-      goal: useGoalStoreApi(),
+      gamePhase: useGamePhaseStoreApi(),
       handleFollowPathEnd: useHandleFollowPathEnd(),
     }),
     { wrapper: Wrapper },
@@ -51,13 +54,13 @@ describe('useHandleFollowPathEnd', () => {
   })
 
   it('ゴール到達による停止は警告しない', () => {
-    const { followPath, goal, handleFollowPathEnd } =
+    const { followPath, gamePhase, handleFollowPathEnd } =
       renderHandleFollowPathEnd()
     const before = countNotifications()
 
     act(() => {
       followPath.getState().start([{ q: 1, r: 1 }])
-      goal.getState().reach()
+      gamePhase.getState().reachGoal()
       handleFollowPathEnd({ q: 1, r: 1 })
     })
 

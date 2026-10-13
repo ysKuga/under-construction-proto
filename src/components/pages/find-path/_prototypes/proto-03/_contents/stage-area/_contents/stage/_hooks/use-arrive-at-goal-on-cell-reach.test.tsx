@@ -10,9 +10,12 @@ import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 
 import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'
-import { GoalStoreProvider, useGoalStoreApi } from '../../../../../_stores/goal'
+import {
+  GamePhaseStoreProvider,
+  useGamePhaseStoreApi,
+} from '../../../../../_stores/game-phase'
 
-import { useRaiseGoalFlagOnCellReach } from './use-raise-goal-flag-on-cell-reach'
+import { useArriveAtGoalOnCellReach } from './use-arrive-at-goal-on-cell-reach'
 
 const Wrapper = (props: PropsWithChildren) => {
   const { children } = props
@@ -20,20 +23,20 @@ const Wrapper = (props: PropsWithChildren) => {
   return (
     <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
       <Stage07EventProvider>
-        <GoalStoreProvider>{children}</GoalStoreProvider>
+        <GamePhaseStoreProvider>{children}</GamePhaseStoreProvider>
       </Stage07EventProvider>
     </StageLayoutProvider>
   )
 }
 
-const renderRaise = () => {
+const renderArrive = () => {
   const { result } = renderHook(
     () => {
-      useRaiseGoalFlagOnCellReach(PLAYER_ACTOR_ID)
+      useArriveAtGoalOnCellReach(PLAYER_ACTOR_ID)
 
       return {
         dispatcher: useStage07EventDispatcher(),
-        goalStoreApi: useGoalStoreApi(),
+        gamePhaseStoreApi: useGamePhaseStoreApi(),
       }
     },
     { wrapper: Wrapper },
@@ -44,34 +47,34 @@ const renderRaise = () => {
       await result.current.dispatcher['Stage07-cell-reach']({ actorId, cell })
     })
 
-  return { cellReach, goalStoreApi: result.current.goalStoreApi }
+  return { cellReach, gamePhaseStoreApi: result.current.gamePhaseStoreApi }
 }
 
-describe('useRaiseGoalFlagOnCellReach', () => {
-  it('到達済みでゴールセルの中心へ着くと旗を掲げる', async () => {
-    const { cellReach, goalStoreApi } = renderRaise()
+describe('useArriveAtGoalOnCellReach', () => {
+  it('clearing でゴールセルの中心へ着くと cleared へ進む', async () => {
+    const { cellReach, gamePhaseStoreApi } = renderArrive()
 
-    goalStoreApi.getState().reach()
+    gamePhaseStoreApi.getState().reachGoal()
     await cellReach(DEFAULT_STAGE_LAYOUT.goal)
 
-    expect(goalStoreApi.getState().flagRaised).toBe(true)
+    expect(gamePhaseStoreApi.getState().phase).toBe('cleared')
   })
 
-  it('ゴール以外のセルへの到達では掲げない', async () => {
-    const { cellReach, goalStoreApi } = renderRaise()
+  it('ゴール以外のセルへの到達では進まない', async () => {
+    const { cellReach, gamePhaseStoreApi } = renderArrive()
 
-    goalStoreApi.getState().reach()
+    gamePhaseStoreApi.getState().reachGoal()
     await cellReach({ q: 0, r: 0 })
 
-    expect(goalStoreApi.getState().flagRaised).toBe(false)
+    expect(gamePhaseStoreApi.getState().phase).toBe('clearing')
   })
 
-  it('他 actor のゴール到達では掲げない', async () => {
-    const { cellReach, goalStoreApi } = renderRaise()
+  it('他 actor のゴール到達では進まない', async () => {
+    const { cellReach, gamePhaseStoreApi } = renderArrive()
 
-    goalStoreApi.getState().reach()
+    gamePhaseStoreApi.getState().reachGoal()
     await cellReach(DEFAULT_STAGE_LAYOUT.goal, 'other')
 
-    expect(goalStoreApi.getState().flagRaised).toBe(false)
+    expect(gamePhaseStoreApi.getState().phase).toBe('clearing')
   })
 })

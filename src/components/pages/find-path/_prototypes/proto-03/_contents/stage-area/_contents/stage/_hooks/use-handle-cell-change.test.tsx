@@ -19,7 +19,10 @@ import {
   FollowPathStoreProvider,
   useFollowPathStoreApi,
 } from '../../../../../_stores/follow-path'
-import { GoalStoreProvider, useGoalStore } from '../../../../../_stores/goal'
+import {
+  GamePhaseStoreProvider,
+  useGamePhaseStore,
+} from '../../../../../_stores/game-phase'
 import {
   ItemStoreProvider,
   useItemStoreApi,
@@ -58,13 +61,13 @@ const createWrapper = (capacity?: number) => (props: PropsWithChildren) => (
           <FogStoreProvider initialMode="all-visible">
             <WaypointFlowStoreProvider>
               <EnergySettingsStoreProvider>
-                <GoalStoreProvider>
+                <GamePhaseStoreProvider>
                   <FollowPathStoreProvider>
                     <MoveHistoryStoreProvider>
                       {props.children}
                     </MoveHistoryStoreProvider>
                   </FollowPathStoreProvider>
-                </GoalStoreProvider>
+                </GamePhaseStoreProvider>
               </EnergySettingsStoreProvider>
             </WaypointFlowStoreProvider>
           </FogStoreProvider>
@@ -80,7 +83,7 @@ const renderHandleCellChange = (capacity?: number) =>
       carriedItems: useCarriedItemStoreApi(),
       energy: useEnergyStoreApi(),
       followPath: useFollowPathStoreApi(),
-      goalReached: useGoalStore((state) => state.reached),
+      goalReached: useGamePhaseStore((state) => state.phase !== 'playing'),
       handleCellChange: useHandleCellChange(),
       items: useItemStoreApi(),
       moveHistory: useMoveHistoryStoreApi(),

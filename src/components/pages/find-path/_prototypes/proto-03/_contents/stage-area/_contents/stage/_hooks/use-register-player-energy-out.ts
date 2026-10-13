@@ -7,7 +7,7 @@ import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 
 import { usePlayerActorEventTarget } from '../../../../../_contexts/player-actor-event-target'
 import { useEnergyOutAfterStop } from '../../../../../_hooks/use-energy-out-after-stop'
-import { useGoalStoreApi } from '../../../../../_stores/goal'
+import { useGamePhaseStoreApi } from '../../../../../_stores/game-phase'
 
 /**
  * player bot の EN 切れ演出を登録する
@@ -18,7 +18,7 @@ import { useGoalStoreApi } from '../../../../../_stores/goal'
  *   （`PlayerActorEventTargetProvider`）宛ての energyOut dispatcher を actorId キーで
  *   登録するだけでよい
  * - 演出は歩いている途中で始まらないよう、停止まで待たせる（`useEnergyOutAfterStop`）
- * - ゴール到達後は演出しない（両手上げを優先、issue #137）。\
+ * - EN 切れ演出を許可しないフェーズ（ゴール後の終了状態）では演出しない（issue #137）。\
  *   `energyOut` は切替式のため、切れ・復帰とも止めて偶奇を崩さない。\
  *   EN はゴール進入時に消費されるため、停止待ちを経た発火時点で到達判定済み
  */
@@ -27,10 +27,10 @@ export const useRegisterPlayerEnergyOut = () => {
   const { energyOut } = useBoxBotActionDispatcher(actorEventTarget, [
     energyOutAction,
   ])
-  const goalStoreApi = useGoalStoreApi()
+  const gamePhaseStoreApi = useGamePhaseStoreApi()
   const energyOutAfterStop = useEnergyOutAfterStop(PLAYER_ACTOR_ID, async () => {
-    // ゴール到達後: 演出しない
-    if (goalStoreApi.getState().reached) return
+    // 演出を許可しないフェーズ: 演出しない
+    if (!gamePhaseStoreApi.getState().allows('performEnergyOut')) return
 
     await energyOut()
   })
