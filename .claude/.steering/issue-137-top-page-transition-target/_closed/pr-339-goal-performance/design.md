@@ -11,7 +11,7 @@ PR: #339（steering 作成: #338、親: #137 backlog「ゲームフェーズを�
 
 ## 背景・制約
 
-- #337 でゴール到達の判定を game-phase store へ置き換えた（[#337](../../_closed/pr-337-game-phase/design.md)）
+- #337 でゴール到達の判定を game-phase store へ置き換えた（[#337](../pr-337-game-phase/design.md)）
 - ゴールの演出は現状3箇所に散っている
   - 頭上の旗: `_contents/goal-flag-overhead`
   - 両手上げ: `stage-area/_contents/stage/_hooks/use-effect-raise-arms-on-goal-flag`
