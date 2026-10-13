@@ -4,7 +4,8 @@ PR: #339（steering 作成: #338、親: #137 backlog「ゲームフェーズを�
 
 ## 目的
 
-- find-path proto-03 のゴール演出を `_contents/goal-performance/`（仮）へまとめる
+- find-path proto-03 のゴール演出を、起点のフェーズ単位で `_game-phases/cleared/` へまとめる
+  - 腕を上げる・旗を上げる等を個別に実装せず、フェーズに紐づく処理として1箇所に集める
 - 演出の起点をフェーズ `cleared` への遷移に統一する
 - 挙動は変えない（リファクタ）
 
@@ -25,8 +26,10 @@ PR: #339（steering 作成: #338、親: #137 backlog「ゲームフェーズを�
   - `_layers/goal-marker-layer` の床上の旗を消す処理
 - 起点はフェーズ `cleared` への遷移に統一する
 - `use-effect-raise-arms-on-goal-flag` はフェーズ基準の名前へ改名する
-- 床上の旗は「消す判定」だけを goal-performance へ移す
-  - goal-performance が判定 hook（例: `useGoalFloorFlagHidden`）を export し、goal-marker-layer はそれを呼ぶだけにする
+- まとめ先はフェーズ単位のディレクトリ `_game-phases/{フェーズ名}/`（入口: `ClearedPhase`）
+  - 描画を伴うため `_contents/index.tsx` から置く
+- 床上の旗は「消す判定」だけを `_game-phases/cleared` へ移す
+  - 判定 hook `useGoalFloorFlagHidden` を export し、goal-marker-layer はそれを呼ぶだけにする
   - 描画・visibility registry 登録・`React.memo` は goal-marker-layer に残す
 
 ## 懸念・リスク
