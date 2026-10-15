@@ -21,6 +21,15 @@ export const HEX_DIRECTIONS: readonly HexCell[] = [
 ]
 
 /**
+ * 2セルが同一か判定する
+ *
+ * @param a 判定対象セル1
+ * @param b 判定対象セル2
+ */
+export const isSameHexCell = (a: HexCell, b: HexCell): boolean =>
+  a.q === b.q && a.r === b.r
+
+/**
  * 2セルが隣接するか判定する
  *
  * @param a 判定対象セル1
