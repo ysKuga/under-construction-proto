@@ -50,6 +50,13 @@ page-name/
 - `_stores`/`_lib`/`_hooks`/`_events`/`_contexts` はいずれの層からも参照可
 - store が layer の型を参照しないよう、store が扱う型は store の `types.ts` へ置く（`MoveTargetDisplayMode` の例）
 
+### prototypes との依存
+
+`_prototypes/` 配下（試作）・本実装とも、[src/prototypes/CLAUDE.md](../../prototypes/CLAUDE.md) の依存ルールに従う。
+
+- 試作から `src/prototypes/` の番号付き実装の内部を直接 import しない。共通置き場経由のみ
+- 本実装から `src/prototypes/`・`_prototypes/` を import しない。コピーして独立させる
+
 ### ネスト
 
 特定の要素からのみ使う content・layer は、その要素配下の `_contents/`・`_layers/` へネストする。

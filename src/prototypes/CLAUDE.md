@@ -23,6 +23,5 @@
 本実装 (prototypes を元に設置した page 等) から、`src/prototypes/`・`components/pages/*/_prototypes/` を import しない。
 
 - 必要な実装は本実装側へコピーして独立させる。
-- 依存方向は prototypes → 本実装の一方向に限る。
 
 経緯・検討過程は [README.md](README.md) 参照。
