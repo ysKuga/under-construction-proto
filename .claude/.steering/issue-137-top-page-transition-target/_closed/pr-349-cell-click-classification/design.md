@@ -18,11 +18,11 @@ PR: #349（親: #137 backlog「セルクリックの判定を event 経由で fi
 ## 方針
 
 - 純粋関数 `classifyCellClick` を切り出す
-  - 入力: `cell`、`currentCell`・`flowState`・`objectiveCell`・`canEnterCell`
+  - 入力: `cell`、`currentCell`・`flowState`・`objectiveCell`
   - 返り値: `'current' | 'move' | 'cancel-objective' | 'objective'`
   - EN 拒否・到達不能は `'objective'` に含める
 - listener は分類で分岐する
-  - `'move'` は `Stage07Handle.moveTo` で実行する（戻り値は保険として残す）
+  - `'move'`（隣接マス）は `Stage07Handle.moveTo` で移動を試み、進入不可で拒否されたら目標として扱う
 - pointer の判定関数 `isCellSelectable` を stage-07 の `_lib/cell-selectable` へ置く
   - `Stage07`（`GeoLayer` の pointer）と `classifyCellClick`（`current` の判定）が共に import する
   - prop で受け渡さない（props drilling を避ける）
@@ -31,4 +31,4 @@ PR: #349（親: #137 backlog「セルクリックの判定を event 経由で fi
 
 ## 懸念・リスク
 
-- 分類と `moveTo`（`useHexMove.tryMove`）で移動判定が二重になる（ずれた場合は目標として扱う）
+なし
