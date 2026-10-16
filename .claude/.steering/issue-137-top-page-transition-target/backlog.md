@@ -55,38 +55,14 @@
 - [ ] 目標設定になるマスの `cursor: pointer` を挙動に揃える
   - 通れない隣接マス等、クリックで目標設定になるのに pointer が付かない
   - 対応: [#344](_pr/pr-344-indirect-cell-pointer/design.md)
-- [ ] セルクリックの判定を event 経由で find-path 側の listener へ集約する
-  - 現状の問題
-    - `useHandleIndirectClick` へ届くまで props drilling が発生している
-      - `useStage` → `Stage` → `Stage07`(`onIndirectClick`) → `useHexMove`
-      - `canEnterCell` も同じ経路を辿る
-    - 1 クリックの判定が分散している
-      - 現在マスなら何もしない: `useHexMove`（Stage07）
-      - 隣接・進入可なら移動: `useHexMove` + `canEnterCell`
-      - pointer の対象: `Stage07` の `isCellSelectable`
-      - 目標の再クリック・EN ガード・BFS・到達不能の通知: `useHandleIndirectClick`（proto-03）
-    - 「現在 / 移動可 / 不可」の分類が UI（Stage07）側にあり、find-path は不可の残りしか受け取れない
-  - context 化は採らない
-    - 受け渡しが context になるだけで、分類は `useHexMove` に残る
-    - `Stage07` が find-path の context を知ることになる
-  - 方針
-    - UI（Stage07）
-      - `GeoLayer` はクリックしたセルを `Stage07-cell-click` で発行するのみとする（`Stage07-cell-hover` と同じ形）
-      - 移動は `Stage07Handle` へ `moveTo`（`tryMove` の公開）を追加して受ける（`followPath`・`warp` と並べる）
-      - `onIndirectClick`・`useHexMove` の `handleCellClick` を廃止する
-    - listener（proto-03）
-      - セル単位の分類関数（`'current' | 'move' | 'indirect'` 等）へ判定を集約する
-      - `useHandleIndirectClick` は `_event-listeners/` 配下へ移し、`useStage` から外す
-    - `Stage07` の利用箇所は proto-03 のみのため、API 変更のコストは小さい
-  - 要検討
-    - `canEnterCell` は `followPath` の 1 マスごとの検証で使うため Stage07 に残す
-    - `WaypointSelectLayer.onCellClick` は対象外。同じ event への統合は後で検討する
-    - pointer の表示判定を分類関数へ揃えるかは、ui-jurisdiction の「表示用の判定」と合わせて検討する
+- [ ] セルクリックの判定を event 経由で find-path 側の listener へ集約する（#344 マージ後）
+  - UI: `GeoLayer` は `Stage07-cell-click` を発行するのみ、移動は `Stage07Handle.moveTo` で受ける
+  - listener: 現在 / 移動可 / 不可 の分類をセル単位で集約し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
   - PR 分割案
-    1. `Stage07-cell-click` の定義と `Stage07Handle.moveTo` の追加（挙動は変えない）
+    1. `Stage07-cell-click`・`Stage07Handle.moveTo` の追加（挙動は変えない）
     2. proto-03 へ listener を追加し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
-    3. pointer の表示判定を分類関数へ揃える（任意）
-  - #344 マージ後に着手する（[#344 decision-records](_pr/pr-344-indirect-cell-pointer/decision-records.md) 2026-10-16）
+    3. pointer の表示判定を分類へ揃える（任意）
+  - (decision-records.md 2026-10-16)
 - [ ] `find-path` の名前を再検討する
   - 現状の名前がやろうとしていることと合わない
   - 案: ゴールを探す・探索するニュアンス
