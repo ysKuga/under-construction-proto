@@ -18,7 +18,7 @@ import { useClearWaypointFlowOnEnergyDepleted } from './_hooks/use-clear-waypoin
 import { useEnergySpotUseEventListener } from './_hooks/use-energy-spot-use-event-listener'
 import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
-import { useHandleNonAdjacentClick } from './_hooks/use-handle-non-adjacent-click'
+import { useHandleIndirectClick } from './_hooks/use-handle-indirect-click'
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
 import { useRecordHistoryOnEnergyDepleted } from './_hooks/use-record-history-on-energy-depleted'
 import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
@@ -62,7 +62,7 @@ export const useStage = (): UseStageReturn => {
   const { canEnterCell, canEnterCellPerceived } = useCanEnterCell()
   const handleCellChange = useHandleCellChange()
   const handleFollowPathEnd = useHandleFollowPathEnd()
-  const handleNonAdjacentClick = useHandleNonAdjacentClick()
+  const handleIndirectClick = useHandleIndirectClick()
   const handleWaypointCellClick = useHandleWaypointCellClick()
   const {
     registerFloorVisibilityNode,
@@ -91,7 +91,7 @@ export const useStage = (): UseStageReturn => {
     enableWalking,
     handleCellChange,
     handleFollowPathEnd,
-    handleNonAdjacentClick,
+    handleIndirectClick,
     handleWaypointCellClick,
     interactive:
       operateStageAllowed && !waypointSelecting && !isAutoMoving && !isCharging,

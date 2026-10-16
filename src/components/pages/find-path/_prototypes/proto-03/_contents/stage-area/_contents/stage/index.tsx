@@ -37,7 +37,7 @@ export const Stage = () => {
     enableWalking,
     handleCellChange,
     handleFollowPathEnd,
-    handleNonAdjacentClick,
+    handleIndirectClick,
     handleWaypointCellClick,
     interactive,
     objectiveMarkerCell,
@@ -66,7 +66,7 @@ export const Stage = () => {
         interactive={interactive}
         onCellChange={handleCellChange}
         onFollowPathEnd={handleFollowPathEnd}
-        onNonAdjacentClick={handleNonAdjacentClick}
+        onIndirectClick={handleIndirectClick}
         ref={stage07HandleRef}
         registerCellVisibilityNode={registerFloorVisibilityNode}
         rows={GRID.rows}

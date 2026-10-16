@@ -143,7 +143,7 @@ type Stage07Props = PropsWithChildren<{
    *
    * - `useHexMove` へそのまま渡す。find-path proto-03 の通知表示等で使う
    */
-  onNonAdjacentClick?: (cell: HexCell) => void
+  onIndirectClick?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
   perspectivePx?: number
   /** imperative API(`Stage07Handle`)の受け取り先（省略可） */
@@ -192,7 +192,7 @@ type Stage07Props = PropsWithChildren<{
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `canEnterCell` を渡すと `useHexMove` の隣接判定に加えてそのセルへの移動を
  *   拒否できる（find-path proto-03 の障害物セル判定で使用）
- * - `onNonAdjacentClick` は非隣接セルをクリックした時に呼ばれる（省略可）。`Stage07`
+ * - `onIndirectClick` は非隣接セルをクリックした時に呼ばれる（省略可）。`Stage07`
  *   自身は find-path 固有の概念（通知表示等）を持たないため、呼び出し側へ通知するのみ
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
@@ -257,7 +257,7 @@ export const Stage07 = (props: Stage07Props) => {
     interactive = true,
     onCellChange,
     onFollowPathEnd,
-    onNonAdjacentClick,
+    onIndirectClick,
     perspectivePx = 800,
     ref,
     registerCellVisibilityNode,
@@ -329,7 +329,7 @@ export const Stage07 = (props: Stage07Props) => {
       void face({ rad: screenAngleToYaw(screenAngle) })
     },
     canEnterCell,
-    onNonAdjacentClick,
+    onIndirectClick,
   )
 
   /** セルを選択可能表示（`cursor: pointer`）にするか。現在セルはクリックしても何もしないため除く */

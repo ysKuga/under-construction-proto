@@ -12,7 +12,7 @@ type UseHexMoveReturn = {
    * 隣接セルへの移動を試みる。移動したら `true`、隣接でない・進入不可なら `false`
    *
    * - クリックを介さない移動(経路に沿った自動移動等)で使う。非隣接でも
-   *   `onNonAdjacentClick` は呼ばない
+   *   `onIndirectClick` は呼ばない
    */
   tryMove: (cell: HexCell) => boolean
 }
@@ -31,7 +31,7 @@ type UseHexMoveReturn = {
  *   yaw への変換・dispatch は呼び出し側(`Stage07`)が持つため、ここでは画面角度を渡すのみ
  * @param canEnter 対象セルへ進入可能か（省略時は常に進入可能）。隣接判定に加えて
  *   このセルへの移動を拒否できる（find-path proto-03 の障害物セル判定等）
- * @param onNonAdjacentClick 非隣接セルをクリックした時（省略可）。`useHexMove` 自身は
+ * @param onIndirectClick 非隣接セルをクリックした時（省略可）。`useHexMove` 自身は
  *   find-path 固有の概念（通知等）を持たないため、呼び出し側へ通知するのみ
  */
 export const useHexMove = (
@@ -40,7 +40,7 @@ export const useHexMove = (
   onCellChange?: (cell: HexCell) => void,
   onFacingChange?: (screenAngle: number) => void,
   canEnter?: (cell: HexCell) => boolean,
-  onNonAdjacentClick?: (cell: HexCell) => void,
+  onIndirectClick?: (cell: HexCell) => void,
 ): UseHexMoveReturn => {
   const tryMove = (cell: HexCell): boolean => {
     if (!isHexAdjacent(currentCell, cell)) return false
@@ -63,7 +63,7 @@ export const useHexMove = (
     if (isSameHexCell(currentCell, cell)) return
 
     if (!isHexAdjacent(currentCell, cell)) {
-      onNonAdjacentClick?.(cell)
+      onIndirectClick?.(cell)
 
       return
     }
