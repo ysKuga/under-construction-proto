@@ -9,15 +9,26 @@
   - 現状: find-path proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
-- [ ] 未決事項を決める
-  - 元にする prototype（proto-03 のみか）
-  - test・story もコピー対象とするか
+- [x] 未決事項を決める
+  - 元にする prototype: 当面 proto-03 のみ
+  - test: コピーする
+  - story: 基本構成 + デバッグモード（基本構成とデバッグ要素を story 上で組み合わせて表示）
+  - (decision-records.md 2026-10-17 未決事項)
 - [ ] 依存先を本実装側へコピーする
   - `src/prototypes/stage/stage-07`
   - `src/prototypes/stage/stage-06/constants`
   - `find-path/_prototypes/_stores/energy`（proto-01/02/03 共有）
   - `src/prototypes/time-control/time-control-03/types`
   - (../../decision-records.md 2026-10-17 本実装移行)
+- [ ] レイアウトを基本構成とデバッグ要素へ分ける
+  - 基本構成: マップ・状態表示系
+  - デバッグ要素
+    - 構成: 独立したコンポーネント
+    - 配置: 基本構成の下へ縦並び
+  - [ ] デバッグ要素とする対象を検討する
+    - 候補: `ControlPanel`（表示設定・seed・リセット等）、`Stage07` の `extraSliders`（`EnergySliders`）
+    - `ControlPanel` にはゴール到達表示・中継点数等、状態表示寄りの要素も混在する
+  - (decision-records.md 2026-10-17 未決事項)
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)
