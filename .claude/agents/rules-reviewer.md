@@ -28,6 +28,11 @@ tools: Read, Grep, Glob, Bash
 - 命名: hook 名と受け側変数名の対応、関数を返す hook の動詞、`Ref` サフィックス、同格要素との一貫性(単複・prefix)
 - JSDoc: 変数・プロパティ・export 関数の `@param`、タイトル → 空行 → 詳細の構成、改行維持の `\`
 - React: ロジック分離(`index.tsx`/`index.hooks.ts`/`index.types.ts`/`_hooks/`)、`Pick` による戻り値型、`PropsWithChildren`、`_components/` のネスト位置、stories の要否、create~Context 系の再 export 形式
+- event と UI の役割分担(`event-ui-jurisdiction`)
+  - UI が分類(現在・移動可・不可等)・ゲーム要素(EN 等)の判定を持っていないか
+  - 実行拒否を cancelable event + `preventDefault()` で返しているか
+  - 処理から UI への命令が imperative handle か、汎用 UI が呼び出し側を import していないか
+  - 表示と分類で共有する判定が汎用 UI 側の `_lib` にあり、双方から import されているか
 - 条件分岐: 複合・否定条件の名前付き定数化と `// 条件: 処理` コメント、ts-pattern との使い分け
 - ディレクトリ: 種類別ファイルの集約 index への re-export、対象自身の index.ts で types/constants を re-export していないか、同列ファイル間 import
 - state・パフォーマンス: `useState` の妥当性(JSX 出力に直接使う値か)、`useFrame` 内の値の ref 化、store の購読範囲(不要な再レンダリングの波及)
