@@ -51,7 +51,7 @@
   - 対応: 完了（[#341](_closed/pr-341-current-cell-click/design.md)）
 - [ ] 通行不能箇所で遮られた隣接マスのクリックを目標設定にする
   - 障害物・一方通行の壁で直接進入できない隣接マスも、迂回経路の目標として扱う
-  - 対応: [#343](_pr/pr-343-indirect-cell-click/design.md)
+  - 対応: [#343](_closed/pr-343-indirect-cell-click/design.md)
 - [ ] `find-path` の名前を再検討する
   - 現状の名前がやろうとしていることと合わない
   - 案: ゴールを探す・探索するニュアンス
