@@ -80,6 +80,7 @@
       - disabled は事例として扱い、必要が生じた時点で対応する
         - 例: EN 切れで拒否される「実行」吹き出し（`FindPath-execute-path`）を、拒否と同じ判定で disabled 表示にする
       - (decision-records.md 2026-10-16 表示判定)
+      - 対応: [#349](_pr/pr-349-cell-click-classification/design.md)
   - (decision-records.md 2026-10-16)
 - [ ] UI と処理の event による結び付けの方針の記述を確認・見直す
   - 対象: ui-jurisdiction・event-driven-ui・`.claude/rules/event-driven-actions.md`
