@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react'
-import { PropsWithChildren, useEffect } from 'react'
+import { useEffect } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Stage07Handle } from '..'
@@ -15,12 +15,10 @@ import { HexCell } from '../_lib/hex'
 type Dispatch = (cell: HexCell) => Promise<unknown>
 
 /** context の handle を差し替え、dispatcher を外へ渡す */
-const Harness = (
-  props: PropsWithChildren<{
-    handle: null | Stage07Handle
-    onReady: (dispatch: Dispatch) => void
-  }>,
-) => {
+const Harness = (props: {
+  handle: null | Stage07Handle
+  onReady: (dispatch: Dispatch) => void
+}) => {
   const { handle, onReady } = props
   const handleRef = useStage07HandleRef()
   const dispatcher = useStage07EventDispatcher()
