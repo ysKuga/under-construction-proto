@@ -41,12 +41,12 @@ stage-05 / find-path 試作へ time-control-03 の tick 管理を統合する。
 
 #### 前提: 2 つの座標系・MoveIntent が別物
 
-| 観点 | stage-04/05 `ActorPositionProvider` | time-control-03 |
-| --- | --- | --- |
-| 座標 | `GridPosition {col,row}` 整数・clamp あり | `Position {x,y}` 自由座標・制限なし |
-| MoveIntent | `{source, target}`（source = actor-click / cell-click / keyboard） | `{actorId, target}` |
-| 反映 | `resolveMoveIntent` で clamp → 即 `setState` | `generateMovePath` で距離刻み経路生成 → path / planned-path 書込 → position store が tick 消化 |
-| actor 数 | 単一（Provider 1 個 = 1 actor、id なし） | 複数（全 state が `xxxById: Record<ActorId, _>`） |
+| 観点       | stage-04/05 `ActorPositionProvider`                                | time-control-03                                                                                |
+| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| 座標       | `GridPosition {col,row}` 整数・clamp あり                          | `Position {x,y}` 自由座標・制限なし                                                            |
+| MoveIntent | `{source, target}`（source = actor-click / cell-click / keyboard） | `{actorId, target}`                                                                            |
+| 反映       | `resolveMoveIntent` で clamp → 即 `setState`                       | `generateMovePath` で距離刻み経路生成 → path / planned-path 書込 → position store が tick 消化 |
+| actor 数   | 単一（Provider 1 個 = 1 actor、id なし）                           | 複数（全 state が `xxxById: Record<ActorId, _>`）                                              |
 
 find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複数 actor。モデルが根本的に違う。
 
@@ -143,6 +143,7 @@ find-path はグリッドセル単位・単一 bot。tc-03 は連続座標・複
   - **配置先確定**: find-path proto 配下 `src/components/pages/find-path/_prototypes/proto-01/_contexts/find-path-stores/`。stage-06 は grid + 遠近 + actor 位置 ref に専念し、time-control 合流はページ試作側で持つ（stage prototype から time-control-03 を import しない）
   - **append/pop 確定**: find-path 側 wrapper hook `_hooks/use-planned-path-steps.ts`。tc-03 の planned-path store は無改変 import（`usePlannedPathStoreApi` 経由で `getPlannedPath` + `setPlannedPath` を組み合わせ）。セル座標は `Position` へ `{x: col, y: row}` で載せ、`GridPosition` 相互変換は薄い helper
   - PR-D で proto のマウント先を stage-05 → stage-06 に切替えるまで、本 PR の Provider は stage-05 マウントの proto-01 を包むだけ（stage 側は store 未使用）
+
 **着手順を D → C に入れ替え**（2026-09-10）。PR-C の tick ドライバは `path` / `game-clock` store（proto 側 `FindPathStoresProvider` 配下）と `moveActor`（stage-06 `actor-node-registry`）の両方を読むため proto 側に置くしかなく、proto が stage-06 をマウント済みであることが前提。stage-06 は time-control-03 を import しない方針のため tick を stage-06 内には置けない。
 
 - **PR-D `137-find-path-stage-06-switch`**: find-path proto を stage-06 へ切替（先行）
