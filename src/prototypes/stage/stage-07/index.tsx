@@ -30,10 +30,10 @@ import { GeoLayer } from './_components/geo-layer'
 import { useStage07EventDispatcher } from './_events'
 import { useFollowPath } from './_hooks/use-follow-path'
 import { useHexMove } from './_hooks/use-hex-move'
+import { isCellSelectable } from './_lib/cell-selectable'
 import {
   HexCell,
   hexDirectionToScreenAngle,
-  isSameHexCell,
   pickInitialFacingTarget,
 } from './_lib/hex'
 import { useActorsStore } from './_stores/actors'
@@ -131,14 +131,6 @@ type Stage07Props = PropsWithChildren<{
   /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
   /**
-   * セルを選択可能表示（`cursor: pointer`）にするか（省略時は現在セル以外）
-   *
-   * - クリックを分類する呼び出し側（find-path proto-03 の listener 等）が、\
-   *   分類と同じ判定を渡して表示を揃えるために使う
-   * - 参照が変わるたび `GeoLayer` が再レンダリングされる。頻繁に変わる値へ依存させない
-   */
-  isCellSelectable?: (cell: HexCell) => boolean
-  /**
    * セルクリックで actor を移動させるか（省略時は `true`）
    *
    * - `false` にすると `GeoLayer` は非対話になる。クリックを外側のレイヤー
@@ -205,7 +197,7 @@ type Stage07Props = PropsWithChildren<{
  * - セルのクリックは分類（現在セル・移動可・不可）せず `Stage07-cell-click` で発行するのみ。
  *   移動は呼び出し側が分類し `Stage07Handle.moveTo` で命令する。単体で隣接クリック移動
  *   させる場合は `MoveOnAdjacentCellClick` を置く。選択可能表示（`cursor: pointer`）は
- *   分類と揃えるため、呼び出し側から `isCellSelectable` で渡せる
+ *   `_lib/cell-selectable` の `isCellSelectable` で判定する。分類する呼び出し側も同じ関数を使い揃える
  * - `ref`（`Stage07Handle.moveTo`）で隣接セルへの 1 マス移動を命令できる
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
@@ -268,7 +260,6 @@ export const Stage07 = (props: Stage07Props) => {
     initialMoveDurationMs = 300,
     initialTiltDeg = 0,
     interactive = true,
-    isCellSelectable,
     onCellChange,
     onFollowPathEnd,
     perspectivePx = 800,
@@ -344,14 +335,9 @@ export const Stage07 = (props: Stage07Props) => {
     canEnterCell,
   )
 
-  /**
-   * `isCellSelectable` 省略時の選択可能表示（現在セル以外）
-   *
-   * - 現在セル以外は、クリックで移動か呼び出し側の処理（目標設定等）のいずれかが起きるため全て対象
-   * - 現在セルはクリックしても何もしないため除く
-   */
-  const isNotCurrentCell = useCallback(
-    (cell: HexCell) => !isSameHexCell(currentCell, cell),
+  /** セルを選択可能表示（`cursor: pointer`）にするか（`isCellSelectable` を現在セルで束縛） */
+  const checkCellSelectable = useCallback(
+    (cell: HexCell) => isCellSelectable(cell, currentCell),
     [currentCell],
   )
   const { floorRef, setTilt } = usePerspectiveControl()
@@ -447,7 +433,7 @@ export const Stage07 = (props: Stage07Props) => {
         <div style={sceneStyle}>
           <div ref={floorRef} style={floorStyle}>
             <GeoLayer
-              isCellSelectable={isCellSelectable ?? isNotCurrentCell}
+              isCellSelectable={checkCellSelectable}
               cols={cols}
               hexSize={hexSize}
               interactive={interactive}

@@ -1,3 +1,4 @@
+import { isCellSelectable } from '@/prototypes/stage/stage-07/_lib/cell-selectable'
 import {
   HexCell,
   isHexAdjacent,
@@ -33,22 +34,9 @@ export type CellClickContext = {
 }
 
 /**
- * クリックしても何も起きないセルか
- *
- * - 選択可能表示（`cursor: pointer`）の判定にも使う。依存を `currentCell` のみに留め、\
- *   EN 等の変化で表示側を再レンダリングさせないため `classifyCellClick` から分けている
- *
- * @param cell クリックしたセル
- * @param currentCell player の現在セル
- */
-export const isCellClickIgnored = (
-  cell: HexCell,
-  currentCell: HexCell,
-): boolean => isSameHexCell(currentCell, cell)
-
-/**
  * セルクリックを分類する
  *
+ * - 現在マス判定は `Stage07` の選択可能表示と同じ `isCellSelectable` を使う
  * - 同期で判定できる範囲のみ扱う。EN 切れによる拒否（`FindPath-propose-path`）・
  *   到達不能（BFS）は `objective` の処理側で判定する
  *
@@ -62,7 +50,7 @@ export const classifyCellClick = (
   const { canEnterCell, currentCell, flowState, objectiveCell } = context
 
   // 現在マス: 何もしない
-  if (isCellClickIgnored(cell, currentCell)) return 'current'
+  if (!isCellSelectable(cell, currentCell)) return 'current'
 
   /** 直接移動できるか（隣接・進入可） */
   const isDirectMove = isHexAdjacent(currentCell, cell) && canEnterCell(cell)

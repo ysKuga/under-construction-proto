@@ -20,7 +20,6 @@ import { useEnergySpotUseEventListener } from './_hooks/use-energy-spot-use-even
 import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
-import { useIsCellSelectable } from './_hooks/use-is-cell-selectable'
 import { useRecordHistoryOnEnergyDepleted } from './_hooks/use-record-history-on-energy-depleted'
 import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
 import { useResetToCheckpointEventListener } from './_hooks/use-reset-to-checkpoint-event-listener'
@@ -64,7 +63,6 @@ export const useStage = (): UseStageReturn => {
   const handleCellChange = useHandleCellChange()
   const handleFollowPathEnd = useHandleFollowPathEnd()
   const handleWaypointCellClick = useHandleWaypointCellClick()
-  const isCellSelectable = useIsCellSelectable()
   const {
     registerFloorVisibilityNode,
     registerMarkerVisibilityNode,
@@ -96,7 +94,6 @@ export const useStage = (): UseStageReturn => {
     handleWaypointCellClick,
     interactive:
       operateStageAllowed && !waypointSelecting && !isAutoMoving && !isCharging,
-    isCellSelectable,
     objectiveMarkerCell: isAutoMoving ? followingPath.at(-1) : objectiveCell,
     previewPath,
     registerFloorVisibilityNode,

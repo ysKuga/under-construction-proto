@@ -1,10 +1,6 @@
 import { expect, test } from 'vitest'
 
-import {
-  CellClickContext,
-  classifyCellClick,
-  isCellClickIgnored,
-} from './classify-cell-click'
+import { CellClickContext, classifyCellClick } from './classify-cell-click'
 
 const context: CellClickContext = {
   canEnterCell: () => true,
@@ -49,18 +45,4 @@ test('経路提示中でなければ目標セルの再クリックも objective'
       { ...context, flowState: 'idle', objectiveCell: { q: 3, r: 0 } },
     ),
   ).toBe('objective')
-})
-
-test('isCellClickIgnored は classifyCellClick の current と一致する', () => {
-  const cells = [
-    { q: 0, r: 0 },
-    { q: 1, r: 0 },
-    { q: 3, r: 0 },
-  ]
-
-  for (const cell of cells) {
-    expect(isCellClickIgnored(cell, context.currentCell)).toBe(
-      classifyCellClick(cell, context) === 'current',
-    )
-  }
 })
