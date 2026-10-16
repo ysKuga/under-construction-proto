@@ -140,7 +140,7 @@ EOF
 
 ## コード整形
 
-コード(`.ts`/`.tsx` 等)、`npx oxfmt <変更ファイル>` で整形。Markdown は対象外、Prettier 継続([docs/package/format/oxfmt](docs/package/format/oxfmt/README.md))。
+コード(`.ts`/`.tsx` 等)・Markdown(`.md`)、`npx oxfmt <変更ファイル>` で整形([docs/package/format/oxfmt](docs/package/format/oxfmt/README.md))。
 
 - 対象、変更したファイルのみ。`npx prettier` で整形・検査しない
 - 既存コードに oxfmt 未適用箇所あり、変更外の箇所へ差分出る場合あり。無関係な整形差分 戻す(コミットのスコープ外のため)
