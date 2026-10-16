@@ -31,5 +31,4 @@ PR: #349（親: #137 backlog「セルクリックの判定を event 経由で fi
 
 ## 懸念・リスク
 
-- 分類が `isHexAdjacent`・`canEnterCell` を持つことで、`moveTo`（`useHexMove.tryMove`）と移動判定が二重になる
-  - 分類が `'move'` で `moveTo` が失敗する場合の扱いを決める（`'objective'` へ落とす等）
+- 分類と `moveTo`（`useHexMove.tryMove`）で移動判定が二重になる（ずれた場合は目標として扱う）
