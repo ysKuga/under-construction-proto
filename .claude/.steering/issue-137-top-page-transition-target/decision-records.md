@@ -97,3 +97,6 @@ backlog.md から参照される決定事項ログ。1 エントリ 1〜2 行目
 - 2026-10-16（表示判定）: PR 4 は判定の出所の一本化に留める。pointer（現在セル以外）は listener の分類（現在マスのみ何もしない）と一致しており、ずれは現在マス判定の重複のみのため。同期判定できる部分（現在 / 移動 / 目標再クリック / 目標）を純粋関数 `classifyCellClick` へ切り出し、pointer の判定関数を stage-07 の `_lib` へ置き `classifyCellClick` からも import する（汎用 UI の `Stage07` が find-path を import しないため。当初案の prop 追加は props drilling のため撤回）。依存は `currentCell` のみとし、`flowState`・EN は含めない（どの分類もクリックで反応が起きる、再レンダリングを増やさない）。到達不能セルの pointer 除外は全セル BFS になるため不採用
 - 2026-10-16: セルクリックの判定の集約（#345・#347・#346・#349）を完了した。pointer は stage-07 の `isCellSelectable` を分類と共有する（[_closed/pr-349-cell-click-classification](_closed/pr-349-cell-click-classification/decision-records.md)）
 - 2026-10-17: event による結び付けの確認は段階で分ける。設計時は skill（event 名・cancelable の要否・listener の置き場をユーザーとの対話で決めるため、メインのコンテキストで進める）。実装後は rules-reviewer の観点追加で済ませる（`.claude/rules/*.md` を全て読むため `event-ui-jurisdiction.md` は既に読込対象。専用サブエージェントは読込・観点が重複する）
+- 2026-10-17（本実装移行）: 2026-10-11 の「page 側へ移動する」を「コピーする」へ変更。元の実装は prototypes に残し、本実装は prototypes と独立した実装とする
+- 2026-10-17（名前）: `find-path` を `expedition` へ改名する。ゲーム内容が経路プランニングから、視界制限下でゴールを探索し EN を補給しながら進む形へ変わったため（`seek-goal` は Excel のゴールシークと被る、`wayfind` は `find-path` と意味が近く不採用）。改名は本実装への移行時に本実装のみ行い、prototypes は `find-path` のまま残す（106 ファイルの即時改名を避ける）
+- 2026-10-17: 本実装への移行を、複数 PR にわたるためサブ issue #357 として分離した。前提となる prototypes 間の import 方針の再検討も併せて移した

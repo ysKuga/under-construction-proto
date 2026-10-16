@@ -97,9 +97,9 @@
     2. rules-reviewer の観点追加
        - 対応: 完了（[#355](https://github.com/ysKuga/under-construction-proto/pull/355)）
   - (decision-records.md 2026-10-17)
-- [ ] `find-path` の名前を再検討する
-  - 現状の名前がやろうとしていることと合わない
-  - 案: ゴールを探す・探索するニュアンス
+- [ ] 本実装を prototypes からコピーして設置する
+  - サブ issue #357 へ分離（[_issues/issue-357-expedition](_issues/issue-357-expedition/backlog.md)）
+  - (decision-records.md 2026-10-17 本実装移行)
 - [x] 目標設定後に EN 切れを発生させると、吹き出しが表示されたまま残る
   - デバッグ操作（値調整 UI）での EN 切れで発生
   - 隣接選択は EN 切れで消える
