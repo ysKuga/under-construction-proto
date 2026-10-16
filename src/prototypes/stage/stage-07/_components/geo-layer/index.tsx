@@ -20,12 +20,11 @@ export const HEX_INSET_RATIO = 0.94
 
 type GeoLayerProps = {
   /**
-   * 対象セルへ進入可能か（省略時は常に進入可能）
+   * セルを選択可能表示（`cursor: pointer`）にするか（省略時は全セル）
    *
-   * - 選択可能表示（`cursor: pointer`）の判定にのみ使う。実際の進入拒否は
-   *   呼び出し元（`useHexMove`）が行う
+   * - 表示の判定にのみ使う。クリック時の振り分けは呼び出し元（`useHexMove`）が行う
    */
-  canEnterCell?: (cell: HexCell) => boolean
+  isCellSelectable?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
   /** 六角形の外接円半径 (px) */
@@ -60,23 +59,21 @@ type GeoLayerProps = {
  *   辺の角度によって線の実効太さが変わりセル間の隙間が不均一に見えたため、
  *   幾何学的に正確な頂点座標を計算する SVG 方式へ変更（issue #162）
  * - 選択可能マスの点線枠表示は `MoveTargetLayer`（find-path proto-03）へ委譲する。
- *   ここでは進入可能セル（`canEnterCell`、隣接/非隣接問わず）の `cursor: pointer`
- *   のみ付与する（issue #137、非隣接クリックの経路探索は今後実装）
+ *   ここでは選択可能セル（`isCellSelectable`）の `cursor: pointer` のみ付与する（issue #137）
  * - `interactive=false` のセルは非対話の `<div>` で描画する（stage-06 の
  *   `GeoLayer` と同じ方針）
  * - hover 中セルの変化は `Stage07-cell-hover` で発行する（PR #308）。購読側だけが
  *   再レンダリングされ、本 layer は再レンダリングされない。解除は layer 外へ出た時
  *   のみ発行する（セル間移動で解除 → 進入の2回発行を避ける）
- * - `React.memo` 化済み（issue-181-en backlog）。`canEnterCell`/`onCellClick` は
- *   呼び出し元の状態（EN 残量等）に依存し毎レンダー新規参照になりうるため、
- *   現状は memo 化の効果が限定的
+ * - `React.memo` 化済み（issue-181-en backlog）。`isCellSelectable`/`onCellClick` は
+ *   現在セルの変化で新規参照になるため、移動のたび再レンダリングされる
  */
 export const GeoLayer = memo((props: GeoLayerProps) => {
   const {
-    canEnterCell,
     cols,
     hexSize,
     interactive,
+    isCellSelectable,
     onCellClick,
     registerVisibilityNode,
     rows,
@@ -103,7 +100,7 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
       style={containerStyle}
     >
       {cells.map((axial) => {
-        const selectable = canEnterCell?.(axial) ?? true
+        const selectable = isCellSelectable?.(axial) ?? true
         const center = hexCellCenter(axial, hexSize, bounds)
 
         const cellStyle: CSSProperties = {
