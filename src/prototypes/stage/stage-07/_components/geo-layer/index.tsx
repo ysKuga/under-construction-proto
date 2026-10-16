@@ -65,6 +65,7 @@ type GeoLayerProps = {
  * - hover 中セルの変化は `Stage07-cell-hover` で発行する（PR #308）。購読側だけが
  *   再レンダリングされ、本 layer は再レンダリングされない。解除は layer 外へ出た時
  *   のみ発行する（セル間移動で解除 → 進入の2回発行を避ける）
+ * - クリックは `onCellClick` の呼出に加え `Stage07-cell-click` で発行する
  * - `React.memo` 化済み（issue-181-en backlog）。`isCellSelectable`/`onCellClick` は
  *   現在セルの変化で新規参照になるため、移動のたび再レンダリングされる
  */
@@ -128,7 +129,10 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
           <button
             aria-label={`hex ${axial.q}-${axial.r}`}
             key={`${axial.q}-${axial.r}`}
-            onClick={() => onCellClick(axial)}
+            onClick={() => {
+              onCellClick(axial)
+              void stage07EventDispatcher['Stage07-cell-click']({ cell: axial })
+            }}
             onPointerEnter={() =>
               void stage07EventDispatcher['Stage07-cell-hover']({ cell: axial })
             }
