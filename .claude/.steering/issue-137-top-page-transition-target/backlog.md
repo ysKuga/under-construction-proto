@@ -66,7 +66,8 @@
       - 対応: 完了（[#345](_closed/pr-345-stage07-cell-click/design.md)）
     2. 下準備: handle context の stage-07 への昇格、隣接クリック移動 component の追加
       - 対応: [#347](_pr/pr-347-stage07-handle-context/design.md)
-    3. proto-03 へ listener を追加し、`onIndirectClick`・`useHandleIndirectClick` を廃止する（#346）
+    3. proto-03 へ listener を追加し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
+      - 対応: [#346](_pr/pr-346-cell-click-listener/design.md)
     4. pointer・disabled 等の表示判定を分類へ揃える
       - event の発出と表示判定を同じ元から import し、判定の重複・ずれを防ぐ
   - (decision-records.md 2026-10-16)
