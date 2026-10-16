@@ -1,7 +1,12 @@
-import { HexCell, hexDirectionToScreenAngle, isHexAdjacent } from '../_lib/hex'
+import {
+  HexCell,
+  hexDirectionToScreenAngle,
+  isHexAdjacent,
+  isSameHexCell,
+} from '../_lib/hex'
 
 type UseHexMoveReturn = {
-  /** セルクリック時。隣接セルのみ移動する */
+  /** セルクリック時。隣接セルのみ移動する。現在セルは無視する */
   handleCellClick: (cell: HexCell) => void
   /**
    * 隣接セルへの移動を試みる。移動したら `true`、隣接でない・進入不可なら `false`
@@ -54,6 +59,9 @@ export const useHexMove = (
   }
 
   const handleCellClick = (cell: HexCell) => {
+    // 現在セル: 移動でも非隣接でもないため何もしない
+    if (isSameHexCell(currentCell, cell)) return
+
     if (!isHexAdjacent(currentCell, cell)) {
       onNonAdjacentClick?.(cell)
 

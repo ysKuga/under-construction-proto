@@ -33,6 +33,7 @@ import { useHexMove } from './_hooks/use-hex-move'
 import {
   HexCell,
   hexDirectionToScreenAngle,
+  isSameHexCell,
   pickInitialFacingTarget,
 } from './_lib/hex'
 import { useActorsStore } from './_stores/actors'
@@ -330,6 +331,13 @@ export const Stage07 = (props: Stage07Props) => {
     canEnterCell,
     onNonAdjacentClick,
   )
+
+  /** セルを選択可能表示（`cursor: pointer`）にするか。現在セルはクリックしても何もしないため除く */
+  const isCellSelectable = useCallback(
+    (cell: HexCell) =>
+      !isSameHexCell(currentCell, cell) && (canEnterCell?.(cell) ?? true),
+    [canEnterCell, currentCell],
+  )
   const { floorRef, setTilt } = usePerspectiveControl()
 
   /**
@@ -419,7 +427,7 @@ export const Stage07 = (props: Stage07Props) => {
         <div style={sceneStyle}>
           <div ref={floorRef} style={floorStyle}>
             <GeoLayer
-              canEnterCell={canEnterCell}
+              canEnterCell={isCellSelectable}
               cols={cols}
               hexSize={hexSize}
               interactive={interactive}
