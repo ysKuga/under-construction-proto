@@ -22,7 +22,7 @@ import {
   WaypointFlowStoreProvider,
 } from '../../../../../_stores/waypoint-flow'
 
-import { useHandleNonAdjacentClick } from './use-handle-non-adjacent-click'
+import { useHandleIndirectClick } from './use-handle-indirect-click'
 
 vi.unmock('zustand')
 
@@ -55,7 +55,7 @@ const renderHandler = (onShakeBotBubble = vi.fn<() => void>()) =>
 
       return {
         energy: useEnergyStoreApi(),
-        handleNonAdjacentClick: useHandleNonAdjacentClick(),
+        handleIndirectClick: useHandleIndirectClick(),
         waypointFlow: useWaypointFlowStoreApi(),
       }
     },
@@ -64,12 +64,12 @@ const renderHandler = (onShakeBotBubble = vi.fn<() => void>()) =>
 
 test('経路提示中に目標セルを再クリックすると目標設定をキャンセルする', async () => {
   const { result } = renderHandler()
-  const { handleNonAdjacentClick, waypointFlow } = result.current
+  const { handleIndirectClick, waypointFlow } = result.current
 
   act(() => {
     waypointFlow.getState().propose({ q: 2, r: 3 })
   })
-  await act(() => handleNonAdjacentClick({ q: 2, r: 3 }))
+  await act(() => handleIndirectClick({ q: 2, r: 3 }))
 
   expect(waypointFlow.getState().flowState).toBe('idle')
   expect(waypointFlow.getState().objectiveCell).toBeUndefined()
@@ -77,14 +77,14 @@ test('経路提示中に目標セルを再クリックすると目標設定を�
 
 test('EN 切れでも目標セルの再クリックでキャンセルできる', async () => {
   const { result } = renderHandler()
-  const { energy, handleNonAdjacentClick, waypointFlow } = result.current
+  const { energy, handleIndirectClick, waypointFlow } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
   act(() => {
     waypointFlow.getState().propose({ q: 2, r: 3 })
     energy.getState().consume(PLAYER_ACTOR_ID, max)
   })
-  await act(() => handleNonAdjacentClick({ q: 2, r: 3 }))
+  await act(() => handleIndirectClick({ q: 2, r: 3 }))
 
   expect(waypointFlow.getState().flowState).toBe('idle')
 })
@@ -92,13 +92,13 @@ test('EN 切れでも目標セルの再クリックでキャンセルできる',
 test('EN 切れで提示を拒否されると bot 頭上の吹き出しを揺らす', async () => {
   const onShakeBotBubble = vi.fn<() => void>()
   const { result } = renderHandler(onShakeBotBubble)
-  const { energy, handleNonAdjacentClick, waypointFlow } = result.current
+  const { energy, handleIndirectClick, waypointFlow } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
   act(() => {
     energy.getState().consume(PLAYER_ACTOR_ID, max)
   })
-  await act(() => handleNonAdjacentClick({ q: 2, r: 0 }))
+  await act(() => handleIndirectClick({ q: 2, r: 0 }))
 
   expect(onShakeBotBubble).toHaveBeenCalledTimes(1)
   expect(waypointFlow.getState().flowState).toBe('idle')
@@ -108,7 +108,7 @@ test('提示を許可されれば吹き出しを揺らさない', async () => {
   const onShakeBotBubble = vi.fn<() => void>()
   const { result } = renderHandler(onShakeBotBubble)
 
-  await act(() => result.current.handleNonAdjacentClick({ q: 2, r: 0 }))
+  await act(() => result.current.handleIndirectClick({ q: 2, r: 0 }))
 
   expect(onShakeBotBubble).not.toHaveBeenCalled()
   expect(result.current.waypointFlow.getState().flowState).toBe('proposing')

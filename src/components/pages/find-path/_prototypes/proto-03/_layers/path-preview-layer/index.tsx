@@ -25,7 +25,7 @@ type PathPreviewLayerProps = {
 }
 
 /**
- * 非隣接セルクリック時の経路プレビュー表示レイヤー
+ * 直接移動できないセルのクリック時の経路プレビュー表示レイヤー
  *
  * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。`path` の
  *   各セルへ小さい点マーカーを表示するだけの非対話層（`ObstacleLayer` 同型）

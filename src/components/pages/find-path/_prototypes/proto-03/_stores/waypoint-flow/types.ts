@@ -5,8 +5,8 @@ import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 /**
  * 中継点フローの状態（issue #137 backlog「中継点の設定」）
  *
- * - `idle`: 通常状態。セルクリックは `useHexMove` 経由の隣接移動/非隣接経路探索
- * - `proposing`: 非隣接クリックで経路が求まった直後。bot 頭上に `WaypointBubble`
+ * - `idle`: 通常状態。セルクリックは `useHexMove` 経由の隣接移動/経路探索
+ * - `proposing`: 直接移動できないセルのクリックで経路が求まった直後。bot 頭上に `WaypointBubble`
  *   （思考吹き出し）を表示する
  * - `selecting`: `WaypointBubble` クリックで移行。`Stage07` を非対話化し
  *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する。
@@ -29,7 +29,7 @@ export type WaypointFlowStoreState = {
   clear: () => void
   /** 中継点フローの状態 */
   flowState: WaypointFlowState
-  /** 非隣接クリックで選んだ経路の目標セル（経路提示中のみ） */
+  /** 直接移動できないセルのクリックで選んだ経路の目標セル（経路提示中のみ） */
   objectiveCell?: HexCell
   /** cell を目標として経路提示中(`proposing`)へ移行する。前の目標の中継点は消す */
   propose: (cell: HexCell) => void

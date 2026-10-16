@@ -41,7 +41,7 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  * - `Stage07` の `interactive={false}`（`index.tsx` が `waypointFlowState ===
  *   'selecting'` の間切替える）と組ませて使う。`GeoLayer` が非対話になった間、
  *   このレイヤーが全セルのクリックを拾い `onCellClick` を発火する
- * - 通常モードのセルクリック（`useHexMove` 経由、隣接移動・非隣接クリックでの
+ * - 通常モードのセルクリック（`useHexMove` 経由、隣接移動・直接移動できないセルのクリックでの
  *   経路探索）とは別イベントとして完全に分離する（issue #137、中継点機能の設計方針）
  * - `waypoints` に含まれるセルへ 📍 を重ねる。設置操作が見た目に反映されず
  *   「選択できていないように見える」というフィードバック不足の指摘を受けて追加

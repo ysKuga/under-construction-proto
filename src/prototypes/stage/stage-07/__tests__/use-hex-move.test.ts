@@ -8,48 +8,57 @@ const CURRENT: HexCell = { q: 1, r: 1 }
 const ADJACENT: HexCell = { q: 1, r: 2 }
 const NON_ADJACENT: HexCell = { q: 1, r: 3 }
 
-const renderHexMove = () => {
+const renderHexMove = (canEnter?: (cell: HexCell) => boolean) => {
   const moveActor = vi.fn<(cell: HexCell) => void>()
-  const onNonAdjacentClick = vi.fn<(cell: HexCell) => void>()
+  const onIndirectClick = vi.fn<(cell: HexCell) => void>()
   const { result } = renderHook(() =>
     useHexMove(
       CURRENT,
       moveActor,
       undefined,
       undefined,
-      undefined,
-      onNonAdjacentClick,
+      canEnter,
+      onIndirectClick,
     ),
   )
 
-  return { moveActor, onNonAdjacentClick, result }
+  return { moveActor, onIndirectClick, result }
 }
 
 describe('useHexMove', () => {
-  it('現在マスのクリックは移動も非隣接通知もしない', () => {
-    const { moveActor, onNonAdjacentClick, result } = renderHexMove()
+  it('現在マスのクリックは移動も呼出し側への委譲もしない', () => {
+    const { moveActor, onIndirectClick, result } = renderHexMove()
 
     result.current.handleCellClick({ ...CURRENT })
 
     expect(moveActor).not.toHaveBeenCalled()
-    expect(onNonAdjacentClick).not.toHaveBeenCalled()
+    expect(onIndirectClick).not.toHaveBeenCalled()
   })
 
   it('隣接マスのクリックで移動する', () => {
-    const { moveActor, onNonAdjacentClick, result } = renderHexMove()
+    const { moveActor, onIndirectClick, result } = renderHexMove()
 
     result.current.handleCellClick(ADJACENT)
 
     expect(moveActor).toHaveBeenCalledWith(ADJACENT)
-    expect(onNonAdjacentClick).not.toHaveBeenCalled()
+    expect(onIndirectClick).not.toHaveBeenCalled()
   })
 
-  it('非隣接マスのクリックで非隣接通知する', () => {
-    const { moveActor, onNonAdjacentClick, result } = renderHexMove()
+  it('進入できない隣接マスのクリックは呼出し側へ委ねる', () => {
+    const { moveActor, onIndirectClick, result } = renderHexMove(() => false)
+
+    result.current.handleCellClick(ADJACENT)
+
+    expect(moveActor).not.toHaveBeenCalled()
+    expect(onIndirectClick).toHaveBeenCalledWith(ADJACENT)
+  })
+
+  it('非隣接マスのクリックは呼出し側へ委ねる', () => {
+    const { moveActor, onIndirectClick, result } = renderHexMove()
 
     result.current.handleCellClick(NON_ADJACENT)
 
     expect(moveActor).not.toHaveBeenCalled()
-    expect(onNonAdjacentClick).toHaveBeenCalledWith(NON_ADJACENT)
+    expect(onIndirectClick).toHaveBeenCalledWith(NON_ADJACENT)
   })
 })
