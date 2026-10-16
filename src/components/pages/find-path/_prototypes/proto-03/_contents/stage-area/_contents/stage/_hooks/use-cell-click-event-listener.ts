@@ -4,22 +4,26 @@ import { useNotifications } from '@/components/ui/notifications'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
 import { useStage07HandleRef } from '@/prototypes/stage/stage-07/_contexts/stage07-handle'
 import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
-import { isSameHexCell } from '@/prototypes/stage/stage-07/_lib/hex'
 import { useActorsStoreApi } from '@/prototypes/stage/stage-07/_stores/actors'
 
 import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { useFindPathEventDispatcher } from '../../../../../_events'
 import { canEnterForPath } from '../../../../../_lib/can-enter-for-path'
+import { classifyCellClick } from '../../../../../_lib/classify-cell-click'
 import { findHexPathViaWaypoints } from '../../../../../_lib/find-hex-path-via-waypoints'
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { GRID } from '../../../../../constants'
+
+import { useCanEnterCell } from './use-can-enter-cell'
 
 /**
  * セルのクリック（`Stage07-cell-click`）を、移動・目標設定へ振り分ける
  *
  * - クリックの分類はここに集約する。`Stage07` はクリックしたセルを発行するのみ
+ * - 分類は `classifyCellClick` で行う（選択可能表示の判定と同じ元）
  * - 現在マスは何もしない
- * - 直接移動できるマス（隣接・進入可）は `Stage07Handle.moveTo` で移動する
+ * - 直接移動できるマス（隣接・進入可）は `Stage07Handle.moveTo` で移動する。
+ *   分類と `moveTo` の判定がずれて移動できなかった場合は、目標として扱う
  * - 直接移動できないマスは、そのマスを目標として BFS で経路を求め `PathPreviewLayer` へ表示する
  *   （自動移動は吹き出しの「実行」で開始する、issue #226）。到達不能なら通知する
  *   - 新しい目標は中継点なしで経路を求める（前の目標の中継点は引き継がない）
@@ -36,6 +40,7 @@ export const useCellClickEventListener = (): void => {
   const addNotification = useNotifications((state) => state.addNotification)
   const findPathEventDispatcher = useFindPathEventDispatcher()
   const stageLayout = useStageLayout()
+  const { canEnterCell } = useCanEnterCell()
 
   useStage07EventListener(
     'Stage07-cell-click',
@@ -44,24 +49,26 @@ export const useCellClickEventListener = (): void => {
         const { cell } = event.detail
         const currentCell = actorsStoreApi.getState().actors[PLAYER_ACTOR_ID]
 
-        // 現在マス: 移動でも目標でもないため何もしない
-        if (isSameHexCell(currentCell, cell)) return
+        const { flowState, objectiveCell } = waypointFlowStoreApi.getState()
+        const kind = classifyCellClick(cell, {
+          canEnterCell,
+          currentCell,
+          flowState,
+          objectiveCell,
+        })
 
-        /** 直接移動できたか（隣接・進入可） */
-        const moved = stage07HandleRef.current?.moveTo(cell) ?? false
+        // 現在マス: 移動でも目標でもないため何もしない
+        if (kind === 'current') return
+
+        /** 直接移動できたか（分類が移動でも、`moveTo` に拒否されれば目標として扱う） */
+        const moved =
+          kind === 'move' && (stage07HandleRef.current?.moveTo(cell) ?? false)
 
         // 直接移動できた: 終了
         if (moved) return
 
-        const { flowState, objectiveCell } = waypointFlowStoreApi.getState()
-        /** 経路提示中の目標セルを再クリックしたか */
-        const isObjectiveReclick =
-          flowState === 'proposing' &&
-          objectiveCell !== undefined &&
-          isSameHexCell(objectiveCell, cell)
-
         // 目標セルの再クリック: 目標設定をキャンセルする
-        if (isObjectiveReclick) {
+        if (kind === 'cancel-objective') {
           waypointFlowStoreApi.getState().clear()
 
           return
@@ -106,6 +113,7 @@ export const useCellClickEventListener = (): void => {
       [
         actorsStoreApi,
         addNotification,
+        canEnterCell,
         findPathEventDispatcher,
         stage07HandleRef,
         stageLayout,
