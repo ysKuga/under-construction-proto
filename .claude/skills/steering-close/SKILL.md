@@ -24,13 +24,13 @@ description: 対応完了した steering ディレクトリを `_closed/` へ移
 
 [.claude/rules/steering.md](../../rules/steering.md)「close」に従う。
 
-| 移動元 | 移動先 |
-|---|---|
-| `issue-N-slug/_pr/pr-M-slug/` | `issue-N-slug/_closed/pr-M-slug/` |
-| `issue-N-slug/_issues/issue-K-slug/`(正式サブ issue) | `issue-N-slug/_closed/issue-K-slug/` |
-| `_pr/pr-M-slug/`(issue 非紐づけ) | `_closed/pr-M-slug/` |
-| `YYYYMMDD-slug/`(PR あり) | `_closed/pr-M-slug/`(PR 番号をディレクトリ名へ反映) |
-| `issue-N-slug/`(issue 直結) | `_closed/issue-N-slug/` |
+| 移動元                                               | 移動先                                              |
+| ---------------------------------------------------- | --------------------------------------------------- |
+| `issue-N-slug/_pr/pr-M-slug/`                        | `issue-N-slug/_closed/pr-M-slug/`                   |
+| `issue-N-slug/_issues/issue-K-slug/`(正式サブ issue) | `issue-N-slug/_closed/issue-K-slug/`                |
+| `_pr/pr-M-slug/`(issue 非紐づけ)                     | `_closed/pr-M-slug/`                                |
+| `YYYYMMDD-slug/`(PR あり)                            | `_closed/pr-M-slug/`(PR 番号をディレクトリ名へ反映) |
+| `issue-N-slug/`(issue 直結)                          | `_closed/issue-N-slug/`                             |
 
 - PR を経ずに検討のみで完結した `YYYYMMDD-slug` は名前を変えない
 - 入れ子の場合(サブ issue 配下に `_pr/` が残る等)、内側から順に close する
