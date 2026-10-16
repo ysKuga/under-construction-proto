@@ -54,7 +54,7 @@
   - 対応: 完了（[#343](_closed/pr-343-indirect-cell-click/design.md)）
 - [ ] 目標設定になるマスの `cursor: pointer` を挙動に揃える
   - 通れない隣接マス等、クリックで目標設定になるのに pointer が付かない
-  - 対応: [#344](_pr/pr-344-indirect-cell-pointer/design.md)
+  - 対応: [#344](_closed/pr-344-indirect-cell-pointer/design.md)
 - [ ] セルクリックの判定を event 経由で find-path 側の listener へ集約する（#344 マージ後）
   - 目的
     - UI と処理の結合を避け、UI の再利用性を上げる
