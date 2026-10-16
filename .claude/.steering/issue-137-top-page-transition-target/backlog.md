@@ -97,30 +97,26 @@
     2. rules-reviewer の観点追加
        - 対応: 完了（[#355](https://github.com/ysKuga/under-construction-proto/pull/355)）
   - (decision-records.md 2026-10-17)
-- [x] `find-path` の名前を再検討する
-  - 現状の名前がやろうとしていることと合わない
-  - 案: ゴールを探す・探索するニュアンス
-  - 対応: `expedition` に決定。改名は下記の本実装への移行時に行う
-  - (decision-records.md 2026-10-17 名前)
 - [ ] prototypes 間の import 方針を再検討する
   - 背景: なし崩しに import した部分がある
   - 対象: `src/prototypes/CLAUDE.md`（若いバージョンからの import 許容・共通置き場への昇格）
   - 本実装への移行方針（コピーして独立）との整合を取る
-- [ ] proto から本実装へ移行する際、prototypes 配下の実装を本実装用に設置する
-  - 手段: 元の実装を移動せず、コピー等で複製する
+- [ ] 本実装を prototypes からコピーして設置する
+  - 時期: proto から本実装への移行時
+  - 手段: 元の実装を移動せず、コピーで複製する
   - 位置づけ: 本実装は prototypes と独立した実装とする
   - 名前: 本実装は `expedition`、prototypes は `find-path` のまま残す
   - 未決
     - 元にする prototype（proto-03 のみか）
     - test・story もコピー対象とするか
-  - コピー対象（proto-03 の依存先、import 数）
-    - `src/prototypes/stage/stage-07`（約 100）
-    - `src/prototypes/stage/stage-06/constants`（35）
-    - `find-path/_prototypes/_stores/energy`（30、proto-01/02/03 共有）
-    - `src/prototypes/time-control/time-control-03/types`（5）
+  - コピー対象（proto-03 の依存先）
+    - `src/prototypes/stage/stage-07`
+    - `src/prototypes/stage/stage-06/constants`
+    - `find-path/_prototypes/_stores/energy`（proto-01/02/03 共有）
+    - `src/prototypes/time-control/time-control-03/types`
   - 改名対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - route 配線: `src/app` に未設置
-  - (decision-records.md 2026-10-11 本実装移行)
+  - (decision-records.md 2026-10-17 本実装移行)
   - (decision-records.md 2026-10-17 名前)
 - [x] 目標設定後に EN 切れを発生させると、吹き出しが表示されたまま残る
   - デバッグ操作（値調整 UI）での EN 切れで発生
