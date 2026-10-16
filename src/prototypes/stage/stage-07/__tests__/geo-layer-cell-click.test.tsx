@@ -29,7 +29,6 @@ const renderGeoLayer = (
         cols={2}
         hexSize={20}
         interactive={interactive}
-        onCellClick={() => {}}
         rows={1}
       />
     </Stage07EventProvider>,
@@ -43,23 +42,6 @@ describe('GeoLayer の Stage07-cell-click 発行', () => {
     fireEvent.click(screen.getByRole('button', { name: 'hex 0-0' }))
 
     expect(onCellClickEvent).toHaveBeenCalledWith({ q: 0, r: 0 })
-  })
-
-  it('既存の onCellClick も呼ばれる', () => {
-    const onCellClick = vi.fn<(cell: HexCell) => void>()
-    render(
-      <GeoLayer
-        cols={1}
-        hexSize={20}
-        interactive
-        onCellClick={onCellClick}
-        rows={1}
-      />,
-    )
-
-    fireEvent.click(screen.getByRole('button'))
-
-    expect(onCellClick).toHaveBeenCalledWith({ q: 0, r: 0 })
   })
 
   it('非対話のセルでは通知しない', () => {
