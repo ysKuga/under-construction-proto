@@ -54,6 +54,7 @@
   - 対応: 完了（[#343](_closed/pr-343-indirect-cell-click/design.md)）
 - [ ] 目標設定になるマスの `cursor: pointer` を挙動に揃える
   - 通れない隣接マス等、クリックで目標設定になるのに pointer が付かない
+  - 対応: [#344](_pr/pr-344-indirect-cell-pointer/design.md)
 - [ ] `find-path` の名前を再検討する
   - 現状の名前がやろうとしていることと合わない
   - 案: ゴールを探す・探索するニュアンス
