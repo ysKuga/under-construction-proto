@@ -8,6 +8,8 @@ import {
   hexPolygonPoints,
 } from '../../_lib/hex-layout'
 
+import { useIsCellSelectable } from './_hooks/use-is-cell-selectable'
+
 /**
  * セル間の隙間を作るための縮小率
  *
@@ -19,12 +21,6 @@ import {
 export const HEX_INSET_RATIO = 0.94
 
 type GeoLayerProps = {
-  /**
-   * セルを選択可能表示（`cursor: pointer`）にするか（省略時は全セル）
-   *
-   * - 表示の判定にのみ使う。クリック時の振り分けは呼び出し元（`useHexMove`）が行う
-   */
-  isCellSelectable?: (cell: HexCell) => boolean
   /** 列数 */
   cols: number
   /** 六角形の外接円半径 (px) */
@@ -57,27 +53,27 @@ type GeoLayerProps = {
  *   辺の角度によって線の実効太さが変わりセル間の隙間が不均一に見えたため、
  *   幾何学的に正確な頂点座標を計算する SVG 方式へ変更（issue #162）
  * - 選択可能マスの点線枠表示は `MoveTargetLayer`（find-path proto-03）へ委譲する。
- *   ここでは選択可能セル（`isCellSelectable`）の `cursor: pointer` のみ付与する（issue #137）
+ *   ここでは選択可能セル（`useIsCellSelectable`、現在セル以外）の `cursor: pointer` のみ付与する（issue #137）
  * - `interactive=false` のセルは非対話の `<div>` で描画する（stage-06 の
  *   `GeoLayer` と同じ方針）
  * - hover 中セルの変化は `Stage07-cell-hover` で発行する（PR #308）。購読側だけが
  *   再レンダリングされ、本 layer は再レンダリングされない。解除は layer 外へ出た時
  *   のみ発行する（セル間移動で解除 → 進入の2回発行を避ける）
  * - クリックは `Stage07-cell-click` で発行するのみ。分類（移動・目標設定等）は購読側が行う
- * - `React.memo` 化済み（issue-181-en backlog）。`isCellSelectable` は
- *   現在セルの変化で新規参照になるため、移動のたび再レンダリングされる
+ * - `React.memo` 化済み（issue-181-en backlog）。選択可能表示のため現在セル（actors store）を
+ *   購読しており、移動のたび再レンダリングされる
  */
 export const GeoLayer = memo((props: GeoLayerProps) => {
   const {
     cols,
     hexSize,
     interactive,
-    isCellSelectable,
     registerVisibilityNode,
     rows,
   } = props
 
   const stage07EventDispatcher = useStage07EventDispatcher()
+  const isCellSelectable = useIsCellSelectable()
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
   const cells = Array.from({ length: rows }).flatMap((_, row) =>
@@ -98,7 +94,7 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
       style={containerStyle}
     >
       {cells.map((axial) => {
-        const selectable = isCellSelectable?.(axial) ?? true
+        const selectable = isCellSelectable(axial)
         const center = hexCellCenter(axial, hexSize, bounds)
 
         const cellStyle: CSSProperties = {

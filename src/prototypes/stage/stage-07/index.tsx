@@ -33,7 +33,6 @@ import { useHexMove } from './_hooks/use-hex-move'
 import {
   HexCell,
   hexDirectionToScreenAngle,
-  isSameHexCell,
   pickInitialFacingTarget,
 } from './_lib/hex'
 import { useActorsStore } from './_stores/actors'
@@ -196,7 +195,8 @@ type Stage07Props = PropsWithChildren<{
  *   拒否できる（find-path proto-03 の障害物セル判定で使用）
  * - セルのクリックは分類（現在セル・移動可・不可）せず `Stage07-cell-click` で発行するのみ。
  *   移動は呼び出し側が分類し `Stage07Handle.moveTo` で命令する。単体で隣接クリック移動
- *   させる場合は `MoveOnAdjacentCellClick` を置く
+ *   させる場合は `MoveOnAdjacentCellClick` を置く。選択可能表示（`cursor: pointer`）は
+ *   `GeoLayer` が `_lib/cell-selectable` の `isCellSelectable` で判定する。分類する呼び出し側も同じ関数を使い揃える
  * - `ref`（`Stage07Handle.moveTo`）で隣接セルへの 1 マス移動を命令できる
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
@@ -334,16 +334,6 @@ export const Stage07 = (props: Stage07Props) => {
     canEnterCell,
   )
 
-  /**
-   * セルを選択可能表示（`cursor: pointer`）にするか
-   *
-   * - 現在セル以外は、クリックで移動か呼び出し側の処理（目標設定等）のいずれかが起きるため全て対象
-   * - 現在セルはクリックしても何もしないため除く
-   */
-  const isCellSelectable = useCallback(
-    (cell: HexCell) => !isSameHexCell(currentCell, cell),
-    [currentCell],
-  )
   const { floorRef, setTilt } = usePerspectiveControl()
 
   /**
@@ -437,7 +427,6 @@ export const Stage07 = (props: Stage07Props) => {
         <div style={sceneStyle}>
           <div ref={floorRef} style={floorStyle}>
             <GeoLayer
-              isCellSelectable={isCellSelectable}
               cols={cols}
               hexSize={hexSize}
               interactive={interactive}

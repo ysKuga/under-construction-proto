@@ -55,7 +55,7 @@
 - [x] 目標設定になるマスの `cursor: pointer` を挙動に揃える
   - 通れない隣接マス等、クリックで目標設定になるのに pointer が付かない
   - 対応: [#344](_closed/pr-344-indirect-cell-pointer/design.md)
-- [ ] セルクリックの判定を event 経由で find-path 側の listener へ集約する（#344 マージ後）
+- [x] セルクリックの判定を event 経由で find-path 側の listener へ集約する（#344 マージ後）
   - 目的
     - UI と処理の結合を避け、UI の再利用性を上げる
     - 処理の実装の分散を避ける
@@ -70,12 +70,17 @@
       - 対応: 完了（[#346](_closed/pr-346-cell-click-listener/design.md)）
     4. pointer・disabled 等の表示判定を分類へ揃える
       - event の発出と表示判定を同じ元から import し、判定の重複・ずれを防ぐ
-      - 現状
-        - 分類は `useCellClickEventListener` 内の手続きのみ。純粋関数としての切り出しから始める
-        - pointer は `Stage07` の `isCellSelectable`（現在セル以外）のまま
-      - 表示判定は再レンダリングを伴うため、ui-jurisdiction「表示用の判定」・docs/performance と合わせて検討する
+      - 分類: 同期判定できる部分を純粋関数 `classifyCellClick` へ切り出す
+        - 返り値: `'current' | 'move' | 'cancel-objective' | 'objective'`
+        - EN 拒否・到達不能は `'objective'` に含める（非同期・BFS のため）
+        - listener はこの分類で分岐し、`moveTo` は実行のみ担う
+      - pointer: stage-07 の `_lib/cell-selectable` の `isCellSelectable` を `Stage07` と `classifyCellClick` が共に import する
+        - 依存は `currentCell` のみに留める（再レンダリングを現状から増やさない）
+        - 到達不能セルも pointer のまま（全セル BFS を避ける、クリックで通知が出る）
       - disabled は事例として扱い、必要が生じた時点で対応する
         - 例: EN 切れで拒否される「実行」吹き出し（`FindPath-execute-path`）を、拒否と同じ判定で disabled 表示にする
+      - (decision-records.md 2026-10-16 表示判定)
+      - 対応: 完了（[#349](_closed/pr-349-cell-click-classification/design.md)）
   - (decision-records.md 2026-10-16)
 - [ ] UI と処理の event による結び付けの方針の記述を確認・見直す
   - 対象: ui-jurisdiction・event-driven-ui・`.claude/rules/event-driven-actions.md`

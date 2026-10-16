@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
+import { PLAYER_ACTOR_ID } from '../../stage-06/constants'
 import { GeoLayer } from '../_components/geo-layer'
 import { Stage07EventProvider, useStage07EventListener } from '../_events'
 import { HexCell } from '../_lib/hex'
+import { ActorsStoreProvider } from '../_stores/actors'
+
+vi.unmock('zustand')
 
 /** `Stage07-cell-hover` の発行を `onCellHover` へ中継する */
 const CellHoverListener = (props: {
@@ -20,15 +24,12 @@ const CellHoverListener = (props: {
 
 const renderGeoLayer = (onCellHover: (cell: HexCell | undefined) => void) =>
   render(
-    <Stage07EventProvider>
-      <CellHoverListener onCellHover={onCellHover} />
-      <GeoLayer
-        cols={2}
-        hexSize={20}
-        interactive
-        rows={1}
-      />
-    </Stage07EventProvider>,
+    <ActorsStoreProvider initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}>
+      <Stage07EventProvider>
+        <CellHoverListener onCellHover={onCellHover} />
+        <GeoLayer cols={2} hexSize={20} interactive rows={1} />
+      </Stage07EventProvider>
+    </ActorsStoreProvider>,
   )
 
 describe('GeoLayer の Stage07-cell-hover 発行', () => {
@@ -70,14 +71,13 @@ describe('GeoLayer の Stage07-cell-hover 発行', () => {
     expect(onCellHover).toHaveBeenLastCalledWith(undefined)
   })
 
-  it('Provider がなくても動作する', () => {
+  it('event の Provider がなくても動作する', () => {
     render(
-      <GeoLayer
-        cols={1}
-        hexSize={20}
-        interactive
-        rows={1}
-      />,
+      <ActorsStoreProvider
+        initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+      >
+        <GeoLayer cols={1} hexSize={20} interactive rows={1} />
+      </ActorsStoreProvider>,
     )
 
     expect(() =>

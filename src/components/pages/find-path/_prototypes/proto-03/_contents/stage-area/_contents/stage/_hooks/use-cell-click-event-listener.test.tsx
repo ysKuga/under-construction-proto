@@ -47,7 +47,9 @@ const Wrapper = (props: PropsWithChildren) => (
               >
                 <Stage07EventProvider>
                   <WaypointFlowStoreProvider>
-                    <Stage07HandleProvider>{props.children}</Stage07HandleProvider>
+                    <Stage07HandleProvider>
+                      {props.children}
+                    </Stage07HandleProvider>
                   </WaypointFlowStoreProvider>
                 </Stage07EventProvider>
               </ActorsStoreProvider>
@@ -113,10 +115,27 @@ test('現在マスのクリックでは移動も目標設定もしない', async
 test('移動できたら目標設定しない', async () => {
   const { click, moveTo, result } = renderListener(vi.fn(() => true))
 
-  await click({ q: 1, r: 0 })
+  await click({ q: 0, r: 1 })
 
-  expect(moveTo).toHaveBeenCalledWith({ q: 1, r: 0 })
+  expect(moveTo).toHaveBeenCalledWith({ q: 0, r: 1 })
   expect(result.current.waypointFlow.getState().flowState).toBe('idle')
+})
+
+test('隣接マスでも moveTo に拒否されたら目標として経路を提示する', async () => {
+  const { click, moveTo, result } = renderListener()
+
+  await click({ q: 0, r: 1 })
+
+  expect(moveTo).toHaveBeenCalledWith({ q: 0, r: 1 })
+  expect(result.current.waypointFlow.getState().flowState).toBe('proposing')
+})
+
+test('非隣接マスでは moveTo を呼ばない', async () => {
+  const { click, moveTo } = renderListener()
+
+  await click({ q: 2, r: 0 })
+
+  expect(moveTo).not.toHaveBeenCalled()
 })
 
 test('経路提示中に目標セルを再クリックすると目標設定をキャンセルする', async () => {
