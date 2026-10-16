@@ -29,5 +29,4 @@ PR: #346（親: #137 backlog「セルクリックの判定を event 経由で fi
 
 ## 懸念・リスク
 
-- story の decorator が増える
-  - 共通の decorator として 1 箇所にまとめる
+- なし
