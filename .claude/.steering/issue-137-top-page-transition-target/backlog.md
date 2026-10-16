@@ -56,13 +56,22 @@
   - 通れない隣接マス等、クリックで目標設定になるのに pointer が付かない
   - 対応: [#344](_pr/pr-344-indirect-cell-pointer/design.md)
 - [ ] セルクリックの判定を event 経由で find-path 側の listener へ集約する（#344 マージ後）
+  - 目的
+    - UI と処理の結合を避け、UI の再利用性を上げる
+    - 処理の実装の分散を避ける
   - UI: `GeoLayer` は `Stage07-cell-click` を発行するのみ、移動は `Stage07Handle.moveTo` で受ける
   - listener: 現在 / 移動可 / 不可 の分類をセル単位で集約し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
   - PR 分割案
     1. `Stage07-cell-click`・`Stage07Handle.moveTo` の追加（挙動は変えない）
     2. proto-03 へ listener を追加し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
-    3. pointer の表示判定を分類へ揃える（任意）
+    3. pointer・disabled 等の表示判定を分類へ揃える
+      - event の発出と表示判定を同じ元から import し、判定の重複・ずれを防ぐ
   - (decision-records.md 2026-10-16)
+- [ ] UI と処理の event による結び付けの方針の記述を確認・見直す
+  - 対象: ui-jurisdiction・event-driven-ui・`.claude/rules/event-driven-actions.md`
+  - 上記の集約の実装結果を反映する
+- [ ] event による結び付けを確認するサブエージェント・スキルの作成を検討する
+  - インタラクティブな UI の実装時、event で処理と結び付けられるかを確認・検討する
 - [ ] `find-path` の名前を再検討する
   - 現状の名前がやろうとしていることと合わない
   - 案: ゴールを探す・探索するニュアンス
