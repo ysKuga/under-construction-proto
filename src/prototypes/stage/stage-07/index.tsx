@@ -30,7 +30,6 @@ import { GeoLayer } from './_components/geo-layer'
 import { useStage07EventDispatcher } from './_events'
 import { useFollowPath } from './_hooks/use-follow-path'
 import { useHexMove } from './_hooks/use-hex-move'
-import { isCellSelectable } from './_lib/cell-selectable'
 import {
   HexCell,
   hexDirectionToScreenAngle,
@@ -197,7 +196,7 @@ type Stage07Props = PropsWithChildren<{
  * - セルのクリックは分類（現在セル・移動可・不可）せず `Stage07-cell-click` で発行するのみ。
  *   移動は呼び出し側が分類し `Stage07Handle.moveTo` で命令する。単体で隣接クリック移動
  *   させる場合は `MoveOnAdjacentCellClick` を置く。選択可能表示（`cursor: pointer`）は
- *   `_lib/cell-selectable` の `isCellSelectable` で判定する。分類する呼び出し側も同じ関数を使い揃える
+ *   `GeoLayer` が `_lib/cell-selectable` の `isCellSelectable` で判定する。分類する呼び出し側も同じ関数を使い揃える
  * - `ref`（`Stage07Handle.moveTo`）で隣接セルへの 1 マス移動を命令できる
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
@@ -335,11 +334,6 @@ export const Stage07 = (props: Stage07Props) => {
     canEnterCell,
   )
 
-  /** セルを選択可能表示（`cursor: pointer`）にするか（`isCellSelectable` を現在セルで束縛） */
-  const checkCellSelectable = useCallback(
-    (cell: HexCell) => isCellSelectable(cell, currentCell),
-    [currentCell],
-  )
   const { floorRef, setTilt } = usePerspectiveControl()
 
   /**
@@ -433,7 +427,6 @@ export const Stage07 = (props: Stage07Props) => {
         <div style={sceneStyle}>
           <div ref={floorRef} style={floorStyle}>
             <GeoLayer
-              isCellSelectable={checkCellSelectable}
               cols={cols}
               hexSize={hexSize}
               interactive={interactive}
