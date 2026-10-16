@@ -87,13 +87,15 @@
   - 上記の集約の実装結果を反映する
   - 対応: 完了（[#352](https://github.com/ysKuga/under-construction-proto/pull/352)）
     - 役割分担の規約は `.claude/rules/event-ui-jurisdiction.md` へ分離
-- [ ] event による結び付けを確認するサブエージェント・スキルの作成を検討する
+- [x] event による結び付けを確認するサブエージェント・スキルの作成を検討する
   - インタラクティブな UI の実装時、event で処理と結び付けられるかを確認・検討する
   - 設計時（実装前）: skill を新設する
   - 実装後: rules-reviewer の観点へ event と UI の役割分担を追加する
   - PR 分割案
     1. skill `event-binding-design` の追加
+       - 対応: 完了（[#354](https://github.com/ysKuga/under-construction-proto/pull/354)）
     2. rules-reviewer の観点追加
+       - 対応: 完了（[#355](https://github.com/ysKuga/under-construction-proto/pull/355)）
   - (decision-records.md 2026-10-17)
 - [ ] `find-path` の名前を再検討する
   - 現状の名前がやろうとしていることと合わない
