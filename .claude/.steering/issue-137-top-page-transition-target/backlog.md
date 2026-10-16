@@ -52,7 +52,7 @@
 - [x] 通行不能箇所で遮られた隣接マスのクリックを目標設定にする
   - 障害物・一方通行の壁で直接進入できない隣接マスも、迂回経路の目標として扱う
   - 対応: 完了（[#343](_closed/pr-343-indirect-cell-click/design.md)）
-- [ ] 目標設定になるマスの `cursor: pointer` を挙動に揃える
+- [x] 目標設定になるマスの `cursor: pointer` を挙動に揃える
   - 通れない隣接マス等、クリックで目標設定になるのに pointer が付かない
   - 対応: [#344](_closed/pr-344-indirect-cell-pointer/design.md)
 - [ ] セルクリックの判定を event 経由で find-path 側の listener へ集約する（#344 マージ後）
