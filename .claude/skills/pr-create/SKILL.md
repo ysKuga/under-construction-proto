@@ -38,6 +38,9 @@ NEXT_PUBLIC_API_URL=http://localhost:3000 npx vitest run <変更箇所>
 - `rules-reviewer` サブエージェントで、ブランチの差分をプロジェクト規約に照らして確認する
   - 指摘があれば修正・コミットしてから次へ進む
 - UI 変更がある場合、`story-verifier` サブエージェントで Storybook 上の動作を確認する
+- 差分が Markdown(`.md`)のみの場合、`rules-reviewer` のみ実施する
+  - 型チェック・lint・vitest・`story-verifier` は省略する(コードの変更がないため)
+  - 省略した旨を PR 本文の「確認」へ記載する
 
 ### 4. タイトル・本文を作る
 
