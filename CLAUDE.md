@@ -138,6 +138,13 @@ EOF
   - `end` 省略時、開始〜ファイル末尾を差替え(末尾の項目の削除等)
   - 削除は `"new": ""`。開始が複数一致する場合は失敗
 
+## コード整形
+
+コード(`.ts`/`.tsx` 等)、`npx oxfmt <変更ファイル>` で整形。Markdown は対象外、Prettier 継続([docs/package/format/oxfmt](docs/package/format/oxfmt/README.md))。
+
+- 対象、変更したファイルのみ。`npx prettier` で整形・検査しない
+- 既存コードに oxfmt 未適用箇所あり、変更外の箇所へ差分出る場合あり。無関係な整形差分 戻す(コミットのスコープ外のため)
+
 ## テスト実行
 
 一時検証テスト(`__verify__.test.tsx` 等)実行時、標準 `vitest.config.ts` 使用可。setupFiles 外した一時 config 作成不要。
