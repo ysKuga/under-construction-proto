@@ -82,9 +82,11 @@
        - (decision-records.md 2026-10-16 表示判定)
        - 対応: 完了（[#349](_closed/pr-349-cell-click-classification/design.md)）
   - (decision-records.md 2026-10-16)
-- [ ] UI と処理の event による結び付けの方針の記述を確認・見直す
+- [x] UI と処理の event による結び付けの方針の記述を確認・見直す
   - 対象: ui-jurisdiction・event-driven-ui・`.claude/rules/event-driven-actions.md`
   - 上記の集約の実装結果を反映する
+  - 対応: 完了（[#352](https://github.com/ysKuga/under-construction-proto/pull/352)）
+    - 役割分担の規約は `.claude/rules/event-ui-jurisdiction.md` へ分離
 - [ ] event による結び付けを確認するサブエージェント・スキルの作成を検討する
   - インタラクティブな UI の実装時、event で処理と結び付けられるかを確認・検討する
 - [ ] `find-path` の名前を再検討する
