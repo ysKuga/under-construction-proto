@@ -1,9 +1,14 @@
 # 実装計画（find-path の本実装 expedition への移行）
 
-- [ ] prototypes 間の import 方針を再検討する
+- [x] prototypes 間の import 方針を再検討する
   - 背景: なし崩しに import した部分がある
   - 対象: `src/prototypes/CLAUDE.md`（若いバージョンからの import 許容・共通置き場への昇格）
   - 本実装への移行方針（コピーして独立）との整合を取る
+  - (decision-records.md 2026-10-17 import 方針)
+- [ ] 系列外からの直接 import を共通置き場経由へ改める（任意、着手予定なし）
+  - 現状: find-path proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
+  - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
+  - (decision-records.md 2026-10-17 import 方針)
 - [ ] 未決事項を決める
   - 元にする prototype（proto-03 のみか）
   - test・story もコピー対象とするか
