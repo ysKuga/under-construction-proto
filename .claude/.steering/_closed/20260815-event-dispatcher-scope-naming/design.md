@@ -27,7 +27,7 @@
 - 2026-08-15: 検討継続、実装は保留。方針(命名変更のみ先行 or EventTarget 切替まで含める)が固まってから実装着手する
 - 2026-08-16: 主目的をイベント名 scope prefix 化 (`'TimeControl03-dispatch-target'` 等) と確定、実装完了。\
   window 等への EventTarget 共有化は今回対象外、hook 名の汎用化は副次対応として別途保留
-- 2026-08-16: `TimeControl03EventMap` のキーを `` Record<`TimeControl03-${string}`, unknown> `` への generic 制約で\
+- 2026-08-16: `TimeControl03EventMap` のキーを ``Record<`TimeControl03-${string}`, unknown>`` への generic 制約で\
   prefix 強制する案を検証、TypeScript の仕様上機能しないと判明したため不採用
 - 2026-08-16: hook 名の汎用化 (`useTimeControl03EventDispatcher` → `useEventDispatcher` 等) は不採用と決定。\
   複数 scope のイベントを同一箇所で扱う場合を考慮すると、hook 名で scope が読み取れる現状(`useTimeControl03Event...`)の\
@@ -38,7 +38,7 @@
 - イベント名への scope prefix 埋め込みは、現行の「scope 専用 EventTarget による衝突回避」という設計思想と方向性がずれる可能性がある。EventTarget を window 等の共有先へ切り替える具体的動機が未確認 → 今回は EventTarget 共有化を対象外としたため、この懸念は現時点では顕在化しない
 - 汎用 hook 名への統一は `@/hooks/event` 版との名前衝突を招く上、複数 scope のイベントを同一箇所で扱う場合に\
   どの scope の hook か名前から読み取れなくなる。この点を理由に不採用とした
-- template literal 型による key 制約は不採用。`` T extends Record<`TimeControl03-${string}`, unknown> `` という generic 制約は、\
+- template literal 型による key 制約は不採用。``T extends Record<`TimeControl03-${string}`, unknown>`` という generic 制約は、\
   object literal の key が pattern から外れていても値型 (`unknown`) にさえ適合すれば通過してしまい、定義箇所ではエラーにならない\
   (TS の pattern index signature は動的アクセス時の型制約であり、静的な key 名の形式検証には使えない)。実際に prefix を\
   外した key で検証、定義行ではなく参照側 (呼出箇所) でのみ型エラーが発生する事を確認した。これは prefix 制約とは無関係に\

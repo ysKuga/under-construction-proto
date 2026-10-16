@@ -44,8 +44,8 @@
 - landmark-one-main 問題は本番では未検出(dev固有の差分だった可能性、要再確認)
 
 **重大な計測アーティファクト**: TBT 156,600ms、TTI 181.2s、mainthread-work-breakdown 179.6s(内訳 `other` だけで174s)。runWarnings に \
-  `"The page loaded too slowly to finish within the time limit. Results may be incomplete."` \
-  明記あり。
+`"The page loaded too slowly to finish within the time limit. Results may be incomplete."` \
+明記あり。
 
 原因特定: `useFrame` の常時 requestAnimationFrame ループにより、ページが Lighthouse の「静止(quiescent)」判定に到達しない → ロード完了判定がタイムアウトまで引っ張られ、TTI/TBT/mainthread-work-breakdown が無意味な数値になる。
 
@@ -57,11 +57,11 @@
 
 初回2回計測(SI 2.9s/3.1s)で「悪化」と誤判定した。原因は Chrome の user-data-dir パス解決不良(下記「計測環境の不具合」参照)による毎回異なる実行条件 → 比較対象(静的 import 版)を同条件で計測していなかった。user-data-dir 固定後、両方を3回ずつ計測し直した結果:
 
-| 指標 | 静的import(現行, 3回) | dynamic import(3回) |
-| --- | --- | --- |
-| Performance score | 69 / 69 / 70 | 67 / 69 / 69 |
-| Speed Index | 2.7s / 2.9s / 3.2s | 3.1s / 3.1s / 3.2s |
-| unused-javascript | 168KiB(3回とも) | 163KiB(3回とも) |
+| 指標              | 静的import(現行, 3回) | dynamic import(3回) |
+| ----------------- | --------------------- | ------------------- |
+| Performance score | 69 / 69 / 70          | 67 / 69 / 69        |
+| Speed Index       | 2.7s / 2.9s / 3.2s    | 3.1s / 3.1s / 3.2s  |
+| unused-javascript | 168KiB(3回とも)       | 163KiB(3回とも)     |
 
 Performance score・Speed Index とも両者のブレ幅が重なり有意差なし。unused-javascript の差(168→163KiB, 3%)も誤差レベル。**dynamic import 導入による効果は確認できず**(悪化でも改善でもない)。
 

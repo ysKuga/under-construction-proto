@@ -6,11 +6,11 @@
 
 ## stage-05 との違い
 
-| | stage-05 | stage-06 |
-| --- | --- | --- |
-| 遠近（傾き） | `usePerspectiveControl`（`--floor-tilt` を ref 直書き） | 同じものを import して流用 |
-| actor 位置 | `ActorPositionProvider`（`useState`）→ 移動で再レンダリング | `ActorNodeRegistryProvider`（ref + DOM 直書き）→ 移動で再レンダリングなし |
-| MoveIntent | `{ source, target }` を dispatch → resolver がクランプ | `moveActor(id, target)` を直接呼ぶ（クランプは registry 内） |
+|              | stage-05                                                    | stage-06                                                                  |
+| ------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 遠近（傾き） | `usePerspectiveControl`（`--floor-tilt` を ref 直書き）     | 同じものを import して流用                                                |
+| actor 位置   | `ActorPositionProvider`（`useState`）→ 移動で再レンダリング | `ActorNodeRegistryProvider`（ref + DOM 直書き）→ 移動で再レンダリングなし |
+| MoveIntent   | `{ source, target }` を dispatch → resolver がクランプ      | `moveActor(id, target)` を直接呼ぶ（クランプは registry 内）              |
 
 stage-05 は「即時移動 + 遠近」の参照実装として残す。
 
