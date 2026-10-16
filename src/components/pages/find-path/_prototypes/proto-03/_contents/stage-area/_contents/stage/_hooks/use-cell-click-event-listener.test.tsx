@@ -24,7 +24,6 @@ import {
   useFindPathEventListener,
 } from '../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../_stores/carried-items'
-import { GamePhaseStoreProvider } from '../../../../../_stores/game-phase'
 import { MoveHistoryStoreProvider } from '../../../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
 import {
@@ -38,29 +37,27 @@ vi.unmock('zustand')
 
 const Wrapper = (props: PropsWithChildren) => (
   <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
-    <GamePhaseStoreProvider>
-      <EnergyStoreProvider>
-        <MoveHistoryStoreProvider>
-          <CarriedItemStoreProvider>
-            <PlayerActivityStoreProvider>
-              <FindPathEventProvider>
-                <ActorsStoreProvider
-                  initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
-                >
-                  <Stage07EventProvider>
-                    <WaypointFlowStoreProvider>
-                      <Stage07HandleProvider>
-                        {props.children}
-                      </Stage07HandleProvider>
-                    </WaypointFlowStoreProvider>
-                  </Stage07EventProvider>
-                </ActorsStoreProvider>
-              </FindPathEventProvider>
-            </PlayerActivityStoreProvider>
-          </CarriedItemStoreProvider>
-        </MoveHistoryStoreProvider>
-      </EnergyStoreProvider>
-    </GamePhaseStoreProvider>
+    <EnergyStoreProvider>
+      <MoveHistoryStoreProvider>
+        <CarriedItemStoreProvider>
+          <PlayerActivityStoreProvider>
+            <FindPathEventProvider>
+              <ActorsStoreProvider
+                initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
+              >
+                <Stage07EventProvider>
+                  <WaypointFlowStoreProvider>
+                    <Stage07HandleProvider>
+                      {props.children}
+                    </Stage07HandleProvider>
+                  </WaypointFlowStoreProvider>
+                </Stage07EventProvider>
+              </ActorsStoreProvider>
+            </FindPathEventProvider>
+          </PlayerActivityStoreProvider>
+        </CarriedItemStoreProvider>
+      </MoveHistoryStoreProvider>
+    </EnergyStoreProvider>
   </StageLayoutProvider>
 )
 

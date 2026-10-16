@@ -15,16 +15,14 @@ import { findHexPathViaWaypoints } from '../../../../../_lib/find-hex-path-via-w
 import { useWaypointFlowStoreApi } from '../../../../../_stores/waypoint-flow'
 import { GRID } from '../../../../../constants'
 
-import { useCanEnterCell } from './use-can-enter-cell'
-
 /**
  * セルのクリック（`Stage07-cell-click`）を、移動・目標設定へ振り分ける
  *
  * - クリックの分類はここに集約する。`Stage07` はクリックしたセルを発行するのみ
  * - 分類は `classifyCellClick` で行う（選択可能表示の判定と同じ元）
  * - 現在マスは何もしない
- * - 直接移動できるマス（隣接・進入可）は `Stage07Handle.moveTo` で移動する。
- *   分類と `moveTo` の判定がずれて移動できなかった場合は、目標として扱う
+ * - 隣接マスは `Stage07Handle.moveTo` で移動を試みる。進入不可（障害物・EN 切れ等）で
+ *   拒否された場合は、目標として扱う
  * - 直接移動できないマスは、そのマスを目標として BFS で経路を求め `PathPreviewLayer` へ表示する
  *   （自動移動は吹き出しの「実行」で開始する、issue #226）。到達不能なら通知する
  *   - 新しい目標は中継点なしで経路を求める（前の目標の中継点は引き継がない）
@@ -41,7 +39,6 @@ export const useCellClickEventListener = (): void => {
   const addNotification = useNotifications((state) => state.addNotification)
   const findPathEventDispatcher = useFindPathEventDispatcher()
   const stageLayout = useStageLayout()
-  const { canEnterCell } = useCanEnterCell()
 
   useStage07EventListener(
     'Stage07-cell-click',
@@ -52,7 +49,6 @@ export const useCellClickEventListener = (): void => {
 
         const { flowState, objectiveCell } = waypointFlowStoreApi.getState()
         const kind = classifyCellClick(cell, {
-          canEnterCell,
           currentCell,
           flowState,
           objectiveCell,
@@ -101,7 +97,7 @@ export const useCellClickEventListener = (): void => {
           // 現在マス: 移動でも目標でもないため何もしない
           .with('current', () => {})
           .with('move', async () => {
-            /** 直接移動できたか（分類と `moveTo` の判定がずれた場合は拒否される） */
+            /** 移動できたか（進入不可なら拒否される） */
             const moved = stage07HandleRef.current?.moveTo(cell) ?? false
 
             // 移動を拒否された: 目標として扱う
@@ -117,7 +113,6 @@ export const useCellClickEventListener = (): void => {
       [
         actorsStoreApi,
         addNotification,
-        canEnterCell,
         findPathEventDispatcher,
         stage07HandleRef,
         stageLayout,
