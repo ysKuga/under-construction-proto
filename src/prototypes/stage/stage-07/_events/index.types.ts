@@ -24,6 +24,16 @@ export type Stage07EventMap = {
     cell: HexCell
   }
   /**
+   * セルがクリックされた
+   *
+   * - クリックの分類（現在セル・移動可・不可）は行わず、セルのみ通知する
+   * - 非対話（`interactive=false`）のセルでは発行しない
+   */
+  'Stage07-cell-click': {
+    /** クリックされたセル */
+    cell: HexCell
+  }
+  /**
    * pointer の hover 中セルが変わった
    *
    * - セル進入時にそのセル、layer 外へ出た時に `undefined`（hover 解除）
