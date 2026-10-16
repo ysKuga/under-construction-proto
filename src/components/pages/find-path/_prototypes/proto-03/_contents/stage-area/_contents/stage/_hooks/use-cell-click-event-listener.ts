@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { match } from 'ts-pattern'
 
 import { useNotifications } from '@/components/ui/notifications'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
@@ -57,58 +58,61 @@ export const useCellClickEventListener = (): void => {
           objectiveCell,
         })
 
-        // 現在マス: 移動でも目標でもないため何もしない
-        if (kind === 'current') return
+        /** cell を目標として経路を提示する（拒否・到達不能時はそれぞれ知らせる） */
+        const proposeObjective = async () => {
+          /** listener が経路の提示を許可したか（EN 切れ等で拒否される） */
+          const proposeAllowed = await findPathEventDispatcher[
+            'FindPath-propose-path'
+          ]({ cell })
 
-        /** 直接移動できたか（分類が移動でも、`moveTo` に拒否されれば目標として扱う） */
-        const moved =
-          kind === 'move' && (stage07HandleRef.current?.moveTo(cell) ?? false)
+          // 提示を拒否された: bot 頭上の吹き出しを揺らして知らせる
+          if (!proposeAllowed) {
+            void findPathEventDispatcher['FindPath-shake-bot-bubble'](undefined)
 
-        // 直接移動できた: 終了
-        if (moved) return
+            return
+          }
 
-        // 目標セルの再クリック: 目標設定をキャンセルする
-        if (kind === 'cancel-objective') {
-          waypointFlowStoreApi.getState().clear()
+          const path = findHexPathViaWaypoints(
+            currentCell,
+            [],
+            cell,
+            GRID.cols,
+            GRID.rows,
+            (from, to) => canEnterForPath(from, to, stageLayout),
+          )
 
-          return
+          // 到達不能: 通知し、前の目標も消す
+          if (!path) {
+            addNotification({
+              options: { autoDismiss: true },
+              title: `(${cell.q}, ${cell.r}) へは到達できません`,
+              type: 'info',
+            })
+            waypointFlowStoreApi.getState().clear()
+
+            return
+          }
+
+          // 到達可能: cell を目標として経路を提示する
+          waypointFlowStoreApi.getState().propose(cell)
         }
 
-        /** listener が経路の提示を許可したか（EN 切れ等で拒否される） */
-        const proposeAllowed = await findPathEventDispatcher[
-          'FindPath-propose-path'
-        ]({ cell })
+        await match(kind)
+          // 現在マス: 移動でも目標でもないため何もしない
+          .with('current', () => {})
+          .with('move', async () => {
+            /** 直接移動できたか（分類と `moveTo` の判定がずれた場合は拒否される） */
+            const moved = stage07HandleRef.current?.moveTo(cell) ?? false
 
-        // 提示を拒否された: bot 頭上の吹き出しを揺らして知らせる
-        if (!proposeAllowed) {
-          void findPathEventDispatcher['FindPath-shake-bot-bubble'](undefined)
-
-          return
-        }
-
-        const path = findHexPathViaWaypoints(
-          currentCell,
-          [],
-          cell,
-          GRID.cols,
-          GRID.rows,
-          (from, to) => canEnterForPath(from, to, stageLayout),
-        )
-
-        // 到達不能: 通知し、前の目標も消す
-        if (!path) {
-          addNotification({
-            options: { autoDismiss: true },
-            title: `(${cell.q}, ${cell.r}) へは到達できません`,
-            type: 'info',
+            // 移動を拒否された: 目標として扱う
+            if (!moved) await proposeObjective()
           })
-          waypointFlowStoreApi.getState().clear()
-
-          return
-        }
-
-        // 到達可能: cell を目標として経路を提示する
-        waypointFlowStoreApi.getState().propose(cell)
+          // 目標セルの再クリック: 目標設定をキャンセルする
+          .with('cancel-objective', () =>
+            waypointFlowStoreApi.getState().clear(),
+          )
+          .with('objective', proposeObjective)
+          .exhaustive()
       },
       [
         actorsStoreApi,
