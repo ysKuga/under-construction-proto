@@ -40,6 +40,7 @@ export const Stage = () => {
     handleFollowPathEnd,
     handleWaypointCellClick,
     interactive,
+    isCellSelectable,
     objectiveMarkerCell,
     previewPath,
     registerFloorVisibilityNode,
@@ -64,6 +65,7 @@ export const Stage = () => {
         hexSize={HEX_SIZE}
         initialTiltDeg={55}
         interactive={interactive}
+        isCellSelectable={isCellSelectable}
         onCellChange={handleCellChange}
         onFollowPathEnd={handleFollowPathEnd}
         ref={stage07HandleRef}

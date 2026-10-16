@@ -44,6 +44,8 @@ export type UseStageReturn = {
   handleFollowPathEnd: (blockedCell?: HexCell) => void
   /** 中継点選択モード中のセルクリック時 */
   handleWaypointCellClick: (cell: HexCell) => void
+  /** `Stage07` のセルを選択可能表示（`cursor: pointer`）にするか（クリックの分類と同じ判定） */
+  isCellSelectable: (cell: HexCell) => boolean
   /** `Stage07` を操作可能にするか（中継点選択中・自動移動中・補給中・ゴール到達後は不可） */
   interactive: boolean
   /** 目標マーカーを置くセル（自動移動中は固定した経路の終点） */

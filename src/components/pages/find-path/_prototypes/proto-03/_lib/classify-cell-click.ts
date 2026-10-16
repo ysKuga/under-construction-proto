@@ -14,7 +14,11 @@ import { WaypointFlowState } from '../_stores/waypoint-flow/types'
  * - `cancel-objective`: 経路提示中の目標セルの再クリック。目標設定をキャンセルする
  * - `objective`: 上記以外。目標として経路を提示する（EN 切れによる拒否・到達不能もここに含む）
  */
-export type CellClickKind = 'cancel-objective' | 'current' | 'move' | 'objective'
+export type CellClickKind =
+  | 'cancel-objective'
+  | 'current'
+  | 'move'
+  | 'objective'
 
 /** 分類に使う状態 */
 export type CellClickContext = {

@@ -22,7 +22,10 @@ test('進入可の隣接マスは move', () => {
 
 test('進入不可の隣接マスは objective', () => {
   expect(
-    classifyCellClick({ q: 1, r: 0 }, { ...context, canEnterCell: () => false }),
+    classifyCellClick(
+      { q: 1, r: 0 },
+      { ...context, canEnterCell: () => false },
+    ),
   ).toBe('objective')
 })
 
