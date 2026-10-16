@@ -50,6 +50,14 @@ export type Stage07Handle = {
    */
   followPath: (path: HexCell[]) => void
   /**
+   * player を隣接セル `cell` へ 1 マス移動させる。移動したら `true`、隣接でない・進入不可なら `false`
+   *
+   * - クリック移動と同じ検証(隣接判定・`canEnterCell`)を通し、移動成立時は
+   *   `onCellChange`・`Stage07-move-start` を通知する
+   * - 呼出し側(`Stage07-cell-click` の購読側等)がクリックを分類して移動を命令するために使う
+   */
+  moveTo: (cell: HexCell) => boolean
+  /**
    * player を移動アニメーションなしで `cell` へ移す
    *
    * - 通過マスの到達(`Stage07-cell-reach`)は発行せず、`cell` の到達のみ発行する
@@ -195,6 +203,7 @@ type Stage07Props = PropsWithChildren<{
  * - `onIndirectClick` は直接移動できないセル（非隣接・進入不可）をクリックした時に
  *   呼ばれる（省略可）。`Stage07`
  *   自身は find-path 固有の概念（通知表示等）を持たないため、呼び出し側へ通知するのみ
+ * - `ref`（`Stage07Handle.moveTo`）で隣接セルへの 1 マス移動を命令できる
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
  *   進入不可ならその場で停止して `onFollowPathEnd` へ通知する
@@ -381,7 +390,11 @@ export const Stage07 = (props: Stage07Props) => {
     [cols, moveActorTo, rows],
   )
 
-  useImperativeHandle(ref, () => ({ followPath, warp }), [followPath, warp])
+  useImperativeHandle(
+    ref,
+    () => ({ followPath, moveTo: tryMove, warp }),
+    [followPath, tryMove, warp],
+  )
 
   /**
    * セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする
