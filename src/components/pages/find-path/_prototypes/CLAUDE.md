@@ -24,13 +24,13 @@ find-path ページの試作置き場 (issue #137)。route (`/find-path`) / page
   - `_hooks/use-adjacent-move.ts`: `currentCell`(state) を軸に隣接判定 → (確認チェックボックス ON なら確認ダイアログ) → `moveActor`(DOM 直書き) を都度実行。「戻る」(直前セルへの逆戻り) も隣接クリックとして自然に許容され、proto-01 の重複選択問題が発生しない
   - `_components/adjacent-move-layer/`: 隣接セルのみ点線枠で選択可能を明示するクリックレイヤー
   - `GOAL_POSITION` は proto-01 の `constants.ts` を import して共用。`START_POSITION` は proto-02 固有
-- `proto-03`: 試作。`prototypes/stage/stage-07`（hex グリッド版、issue #162）をページ枠へマウントした版。移動方式は proto-02 と同じ隣接クリック逐次移動だが、`Stage07` の `useHexMove` に内蔵済みのためページ側は `onCellChange` を受けるだけ
+- `proto-03`: 試作。`prototypes/stage/stage-07`（hex グリッド版、issue #162）をページ枠へマウントした版。移動方式は proto-02 と同じ隣接クリック逐次移動。`Stage07` はクリックを `Stage07-cell-click` で発行するのみで、ページ側の `useCellClickEventListener` が現在マス・移動（`Stage07Handle.moveTo`）・目標設定へ振り分ける。移動成立時の処理は `onCellChange` で受ける
   - 構成（構造見直し、issue #137）: `index.tsx` は `FindPathProto03Providers`（`index.providers.tsx`、Provider 群）と `FindPathProto03Contents`（`_contents/index.tsx`、各要素を並べるのみ）を組み合わせるのみ。`_contents`/`_layers`/`_components` の役割・依存方向・ネストは [pages/CLAUDE.md](../../CLAUDE.md) 参照
     - `_contents/title`: 見出し
     - `_contents/stage-area`: ステージと独立 bot を横に並べる
       - `stage-area/_contents/stage`: `Stage07` + 各レイヤー、移動・経路・中継点の操作
       - `stage-area/_contents/standalone-bot`: ステージ上の bot とは別に独立表示する bot（issue #248）
-    - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ・EN スポット）。「実行」は `_contexts/stage07-handle` 経由で `Stage07Handle.followPath` を命令する。EN 切れの吹き出しはクリックで救済手段（手持ちのアイテム使用、なければチェックポイントへのリセット）を実行し、拒否されると揺れる（`FindPath-shake-bot-bubble`）
+    - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ・EN スポット）。「実行」は stage-07 の `_contexts/stage07-handle` 経由で `Stage07Handle.followPath` を命令する。EN 切れの吹き出しはクリックで救済手段（手持ちのアイテム使用、なければチェックポイントへのリセット）を実行し、拒否されると揺れる（`FindPath-shake-bot-bubble`）
     - `_contents/control-panel`: 表示設定の切替・EN・リセット・ゴール到達・中継点選択状況。リセットは `_contexts/reset`（`ResetProvider` が Provider 群へ `key` を付けて再マウント）の `useReset` で受ける
     - `_layers/`: `Stage07` の children として重ねるレイヤー。`_components/`: 部品（吹き出し・インジケータ）
   - `_contexts/stage-layout/`: 盤面配置 `StageLayout`（ゴール・障害物・一方通行・アイテム・スポット・開始位置、axial 座標）を Context で配る（issue #315）。既定値は `_contexts/stage-layout/constants.ts` の `DEFAULT_STAGE_LAYOUT`。proto-01/02 とは座標系が異なるため独自定義（共用不可）。配置はマウント中不変、差し替えは Provider の `key` 変更で再マウントする

@@ -17,7 +17,7 @@ import { FindPathProto03Props } from './index.types'
  *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
  *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ）
  *   - `_contents/control-panel`: 表示設定の切替・EN・リセット等
- * - 直接移動できないセルのクリック時は `onIndirectClick` 経由で BFS 経路探索（`stage-07/_lib/hex-path`）
+ * - 直接移動できないセルのクリック時は `Stage07-cell-click` の購読（`useCellClickEventListener`）で BFS 経路探索（`stage-07/_lib/hex-path`）
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
  *   通知する（issue #137 backlog）
  * - 中継点の設定（issue #137 backlog）: 経路が求まると bot 頭上に `WaypointBubble`

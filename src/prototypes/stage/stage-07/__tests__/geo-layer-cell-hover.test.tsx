@@ -26,7 +26,6 @@ const renderGeoLayer = (onCellHover: (cell: HexCell | undefined) => void) =>
         cols={2}
         hexSize={20}
         interactive
-        onCellClick={() => {}}
         rows={1}
       />
     </Stage07EventProvider>,
@@ -77,7 +76,6 @@ describe('GeoLayer の Stage07-cell-hover 発行', () => {
         cols={1}
         hexSize={20}
         interactive
-        onCellClick={() => {}}
         rows={1}
       />,
     )

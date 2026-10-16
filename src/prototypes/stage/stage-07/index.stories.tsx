@@ -3,14 +3,39 @@ import { useCallback, useRef, useState } from 'react'
 
 import { PLAYER_ACTOR_ID } from '../stage-06/constants'
 
+import { MoveOnAdjacentCellClick } from './_components/move-on-adjacent-cell-click'
+import {
+  Stage07HandleProvider,
+  useStage07HandleRef,
+} from './_contexts/stage07-handle'
 import { Stage07EventProvider, useStage07EventListener } from './_events'
 import { colRowToAxial, HexCell } from './_lib/hex'
 import { ActorsStoreProvider, useActorsStore } from './_stores/actors'
 
-import { Stage07Handle, Stage07 as StoryComponent } from '.'
+import { Stage07 as StoryComponent } from '.'
+
+/** context の handle を `ref` へ渡して `Stage07` を描画する（`MoveOnAdjacentCellClick` が参照する） */
+const Stage07WithHandle = (args: Story['args']) => {
+  const stage07HandleRef = useStage07HandleRef()
+
+  return <StoryComponent {...DEFAULT_ARGS} {...args} ref={stage07HandleRef} />
+}
 
 const meta: Meta<typeof StoryComponent> = {
   component: StoryComponent,
+  // Stage07 はクリックを `Stage07-cell-click` で発行するのみのため、隣接クリック移動を
+  // `MoveOnAdjacentCellClick` で補う。各 story の decorator（ActorsStoreProvider 等）はこの内側になる
+  decorators: [
+    (Story) => (
+      <Stage07HandleProvider>
+        <Stage07EventProvider>
+          <MoveOnAdjacentCellClick />
+          <Story />
+        </Stage07EventProvider>
+      </Stage07HandleProvider>
+    ),
+  ],
+  render: (args) => <Stage07WithHandle {...args} />,
   // 自動生成タイトルは "prototypes/stage/stage-07" のみで "hex" を含まず検索
   // にひっかからないため明示指定（issue #162）
   title: 'prototypes/stage/stage-07 (hex)',
@@ -123,7 +148,7 @@ const ReachLog = () => {
 /** クリックごとにランダムなセルへ player をワープさせる story 用 render(`Stage07Handle.warp` 動作確認用) */
 const WarpRender = (args: Story['args']) => {
   /** `Stage07` の imperative API */
-  const stage07Ref = useRef<Stage07Handle>(null)
+  const stage07HandleRef = useStage07HandleRef()
 
   return (
     <>
@@ -132,13 +157,13 @@ const WarpRender = (args: Story['args']) => {
           const col = Math.floor(Math.random() * DEFAULT_ARGS.cols)
           const row = Math.floor(Math.random() * DEFAULT_ARGS.rows)
 
-          stage07Ref.current?.warp(colRowToAxial(col, row))
+          stage07HandleRef.current?.warp(colRowToAxial(col, row))
         }}
         type="button"
       >
         ワープ
       </button>
-      <StoryComponent {...DEFAULT_ARGS} {...args} ref={stage07Ref} />
+      <StoryComponent {...DEFAULT_ARGS} {...args} ref={stage07HandleRef} />
       <ReachLog />
     </>
   )
@@ -153,9 +178,7 @@ export const Warp: Story = {
       <ActorsStoreProvider
         initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
       >
-        <Stage07EventProvider>
-          <Story />
-        </Stage07EventProvider>
+        <Story />
       </ActorsStoreProvider>
     ),
   ],
@@ -206,10 +229,8 @@ export const CellHover: Story = {
       <ActorsStoreProvider
         initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
       >
-        <Stage07EventProvider>
-          <HoveredCellLabel />
-          <Story />
-        </Stage07EventProvider>
+        <HoveredCellLabel />
+        <Story />
       </ActorsStoreProvider>
     ),
   ],

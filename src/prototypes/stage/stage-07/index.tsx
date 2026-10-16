@@ -146,12 +146,6 @@ type Stage07Props = PropsWithChildren<{
    *   停止した場合は進入できなかったセルを渡す
    */
   onFollowPathEnd?: (blockedCell?: HexCell) => void
-  /**
-   * 直接移動できないセル（非隣接・進入不可）をクリックした時（省略可）
-   *
-   * - `useHexMove` へそのまま渡す。find-path proto-03 の通知表示等で使う
-   */
-  onIndirectClick?: (cell: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
   perspectivePx?: number
   /** imperative API(`Stage07Handle`)の受け取り先（省略可） */
@@ -200,9 +194,9 @@ type Stage07Props = PropsWithChildren<{
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `canEnterCell` を渡すと `useHexMove` の隣接判定に加えてそのセルへの移動を
  *   拒否できる（find-path proto-03 の障害物セル判定で使用）
- * - `onIndirectClick` は直接移動できないセル（非隣接・進入不可）をクリックした時に
- *   呼ばれる（省略可）。`Stage07`
- *   自身は find-path 固有の概念（通知表示等）を持たないため、呼び出し側へ通知するのみ
+ * - セルのクリックは分類（現在セル・移動可・不可）せず `Stage07-cell-click` で発行するのみ。
+ *   移動は呼び出し側が分類し `Stage07Handle.moveTo` で命令する。単体で隣接クリック移動
+ *   させる場合は `MoveOnAdjacentCellClick` を置く
  * - `ref`（`Stage07Handle.moveTo`）で隣接セルへの 1 マス移動を命令できる
  * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
@@ -267,7 +261,6 @@ export const Stage07 = (props: Stage07Props) => {
     interactive = true,
     onCellChange,
     onFollowPathEnd,
-    onIndirectClick,
     perspectivePx = 800,
     ref,
     registerCellVisibilityNode,
@@ -321,7 +314,7 @@ export const Stage07 = (props: Stage07Props) => {
 
   const stage07EventDispatcher = useStage07EventDispatcher()
 
-  const { handleCellClick, tryMove } = useHexMove(
+  const { tryMove } = useHexMove(
     currentCell,
     (cell) => moveActorTo(PLAYER_ACTOR_ID, cell),
     (cell) => {
@@ -339,13 +332,12 @@ export const Stage07 = (props: Stage07Props) => {
       void face({ rad: screenAngleToYaw(screenAngle) })
     },
     canEnterCell,
-    onIndirectClick,
   )
 
   /**
    * セルを選択可能表示（`cursor: pointer`）にするか
    *
-   * - 現在セル以外は、クリックで移動か `onIndirectClick` のいずれかが起きるため全て対象
+   * - 現在セル以外は、クリックで移動か呼び出し側の処理（目標設定等）のいずれかが起きるため全て対象
    * - 現在セルはクリックしても何もしないため除く
    */
   const isCellSelectable = useCallback(
@@ -449,7 +441,6 @@ export const Stage07 = (props: Stage07Props) => {
               cols={cols}
               hexSize={hexSize}
               interactive={interactive}
-              onCellClick={handleCellClick}
               registerVisibilityNode={registerCellVisibilityNode}
               rows={rows}
             />

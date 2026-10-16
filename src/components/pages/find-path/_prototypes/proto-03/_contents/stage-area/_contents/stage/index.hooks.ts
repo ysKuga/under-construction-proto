@@ -14,11 +14,11 @@ import { useWaypointFlowStore } from '../../../../_stores/waypoint-flow'
 import { useArriveAtGoalOnCellReach } from './_hooks/use-arrive-at-goal-on-cell-reach'
 import { useCanEnterCell } from './_hooks/use-can-enter-cell'
 import { useCancelWaypointFlowOnEscape } from './_hooks/use-cancel-waypoint-flow-on-escape'
+import { useCellClickEventListener } from './_hooks/use-cell-click-event-listener'
 import { useClearWaypointFlowOnEnergyDepleted } from './_hooks/use-clear-waypoint-flow-on-energy-depleted'
 import { useEnergySpotUseEventListener } from './_hooks/use-energy-spot-use-event-listener'
 import { useHandleCellChange } from './_hooks/use-handle-cell-change'
 import { useHandleFollowPathEnd } from './_hooks/use-handle-follow-path-end'
-import { useHandleIndirectClick } from './_hooks/use-handle-indirect-click'
 import { useHandleWaypointCellClick } from './_hooks/use-handle-waypoint-cell-click'
 import { useRecordHistoryOnEnergyDepleted } from './_hooks/use-record-history-on-energy-depleted'
 import { useRegisterPlayerEnergyOut } from './_hooks/use-register-player-energy-out'
@@ -62,7 +62,6 @@ export const useStage = (): UseStageReturn => {
   const { canEnterCell, canEnterCellPerceived } = useCanEnterCell()
   const handleCellChange = useHandleCellChange()
   const handleFollowPathEnd = useHandleFollowPathEnd()
-  const handleIndirectClick = useHandleIndirectClick()
   const handleWaypointCellClick = useHandleWaypointCellClick()
   const {
     registerFloorVisibilityNode,
@@ -71,6 +70,7 @@ export const useStage = (): UseStageReturn => {
   } = useVisibilityNodeRegistrars()
 
   useRegisterPlayerEnergyOut()
+  useCellClickEventListener()
   useCancelWaypointFlowOnEscape()
   useClearWaypointFlowOnEnergyDepleted()
   useRecordHistoryOnEnergyDepleted()
@@ -91,7 +91,6 @@ export const useStage = (): UseStageReturn => {
     enableWalking,
     handleCellChange,
     handleFollowPathEnd,
-    handleIndirectClick,
     handleWaypointCellClick,
     interactive:
       operateStageAllowed && !waypointSelecting && !isAutoMoving && !isCharging,
