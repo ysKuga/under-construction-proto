@@ -333,11 +333,15 @@ export const Stage07 = (props: Stage07Props) => {
     onIndirectClick,
   )
 
-  /** セルを選択可能表示（`cursor: pointer`）にするか。現在セルはクリックしても何もしないため除く */
+  /**
+   * セルを選択可能表示（`cursor: pointer`）にするか
+   *
+   * - 現在セル以外は、クリックで移動か `onIndirectClick` のいずれかが起きるため全て対象
+   * - 現在セルはクリックしても何もしないため除く
+   */
   const isCellSelectable = useCallback(
-    (cell: HexCell) =>
-      !isSameHexCell(currentCell, cell) && (canEnterCell?.(cell) ?? true),
-    [canEnterCell, currentCell],
+    (cell: HexCell) => !isSameHexCell(currentCell, cell),
+    [currentCell],
   )
   const { floorRef, setTilt } = usePerspectiveControl()
 
@@ -428,7 +432,7 @@ export const Stage07 = (props: Stage07Props) => {
         <div style={sceneStyle}>
           <div ref={floorRef} style={floorStyle}>
             <GeoLayer
-              canEnterCell={isCellSelectable}
+              isCellSelectable={isCellSelectable}
               cols={cols}
               hexSize={hexSize}
               interactive={interactive}
