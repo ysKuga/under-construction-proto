@@ -63,6 +63,7 @@
   - listener: 現在 / 移動可 / 不可 の分類をセル単位で集約し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
   - PR 分割案
     1. `Stage07-cell-click`・`Stage07Handle.moveTo` の追加（挙動は変えない）
+      - 対応: [#345](_pr/pr-345-stage07-cell-click/design.md)
     2. proto-03 へ listener を追加し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
     3. pointer・disabled 等の表示判定を分類へ揃える
       - event の発出と表示判定を同じ元から import し、判定の重複・ずれを防ぐ
