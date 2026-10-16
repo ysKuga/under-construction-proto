@@ -65,11 +65,17 @@
     1. `Stage07-cell-click`・`Stage07Handle.moveTo` の追加（挙動は変えない）
       - 対応: 完了（[#345](_closed/pr-345-stage07-cell-click/design.md)）
     2. 下準備: handle context の stage-07 への昇格、隣接クリック移動 component の追加
-      - 対応: [#347](_closed/pr-347-stage07-handle-context/design.md)
+      - 対応: 完了（[#347](_closed/pr-347-stage07-handle-context/design.md)）
     3. proto-03 へ listener を追加し、`onIndirectClick`・`useHandleIndirectClick` を廃止する
-      - 対応: [#346](_closed/pr-346-cell-click-listener/design.md)
+      - 対応: 完了（[#346](_closed/pr-346-cell-click-listener/design.md)）
     4. pointer・disabled 等の表示判定を分類へ揃える
       - event の発出と表示判定を同じ元から import し、判定の重複・ずれを防ぐ
+      - 現状
+        - 分類は `useCellClickEventListener` 内の手続きのみ。純粋関数としての切り出しから始める
+        - pointer は `Stage07` の `isCellSelectable`（現在セル以外）のまま
+      - 表示判定は再レンダリングを伴うため、ui-jurisdiction「表示用の判定」・docs/performance と合わせて検討する
+      - disabled は事例として扱い、必要が生じた時点で対応する
+        - 例: EN 切れで拒否される「実行」吹き出し（`FindPath-execute-path`）を、拒否と同じ判定で disabled 表示にする
   - (decision-records.md 2026-10-16)
 - [ ] UI と処理の event による結び付けの方針の記述を確認・見直す
   - 対象: ui-jurisdiction・event-driven-ui・`.claude/rules/event-driven-actions.md`
