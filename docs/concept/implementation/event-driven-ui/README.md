@@ -23,8 +23,12 @@ component/hooks の分離だけでは「部品」と「全体構造への依存�
 
 ### hooks 構成
 
-- 汎用実装: `src/hooks/use-event-listener.ts` / `use-event-dispatcher.ts` (`target` 省略時 `window` デフォルト、`EventTarget` 指定可能)
-- プロトタイプ固有のラッパー: 対象部品配下に `_stores`/`_components`/`_contexts` と同列の `_event-hooks/` を設け、冗長な引数指定を隠すラッパー hook・イベント dictionary 型をまとめる
+- 汎用実装: `src/hooks/event/` 配下の `use-event-listener` / `use-event-dispatcher` (`target` 省略時 `window` デフォルト、`EventTarget` 指定可能)
+  - dispatcher の戻り値は `dispatchEvent` の結果
+    - `cancelable: true` の event を listener が `preventDefault()` すると `false` になる
+    - listener 側による実行拒否の判定に使う ([ui-jurisdiction](../ui-jurisdiction/README.md))
+- プロトタイプ固有のラッパー: 対象部品配下に `_stores`/`_components`/`_contexts` と同列の `_events/` を設け、冗長な引数指定を隠すラッパー hook・イベント dictionary 型をまとめる
+  - 個別の listener は `_events/_event-listeners/` へ置く
 
 ## プロパティとロジックの分離
 
@@ -36,7 +40,8 @@ event 駆動化は移植容易性と引き換えに、「通知発行で何が�
 
 ## 関連
 
-- 検討の発端: `.claude/.steering/20260812-time-control-02-backlog/design.md` 実装計画3 (Custom Event 経由の疎結合化)
-- 実装計画・決定事項: `.claude/.steering/20260813-event-driven-decoupling/design.md`
+- 拡張: [ui-jurisdiction](../ui-jurisdiction/README.md) — UI の担当範囲とゲーム要素の判定の分離
+- 検討の発端: `.claude/.steering/_closed/20260812-time-control-02-backlog/design.md` 実装計画3 (Custom Event 経由の疎結合化)
+- 実装計画・決定事項: `.claude/.steering/_closed/20260813-event-driven-decoupling/design.md`
 - 実装例: `src/prototypes/time-control/time-control-03/README.md`
-- 実装例 (r3f のクリック/Pointer イベントとのブリッジ): `src/components/samples/figure/box-bot`。raycaster ベースの `onClick` を dispatch のみに徹させ、実行判定を `useEventListener` 側の action hook へ一本化するパターン。詳細は `.claude/.steering/20260821-box-bot-event-driven-actions/design.md` 決定事項参照
+- 実装例 (r3f のクリック/Pointer イベントとのブリッジ): `src/components/samples/figure/box-bot`。raycaster ベースの `onClick` を dispatch のみに徹させ、実行判定を `useEventListener` 側の action hook へ一本化するパターン。詳細は `.claude/.steering/_closed/20260821-box-bot-event-driven-actions/design.md` 決定事項参照
