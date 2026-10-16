@@ -23,9 +23,9 @@ PR: #349（親: #137 backlog「セルクリックの判定を event 経由で fi
   - EN 拒否・到達不能は `'objective'` に含める
 - listener は分類で分岐する
   - `'move'` は `Stage07Handle.moveTo` で実行する（戻り値は保険として残す）
-- `Stage07` に `isCellSelectable` prop を追加する
-  - 任意。省略時は現在セル以外（現状と同じ）
-  - proto-03 は `classifyCellClick(...) !== 'current'` を渡す
+- pointer の判定関数 `isCellSelectable` を stage-07 の `_lib/cell-selectable` へ置く
+  - `Stage07`（`GeoLayer` の pointer）と `classifyCellClick`（`current` の判定）が共に import する
+  - prop で受け渡さない（props drilling を避ける）
   - 依存は `currentCell` のみに留める（`flowState`・EN は含めない）
 - disabled（「実行」吹き出し）は対象外
 

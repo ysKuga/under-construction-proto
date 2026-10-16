@@ -74,7 +74,7 @@
         - 返り値: `'current' | 'move' | 'cancel-objective' | 'objective'`
         - EN 拒否・到達不能は `'objective'` に含める（非同期・BFS のため）
         - listener はこの分類で分岐し、`moveTo` は実行のみ担う
-      - pointer: `Stage07` に `isCellSelectable` prop（任意、既定は現在セル以外）を追加し、proto-03 から `!== 'current'` を渡す
+      - pointer: stage-07 の `_lib/cell-selectable` の `isCellSelectable` を `Stage07` と `classifyCellClick` が共に import する
         - 依存は `currentCell` のみに留める（再レンダリングを現状から増やさない）
         - 到達不能セルも pointer のまま（全セル BFS を避ける、クリックで通知が出る）
       - disabled は事例として扱い、必要が生じた時点で対応する
