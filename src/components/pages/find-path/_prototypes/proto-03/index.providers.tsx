@@ -4,6 +4,7 @@ import { PropsWithChildren } from 'react'
 
 import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { Stage07HandleProvider } from '@/prototypes/stage/stage-07/_contexts/stage07-handle'
 import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
 import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
 
@@ -11,7 +12,6 @@ import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-t
 import { ResetProvider } from './_contexts/reset'
 import { useStageLayout } from './_contexts/stage-layout'
 import { StageSeedProvider } from './_contexts/stage-seed'
-import { Stage07HandleProvider } from './_contexts/stage07-handle'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
 import { FindPathEventProvider } from './_events'
 import { createInitialItems } from './_lib/create-initial-items'
