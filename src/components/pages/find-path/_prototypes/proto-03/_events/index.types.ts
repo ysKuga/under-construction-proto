@@ -27,7 +27,7 @@ export type FindPathEventMap = {
     /** 使用方法 */
     usage: ItemUsage
   }
-  /** 非隣接セルのクリックで、そのセルを目標とした経路を提示する */
+  /** 直接移動できないセルのクリックで、そのセルを目標とした経路を提示する */
   'FindPath-propose-path': {
     /** 目標セル */
     cell: HexCell

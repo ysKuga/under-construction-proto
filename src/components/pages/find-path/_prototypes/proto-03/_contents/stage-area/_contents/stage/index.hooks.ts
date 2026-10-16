@@ -36,7 +36,7 @@ export const useStage = (): UseStageReturn => {
   const waypointSelecting = useWaypointFlowStore(
     (state) => state.flowState === 'selecting',
   )
-  /** 非隣接クリックで選んだ経路の目標セル（経路プレビュー中のみ） */
+  /** 直接移動できないセルのクリックで選んだ経路の目標セル（経路プレビュー中のみ） */
   const objectiveCell = useWaypointFlowStore((state) => state.objectiveCell)
   const waypoints = useWaypointFlowStore((state) => state.waypoints)
   /**

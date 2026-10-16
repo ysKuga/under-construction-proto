@@ -21,7 +21,7 @@ import { useStage } from './index.hooks'
  *
  * - 隣接クリック移動は `Stage07` の `useHexMove` に内蔵済み（issue #162）。ここでは
  *   移動成立時の処理（EN 消費・アイテムによる補給・ゴール到達判定）を `onCellChange` で受ける
- * - 非隣接セルクリックで経路を求め `PathPreviewLayer` へ表示する（issue #137/#226）
+ * - 直接移動できないセルのクリックで経路を求め `PathPreviewLayer` へ表示する（issue #137/#226）
  * - 中継点選択モード中は `Stage07` を非対話化し、`WaypointSelectLayer` がセルクリックを
  *   拾って中継点を設置/除去する（通常モードのクリックとは完全に別イベント）
  * - 各レイヤーの DOM は visibility registry へ登録し、未到達マスを非表示にする

@@ -6,12 +6,17 @@ import {
 } from '../_lib/hex'
 
 type UseHexMoveReturn = {
-  /** セルクリック時。隣接セルのみ移動する。現在セルは無視する */
+  /**
+   * セルクリック時。隣接セルへ移動する
+   *
+   * - 直接移動できないセル（非隣接・進入不可）は `onIndirectClick` へ委ねる
+   * - 現在セルは無視する
+   */
   handleCellClick: (cell: HexCell) => void
   /**
    * 隣接セルへの移動を試みる。移動したら `true`、隣接でない・進入不可なら `false`
    *
-   * - クリックを介さない移動(経路に沿った自動移動等)で使う。非隣接でも
+   * - クリックを介さない移動(経路に沿った自動移動等)で使う。移動できなくても
    *   `onIndirectClick` は呼ばない
    */
   tryMove: (cell: HexCell) => boolean
@@ -31,8 +36,8 @@ type UseHexMoveReturn = {
  *   yaw への変換・dispatch は呼び出し側(`Stage07`)が持つため、ここでは画面角度を渡すのみ
  * @param canEnter 対象セルへ進入可能か（省略時は常に進入可能）。隣接判定に加えて
  *   このセルへの移動を拒否できる（find-path proto-03 の障害物セル判定等）
- * @param onIndirectClick 非隣接セルをクリックした時（省略可）。`useHexMove` 自身は
- *   find-path 固有の概念（通知等）を持たないため、呼び出し側へ通知するのみ
+ * @param onIndirectClick 直接移動できないセル（非隣接・進入不可）をクリックした時（省略可）。
+ *   `useHexMove` 自身は find-path 固有の概念（通知等）を持たないため、呼び出し側へ通知するのみ
  */
 export const useHexMove = (
   currentCell: HexCell,
@@ -59,16 +64,14 @@ export const useHexMove = (
   }
 
   const handleCellClick = (cell: HexCell) => {
-    // 現在セル: 移動でも非隣接でもないため何もしない
+    // 現在セル: 移動でも目標でもないため何もしない
     if (isSameHexCell(currentCell, cell)) return
 
-    if (!isHexAdjacent(currentCell, cell)) {
-      onIndirectClick?.(cell)
+    // 直接移動できた: 終了
+    if (tryMove(cell)) return
 
-      return
-    }
-
-    tryMove(cell)
+    // 直接移動できない（非隣接・進入不可）: 呼出し側へ委ねる
+    onIndirectClick?.(cell)
   }
 
   return { handleCellClick, tryMove }

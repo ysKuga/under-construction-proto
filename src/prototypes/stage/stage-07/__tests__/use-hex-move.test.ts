@@ -8,7 +8,7 @@ const CURRENT: HexCell = { q: 1, r: 1 }
 const ADJACENT: HexCell = { q: 1, r: 2 }
 const NON_ADJACENT: HexCell = { q: 1, r: 3 }
 
-const renderHexMove = () => {
+const renderHexMove = (canEnter?: (cell: HexCell) => boolean) => {
   const moveActor = vi.fn<(cell: HexCell) => void>()
   const onIndirectClick = vi.fn<(cell: HexCell) => void>()
   const { result } = renderHook(() =>
@@ -17,7 +17,7 @@ const renderHexMove = () => {
       moveActor,
       undefined,
       undefined,
-      undefined,
+      canEnter,
       onIndirectClick,
     ),
   )
@@ -26,7 +26,7 @@ const renderHexMove = () => {
 }
 
 describe('useHexMove', () => {
-  it('現在マスのクリックは移動も非隣接通知もしない', () => {
+  it('現在マスのクリックは移動も呼出し側への委譲もしない', () => {
     const { moveActor, onIndirectClick, result } = renderHexMove()
 
     result.current.handleCellClick({ ...CURRENT })
@@ -44,7 +44,16 @@ describe('useHexMove', () => {
     expect(onIndirectClick).not.toHaveBeenCalled()
   })
 
-  it('非隣接マスのクリックで非隣接通知する', () => {
+  it('進入できない隣接マスのクリックは呼出し側へ委ねる', () => {
+    const { moveActor, onIndirectClick, result } = renderHexMove(() => false)
+
+    result.current.handleCellClick(ADJACENT)
+
+    expect(moveActor).not.toHaveBeenCalled()
+    expect(onIndirectClick).toHaveBeenCalledWith(ADJACENT)
+  })
+
+  it('非隣接マスのクリックは呼出し側へ委ねる', () => {
     const { moveActor, onIndirectClick, result } = renderHexMove()
 
     result.current.handleCellClick(NON_ADJACENT)

@@ -42,7 +42,7 @@ export type UseStageReturn = {
   handleCellChange: (cell: HexCell) => void
   /** 自動移動の終了時 */
   handleFollowPathEnd: (blockedCell?: HexCell) => void
-  /** 非隣接セルクリック時 */
+  /** 直接移動できないセルのクリック時 */
   handleIndirectClick: (cell: HexCell) => Promise<void>
   /** 中継点選択モード中のセルクリック時 */
   handleWaypointCellClick: (cell: HexCell) => void

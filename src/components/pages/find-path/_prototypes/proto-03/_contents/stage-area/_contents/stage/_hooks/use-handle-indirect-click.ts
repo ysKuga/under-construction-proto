@@ -14,7 +14,7 @@ import { GRID } from '../../../../../constants'
 import { UseStageReturn } from '../index.types'
 
 /**
- * 非隣接セルクリック時の処理を返す
+ * 直接移動できないセルのクリック時の処理を返す
  *
  * - クリックしたセルを目標とし、BFS で経路を求め `PathPreviewLayer` へ表示する
  *   （自動移動は吹き出しの「実行」で開始する、issue #226）。到達不能なら通知する
