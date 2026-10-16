@@ -41,4 +41,7 @@ if (!proposeAllowed) {
 ## ts-pattern との使い分け
 
 - 1つの値を場合分け → ts-pattern ([docs/package/control-flow/ts-pattern](../../docs/package/control-flow/ts-pattern/README.md))
+  - 分類関数の戻り値(union・判別子付きの型)による振り分けも該当。最初から `match(...).exhaustive()` で書く
+  - 理由: 分類の追加時、処理漏れが型エラーになる。if の連鎖だと末尾の処理へ黙って流れる
+  - 例: find-path proto-03 の `useCellClickEventListener`(`classifyCellClick` の結果で振り分け、PR #349)
 - 別々の値を順に調べ途中で抜けるガードの並び → 本ルールの if 文
