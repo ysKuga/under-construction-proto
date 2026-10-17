@@ -23,22 +23,24 @@
   - (../../decision-records.md 2026-10-17 本実装移行)
   - [_closed/pr-360-expedition-copy-deps/design.md](_closed/pr-360-expedition-copy-deps/design.md)
 - [ ] proto-03 本体を expedition へコピーする
-  - 構成はそのまま。import の書換のみ
+  - 構成は変えず import の書換のみ行う
   - 独立 PR で行う（コピーと構造変更を混ぜない）
   - (decision-records.md 2026-10-17 進め方)
 - [ ] レイアウトを基本構成とデバッグ要素へ分ける
   - 基本構成: マップ・状態表示系
   - デバッグ要素
     - 構成: 独立したコンポーネント
-    - 置き場: `_contents/debug-panel/`（`_contents/index.tsx` からは並べず story から使う）
-    - 配置: 基本構成の下へ縦並び（ルートの `h-screen` は維持、画面外へ出るのを許容）
+    - 置き場: `_contents/debug-panel/`
+      - `_contents/index.tsx` からは並べず story から使う
+    - 配置: 基本構成の下へ縦並び
+      - ルートの `h-screen` は維持する
+      - 画面外へ出るのを許容する
     - 開閉: アコーディオン状に表示・非表示を切り替える
   - `ControlPanel` は解体する
     - デバッグ対象 → `debug-panel`
     - 基本構成に残す要素 → 状態表示 content を新設
   - `EnergySliders` は `debug-panel` へ移す（hex-stage の変更不要）
   - story: デバッグ用 story は `render` で Providers の内側に基本構成とデバッグ要素を並べる
-  - (decision-records.md 2026-10-17 進め方)
   - [x] デバッグ要素とする対象を検討する
     - デバッグ要素
       - `ControlPanel` の表示設定（初期表示・到達済みマス表示・歩行モーション・移動可能マス表示）
@@ -53,6 +55,7 @@
     - 削除: `ControlPanel` の「状態表示の向きを同期」（`FacingSyncToggle` と重複）
     - (decision-records.md 2026-10-17 デバッグ要素)
   - (decision-records.md 2026-10-17 未決事項)
+  - (decision-records.md 2026-10-17 進め方)
 - [ ] hex-stage 組込みの調整スライダー群をデバッグ要素へ移す
   - 対象: tilt・移動時間・歩行周期上限・脚振り角・体の上下量
   - 手段（tilt 以外）
@@ -65,9 +68,9 @@
   - `extraSliders` prop は不要になるため削除する
   - `SLIDER_LABEL_STYLE` をデバッグ要素側へ移す
   - hex-stage の story は args controls（range）で調整する
-  - (decision-records.md 2026-10-17 進め方)
   - 別 PR で行う
   - (decision-records.md 2026-10-17 デバッグ要素)
+  - (decision-records.md 2026-10-17 進め方)
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)

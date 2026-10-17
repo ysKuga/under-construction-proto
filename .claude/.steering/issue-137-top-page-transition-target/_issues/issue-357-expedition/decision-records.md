@@ -36,7 +36,7 @@
     - 現状: hex-stage 内部の state
     - 独立コンポーネント化には外出しが必要
     - 手段
-      - 値を hex-stage の props にする
+      - 値を hex-stage の props にする（tilt は除く。進め方で handle 経由へ変更）
       - デバッグ要素がページ用 store（`display-settings`）へ書き込む
       - `stage` content が購読し hex-stage へ渡す
     - `extraSliders` prop は削除する
@@ -46,13 +46,18 @@
   - PR の順序: proto-03 本体のコピー → レイアウト分割 → hex-stage のスライダー外出し
     - 本体のコピーは独立 PR にする
       - 理由: 約 200 ファイルのコピーと構造変更が混ざると差分を追えない
-    - スライダー外出しはページ側の `display-settings` store を要するため、本体のコピー後
+    - スライダー外出しは本体のコピー後
+      - 理由: ページ側の `display-settings` store を要する
   - デバッグ要素の置き場: `_contents/debug-panel/`
     - 理由: 新しい種類の置き場を作らずに済む
     - `_contents/index.tsx` からは並べず、story から使う
   - 縦並びの高さ: ルートの `h-screen` を維持し、デバッグ要素が画面外へ出るのを許容する
     - 代わりにデバッグ要素をアコーディオン状に開閉できるようにする
   - tilt は props にせず handle 経由（`Stage07Handle.setTilt`）にする
-    - 理由: 現状 ref 直書きで再レンダリングしない。props 化するとドラッグ中に stage content・hex-stage が再レンダリングし続ける
+    - 理由
+      - 現状 ref 直書きで再レンダリングしない
+      - props 化するとドラッグ中に stage content・hex-stage が再レンダリングし続ける
     - 処理から UI への命令は imperative handle（event-ui-jurisdiction）とも整合
-    - 他のスライダー（移動時間等）は決定どおり props。現状も `useState` で、再レンダリングの増加は stage content のみ
+    - 他のスライダー（移動時間等）は決定どおり props
+      - 現状も `useState`
+      - 再レンダリングが増えるのは stage content のみ
