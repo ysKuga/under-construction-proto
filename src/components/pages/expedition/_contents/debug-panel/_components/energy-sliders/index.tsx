@@ -2,15 +2,14 @@
 
 import { SLIDER_LABEL_STYLE } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
-import { EnergyDebugPanel } from '../../../../../../_components/energy-debug-panel'
-import { useEnergySettingsStore } from '../../../../../../_stores/energy-settings'
+import { EnergyDebugPanel } from '../../../../_components/energy-debug-panel'
+import { useEnergySettingsStore } from '../../../../_stores/energy-settings'
 
 /**
  * EN 関連の調整スライダー（EN 残量・EN 消費量）
  *
- * - `Stage07` の `extraSliders` へ渡し、組込みスライダー（体の上下量）の後に並べる
  * - EN 消費量は `energy-settings` store へ書き込み、移動成立時の処理が読む（0 で EN 無限）
- * - EN 残量・消費量の購読は本コンポーネント内に閉じ、変化時に `Stage07` を再レンダリングさせない
+ * - EN 残量・消費量の購読は本コンポーネント内に閉じ、変化時に他の要素を再レンダリングさせない
  */
 export const EnergySliders = () => {
   /** 移動 1 マスあたりの EN 消費量。0 で EN 無限 */
