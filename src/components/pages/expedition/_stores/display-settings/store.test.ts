@@ -1,3 +1,5 @@
+import { MOTION_DEFAULTS } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+
 import { createDisplaySettingsStore } from './store'
 
 describe('createDisplaySettingsStore', () => {
@@ -15,5 +17,23 @@ describe('createDisplaySettingsStore', () => {
     expect(store.getState().displayMode).toBe('fade')
     expect(store.getState().enableWalking).toBe(false)
     expect(store.getState().syncStandaloneBotFacing).toBe(true)
+  })
+
+  it('移動・歩行の調整値は hex-stage の既定値で始まり、setter で切り替わる', () => {
+    const store = createDisplaySettingsStore()
+
+    expect(store.getState()).toMatchObject(MOTION_DEFAULTS)
+
+    store.getState().setMoveDurationMs(1000)
+    store.getState().setMaxWalkCycleSec(2)
+    store.getState().setLegSwingAngle(0.8)
+    store.getState().setBodyBobHeight(0.2)
+
+    expect(store.getState()).toMatchObject({
+      bodyBobHeight: 0.2,
+      legSwingAngle: 0.8,
+      maxWalkCycleSec: 2,
+      moveDurationMs: 1000,
+    })
   })
 })
