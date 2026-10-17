@@ -22,7 +22,7 @@ import { useEnergyEventDispatcher, useEnergyStore } from '../../_stores/energy'
  *   EN 切れ演出（予防姿勢）の発火・復帰を検証できる）
  */
 type EnergyDebugPanelProps = {
-  /** label のスタイル（`Stage07` のスライダー列へ揃える場合等、省略可） */
+  /** label のスタイル（他のスライダー列へ揃える場合等、省略可） */
   style?: CSSProperties
 }
 

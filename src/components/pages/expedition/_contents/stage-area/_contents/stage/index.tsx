@@ -10,7 +10,12 @@ import { ObstacleLayer } from '../../../../_layers/obstacle-layer'
 import { OneWayLayer } from '../../../../_layers/one-way-layer'
 import { PathPreviewLayer } from '../../../../_layers/path-preview-layer'
 import { WaypointSelectLayer } from '../../../../_layers/waypoint-select-layer'
-import { BOT_SIZE, GRID, HEX_SIZE } from '../../../../constants'
+import {
+  BOT_SIZE,
+  GRID,
+  HEX_SIZE,
+  INITIAL_TILT_DEG,
+} from '../../../../constants'
 
 import { CellInfoPanel } from './_components/cell-info-panel'
 import { useStage } from './index.hooks'
@@ -30,6 +35,7 @@ import { useStage } from './index.hooks'
 export const Stage = () => {
   const {
     actorEventTarget,
+    bodyBobHeight,
     canEnterCell,
     canEnterCellPerceived,
     currentCell,
@@ -39,6 +45,9 @@ export const Stage = () => {
     handleFollowPathEnd,
     handleWaypointCellClick,
     interactive,
+    legSwingAngle,
+    maxWalkCycleSec,
+    moveDurationMs,
     objectiveMarkerCell,
     previewPath,
     registerFloorVisibilityNode,
@@ -50,18 +59,22 @@ export const Stage = () => {
   } = useStage()
 
   return (
-    // Stage07 は操作 slider 群が横に広がるため、min-content で床(scene)の幅へ合わせる
+    // 床(scene)の幅へ合わせる
     <div className="w-min">
       <Stage07
         actorEventTarget={actorEventTarget}
         belowFloor={<CellInfoPanel />}
+        bodyBobHeight={bodyBobHeight}
         botSize={BOT_SIZE}
         canEnterCell={canEnterCell}
         cols={GRID.cols}
         enableWalking={enableWalking}
         hexSize={HEX_SIZE}
-        initialTiltDeg={55}
+        initialTiltDeg={INITIAL_TILT_DEG}
         interactive={interactive}
+        legSwingAngle={legSwingAngle}
+        maxWalkCycleSec={maxWalkCycleSec}
+        moveDurationMs={moveDurationMs}
         onCellChange={handleCellChange}
         onFollowPathEnd={handleFollowPathEnd}
         ref={stage07HandleRef}

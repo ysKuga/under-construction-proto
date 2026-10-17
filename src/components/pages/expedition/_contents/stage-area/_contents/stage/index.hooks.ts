@@ -32,6 +32,14 @@ export const useStage = (): UseStageReturn => {
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
   const displayMode = useDisplaySettingsStore((state) => state.displayMode)
   const enableWalking = useDisplaySettingsStore((state) => state.enableWalking)
+  const moveDurationMs = useDisplaySettingsStore(
+    (state) => state.moveDurationMs,
+  )
+  const maxWalkCycleSec = useDisplaySettingsStore(
+    (state) => state.maxWalkCycleSec,
+  )
+  const legSwingAngle = useDisplaySettingsStore((state) => state.legSwingAngle)
+  const bodyBobHeight = useDisplaySettingsStore((state) => state.bodyBobHeight)
   /** 中継点選択モード中か */
   const waypointSelecting = useWaypointFlowStore(
     (state) => state.flowState === 'selecting',
@@ -84,6 +92,7 @@ export const useStage = (): UseStageReturn => {
 
   return {
     actorEventTarget,
+    bodyBobHeight,
     canEnterCell,
     canEnterCellPerceived,
     currentCell,
@@ -94,6 +103,9 @@ export const useStage = (): UseStageReturn => {
     handleWaypointCellClick,
     interactive:
       operateStageAllowed && !waypointSelecting && !isAutoMoving && !isCharging,
+    legSwingAngle,
+    maxWalkCycleSec,
+    moveDurationMs,
     objectiveMarkerCell: isAutoMoving ? followingPath.at(-1) : objectiveCell,
     previewPath,
     registerFloorVisibilityNode,
