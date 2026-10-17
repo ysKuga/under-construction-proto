@@ -10,7 +10,7 @@ find-path の prototypes を元に、prototypes から独立した本実装 `exp
 
 - 親 backlog の項目「本実装を prototypes からコピーして設置する」から切り出した
   - [../../backlog.md](../../backlog.md)
-- 移行方針: 元の実装は移動せず prototypes に残し、コピーで独立した本実装を設置する
+- 移行方針: prototypes から独立した本実装をコピーで設置する
   - (../../decision-records.md 2026-10-17 本実装移行)
 - 名前: 本実装は `expedition`
   - (../../decision-records.md 2026-10-17 名前)

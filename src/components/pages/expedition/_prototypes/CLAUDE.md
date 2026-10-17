@@ -1,6 +1,8 @@
 # _prototypes/
 
-expedition ページの試作置き場 (issue #137)。旧 find-path ページから移動した (issue #357)。本実装 (`expedition/` 直下) からは import しない。
+expedition ページの試作置き場 (issue #137)。\
+旧 find-path ページから移動した (issue #357)。\
+本実装 (`expedition/` 直下) からは import しない。
 
 試作の優先対象は proto-03（hex グリッド版、issue #162）。矩形グリッド版（stage-06、proto-01/02）より最終的なゲームデザインに近いため。新規機能はまず proto-03 へ実装する。
 
