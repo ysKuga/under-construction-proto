@@ -18,7 +18,14 @@ export const StatusPanel = () => {
   } = useStatusPanel()
 
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div
+      style={{
+        alignItems: 'center',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}
+    >
       <span hidden={!goalReached}>🎉 ゴール到達</span>
       <WaypointSelectingIndicator
         onDoneClick={handleWaypointDoneClick}
