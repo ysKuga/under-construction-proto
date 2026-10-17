@@ -33,5 +33,11 @@
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)
+- [ ] コピーした依存先に残るコピー元の名前を見直す
+  - 対象
+    - コメント内の `find-path proto-03`・`stage-06` 等への言及
+    - `stage07` を含むファイル・ディレクトリ名（`stage07-handle`・`use-stage07-event-*` 等）
+  - 範囲: `expedition/_stage-components/hex-stage`・`expedition/_stores/energy`
+  - 別 PR で行う
 - [ ] route を配線する
   - 現状: `src/app` に未設置
