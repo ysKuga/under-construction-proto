@@ -36,6 +36,6 @@ proto-03（hex, issue #181 PR-C）へ「予定経路+実行」方式を移植し
 
 ## 関連
 
-- 実装例: [proto-01/_components/planned-path-layer](../../../../src/components/pages/find-path/_prototypes/proto-01/_components/planned-path-layer/index.tsx)
-- フェードアウト機構: [proto-01/_contexts/planned-path-cell-registry](../../../../src/components/pages/find-path/_prototypes/proto-01/_contexts/planned-path-cell-registry/index.tsx)
+- 実装例: [proto-01/_components/planned-path-layer](../../../../src/components/pages/expedition/_prototypes/proto-01/_components/planned-path-layer/index.tsx)
+- フェードアウト機構: [proto-01/_contexts/planned-path-cell-registry](../../../../src/components/pages/expedition/_prototypes/proto-01/_contexts/planned-path-cell-registry/index.tsx)
 - 経緯: `.claude/.steering/issue-137-top-page-transition-target/_issues/issue-181-en/decision-records.md`

@@ -3,7 +3,7 @@
 ## ページ内の構成
 
 ページ（試作含む）の実装が大きくなった場合、以下の構成で分ける。
-例: `find-path/_prototypes/proto-03`（issue #137 の構造見直し）。
+例: `expedition/_prototypes/proto-03`（issue #137 の構造見直し）。
 
 ```
 page-name/
