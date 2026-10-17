@@ -3,8 +3,8 @@
 ## ページ内の構成
 
 ページ（試作含む）の実装が大きくなった場合、以下の構成で分ける。
-例: `expedition/_prototypes/proto-03`（issue #137 の構造見直し）。\
-`_contents`/`_components` の配置は一部未対応（下記「移行状況」）。
+例: `expedition`（issue #357）。\
+`expedition/_prototypes/proto-03` は `_contents`/`_components` の配置・命名が下記の基準に未対応（試作のため）。
 
 ```
 page-name/
@@ -84,12 +84,6 @@ store・context の購読有無、実装かどうかでは分けない。
 
 - 例: `stage-group` が並べる `stage` は `stage-group/_contents/stage`
 - 例: `stage` が中で使う `stage-settings` は `stage/_components/stage-settings`
-
-### 移行状況
-
-expedition は以下が未対応。新規・改修時に本基準へ寄せる（issue #357 backlog）。
-
-- 命名: `stage-area` を `stage-section` へ改名していない
 
 ### Provider
 
