@@ -4,6 +4,7 @@ import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 import { FogMode } from '../../_stores/fog/types'
 
 import { EnergySliders } from './_components/energy-sliders'
+import { StageSliders } from './_components/stage-sliders'
 import { useDebugPanel } from './index.hooks'
 
 /** 「初期表示」select の選択肢 */
@@ -14,7 +15,7 @@ const FOG_MODE_OPTIONS: readonly { label: string; value: FogMode }[] = [
 ]
 
 /**
- * デバッグ要素（表示設定の切替・リセット・盤面生成・EN 調整）
+ * デバッグ要素（表示設定の切替・リセット・盤面生成・ステージ調整・EN 調整）
  *
  * - 本実装（`_contents/index.tsx`）には並べず、story で基本構成の下へ並べる
  * - `<details>` でアコーディオン状に開閉する
@@ -110,6 +111,7 @@ export const DebugPanel = () => {
         <button onClick={handleRegenerateClick} type="button">
           再生成
         </button>
+        <StageSliders />
         <EnergySliders />
       </div>
     </details>

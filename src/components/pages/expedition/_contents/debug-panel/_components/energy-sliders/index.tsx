@@ -1,9 +1,8 @@
 'use client'
 
-import { SLIDER_LABEL_STYLE } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
-
 import { EnergyDebugPanel } from '../../../../_components/energy-debug-panel'
 import { useEnergySettingsStore } from '../../../../_stores/energy-settings'
+import { SLIDER_LABEL_STYLE } from '../../constants'
 
 /**
  * EN 関連の調整スライダー（EN 残量・EN 消費量）

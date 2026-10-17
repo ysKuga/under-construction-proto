@@ -23,6 +23,8 @@ export type EnterGuard = {
 export type UseStageReturn = {
   /** `Stage07` と player bot で共有する EventTarget（`PlayerActorEventTargetProvider`） */
   actorEventTarget: EventTarget
+  /** 歩行中の体の上下の最大持ち上げ量(world) */
+  bodyBobHeight: number
   /** `Stage07` へ渡す進入可否（実際の移動判定・選択可能表示用。EN 残量チェック込みの全ガード） */
   canEnterCell: (cell: HexCell) => boolean
   /**
@@ -46,6 +48,12 @@ export type UseStageReturn = {
   handleWaypointCellClick: (cell: HexCell) => void
   /** `Stage07` を操作可能にするか（中継点選択中・自動移動中・補給中・ゴール到達後は不可） */
   interactive: boolean
+  /** walking の脚振り角の振幅(rad) */
+  legSwingAngle: number
+  /** walking の脚振り周期の上限(秒) */
+  maxWalkCycleSec: number
+  /** セル間移動アニメーションの所要時間(ms) */
+  moveDurationMs: number
   /** 目標マーカーを置くセル（自動移動中は固定した経路の終点） */
   objectiveMarkerCell?: HexCell
   /** 提示中の経路 */

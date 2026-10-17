@@ -7,6 +7,9 @@ export const HEX_SIZE = 40
 /** bot(box-bot-01)の一辺 px */
 export const BOT_SIZE = 56
 
+/** 床の傾き(rotateX, deg)の初期値 */
+export const INITIAL_TILT_DEG = 55
+
 /**
  * 目標セルのオーバーレイアンカーを actors store へ登録する際の擬似 id
  *
