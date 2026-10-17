@@ -6,4 +6,7 @@
 - 2026-10-17（実装）: 計画項目を実装した
   - Storybook（Default・Debug）でポップオーバーの位置・開閉・値の保持を確認した
   - `stage-sliders` は store を購読するため `stage-settings/_contents/` へ置いた（`_components/` は props 駆動の部品）
-  - `motion-sliders` は前例 `energy-sliders` に揃え `debug-panel/_components/` に置いた
+  - `motion-sliders`・`energy-sliders` も同じ理由で `debug-panel/_contents/` へ移した
+- 2026-10-17（アイコン位置）: 設定アイコンを独立 bot 右上からステージ右上へ移した
+  - 理由: 調整スライダーは bot と関係しない
+  - 親 decision-records.md 2026-10-17（調整スライダーの表示）の「位置: 独立 bot 右上」を変更
