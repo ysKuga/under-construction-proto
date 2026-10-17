@@ -21,7 +21,8 @@ find-path proto-03 が依存する prototypes の実装を、本実装 `expediti
   - `find-path/_prototypes/_stores/energy`
 - コピー先
   - stage-07: `expedition/_stage-components/hex-stage`
-  - stage-06/constants・time-control-03/types: stage のコピー先の `constants.ts`・`types.ts` へ同梱
+  - stage-06/constants: stage のコピー先の `constants.ts` へ同梱
+  - time-control-03/types: 使用する `ActorId` のみ、`Actor` 型（`src/types/theater/actor`）の `id` 参照へ置き換え
   - energy: `expedition/_stores/energy`
 - test はコピーする
 
