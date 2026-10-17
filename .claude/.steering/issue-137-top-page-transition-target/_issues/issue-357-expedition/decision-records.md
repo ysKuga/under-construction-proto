@@ -108,3 +108,6 @@
   - [_closed/pr-379-expedition-move-components/design.md](_closed/pr-379-expedition-move-components/design.md)
 - 2026-10-18（stage-group の切り出し）: `stage-area` から `stage-group`・`bot-status-panel` を切り出した（PR #381）
   - [_closed/pr-381-expedition-stage-group/design.md](_closed/pr-381-expedition-stage-group/design.md)
+- 2026-10-18（stage-section への改名）: `stage-area` を `stage-section` へ改名した（PR #383）
+  - [_closed/pr-383-expedition-stage-section/design.md](_closed/pr-383-expedition-stage-section/design.md)
+  - `pages/CLAUDE.md` の移行状況を削除した

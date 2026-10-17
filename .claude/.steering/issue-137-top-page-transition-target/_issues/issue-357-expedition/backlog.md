@@ -20,9 +20,6 @@
   - 現状: `src/app` に未設置
 - [ ] content と component の置き場を分ける
   - (decision-records.md 2026-10-18 content と component)
-  - PR 単位
-    - 3. `stage-area` を `stage-section` へ改名する
-      - [_pr/pr-383-expedition-stage-section/design.md](_pr/pr-383-expedition-stage-section/design.md)
   - 旧計画の残りは要否を新基準で見直す
     - `stage`・`stage-settings` の中身を children・slot で受ける（レイヤー群の独立）
     - `bot-bubbles` のロジック（`useBotBubbles`）を実装側へ移す
