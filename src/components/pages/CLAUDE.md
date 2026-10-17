@@ -17,6 +17,7 @@ page-name/
       _contents/       # stage-area からのみ使う content
         stage/
   _layers/             # ステージの children として重ねるレイヤー
+  _stage-components/   # ステージ本体（`hex-stage` 等）
   _components/         # 部品
   _contexts/           # 個別 Context の実装
   _stores/
@@ -25,6 +26,9 @@ page-name/
 ### `_components`/`_layers`/`_contents` の役割
 
 - `_components/`: 部品（吹き出し・インジケータ等）。ページの状態を知らず、props で駆動する
+- `_stage-components/`: ステージ本体（`hex-stage` 等）。ゲーム上の役割を持つため `_components/` と分ける
+  - ページの状態を知らず、props・handle で駆動する点は `_components/` と同じ
+  - 例: `expedition/_stage-components/hex-stage`（stage-07 のコピー）
 - `_layers/`: ステージ（`Stage07` 等）の children として重ねるレイヤー
 - `_contents/`: ページ内容を区画ごとに格納する。その階層の直下で使う実装の置き場
   - `_contents/index.tsx` は各 content を並べるのみとし、props・定数・状態を持たない
@@ -45,7 +49,9 @@ page-name/
 
 ### 依存方向
 
-`_contents` → `_layers` → `_components`（逆方向の参照は禁止）。
+`_contents` → `_layers` → `_stage-components`・`_components`（逆方向の参照は禁止）。
+
+- `_stage-components` は `_components` と同じ最下層。`_layers` はステージの children として重なるため、ステージ本体の型・event・store を参照する
 
 - `_stores`/`_lib`/`_hooks`/`_events`/`_contexts` はいずれの層からも参照可
 - store が layer の型を参照しないよう、store が扱う型は store の `types.ts` へ置く（`MoveTargetDisplayMode` の例）
