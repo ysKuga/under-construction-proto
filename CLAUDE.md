@@ -103,6 +103,7 @@ export const reducePointerState = (
 @.claude/rules/react/component-nesting.md
 @.claude/rules/react/props-with-children.md
 @.claude/rules/react/stories.md
+@.claude/rules/react/layout-change.md
 
 ### 条件分岐
 
