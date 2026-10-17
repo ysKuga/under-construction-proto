@@ -1,6 +1,6 @@
 # src/components/CLAUDE.md
 
-## 実装と組み合わせ (implement and composition)
+## 実装と組み合わせ (implementation and composition)
 
 component を「実装する箇所」と「組み合わせる箇所」に分ける。
 
