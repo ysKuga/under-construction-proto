@@ -61,3 +61,5 @@
     - 他のスライダー（移動時間等）は決定どおり props
       - 現状も `useState`
       - 再レンダリングが増えるのは stage content のみ
+- 2026-10-17（本体コピー）: proto-03 本体を expedition へコピーした（PR #365）
+  - [_closed/pr-365-expedition-copy-proto-03/design.md](_closed/pr-365-expedition-copy-proto-03/design.md)

@@ -1,0 +1,85 @@
+import { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { of } from 'rxjs'
+
+import { BoxBot01 } from '@/components/theater/figure/box-bot'
+
+import { ExecuteBubble } from '../execute-bubble'
+import { WaypointBubble } from '../waypoint-bubble'
+
+import { BubbleSlotsStoreProvider } from './_stores/bubble-slots'
+import { BubbleSlotEntry } from './_stores/bubble-slots/types'
+
+import { BubbleSlots as StoryComponent } from '.'
+
+/** bot(box-bot-01)の一辺 px */
+const BOT_SIZE = 56
+
+/** 仮の操作。story では吹き出しの操作を接続しない */
+const noop = () => {}
+
+/** 中継点の吹き出し（操作は未接続） */
+const StoryWaypointBubble = () => <WaypointBubble onClick={noop} />
+
+/** 実行の吹き出し（操作は未接続） */
+const StoryExecuteBubble = () => <ExecuteBubble onClick={noop} onClose={noop} />
+
+/** 格納する吹き出し */
+const INITIAL_BUBBLES: BubbleSlotEntry[] = [
+  { Bubble: StoryWaypointBubble, id: 'waypoint', visible$: of(true) },
+  { Bubble: StoryExecuteBubble, id: 'execute', visible$: of(true) },
+]
+
+const meta: Meta<typeof StoryComponent> = {
+  component: StoryComponent,
+  decorators: [
+    (Story) => (
+      <BubbleSlotsStoreProvider initialBubbles={INITIAL_BUBBLES}>
+        <div style={{ padding: 80 }}>
+          <Story />
+        </div>
+      </BubbleSlotsStoreProvider>
+    ),
+  ],
+}
+
+export default meta
+type Story = StoryObj<typeof StoryComponent>
+
+export const Default: Story = {
+  args: {
+    children: (
+      <BoxBot01
+        interactive={false}
+        orbit={false}
+        style={{ height: BOT_SIZE, width: BOT_SIZE }}
+      />
+    ),
+  },
+}
+
+/** 「実行」の表示中、`action` 種類の「中継点」を隠す */
+export const HiddenByKind: Story = {
+  ...Default,
+  decorators: [
+    (Story) => (
+      <BubbleSlotsStoreProvider
+        initialBubbles={[
+          {
+            Bubble: StoryWaypointBubble,
+            id: 'waypoint',
+            kinds: ['action'],
+            visible$: of(true),
+          },
+          {
+            Bubble: StoryExecuteBubble,
+            hides: ['action'],
+            id: 'execute',
+            visible$: of(true),
+          },
+        ]}
+      >
+        <Story />
+      </BubbleSlotsStoreProvider>
+    ),
+  ],
+}
