@@ -42,3 +42,17 @@
     - `extraSliders` prop は削除する
     - 別 PR で行う
       - 理由: store の責務が広がる
+- 2026-10-17（進め方）: レイアウト分割・スライダー外出しの進め方を決めた
+  - PR の順序: proto-03 本体のコピー → レイアウト分割 → hex-stage のスライダー外出し
+    - 本体のコピーは独立 PR にする
+      - 理由: 約 200 ファイルのコピーと構造変更が混ざると差分を追えない
+    - スライダー外出しはページ側の `display-settings` store を要するため、本体のコピー後
+  - デバッグ要素の置き場: `_contents/debug-panel/`
+    - 理由: 新しい種類の置き場を作らずに済む
+    - `_contents/index.tsx` からは並べず、story から使う
+  - 縦並びの高さ: ルートの `h-screen` を維持し、デバッグ要素が画面外へ出るのを許容する
+    - 代わりにデバッグ要素をアコーディオン状に開閉できるようにする
+  - tilt は props にせず handle 経由（`Stage07Handle.setTilt`）にする
+    - 理由: 現状 ref 直書きで再レンダリングしない。props 化するとドラッグ中に stage content・hex-stage が再レンダリングし続ける
+    - 処理から UI への命令は imperative handle（event-ui-jurisdiction）とも整合
+    - 他のスライダー（移動時間等）は決定どおり props。現状も `useState` で、再レンダリングの増加は stage content のみ
