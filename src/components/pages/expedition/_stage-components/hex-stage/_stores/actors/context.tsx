@@ -3,8 +3,8 @@
 import { PropsWithChildren, useState } from 'react'
 import { StoreApi } from 'zustand/vanilla'
 
-import { ActorId } from '../../types'
 import { createStoreContext } from '@/stores/utils/create-store-context'
+import { Actor } from '@/types/theater/actor'
 
 import { HexCell } from '../../_lib/hex'
 
@@ -19,7 +19,7 @@ export const ActorsStoreContext = StoreContext
 
 type ActorsStoreProviderProps = PropsWithChildren<{
   /** 初期配置する actor 一覧(actorId → セル) */
-  initialActors: Record<ActorId, HexCell>
+  initialActors: Record<Actor['id'], HexCell>
 }>
 
 /** Actors store を生成し Context 経由で配布する */

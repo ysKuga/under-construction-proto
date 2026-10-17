@@ -1,9 +1,9 @@
-import { ActorId } from '@/components/pages/expedition/_stage-components/hex-stage/types'
+import { Actor } from '@/types/theater/actor'
 
 /** EventTarget・actorId ごとの EN 切れ演出 dispatcher */
 const energyOutRegistry = new WeakMap<
   EventTarget,
-  Map<ActorId, () => Promise<void>>
+  Map<Actor['id'], () => Promise<void>>
 >()
 
 /**
@@ -15,21 +15,24 @@ const energyOutRegistry = new WeakMap<
  */
 export const registerEnergyOut = (
   target: EventTarget,
-  actorId: ActorId,
+  actorId: Actor['id'],
   energyOut: () => Promise<void>,
 ) => {
   const registry =
-    energyOutRegistry.get(target) ?? new Map<ActorId, () => Promise<void>>()
+    energyOutRegistry.get(target) ?? new Map<Actor['id'], () => Promise<void>>()
 
   registry.set(actorId, energyOut)
   energyOutRegistry.set(target, registry)
 }
 
 /** actor の energyOut dispatcher を解除する */
-export const unregisterEnergyOut = (target: EventTarget, actorId: ActorId) => {
+export const unregisterEnergyOut = (
+  target: EventTarget,
+  actorId: Actor['id'],
+) => {
   energyOutRegistry.get(target)?.delete(actorId)
 }
 
 /** actor の energyOut dispatcher を取得する（未登録なら undefined） */
-export const getEnergyOut = (target: EventTarget, actorId: ActorId) =>
+export const getEnergyOut = (target: EventTarget, actorId: Actor['id']) =>
   energyOutRegistry.get(target)?.get(actorId)

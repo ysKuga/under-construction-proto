@@ -1,4 +1,4 @@
-import { ActorId } from '@/components/pages/expedition/_stage-components/hex-stage/types'
+import { Actor } from '@/types/theater/actor'
 
 /**
  * イベント名 → payload 型の対応表
@@ -7,11 +7,11 @@ import { ActorId } from '@/components/pages/expedition/_stage-components/hex-sta
  */
 export type EnergyEventMap = {
   /** EN を消費する */
-  'Energy-consume': { actorId: ActorId; amount: number }
+  'Energy-consume': { actorId: Actor['id']; amount: number }
   /** EN が尽きた（消費後の残量が 0 以下になった） */
-  'Energy-depleted': { actorId: ActorId }
+  'Energy-depleted': { actorId: Actor['id'] }
   /** EN を補給する */
-  'Energy-charge': { actorId: ActorId; amount: number }
+  'Energy-charge': { actorId: Actor['id']; amount: number }
   /** EN 切れから復帰した（補給後の残量が 0 より大きくなった） */
-  'Energy-recovered': { actorId: ActorId }
+  'Energy-recovered': { actorId: Actor['id'] }
 }

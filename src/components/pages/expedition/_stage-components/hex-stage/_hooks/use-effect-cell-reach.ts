@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef } from 'react'
 
-import { ActorId } from '../types'
+import { Actor } from '@/types/theater/actor'
 
 import { useStage07EventDispatcher } from '../_events'
 import { judgeCellReach } from '../_lib/cell-reach'
@@ -29,7 +29,7 @@ const CELL_REACH_CHECK_INTERVAL_RATIO = 1 / 5
  * @param moveDurationMs セル間移動アニメーションの所要時間(ms)
  */
 export const useEffectCellReach = (
-  actorId: ActorId,
+  actorId: Actor['id'],
   elementRef: RefObject<HTMLElement | null>,
   targetCell: HexCell,
   cols: number,

@@ -1,6 +1,6 @@
 import { StoreApi } from 'zustand/vanilla'
 
-import { ActorId } from '../../types'
+import { Actor } from '@/types/theater/actor'
 
 import { HexCell } from '../../_lib/hex'
 
@@ -21,16 +21,16 @@ export type ActorMoveKind = 'move' | 'warp'
  */
 export type ActorsState = {
   /** actorId ごとの現在セル */
-  actors: Record<ActorId, HexCell>
+  actors: Record<Actor['id'], HexCell>
   /** actor を取り除く */
-  despawnActor: (actorId: ActorId) => void
+  despawnActor: (actorId: Actor['id']) => void
   /**
    * actor を target セルへ移動する
    *
    * - `options.kind` で移動種別を指定する（省略時は `move`）
    */
   moveActor: (
-    actorId: ActorId,
+    actorId: Actor['id'],
     target: HexCell,
     options?: { kind?: ActorMoveKind },
   ) => void
@@ -39,7 +39,7 @@ export type ActorsState = {
    *
    * - `ActorsLayer` が位置の transition の有無を切り替えるのに使う。未設定は `move` 扱い
    */
-  moveKinds: Partial<Record<ActorId, ActorMoveKind>>
+  moveKinds: Partial<Record<Actor['id'], ActorMoveKind>>
   /**
    * actorId ごとのオーバーレイ追従先(アンカー) DOM
    *
@@ -47,7 +47,7 @@ export type ActorsState = {
    *   で登録する。`ActorOverlayLayer` がこの DOM の画面上の位置を読み、
    *   `overlayContainers` の各コンテナを追従させる
    */
-  overlayAnchors: Partial<Record<ActorId, HTMLDivElement>>
+  overlayAnchors: Partial<Record<Actor['id'], HTMLDivElement>>
   /**
    * actorId ごとのオーバーレイ注入用コンテナ DOM
    *
@@ -58,13 +58,16 @@ export type ActorsState = {
    * - 3D 空間外に置くのは、floor 内だとブラウザの奥行きヒットテストで
    *   `GeoLayer` のセルにクリックを奪われるため（issue #137）
    */
-  overlayContainers: Partial<Record<ActorId, HTMLDivElement>>
+  overlayContainers: Partial<Record<Actor['id'], HTMLDivElement>>
   /**
    * actorId のオーバーレイ追従先(アンカー) DOM を登録する
    *
    * - `ActorsLayer` の ref コールバックから呼ぶ。unmount 時は `el=null` で呼ばれる
    */
-  registerOverlayAnchor: (actorId: ActorId, el: HTMLDivElement | null) => void
+  registerOverlayAnchor: (
+    actorId: Actor['id'],
+    el: HTMLDivElement | null,
+  ) => void
   /**
    * actorId のオーバーレイ注入用コンテナ DOM を登録する
    *
@@ -72,11 +75,11 @@ export type ActorsState = {
    *   （`registerVisibilityNode` 等と同じパターン）
    */
   registerOverlayContainer: (
-    actorId: ActorId,
+    actorId: Actor['id'],
     el: HTMLDivElement | null,
   ) => void
   /** actor を新規配置する(既存 actorId の場合は上書き) */
-  spawnActor: (actorId: ActorId, cell: HexCell) => void
+  spawnActor: (actorId: Actor['id'], cell: HexCell) => void
 }
 
 export type ActorsStore = StoreApi<ActorsState>

@@ -1,11 +1,11 @@
 import { StoreApi } from 'zustand/vanilla'
 
-import { ActorId } from '@/components/pages/expedition/_stage-components/hex-stage/types'
+import { Actor } from '@/types/theater/actor'
 
 /**
  * actor のエネルギー関連情報
  *
- * - フィールドごとに `Record<ActorId, T>` を分けず、actor 単位でオブジェクトに\
+ * - フィールドごとに `Record<Actor['id'], T>` を分けず、actor 単位でオブジェクトに\
  *   まとめる（tc-03 の `ActorInfo` と同じ方針。拡張性のため）
  */
 export type EnergyInfo = {
@@ -20,13 +20,13 @@ export type EnergyInfo = {
  */
 export type EnergyState = {
   /** エネルギーを消費する（0 未満にはならない） */
-  consume: (actorId: ActorId, amount: number) => void
+  consume: (actorId: Actor['id'], amount: number) => void
   /** actor ごとのエネルギー情報 */
-  energyById: Record<ActorId, EnergyInfo>
+  energyById: Record<Actor['id'], EnergyInfo>
   /** actor のエネルギー情報を取得する（未設定時はデフォルト値を返す） */
-  getEnergyInfo: (actorId: ActorId) => EnergyInfo
+  getEnergyInfo: (actorId: Actor['id']) => EnergyInfo
   /** エネルギーを補給する（上限を超えない） */
-  charge: (actorId: ActorId, amount: number) => void
+  charge: (actorId: Actor['id'], amount: number) => void
   /** エネルギーを初期状態に戻す */
   reset: () => void
 }

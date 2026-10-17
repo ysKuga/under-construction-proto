@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla'
 
-import { ActorId } from '../../types'
+import { Actor } from '@/types/theater/actor'
 
 import { HexCell } from '../../_lib/hex'
 
@@ -8,10 +8,10 @@ import { ActorsState, ActorsStore } from './types'
 
 /** actorId → DOM の map へ el を登録する(`el=null` なら登録解除) */
 const registerElement = (
-  elements: Partial<Record<ActorId, HTMLDivElement>>,
-  actorId: ActorId,
+  elements: Partial<Record<Actor['id'], HTMLDivElement>>,
+  actorId: Actor['id'],
   el: HTMLDivElement | null,
-): Partial<Record<ActorId, HTMLDivElement>> => {
+): Partial<Record<Actor['id'], HTMLDivElement>> => {
   if (el !== null) return { ...elements, [actorId]: el }
 
   return Object.fromEntries(
@@ -25,7 +25,7 @@ const registerElement = (
  * @param initialActors 初期配置する actor 一覧(actorId → セル)
  */
 export const createActorsStore = (
-  initialActors: Record<ActorId, HexCell>,
+  initialActors: Record<Actor['id'], HexCell>,
 ): ActorsStore =>
   createStore<ActorsState>((set) => ({
     actors: initialActors,

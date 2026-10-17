@@ -1,4 +1,4 @@
-import { ActorId } from '../types'
+import { Actor } from '@/types/theater/actor'
 
 import { HexCell } from '../_lib/hex'
 
@@ -19,7 +19,7 @@ export type Stage07EventMap = {
    */
   'Stage07-cell-reach': {
     /** 対象 actor */
-    actorId: ActorId
+    actorId: Actor['id']
     /** 到達したセル */
     cell: HexCell
   }
@@ -47,7 +47,7 @@ export type Stage07EventMap = {
   /** actor がセル間の移動を開始した（自動移動では 1 マスごとに発行する） */
   'Stage07-move-start': {
     /** 対象 actor */
-    actorId: ActorId
+    actorId: Actor['id']
   }
   /**
    * actor の移動が止まった
@@ -59,6 +59,6 @@ export type Stage07EventMap = {
    */
   'Stage07-move-stop': {
     /** 対象 actor */
-    actorId: ActorId
+    actorId: Actor['id']
   }
 }

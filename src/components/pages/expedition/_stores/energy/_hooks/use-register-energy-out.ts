@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 
-import { ActorId } from '@/components/pages/expedition/_stage-components/hex-stage/types'
+import { Actor } from '@/types/theater/actor'
 
 import { useEnergyEventTarget } from '../_events'
 import { registerEnergyOut, unregisterEnergyOut } from '../_events/_registries'
 
 type UseRegisterEnergyOutOptions = {
   /** 対象 actor */
-  actorId: ActorId
+  actorId: Actor['id']
   /** box-bot-01 の energyOut action dispatcher(省略時は EN 切れ演出を再生しない) */
   energyOut?: () => Promise<void>
 }
