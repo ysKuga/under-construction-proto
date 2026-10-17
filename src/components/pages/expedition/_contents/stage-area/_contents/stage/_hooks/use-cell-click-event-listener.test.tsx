@@ -81,6 +81,7 @@ const renderListener = (
         stage07HandleRef.current = {
           followPath: () => {},
           moveTo,
+          setTilt: () => {},
           warp: () => {},
         }
       }, [stage07HandleRef])
