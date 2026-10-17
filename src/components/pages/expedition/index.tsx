@@ -12,7 +12,6 @@ import { FindPathProto03Props } from './index.types'
  * - ここでは Provider 群（`FindPathProto03Providers`、`index.providers.tsx`）と
  *   ページ内容（`FindPathProto03Contents`、`_contents/index.tsx`）を組み合わせるのみ
  *   （構造見直し、issue #137）。content 間で共有する state は `_stores/` の各 store に置く
- *   - `_contents/title`: 見出し
  *   - `_contents/stage-area`: ステージ（`_contents/stage`: `Stage07` + 各レイヤー、
  *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
  *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ）

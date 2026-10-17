@@ -31,9 +31,11 @@ export const useDebugPanel = (): UseDebugPanelReturn => {
   const handleGenerateClick = useCallback(() => {
     /** 入力された seed */
     const inputSeed = seedInputRef.current?.valueAsNumber
+    /** 入力値が整数の seed か */
+    const isValidSeed = inputSeed !== undefined && Number.isInteger(inputSeed)
 
     // 数値でない（未入力等）: 何もしない
-    if (inputSeed === undefined || !Number.isInteger(inputSeed)) {
+    if (!isValidSeed) {
       return
     }
 

@@ -4,7 +4,6 @@ import { ClearedPhase } from '../_game-phases/cleared'
 
 import { BotBubbles } from './bot-bubbles'
 import { StageArea } from './stage-area'
-import { Title } from './title'
 
 /**
  * proto-03 のページ内容。各 content を並べるのみ
@@ -15,7 +14,6 @@ import { Title } from './title'
  */
 export const FindPathProto03Contents = () => (
   <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
-    <Title />
     <StageArea />
     <BotBubbles />
     <ClearedPhase />

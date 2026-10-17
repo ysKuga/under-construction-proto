@@ -28,6 +28,8 @@ expedition のレイアウトを基本構成とデバッグ要素へ分け、本
   - `_contents/index.tsx` からは並べない
 - `ControlPanel` の状態表示（`WaypointSelectingIndicator`・中継点数・ゴール到達表示）は削除する
   - (decision-records.md 2026-10-17 状態表示)
+- `Title` は削除する
+  - (decision-records.md 2026-10-17 タイトル)
 - `ControlPanel` は削除する
   - 「状態表示の向きを同期」は移さず削除（`FacingSyncToggle` と重複）
 - story: `Debug` story を追加し、`render` で Providers の内側へ基本構成とデバッグ要素を並べる
