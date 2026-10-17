@@ -3,7 +3,7 @@
 import {
   INITIAL_TILT_DEG,
   SLIDER_LABEL_STYLE,
-} from '../../../../constants'
+} from '../../../../../../constants'
 
 import { useStageSliders } from './index.hooks'
 
