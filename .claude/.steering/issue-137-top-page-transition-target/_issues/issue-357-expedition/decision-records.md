@@ -74,3 +74,5 @@
 - 2026-10-17（状態表示の削除）: `ControlPanel` の状態表示（ゴール到達・中継点数・`WaypointSelectingIndicator`）と `Title` は基本構成に残さず削除した
   - (デバッグ要素 2026-10-17 の「基本構成に残す」を変更)
   - [_closed/pr-369-expedition-split-debug-panel/decision-records.md](_closed/pr-369-expedition-split-debug-panel/decision-records.md)
+- 2026-10-17（レイアウト分割）: レイアウトを基本構成とデバッグ要素へ分けた（PR #369）
+  - [_closed/pr-369-expedition-split-debug-panel/design.md](_closed/pr-369-expedition-split-debug-panel/design.md)
