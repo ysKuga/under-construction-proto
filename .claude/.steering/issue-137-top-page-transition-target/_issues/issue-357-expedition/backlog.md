@@ -13,7 +13,7 @@
     - 要確認: 位置合わせ（CSS anchor positioning の対応状況）
     - 代替: `@radix-ui/react-popover` の新規導入
   - (decision-records.md 2026-10-17 調整スライダーの表示)
-  - [_pr/pr-375-expedition-slider-popover/design.md](_pr/pr-375-expedition-slider-popover/design.md)
+  - [_pr/pr-375-expedition-slider-popover/design.md](_closed/pr-375-expedition-slider-popover/design.md)
 - [ ] ステージ・bot の状態表示・手数の履歴・セル情報パネルのレイアウトを検討する
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
