@@ -22,7 +22,7 @@ import {
 } from '@/components/theater/figure/box-bot'
 
 import { usePerspectiveControl } from './_hooks/use-perspective-control'
-import { PLAYER_ACTOR_ID } from './constants'
+import { MOTION_DEFAULTS, PLAYER_ACTOR_ID } from './constants'
 
 import { ActorOverlayLayer } from './_components/actor-overlay-layer'
 import { ActorsLayer } from './_components/actors-layer'
@@ -36,7 +36,6 @@ import {
   pickInitialFacingTarget,
 } from './_lib/hex'
 import { useActorsStore } from './_stores/actors'
-import { SLIDER_LABEL_STYLE } from './constants'
 
 /** `Stage07` が呼び出し元へ公開する imperative API */
 export type Stage07Handle = {
@@ -56,6 +55,13 @@ export type Stage07Handle = {
    * - 呼出し側(`Stage07-cell-click` の購読側等)がクリックを分類して移動を命令するために使う
    */
   moveTo: (cell: HexCell) => boolean
+  /**
+   * 床の傾き(rotateX, deg)を設定する
+   *
+   * - 再レンダリングを起こさず style を直接書き換える（`usePerspectiveControl`）
+   * - 0〜85 にクランプする
+   */
+  setTilt: (deg: number) => void
   /**
    * player を移動アニメーションなしで `cell` へ移す
    *
@@ -79,9 +85,11 @@ type Stage07Props = PropsWithChildren<{
   /**
    * 床の直下へ置く要素（省略可）
    *
-   * - 調整スライダー群より上、床と同じ幅で置く（find-path proto-03 のセル情報パネル等）
+   * - 床と同じ幅で置く（find-path proto-03 のセル情報パネル等）
    */
   belowFloor?: ReactNode
+  /** 歩行中の体の上下(body-bobbing)の最大持ち上げ量(world)（省略時は `MOTION_DEFAULTS.bodyBobHeight`） */
+  bodyBobHeight?: number
   /** actor (box-bot-01) の一辺 px。マスサイズとは独立 */
   botSize: number
   /**
@@ -101,33 +109,13 @@ type Stage07Props = PropsWithChildren<{
    *   方式（find-path proto-01 の `useFindPathTick` 等）の方が相性がよい
    */
   enableWalking?: boolean
-  /**
-   * 組込みの調整スライダー群（体の上下量）の後に追加するスライダー（省略可）
-   *
-   * - 呼び出し元固有の値（find-path proto-03 の EN 等）を同じ並びで調整するため。\
-   *   列幅は `SLIDER_LABEL_STYLE`（`./constants`）で揃える
-   */
-  extraSliders?: ReactNode
   /** 六角形の外接円半径 (px) */
   hexSize: number
   /**
-   * 歩行中の体の上下(body-bobbing)の初期最大持ち上げ量(world)（省略時は `0.1`）
+   * rotateX の初期角度 (deg)（省略時は 0）
    *
-   * - `BODY_BOBBING_DEFAULTS.height`(0.025)は Canvas 一辺 234px 基準。stage 上の小さい bot
-   *   (56px 程度)では 1px 未満になり視認できないため、既定を大きめにする
+   * - 以降の変更は `Stage07Handle.setTilt` で行う
    */
-  initialBodyBobHeight?: number
-  /** walking の脚振り角の初期振幅(rad)（省略時は `WALKING_DEFAULTS.swingAngle` = `0.5`） */
-  initialLegSwingAngle?: number
-  /**
-   * walking の脚振り周期(`cycleSec`)の初期上限(秒)（省略時は `1.2`）
-   *
-   * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
-   */
-  initialMaxWalkCycleSec?: number
-  /** セル間移動アニメーションの初期所要時間(ms)（省略時は `300`） */
-  initialMoveDurationMs?: number
-  /** rotateX の初期角度 (deg)（省略時は 0） */
   initialTiltDeg?: number
   /**
    * セルクリックで actor を移動させるか（省略時は `true`）
@@ -136,6 +124,16 @@ type Stage07Props = PropsWithChildren<{
    *   （find-path の予定経路レイヤー等）へ委ねるとき使う
    */
   interactive?: boolean
+  /** walking の脚振り角の振幅(rad)（省略時は `MOTION_DEFAULTS.legSwingAngle`） */
+  legSwingAngle?: number
+  /**
+   * walking の脚振り周期(`cycleSec`)の上限(秒)（省略時は `MOTION_DEFAULTS.maxWalkCycleSec`）
+   *
+   * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
+   */
+  maxWalkCycleSec?: number
+  /** セル間移動アニメーションの所要時間(ms)（省略時は `MOTION_DEFAULTS.moveDurationMs`） */
+  moveDurationMs?: number
   /** 現在地セル変更時（省略可） */
   onCellChange?: (cell: HexCell) => void
   /**
@@ -218,10 +216,9 @@ type Stage07Props = PropsWithChildren<{
  *   セル座標基準の overlay）と異なり、bot の画面上の位置へ JS で追従し、
  *   floor の奥行きヒットテストでセルにクリックを奪われない点が違う（issue #137）
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
- *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)・体の上下量(`bodyBobHeight`)はいずれもスライダーで
- *   調整可能（`ActorsLayer` へ渡す。tilt と異なり操作頻度が低いため `useState`
- *   で管理、再レンダリングを許容する）。腕振り角は 180 度(`ActorsLayer` 内で
- *   固定値)で調整不要とのユーザー判断のため UI なし
+ *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)・体の上下量(`bodyBobHeight`)は
+ *   props で受け取り `ActorsLayer` へ渡す。調整 UI は呼び出し元が持つ（expedition の `stage-area/_contents/stage-sliders`）。
+ *   腕振り角は 180 度(`ActorsLayer` 内で固定値)で調整不要とのユーザー判断のため props なし
  */
 /**
  * ワープ時の向き(yaw, rad)を返す
@@ -246,19 +243,18 @@ export const Stage07 = (props: Stage07Props) => {
   const {
     actorEventTarget,
     belowFloor,
+    bodyBobHeight = MOTION_DEFAULTS.bodyBobHeight,
     botSize,
     canEnterCell,
     children,
     cols,
     enableWalking = false,
-    extraSliders,
     hexSize,
-    initialBodyBobHeight = 0.1,
-    initialLegSwingAngle = 0.5,
-    initialMaxWalkCycleSec = 1.2,
-    initialMoveDurationMs = 300,
     initialTiltDeg = 0,
     interactive = true,
+    legSwingAngle = MOTION_DEFAULTS.legSwingAngle,
+    maxWalkCycleSec = MOTION_DEFAULTS.maxWalkCycleSec,
+    moveDurationMs = MOTION_DEFAULTS.moveDurationMs,
     onCellChange,
     onFollowPathEnd,
     perspectivePx = 800,
@@ -266,14 +262,6 @@ export const Stage07 = (props: Stage07Props) => {
     registerCellVisibilityNode,
     rows,
   } = props
-
-  /** セル間移動アニメーションの所要時間(ms)。スライダーで調整可能 */
-  const [moveDurationMs, setMoveDurationMs] = useState(initialMoveDurationMs)
-  /** walking の脚振り周期(cycleSec)の上限(秒)。スライダーで調整可能 */
-  const [maxWalkCycleSec, setMaxWalkCycleSec] = useState(initialMaxWalkCycleSec)
-  /** walking の脚振り角の振幅(rad)。スライダーで調整可能 */
-  const [legSwingAngle, setLegSwingAngle] = useState(initialLegSwingAngle)
-  const [bodyBobHeight, setBodyBobHeight] = useState(initialBodyBobHeight)
 
   /**
    * player bot(box-bot-01)と共有する EventTarget
@@ -372,11 +360,11 @@ export const Stage07 = (props: Stage07Props) => {
     [cols, moveActorTo, rows],
   )
 
-  useImperativeHandle(ref, () => ({ followPath, moveTo: tryMove, warp }), [
-    followPath,
-    tryMove,
-    warp,
-  ])
+  useImperativeHandle(
+    ref,
+    () => ({ followPath, moveTo: tryMove, setTilt, warp }),
+    [followPath, setTilt, tryMove, warp],
+  )
 
   /**
    * セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする
@@ -451,76 +439,6 @@ export const Stage07 = (props: Stage07Props) => {
         {belowFloor}
       </div>
       <ActorOverlayLayer />
-      <label style={SLIDER_LABEL_STYLE}>
-        tilt{' '}
-        <input
-          defaultValue={initialTiltDeg}
-          max={85}
-          min={0}
-          onChange={(event) => {
-            setTilt(Number(event.target.value))
-          }}
-          step={1}
-          type="range"
-        />
-      </label>
-      <label style={SLIDER_LABEL_STYLE}>
-        移動時間(ms){' '}
-        <input
-          defaultValue={initialMoveDurationMs}
-          max={3000}
-          min={50}
-          onChange={(event) => {
-            setMoveDurationMs(Number(event.target.value))
-          }}
-          step={10}
-          type="range"
-        />{' '}
-        {moveDurationMs}ms
-      </label>
-      <label style={SLIDER_LABEL_STYLE}>
-        歩行周期上限(s){' '}
-        <input
-          defaultValue={initialMaxWalkCycleSec}
-          max={3}
-          min={0.3}
-          onChange={(event) => {
-            setMaxWalkCycleSec(Number(event.target.value))
-          }}
-          step={0.05}
-          type="range"
-        />{' '}
-        {maxWalkCycleSec.toFixed(2)}s
-      </label>
-      <label style={SLIDER_LABEL_STYLE}>
-        脚振り角(rad){' '}
-        <input
-          defaultValue={initialLegSwingAngle}
-          max={1.2}
-          min={0}
-          onChange={(event) => {
-            setLegSwingAngle(Number(event.target.value))
-          }}
-          step={0.05}
-          type="range"
-        />{' '}
-        {legSwingAngle.toFixed(2)}
-      </label>
-      <label style={SLIDER_LABEL_STYLE}>
-        体の上下量{' '}
-        <input
-          defaultValue={initialBodyBobHeight}
-          max={0.3}
-          min={0}
-          onChange={(event) => {
-            setBodyBobHeight(Number(event.target.value))
-          }}
-          step={0.01}
-          type="range"
-        />{' '}
-        {bodyBobHeight.toFixed(2)}
-      </label>
-      {extraSliders}
     </div>
   )
 }

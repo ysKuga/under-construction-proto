@@ -4,21 +4,9 @@
   - 現状: `expedition/_prototypes` の proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
-- [ ] hex-stage 組込みの調整スライダー群をデバッグ要素へ移す
-  - 対象: tilt・移動時間・歩行周期上限・脚振り角・体の上下量
-  - 手段（tilt 以外）
-    - 値を hex-stage の props にする（`initial*` と内部 `useState` を削除）
-    - デバッグ要素がページ用 store（`display-settings`）へ書き込む
-    - `stage` content が購読し hex-stage へ渡す
-  - 手段（tilt）
-    - `Stage07Handle` へ `setTilt` を追加する
-    - デバッグ要素が `useStage07HandleRef` 経由で呼ぶ
-  - `extraSliders` prop は不要になるため削除する
-  - `SLIDER_LABEL_STYLE` をデバッグ要素側へ移す
-  - hex-stage の story は args controls（range）で調整する
-  - 別 PR で行う
-  - (decision-records.md 2026-10-17 デバッグ要素)
-  - (decision-records.md 2026-10-17 進め方)
+- [ ] 調整スライダーの表示・非表示と表示の仕方を検討する
+  - 案: 設定アイコンのクリックでアコーディオン表示
+- [ ] ステージ・bot の状態表示・手数の履歴・セル情報パネルのレイアウトを検討する
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)

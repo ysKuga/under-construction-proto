@@ -32,6 +32,18 @@ export const useStage = (): UseStageReturn => {
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
   const displayMode = useDisplaySettingsStore((state) => state.displayMode)
   const enableWalking = useDisplaySettingsStore((state) => state.enableWalking)
+  /** セル間移動アニメーションの所要時間(ms) */
+  const moveDurationMs = useDisplaySettingsStore(
+    (state) => state.moveDurationMs,
+  )
+  /** walking の脚振り周期の上限(秒) */
+  const maxWalkCycleSec = useDisplaySettingsStore(
+    (state) => state.maxWalkCycleSec,
+  )
+  /** walking の脚振り角の振幅(rad) */
+  const legSwingAngle = useDisplaySettingsStore((state) => state.legSwingAngle)
+  /** 歩行中の体の上下の最大持ち上げ量(world) */
+  const bodyBobHeight = useDisplaySettingsStore((state) => state.bodyBobHeight)
   /** 中継点選択モード中か */
   const waypointSelecting = useWaypointFlowStore(
     (state) => state.flowState === 'selecting',
@@ -84,6 +96,7 @@ export const useStage = (): UseStageReturn => {
 
   return {
     actorEventTarget,
+    bodyBobHeight,
     canEnterCell,
     canEnterCellPerceived,
     currentCell,
@@ -94,6 +107,9 @@ export const useStage = (): UseStageReturn => {
     handleWaypointCellClick,
     interactive:
       operateStageAllowed && !waypointSelecting && !isAutoMoving && !isCharging,
+    legSwingAngle,
+    maxWalkCycleSec,
+    moveDurationMs,
     objectiveMarkerCell: isAutoMoving ? followingPath.at(-1) : objectiveCell,
     previewPath,
     registerFloorVisibilityNode,

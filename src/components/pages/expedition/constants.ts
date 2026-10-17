@@ -1,3 +1,5 @@
+import { CSSProperties } from 'react'
+
 /** グリッド形状 */
 export const GRID = { cols: 5, rows: 5 } as const
 
@@ -6,6 +8,22 @@ export const HEX_SIZE = 40
 
 /** bot(box-bot-01)の一辺 px */
 export const BOT_SIZE = 56
+
+/** 床の傾き(rotateX, deg)の初期値 */
+export const INITIAL_TILT_DEG = 55
+
+/**
+ * 値調整スライダーの label スタイル
+ *
+ * - 1 要素 1 行にし、見出し | バー | 値 の列を全 label で同じ幅に揃える
+ * - ステージの調整スライダー・EN のスライダーで共用する
+ */
+export const SLIDER_LABEL_STYLE: CSSProperties = {
+  alignItems: 'center',
+  columnGap: 8,
+  display: 'grid',
+  gridTemplateColumns: '10em 160px auto',
+}
 
 /**
  * 目標セルのオーバーレイアンカーを actors store へ登録する際の擬似 id
