@@ -91,3 +91,7 @@
     - 位置: 独立 bot 右上
     - 形式: `FacingSyncToggle` と同じ丸ボタン（lucide `Settings`）
   - ポップオーバーの実装手段は着手時に決める
+- 2026-10-17（設定のポップオーバー）: 調整スライダーを設定アイコンのポップオーバーへまとめた（PR #375）
+  - 調整スライダーの表示（2026-10-17）の「アイコン位置: 独立 bot 右上」を床の左下へ変更
+    - 理由: 調整スライダーは bot と関係しない
+  - [_closed/pr-375-expedition-slider-popover/design.md](_closed/pr-375-expedition-slider-popover/design.md)

@@ -18,6 +18,7 @@ import {
 } from '../../../../constants'
 
 import { CellInfoPanel } from './_components/cell-info-panel'
+import { StageSettings } from './_contents/stage-settings'
 import { useStage } from './index.hooks'
 
 /**
@@ -31,6 +32,7 @@ import { useStage } from './index.hooks'
  *   拾って中継点を設置/除去する（通常モードのクリックとは完全に別イベント）
  * - 各レイヤーの DOM は visibility registry へ登録し、未到達マスを非表示にする
  * - 床の直下（`belowFloor`）へ、床と同じ幅でセル情報パネルを置く
+ * - セル情報パネルの左上の外側（床の左下）へ設定アイコン（調整スライダーのポップオーバー）を重ねる
  */
 export const Stage = () => {
   const {
@@ -63,7 +65,15 @@ export const Stage = () => {
     <div className="w-min">
       <Stage07
         actorEventTarget={actorEventTarget}
-        belowFloor={<CellInfoPanel />}
+        belowFloor={
+          // 設定アイコンを床の左下（マスの情報パネルの左上の外側）へ重ねる
+          <div className="relative">
+            <div className="absolute bottom-full left-0 z-10">
+              <StageSettings />
+            </div>
+            <CellInfoPanel />
+          </div>
+        }
         bodyBobHeight={bodyBobHeight}
         botSize={BOT_SIZE}
         canEnterCell={canEnterCell}
