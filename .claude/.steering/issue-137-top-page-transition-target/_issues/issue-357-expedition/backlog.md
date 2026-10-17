@@ -37,7 +37,8 @@
     - (decision-records.md 2026-10-17 デバッグ要素)
   - (decision-records.md 2026-10-17 未決事項)
   - (decision-records.md 2026-10-17 進め方)
-- [ ] hex-stage 組込みの調整スライダー群をデバッグ要素へ移す
+- [ ] hex-stage 組込みの調整スライダー群をステージ・bot の状態表示の下へ移す
+  - [_pr/pr-371-expedition-stage-sliders/design.md](_pr/pr-371-expedition-stage-sliders/design.md)
   - 対象: tilt・移動時間・歩行周期上限・脚振り角・体の上下量
   - 手段（tilt 以外）
     - 値を hex-stage の props にする（`initial*` と内部 `useState` を削除）
