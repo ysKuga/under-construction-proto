@@ -8,7 +8,10 @@
   - 本実装に残す: tilt・移動時間
   - デバッグパネルへ移す: 歩行周期上限・脚振り角・体の上下量
   - アイコン: 独立 bot 右上（`FacingSyncToggle` の隣）
-  - ポップオーバーの実装手段は着手時に決める（第一候補: HTML の Popover API）
+  - ポップオーバーの実装手段を決める
+    - 第一候補: HTML の Popover API（開閉 state・外側クリック処理が不要）
+    - 要確認: 位置合わせ（CSS anchor positioning の対応状況）
+    - 代替: `@radix-ui/react-popover` の新規導入
   - (decision-records.md 2026-10-17 調整スライダーの表示)
 - [ ] ステージ・bot の状態表示・手数の履歴・セル情報パネルのレイアウトを検討する
 - [ ] `expedition` に合わせて改名する
