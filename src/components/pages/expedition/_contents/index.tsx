@@ -12,14 +12,17 @@ import { Title } from './title'
  *
  * - `_contents/` の各要素はここの直下で使う実装。props・定数・状態は各要素側に持つ
  * - Provider 群（`FindPathProto03Providers`）の内側で使う
+ * - ステージと状態表示を横に並べる
  * - デバッグ要素（`./debug-panel`）は並べない。story で本要素の下へ並べる
  */
 export const FindPathProto03Contents = () => (
   <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
     <Title />
-    <StageArea />
+    <div className="flex items-center gap-8">
+      <StageArea />
+      <StatusPanel />
+    </div>
     <BotBubbles />
     <ClearedPhase />
-    <StatusPanel />
   </div>
 )
