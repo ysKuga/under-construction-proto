@@ -3,41 +3,45 @@
 ## ページ内の構成
 
 ページ（試作含む）の実装が大きくなった場合、以下の構成で分ける。
-例: `expedition/_prototypes/proto-03`（issue #137 の構造見直し）。
+例: `expedition/_prototypes/proto-03`（issue #137 の構造見直し）。\
+`_contents`/`_components` の配置は旧基準のまま（下記「移行状況」）。
 
 ```
 page-name/
   index.tsx            # Provider 群とページ内容を組み合わせるのみ
   index.providers.tsx  # Provider 群の組み合わせ
   index.types.ts       # index.tsx・index.providers.tsx の双方が参照する props 型
-  _contents/           # ページ内容
+  _contents/           # 組み合わせ（ページ内容の区画）
     index.tsx          # 各 content を並べるのみ
-    title/
-    stage-area/
-      _contents/       # stage-area からのみ使う content
-        stage/
+    stage-area/        # ステージ・状態表示等を並べるのみ
   _layers/             # ステージの children として重ねるレイヤー
   _stage-components/   # ステージ本体（`hex-stage` 等）
-  _components/         # 部品
+  _components/         # 実装（状態表示・吹き出し等）
   _contexts/           # 個別 Context の実装
   _stores/
 ```
 
 ### `_components`/`_layers`/`_contents` の役割
 
-- `_components/`: 部品（吹き出し・インジケータ等）。ページの状態を知らず、props で駆動する
+置き場は役割（実装するか、組み合わせるか）で分ける（[components/CLAUDE.md](../CLAUDE.md)「実装と組み合わせ」）。
+store・context の購読有無では分けない。
+
+- `_components/`: 実装の置き場（stage・状態表示・吹き出し等）
+  - ロジック・store 購読を持ってよい。props のみで動く部品も同じ置き場
+  - 他の component・layer を内側へ入れる場合、children・slot で受ける
+  - 複数 component から参照される state は `_stores/` の store へ置き、selector で購読する（[game-state](../../../.claude/rules/react/game-state.md)）
 - `_stage-components/`: ステージ本体（`hex-stage` 等）。ゲーム上の役割を持つため `_components/` と分ける
-  - ページの状態を知らず、props・handle で駆動する点は `_components/` と同じ
+  - ページの状態を知らず、props・handle で駆動する
   - 例: `expedition/_stage-components/hex-stage`（stage-07 のコピー）
 - `_layers/`: ステージ（`Stage07` 等）の children として重ねるレイヤー
-- `_contents/`: ページ内容を区画ごとに格納する。その階層の直下で使う実装の置き場
-  - `_contents/index.tsx` は各 content を並べるのみとし、props・定数・状態を持たない
-  - 各 content の props・定数は content 側に持つ
-  - 複数 content から参照される state は `_stores/` の store へ置き、selector で購読する（[game-state](../../../.claude/rules/react/game-state.md)）
+- `_contents/`: 組み合わせの置き場。ページ内容の区画ごとに、以下を直接並べるもののみ置く
+  - 並べる対象: `_components/`・`_layers/`・子の `_contents/`・`_game-phases/`
+  - ロジック・状態・hook・props を持たない。定数も定義しない（import した定数での列挙は可）
+  - 実装（他の箇所で部品として使われるもの）は置かない。`_components/` へ
 
 ### レイアウト
 
-`_contents/index.tsx`・子 content を並べる content がレイアウトを用意し、子をはめ込む（[components/CLAUDE.md](../CLAUDE.md) の「レイアウト」）。
+`_contents/` がレイアウトを用意し、子をはめ込む（[components/CLAUDE.md](../CLAUDE.md) の「レイアウト」）。
 
 ### store の線引き
 
@@ -51,6 +55,7 @@ page-name/
 
 `_contents` → `_layers` → `_stage-components`・`_components`（逆方向の参照は禁止）。
 
+- `_components` から `_layers` を参照しない。ステージへ重ねるレイヤーは `_contents` が children で渡す
 - `_stage-components` は `_components` と同じ最下層。`_layers` はステージの children として重なるため、ステージ本体の型・event・store を参照する
 
 - `_stores`/`_lib`/`_hooks`/`_events`/`_contexts` はいずれの層からも参照可
@@ -65,10 +70,14 @@ page-name/
 
 ### ネスト
 
-特定の要素からのみ使う content・layer は、その要素配下の `_contents/`・`_layers/` へネストする。
-判断基準は `_components` と同じ（[component-nesting](../../../.claude/rules/react/component-nesting.md)）。
+特定の要素からのみ使う content・component・layer は、その要素配下の `_contents/`・`_components/`・`_layers/` へネストする。\
+判断基準は [component-nesting](../../../.claude/rules/react/component-nesting.md)。
 
-- 例: `stage` は `stage-area` からのみ使うため `stage-area/_contents/stage`
+- 例: `stage-area` からのみ並べる `stage` は `stage-area/_components/stage`
+
+### 移行状況
+
+expedition は旧基準（store 購読 → `_contents/`）で配置済み。新規・改修時に本基準へ寄せる（issue #357 backlog）。
 
 ### Provider
 

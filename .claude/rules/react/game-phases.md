@@ -19,8 +19,8 @@ _game-phases/
 
 ## 置き場の判断
 
-- `_contents/`: ページ直下に並べる表示要素
-- `_components/`: 特定の親配下でのみ使う子（[component-nesting.md](component-nesting.md)）
+- `_contents/`: 組み合わせ（並べるのみ）
+- `_components/`: 実装（[component-nesting.md](component-nesting.md)）
 - `_hooks/`: 複数箇所で共有する hook
 - `_game-phases/`: フェーズ起点の処理（表示・副作用・判定とも）
 
