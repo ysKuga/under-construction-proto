@@ -19,3 +19,26 @@
       - 配置: 基本構成の下へ縦並び
     - 理由: proto-03 はデバッグ用の要素がレイアウトへ混在している
     - デバッグ要素とする対象は別途検討する
+- 2026-10-17（デバッグ要素）: デバッグ要素とする対象を決めた
+  - デバッグ要素
+    - `ControlPanel` の表示設定（初期表示・到達済みマス表示・歩行モーション・移動可能マス表示）
+    - `ControlPanel` のリセット（EN 切れ時の救済は `reset-to-checkpoint` が別途担うため）
+    - `ControlPanel` の seed・生成・再生成
+    - `EnergySliders`（EN 残量・EN 消費量）
+    - hex-stage 組込みの調整スライダー群（tilt・移動時間・歩行周期上限・脚振り角・体の上下量）
+  - 基本構成に残す
+    - `WaypointSelectingIndicator`（中継点選択の完了操作に必須）
+    - 中継点数・ゴール到達表示（状態表示）
+    - `StageArea` 一式（hex-stage 組込みのスライダー群を除く）・`Title`・`BotBubbles`
+  - 削除: 「状態表示の向きを同期」checkbox
+    - 理由: 基本構成の `FacingSyncToggle` と重複（同じ設定を切り替える）
+  - hex-stage のスライダー群の外出し
+    - 現状: hex-stage 内部の state
+    - 独立コンポーネント化には外出しが必要
+    - 手段
+      - 値を hex-stage の props にする
+      - デバッグ要素がページ用 store（`display-settings`）へ書き込む
+      - `stage` content が購読し hex-stage へ渡す
+    - `extraSliders` prop は削除する
+    - 別 PR で行う
+      - 理由: store の責務が広がる

@@ -27,10 +27,29 @@
   - デバッグ要素
     - 構成: 独立したコンポーネント
     - 配置: 基本構成の下へ縦並び
-  - [ ] デバッグ要素とする対象を検討する
-    - 候補: `ControlPanel`（表示設定・seed・リセット等）、`Stage07` の `extraSliders`（`EnergySliders`）
-    - `ControlPanel` にはゴール到達表示・中継点数等、状態表示寄りの要素も混在する
+  - [x] デバッグ要素とする対象を検討する
+    - デバッグ要素
+      - `ControlPanel` の表示設定（初期表示・到達済みマス表示・歩行モーション・移動可能マス表示）
+      - `ControlPanel` のリセット
+      - `ControlPanel` の seed・生成・再生成
+      - `EnergySliders`（EN 残量・EN 消費量）
+      - hex-stage 組込みの調整スライダー群（下記の別項目で移す）
+    - 基本構成
+      - `ControlPanel` の `WaypointSelectingIndicator`・中継点数・ゴール到達表示
+      - `StageArea` 一式（hex-stage 組込みのスライダー群を除く）
+      - `Title`・`BotBubbles`
+    - 削除: `ControlPanel` の「状態表示の向きを同期」（`FacingSyncToggle` と重複）
+    - (decision-records.md 2026-10-17 デバッグ要素)
   - (decision-records.md 2026-10-17 未決事項)
+- [ ] hex-stage 組込みの調整スライダー群をデバッグ要素へ移す
+  - 対象: tilt・移動時間・歩行周期上限・脚振り角・体の上下量
+  - 手段
+    - 値を hex-stage の props にする
+    - デバッグ要素がページ用 store（`display-settings`）へ書き込む
+    - `stage` content が購読し hex-stage へ渡す
+  - `extraSliders` prop は不要になるため削除する
+  - 別 PR で行う
+  - (decision-records.md 2026-10-17 デバッグ要素)
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)
