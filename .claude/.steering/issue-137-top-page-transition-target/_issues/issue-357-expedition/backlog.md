@@ -22,6 +22,7 @@
   - (decision-records.md 2026-10-18 content と component)
   - PR 単位
     - 2. `stage-area` から `stage-group`（1 段目）・`bot-status-panel` を切り出す
+      - [_pr/pr-381-expedition-stage-group/design.md](_pr/pr-381-expedition-stage-group/design.md)
     - 3. `stage-area` を `stage-section` へ改名する
   - 旧計画の残りは要否を新基準で見直す
     - `stage`・`stage-settings` の中身を children・slot で受ける（レイヤー群の独立）
