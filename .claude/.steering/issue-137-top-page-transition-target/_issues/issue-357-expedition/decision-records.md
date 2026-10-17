@@ -106,3 +106,5 @@
   - `src/components/CLAUDE.md`・`pages/CLAUDE.md`（PR #378）の基準を変更
 - 2026-10-18（置き場の基準の反映）: ルール修正（PR #380）と content 内部の部品の移動（PR #379）を完了した
   - [_closed/pr-379-expedition-move-components/design.md](_closed/pr-379-expedition-move-components/design.md)
+- 2026-10-18（stage-group の切り出し）: `stage-area` から `stage-group`・`bot-status-panel` を切り出した（PR #381）
+  - [_closed/pr-381-expedition-stage-group/design.md](_closed/pr-381-expedition-stage-group/design.md)
