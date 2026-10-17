@@ -26,6 +26,7 @@
   - 構成は変えず import の書換のみ行う
   - 独立 PR で行う（コピーと構造変更を混ぜない）
   - (decision-records.md 2026-10-17 進め方)
+  - [_pr/pr-365-expedition-copy-proto-03/design.md](_pr/pr-365-expedition-copy-proto-03/design.md)
 - [ ] レイアウトを基本構成とデバッグ要素へ分ける
   - 基本構成: マップ・状態表示系
   - デバッグ要素
