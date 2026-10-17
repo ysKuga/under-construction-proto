@@ -15,20 +15,6 @@ export const useStageSliders = (): UseStageSlidersReturn => {
   const setMoveDurationMs = useDisplaySettingsStore(
     (state) => state.setMoveDurationMs,
   )
-  const maxWalkCycleSec = useDisplaySettingsStore(
-    (state) => state.maxWalkCycleSec,
-  )
-  const setMaxWalkCycleSec = useDisplaySettingsStore(
-    (state) => state.setMaxWalkCycleSec,
-  )
-  const legSwingAngle = useDisplaySettingsStore((state) => state.legSwingAngle)
-  const setLegSwingAngle = useDisplaySettingsStore(
-    (state) => state.setLegSwingAngle,
-  )
-  const bodyBobHeight = useDisplaySettingsStore((state) => state.bodyBobHeight)
-  const setBodyBobHeight = useDisplaySettingsStore(
-    (state) => state.setBodyBobHeight,
-  )
 
   /** 床の傾きを反映する（ref 直書きのため再レンダリングなし） */
   const handleTiltChange = useCallback(
@@ -38,15 +24,5 @@ export const useStageSliders = (): UseStageSlidersReturn => {
     [stage07HandleRef],
   )
 
-  return {
-    bodyBobHeight,
-    handleTiltChange,
-    legSwingAngle,
-    maxWalkCycleSec,
-    moveDurationMs,
-    setBodyBobHeight,
-    setLegSwingAngle,
-    setMaxWalkCycleSec,
-    setMoveDurationMs,
-  }
+  return { handleTiltChange, moveDurationMs, setMoveDurationMs }
 }
