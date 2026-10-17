@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { layoutDecorator } from '@/components/pages/layout.decorator'
 
 import { FindPathProto03Contents } from './_contents'
-import { DebugPanel } from './_contents/debug-panel'
+import { DebugPanel } from './_components/debug-panel'
 import { FindPathProto03Providers } from './index.providers'
 
 import FindPathProto03 from '.'

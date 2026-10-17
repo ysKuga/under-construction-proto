@@ -217,7 +217,7 @@ type Stage07Props = PropsWithChildren<{
  *   floor の奥行きヒットテストでセルにクリックを奪われない点が違う（issue #137）
  * - セル間移動アニメーションの所要時間(`moveDurationMs`)・walking 周期上限
  *   (`maxWalkCycleSec`)・脚振り角の振幅(`legSwingAngle`)・体の上下量(`bodyBobHeight`)は
- *   props で受け取り `ActorsLayer` へ渡す。調整 UI は呼び出し元が持つ（expedition の `stage/_contents/stage-settings`・`_contents/debug-panel`）。
+ *   props で受け取り `ActorsLayer` へ渡す。調整 UI は呼び出し元が持つ（expedition の `stage/_components/stage-settings`・`_components/debug-panel`）。
  *   腕振り角は 180 度(`ActorsLayer` 内で固定値)で調整不要とのユーザー判断のため props なし
  */
 /**

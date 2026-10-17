@@ -95,3 +95,12 @@
   - 調整スライダーの表示（2026-10-17）の「アイコン位置: 独立 bot 右上」を床の左下へ変更
     - 理由: 調整スライダーは bot と関係しない
   - [_closed/pr-375-expedition-slider-popover/design.md](_closed/pr-375-expedition-slider-popover/design.md)
+- 2026-10-18（content と component）: 置き場の基準を決めた
+  - content（`_contents`）: 1 つのレイアウトで子を並べる組み合わせ。レイアウトの設定を含む
+    - content が並べる子は、実装でもその content の `_contents/` へ置く
+  - component（`_components`）: 実装（データで構造が決まる・ロジックを持つ）、または入れ子のレイアウトを持つ部品の組み合わせ
+    - component が中で使う部品は、その component の `_components/` へ置く
+  - 元の `stage-area` の問題: スコープの違うレイアウト（1 段目の横並び・bot の状態表示）が混在していた
+  - 命名: ページ直下の content は `-section`、その中の組み合わせは `-group`
+    - `-section` は入れ子にしない
+  - `src/components/CLAUDE.md`・`pages/CLAUDE.md`（PR #378）の基準を変更

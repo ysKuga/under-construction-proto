@@ -4,7 +4,7 @@ import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components
 
 import { OBJECTIVE_OVERLAY_ID } from '../../constants'
 
-import { OverlayBubbleSlots } from './_contents/overlay-bubble-slots'
+import { OverlayBubbleSlots } from './_components/overlay-bubble-slots'
 import { useBotBubbles } from './index.hooks'
 
 /**

@@ -18,14 +18,13 @@
   - 別 PR で行う
 - [ ] route を配線する
   - 現状: `src/app` に未設置
-- [ ] 実装と組み合わせを分ける（src/components/CLAUDE.md「実装と組み合わせ」）
-  - 実装を `_contents/` から `_components/` へ移す
-    - `stage`・`standalone-bot`・`facing-*`・`move-history-panel`・`carried-item-button`
-    - `stage-settings`・各 sliders・`debug-panel`・`bot-bubbles/_contents/*`（`overlay-bubble-slots` 含む）
-    - `cell-info-panel`（現状 `stage/_components/`。stage-area から並べる独立 component として移す）
-    - `shortcuts` は組み合わせ（定数の列挙）として `_contents/` に残す
-    - 名前が衝突する吹き出し（`execute-bubble` 等）は store 接続版を改名
-  - `stage`・`stage-settings` の中身を children・slot で受ける
-    - レイヤー群は props の配線なしで動くよう独立させる
-  - `bot-bubbles` のロジック（`useBotBubbles`）を実装側へ移す
-  - PR 単位: 移動のみ → slot 化 → ロジック移動
+- [ ] content と component の置き場を分ける
+  - (decision-records.md 2026-10-18 content と component)
+  - PR 単位（ルール修正と 1 は並行可）
+    - ルール修正: `src/components/CLAUDE.md`・`pages/CLAUDE.md`・`component-nesting.md`
+    - 1. content 内部の部品を `_components/` へ移す: [_pr/pr-379-expedition-move-components/design.md](_pr/pr-379-expedition-move-components/design.md)
+    - 2. `stage-area` から `stage-group`（1 段目）・`bot-status-panel` を切り出す
+    - 3. `stage-area` を `stage-section` へ改名する
+  - 旧計画の残りは要否を新基準で見直す
+    - `stage`・`stage-settings` の中身を children・slot で受ける（レイヤー群の独立）
+    - `bot-bubbles` のロジック（`useBotBubbles`）を実装側へ移す

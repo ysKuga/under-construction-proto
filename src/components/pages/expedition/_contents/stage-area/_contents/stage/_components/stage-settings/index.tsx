@@ -2,7 +2,7 @@
 
 import { Pin, PinOff, Settings } from 'lucide-react'
 
-import { StageSliders } from './_contents/stage-sliders'
+import { StageSliders } from './_components/stage-sliders'
 import { useStageSettings } from './index.hooks'
 
 /** ポップオーバーの id（設定アイコンの `popoverTarget` から参照） */
