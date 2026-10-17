@@ -12,8 +12,8 @@ import { FindPathProto03Props } from './index.types'
  * - ここでは Provider 群（`FindPathProto03Providers`、`index.providers.tsx`）と
  *   ページ内容（`FindPathProto03Contents`、`_contents/index.tsx`）を組み合わせるのみ
  *   （構造見直し、issue #137）。content 間で共有する state は `_stores/` の各 store に置く
- *   - `_contents/stage-area`: ステージ（`_contents/stage`: `Stage07` + 各レイヤー、
- *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
+ *   - `_contents/stage-area`: ステージ（`stage-group/_contents/stage`: `Stage07` + 各レイヤー、
+ *     移動・経路・中継点の操作）と bot の状態表示（`stage-group/_contents/bot-status-panel`）
  *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ）
  * - デバッグ要素（`_components/debug-panel`: 表示設定の切替・EN・リセット等）は表示しない。story で並べる
  * - 直接移動できないセルのクリック時は `Stage07-cell-click` の購読（`useCellClickEventListener`）で BFS 経路探索（`stage-07/_lib/hex-path`）
