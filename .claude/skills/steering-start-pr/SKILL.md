@@ -46,6 +46,14 @@ gh pr create --draft --base <main or 依存先ブランチ> --title "#<issue番�
   - design.md: `# タイトル` → `PR: #番号`(親があれば `(親: #N)`) → 目的 → 背景・制約 → 懸念・リスク
   - backlog.md: `# 実装計画（<タイトル>）` + 未完了項目
   - decision-records.md: `# 決定事項（<タイトル>）` + 当日日付のエントリ
+- 作成直後、相対リンクのリンク先が実在するか確認する
+  - 理由: `_issues/issue-K-slug/_pr/pr-M-slug/` 等の深い階層では `../` の数を誤りやすい
+  - エラーが出たリンクの `../` の数を直す
+
+```bash
+(cd <作成したディレクトリ> && grep -ohE '\]\([^)#]+' *.md | sed 's/^](//' | grep -v '^http' | xargs ls >/dev/null)
+```
+
 - 親 backlog の該当項目へ、新しい design.md へのリンクを子要素として追記する
 - `~/.claude/recent.md` へ1行追記する(`/steering` コマンドと同形式)
 
