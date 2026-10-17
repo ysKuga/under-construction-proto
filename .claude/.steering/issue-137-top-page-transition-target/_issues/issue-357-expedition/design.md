@@ -12,12 +12,17 @@ find-path の prototypes を元に、prototypes から独立した本実装 `exp
   - [../../backlog.md](../../backlog.md)
 - 移行方針: 元の実装は移動せず prototypes に残し、コピーで独立した本実装を設置する
   - (../../decision-records.md 2026-10-17 本実装移行)
-- 名前: 本実装は `expedition`、prototypes は `find-path` のまま残す
+- 名前: 本実装は `expedition`
   - (../../decision-records.md 2026-10-17 名前)
+- find-path の prototypes: `expedition/_prototypes/` へ移動し、find-path は削除する
+  - 実装名は変更しない
+  - (decision-records.md 2026-10-17 find-path の処遇)
+- 本実装はデバッグ要素を表示しない。デバッグ要素は story で基本構成と組み合わせる
+  - (decision-records.md 2026-10-17 デバッグ表示)
 - page の構成: [src/components/pages/CLAUDE.md](../../../../../src/components/pages/CLAUDE.md)
 - prototypes 間の import: [src/prototypes/CLAUDE.md](../../../../../src/prototypes/CLAUDE.md)（若いバージョンからの import 許容・共通置き場への昇格）
 
 ## 懸念・リスク
 
 - proto-03 は prototypes を広く import しており、コピー対象が大きい
-- `find-path/_prototypes/_stores/energy` は proto-01/02/03 で共有している
+- `expedition/_prototypes/_stores/energy` は proto-01/02/03 で共有している

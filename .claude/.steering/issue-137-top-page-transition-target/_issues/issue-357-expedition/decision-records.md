@@ -63,3 +63,11 @@
       - 再レンダリングが増えるのは stage content のみ
 - 2026-10-17（本体コピー）: proto-03 本体を expedition へコピーした（PR #365）
   - [_closed/pr-365-expedition-copy-proto-03/design.md](_closed/pr-365-expedition-copy-proto-03/design.md)
+- 2026-10-17（find-path の処遇）: find-path の `_prototypes` を expedition 配下へ移動し、find-path を削除する
+  - 親 decision-records.md 2026-10-17 本実装移行の「元の実装は prototypes に残す」を変更
+    - prototypes は残すが、置き場を `expedition/_prototypes/` へ移す
+  - 実装名（`FindPathProto03*`・`FindPath-` の event 名等）は変更しない
+  - 本実装から `expedition/_prototypes/` への import は引き続き禁止（`src/prototypes/CLAUDE.md`）
+- 2026-10-17（デバッグ表示）: 本実装はデバッグ要素を表示しない
+  - デバッグ要素は story で基本構成と組み合わせて表示する
+  - 未決事項（2026-10-17）の「デバッグモードの prop 等での切替なし」を明確化

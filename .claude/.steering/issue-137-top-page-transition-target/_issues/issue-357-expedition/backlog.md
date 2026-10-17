@@ -1,7 +1,7 @@
 # 実装計画（find-path の本実装 expedition への移行）
 
 - [ ] 系列外からの直接 import を共通置き場経由へ改める（任意、着手予定なし）
-  - 現状: find-path proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
+  - 現状: `expedition/_prototypes` の proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
 - [ ] レイアウトを基本構成とデバッグ要素へ分ける
@@ -19,6 +19,8 @@
     - 基本構成に残す要素 → 状態表示 content を新設
   - `EnergySliders` は `debug-panel` へ移す（hex-stage の変更不要）
   - story: デバッグ用 story は `render` で Providers の内側に基本構成とデバッグ要素を並べる
+  - 本実装（`index.tsx`）にはデバッグ要素を表示しない
+    - (decision-records.md 2026-10-17 デバッグ表示)
   - [x] デバッグ要素とする対象を検討する
     - デバッグ要素
       - `ControlPanel` の表示設定（初期表示・到達済みマス表示・歩行モーション・移動可能マス表示）
