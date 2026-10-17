@@ -1,16 +1,26 @@
 # src/components/CLAUDE.md
 
+## 実装と組み合わせ (implement and composition)
+
+component を「実装する箇所」と「組み合わせる箇所」に分ける。
+
+- 実装する箇所: ロジック・store 購読・見た目を持つ
+  - 他の component を内側へ入れる場合、children・slot で外から受ける。自身で import して配置しない
+- 組み合わせる箇所: 実装した component をレゴブロックのように並べるのみ
+  - ロジック・状態・hook を持たない
+  - 許容: 定数の列挙で同じ component を並べる（`ITEM_KINDS.map` 等）
+- 組み合わせる対象は、それぞれ独立した component にする
+  - 組み合わせる側から props でデータ・handler を渡さずに動く
+  - 必要な値は自身で context 経由の store を selector で購読する（[component-input-layers](../../docs/concept/implementation/component-input-layers/README.md)）
+  - 理由: 組み合わせる側へ配線のロジックが溜まると、並べ替え・入替えのたびに配線を直す必要が生じる
+
 ## レイアウト
 
-格納する側（子を並べる component）がレイアウトを用意し、子をはめ込む。
+組み合わせる側がレイアウトを用意し、子をはめ込む。
 
-- 子同士の配置（並び・間隔・揃え）は親側の className に集約する
-  - 子側に配置の実装があると、親側と整合させる必要が生じるため
-  - 例: find-path proto-03 の `stage-area` が `flex gap-8` で `stage`・`standalone-bot` を並べる
+- 子同士の配置（並び・間隔・揃え）は組み合わせる側の className に集約する
+  - 子側に配置の実装があると、組み合わせる側と整合させる必要が生じるため
+  - 例: expedition の `stage-area` が `flex` で `stage`・bot の状態表示を並べる
 - 子は自身の内側の見た目のみ持ち、外側の余白・配置を持たない
-- 親は組み合わせに徹し、ロジックを持たない
-  - 単純な制御は許容する
-  - 表示制御（表示・非表示の切替等）は、再レンダリングの範囲を限定するため要素側へ移すことを検討する
-  - 要素側へ値を渡す場合、props でなく context 経由の store を selector で購読する（[component-input-layers](../../docs/concept/implementation/component-input-layers/README.md)）
 
 ページ内の構成（`_contents` 等）への適用は [pages/CLAUDE.md](pages/CLAUDE.md) 参照。

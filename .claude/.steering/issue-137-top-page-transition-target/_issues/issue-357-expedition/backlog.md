@@ -16,3 +16,12 @@
   - 別 PR で行う
 - [ ] route を配線する
   - 現状: `src/app` に未設置
+- [ ] 実装と組み合わせを分ける（src/components/CLAUDE.md「実装と組み合わせ」）
+  - 実装を `_contents/` から `_components/` へ移す
+    - `stage`・`standalone-bot`・`facing-*`・`move-history-panel`・`cell-info-panel`・`carried-item-button`
+    - `stage-settings`・各 sliders・`debug-panel`・`bot-bubbles/_contents/*`
+    - 名前が衝突する吹き出し（`execute-bubble` 等）は store 接続版を改名
+  - `stage`・`stage-settings` の中身を children・slot で受ける
+    - レイヤー群は props の配線なしで動くよう独立させる
+  - `bot-bubbles` のロジック（`useBotBubbles`）を実装側へ移す
+  - PR 単位: 移動のみ → slot 化 → ロジック移動
