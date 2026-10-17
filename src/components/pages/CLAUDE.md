@@ -4,40 +4,49 @@
 
 ページ（試作含む）の実装が大きくなった場合、以下の構成で分ける。
 例: `expedition/_prototypes/proto-03`（issue #137 の構造見直し）。\
-`_contents`/`_components` の配置は旧基準のまま（下記「移行状況」）。
+`_contents`/`_components` の配置は一部未対応（下記「移行状況」）。
 
 ```
 page-name/
   index.tsx            # Provider 群とページ内容を組み合わせるのみ
   index.providers.tsx  # Provider 群の組み合わせ
   index.types.ts       # index.tsx・index.providers.tsx の双方が参照する props 型
-  _contents/           # 組み合わせ（ページ内容の区画）
-    index.tsx          # 各 content を並べるのみ
-    stage-area/        # ステージ・状態表示等を並べるのみ
+  _contents/           # ページ内容。組み合わせと、組み合わせが並べる子
+    index.tsx          # 各 section を並べるのみ
+    stage-section/     # ステージ・状態表示等を並べるのみ
+      _contents/       # section が並べる子（group・実装）
   _layers/             # ステージの children として重ねるレイヤー
   _stage-components/   # ステージ本体（`hex-stage` 等）
-  _components/         # 実装（状態表示・吹き出し等）
+  _components/         # 複数箇所で使う部品・ページ内容に含まれない実装（デバッグ要素等）
   _contexts/           # 個別 Context の実装
   _stores/
 ```
 
 ### `_components`/`_layers`/`_contents` の役割
 
-置き場は役割（実装するか、組み合わせるか）で分ける（[components/CLAUDE.md](../CLAUDE.md)「実装と組み合わせ」）。
-store・context の購読有無では分けない。
+置き場は親子関係で分ける（[components/CLAUDE.md](../CLAUDE.md)「実装と組み合わせ」）。
+store・context の購読有無、実装かどうかでは分けない。
 
-- `_components/`: 実装の置き場（stage・状態表示・吹き出し等）
+- `_contents/`: ページ内容の置き場
+  - 組み合わせ（1 階層のレイアウトで子を並べる）と、組み合わせが並べる子を置く
+  - 組み合わせが並べる子は、実装（`stage` 等）でも組み合わせ配下の `_contents/` へ置く
+  - 組み合わせ自身はロジック・状態・hook・props を持たない。定数も定義しない
+- `_components/`: 実装が中で使う部品の置き場
+  - 特定の実装からのみ使う部品は、その実装配下の `_components/`
+  - ページ内容に含まれない実装（story が並べるデバッグ要素等）も `_components/`
   - ロジック・store 購読を持ってよい。props のみで動く部品も同じ置き場
-  - 他の component・layer を内側へ入れる場合、children・slot で受ける
   - 複数 component から参照される state は `_stores/` の store へ置き、selector で購読する（[game-state](../../../.claude/rules/react/game-state.md)）
 - `_stage-components/`: ステージ本体（`hex-stage` 等）。ゲーム上の役割を持つため `_components/` と分ける
   - ページの状態を知らず、props・handle で駆動する
   - 例: `expedition/_stage-components/hex-stage`（stage-07 のコピー）
 - `_layers/`: ステージ（`Stage07` 等）の children として重ねるレイヤー
-- `_contents/`: 組み合わせの置き場。ページ内容の区画ごとに、以下を直接並べるもののみ置く
-  - 並べる対象: `_components/`・`_layers/`・子の `_contents/`・`_game-phases/`
-  - ロジック・状態・hook・props を持たない。定数も定義しない（import した定数での列挙は可）
-  - 実装（他の箇所で部品として使われるもの）は置かない。`_components/` へ
+
+### 組み合わせの命名
+
+- ページ直下の組み合わせ: `-section`（`stage-section` 等）
+  - `-section` は入れ子にしない
+  - HTML の `<section>` 要素とは無関係（下記「HTML 要素」）
+- section の中の組み合わせ: `-group`（`stage-group` 等）
 
 ### レイアウト
 
@@ -73,11 +82,15 @@ store・context の購読有無では分けない。
 特定の要素からのみ使う content・component・layer は、その要素配下の `_contents/`・`_components/`・`_layers/` へネストする。\
 判断基準は [component-nesting](../../../.claude/rules/react/component-nesting.md)。
 
-- 例: `stage-area` からのみ並べる `stage` は `stage-area/_components/stage`
+- 例: `stage-area` が並べる `stage` は `stage-area/_contents/stage`
+- 例: `stage` が中で使う `stage-settings` は `stage/_components/stage-settings`
 
 ### 移行状況
 
-expedition は旧基準（store 購読 → `_contents/`）で配置済み。新規・改修時に本基準へ寄せる（issue #357 backlog）。
+expedition は以下が未対応。新規・改修時に本基準へ寄せる（issue #357 backlog）。
+
+- `stage-area`: 1 段目の横並び・bot の状態表示のレイアウトが混在している
+- 命名: `stage-area` を `stage-section` へ改名していない
 
 ### Provider
 
