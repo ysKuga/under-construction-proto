@@ -14,7 +14,7 @@ find-path proto-03 本体を、本実装 `expedition` へコピーする。
   - レイアウト分割・改名は後続 PR
   - (../../decision-records.md 2026-10-17 進め方)
 - 依存先は PR #360 でコピー済み
-  - [../../_closed/pr-360-expedition-copy-deps/design.md](../../_closed/pr-360-expedition-copy-deps/design.md)
+  - [../pr-360-expedition-copy-deps/design.md](../pr-360-expedition-copy-deps/design.md)
 - 本実装から `src/prototypes/`・`_prototypes/` を import しない
   - [src/prototypes/CLAUDE.md](../../../../../../../src/prototypes/CLAUDE.md)
 - コピー元: `src/components/pages/find-path/_prototypes/proto-03`（225 ファイル、test 45 件）
