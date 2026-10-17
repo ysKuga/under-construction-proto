@@ -12,7 +12,7 @@ import { StageGroup } from './_contents/stage-group'
  * - 3 段目: 手数の履歴
  * - 2・3 段目は 1 段目の幅に合わせる（`w-min` で 1 段目の幅を全体の幅にする）
  */
-export const StageArea = () => (
+export const StageSection = () => (
   <div className="flex w-min flex-col gap-4">
     <StageGroup />
     <CellInfoPanel />
