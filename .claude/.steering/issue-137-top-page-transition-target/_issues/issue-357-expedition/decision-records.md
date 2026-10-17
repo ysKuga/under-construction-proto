@@ -79,3 +79,14 @@
 - 2026-10-17（スライダーの外出し）: hex-stage の調整スライダー群を hex-stage から外し、ステージ・bot の状態表示の下へ置いた（PR #371）
   - デバッグ要素（2026-10-17）の「スライダー群をデバッグ要素へ移す」を変更
   - [_closed/pr-371-expedition-stage-sliders/design.md](_closed/pr-371-expedition-stage-sliders/design.md)
+- 2026-10-17（調整スライダーの表示）: 調整スライダーの表示・非表示と表示の仕方を決めた
+  - 本実装に残す: tilt・移動時間（プレイヤー向けの設定になり得るため）
+  - デバッグパネルへ移す: 歩行周期上限・脚振り角・体の上下量（開発用のモーション調整のため）
+  - 表示: 設定アイコンのクリックでポップオーバー表示
+    - 理由: レイアウトが動かず、`h-screen` の画面外へはみ出さない
+    - backlog 当初案のアコーディオン（`<details>`）は不採用
+  - アイコン: 独立 bot 右上、`FacingSyncToggle` と同じ丸ボタン形式（lucide `Settings`）
+  - ポップオーバーの実装手段は着手時に決める
+    - 第一候補: HTML の Popover API（`popover`・`popovertarget`）。開閉 state・外側クリック処理が不要
+    - 位置合わせ（CSS anchor positioning の対応状況）を要確認
+    - 代替: `@radix-ui/react-popover` の新規導入
