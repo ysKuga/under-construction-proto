@@ -25,7 +25,7 @@ PR: #375（親: #357）
   - アイコンの下・右端揃えで開く
 - 置き場
   - `stage-area/_contents/stage-settings`: 設定アイコン + ポップオーバー
-  - `stage-settings/_components/stage-sliders`: tilt・移動時間（既存 `stage-sliders` を移動）
+  - `stage-settings/_contents/stage-sliders`: tilt・移動時間（既存 `stage-sliders` を移動）
   - `debug-panel/_components/motion-sliders`: 歩行周期上限・脚振り角・体の上下量
 - アイコン: `FacingSyncToggle` と同じ丸ボタン（lucide `Settings`）、`FacingSyncToggle` の右へ並べる
 
