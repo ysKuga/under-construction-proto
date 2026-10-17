@@ -17,7 +17,7 @@ import { StandaloneBot } from './_contents/standalone-bot'
  * - 独立 bot の左下にショートカット群（携行アイテムの使用等）を重ねる
  */
 export const StageArea = () => (
-  <div className="flex items-center gap-8">
+  <div className="flex items-center">
     <Stage />
     <div className="flex items-stretch gap-4">
       <div className="flex flex-col items-center gap-2">
