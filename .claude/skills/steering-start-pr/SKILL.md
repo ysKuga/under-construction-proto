@@ -1,6 +1,6 @@
 ---
 name: steering-start-pr
-description: 着手確定済みの作業について、空コミットで PR を先行作成して番号を確保し、`_pr/pr-{番号}-slug/` の steering(design.md・backlog.md・decision-records.md)を作成する。「PR を作って着手」「実装を開始」等、PR 単位の作業へ入る時に使用する。作業途中で別 PR へ切り出す時・取り下げた PR を作り直す時も、手動で空コミット・PR を作らず本スキルを使う。
+description: 着手確定済みの作業について、空コミットで PR を先行作成して番号を確保し、`_pr/pr-{番号}-slug/` の steering(design.md・backlog.md・decision-records.md)を作成する。「PR を作って着手」「実装を開始」等、PR 単位の作業へ入る時に使用する。作業途中で別 PR へ切り出す時・取り下げた PR を作り直す時・steering-close の直後に次の PR へ着手する時も、手動で空コミット・PR を作らず本スキルを使う。ユーザーが「着手」と明言しなくても、空コミットで PR を作る場面では使う。
 ---
 
 ## 引数
