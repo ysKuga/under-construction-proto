@@ -111,3 +111,6 @@
 - 2026-10-18（stage-section への改名）: `stage-area` を `stage-section` へ改名した（PR #383）
   - [_closed/pr-383-expedition-stage-section/design.md](_closed/pr-383-expedition-stage-section/design.md)
   - `pages/CLAUDE.md` の移行状況を削除した
+- 2026-10-18（event 名の改名）: event 名を `FindPath` から `Expedition` へ改名した（PR #385）
+  - [_closed/pr-385-expedition-rename-events/design.md](_closed/pr-385-expedition-rename-events/design.md)
+  - コンポーネント名（`FindPathProto03*`）は別 PR
