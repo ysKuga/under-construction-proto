@@ -76,3 +76,6 @@
   - [_closed/pr-369-expedition-split-debug-panel/decision-records.md](_closed/pr-369-expedition-split-debug-panel/decision-records.md)
 - 2026-10-17（レイアウト分割）: レイアウトを基本構成とデバッグ要素へ分けた（PR #369）
   - [_closed/pr-369-expedition-split-debug-panel/design.md](_closed/pr-369-expedition-split-debug-panel/design.md)
+- 2026-10-17（スライダーの外出し）: hex-stage の調整スライダー群を hex-stage から外し、ステージ・bot の状態表示の下へ置いた（PR #371）
+  - デバッグ要素（2026-10-17）の「スライダー群をデバッグ要素へ移す」を変更
+  - [_closed/pr-371-expedition-stage-sliders/design.md](_closed/pr-371-expedition-stage-sliders/design.md)
