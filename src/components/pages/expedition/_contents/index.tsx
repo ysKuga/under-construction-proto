@@ -18,7 +18,7 @@ import { Title } from './title'
 export const FindPathProto03Contents = () => (
   <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
     <Title />
-    <div className="flex items-center gap-8">
+    <div className="flex items-center">
       <StageArea />
       <StatusPanel />
     </div>
