@@ -57,6 +57,13 @@ export type Stage07Handle = {
    */
   moveTo: (cell: HexCell) => boolean
   /**
+   * 床の傾き(rotateX, deg)を設定する
+   *
+   * - 再レンダリングを起こさず style を直接書き換える（`usePerspectiveControl`）
+   * - 0〜85 にクランプする
+   */
+  setTilt: (deg: number) => void
+  /**
    * player を移動アニメーションなしで `cell` へ移す
    *
    * - 通過マスの到達(`Stage07-cell-reach`)は発行せず、`cell` の到達のみ発行する
@@ -372,11 +379,11 @@ export const Stage07 = (props: Stage07Props) => {
     [cols, moveActorTo, rows],
   )
 
-  useImperativeHandle(ref, () => ({ followPath, moveTo: tryMove, warp }), [
-    followPath,
-    tryMove,
-    warp,
-  ])
+  useImperativeHandle(
+    ref,
+    () => ({ followPath, moveTo: tryMove, setTilt, warp }),
+    [followPath, setTilt, tryMove, warp],
+  )
 
   /**
    * セル間移動アニメーション完了。次の移動が来ないまま止まったら歩行を off にする

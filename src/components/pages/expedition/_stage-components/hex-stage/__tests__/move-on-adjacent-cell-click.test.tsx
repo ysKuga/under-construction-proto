@@ -58,6 +58,7 @@ describe('MoveOnAdjacentCellClick', () => {
     const click = renderMoveOnAdjacentCellClick({
       followPath: () => {},
       moveTo,
+      setTilt: () => {},
       warp: () => {},
     })
 
