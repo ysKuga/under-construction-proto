@@ -6,6 +6,7 @@
 
 - 複数の親から参照される、またはページ直下(`index.tsx`)から直接使用される → 同列 `_components/`
 - 特定の1コンポーネント配下でのみ使用される → そのコンポーネント配下の `_components/`
+  - pages 配下で store・context を購読する場合は `_contents/`（下記「pages 配下」）
 
 ## 例
 
