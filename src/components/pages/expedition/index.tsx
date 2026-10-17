@@ -16,7 +16,8 @@ import { FindPathProto03Props } from './index.types'
  *   - `_contents/stage-area`: ステージ（`_contents/stage`: `Stage07` + 各レイヤー、
  *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
  *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ）
- *   - `_contents/control-panel`: 表示設定の切替・EN・リセット等
+ *   - `_contents/status-panel`: ゴール到達・中継点選択状況
+ * - デバッグ要素（`_contents/debug-panel`: 表示設定の切替・EN・リセット等）は表示しない。story で並べる
  * - 直接移動できないセルのクリック時は `Stage07-cell-click` の購読（`useCellClickEventListener`）で BFS 経路探索（`stage-07/_lib/hex-path`）
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
  *   通知する（issue #137 backlog）
@@ -46,10 +47,10 @@ import { FindPathProto03Props } from './index.types'
  *   `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する（`Stage07Handle.followPath`）。EN 不足で進入できなくなったら
  *   その場で停止し、トーストで警告する
 
- * - 霧の適用範囲（初期表示）は「初期表示」select でプレイ中に切替可能。初期値は
+ * - 霧の適用範囲（初期表示）はデバッグ要素の「初期表示」select でプレイ中に切替可能。初期値は
  *   `initialFogMode`（既定 `all-hidden`）。`partial` の霧セルはゴールとその6近傍
  * - 確認ダイアログは対象外（別途検討）
- * - 歩行モーション（`Stage07` の `enableWalking`）はチェックボックスで切替可能（既定 ON）。
+ * - 歩行モーション（`Stage07` の `enableWalking`）はデバッグ要素のチェックボックスで切替可能（既定 ON）。
  *   到着時の `walkingReset`（issue #162 の腕脚位置リセット action）により、
  *   1 マスごとの隣接クリック移動でも到着後に行進が続く不自然さが解消したため既定有効化。
  *   無効化との比較用にチェックボックスは残す
