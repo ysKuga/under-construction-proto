@@ -82,14 +82,13 @@ store・context の購読有無、実装かどうかでは分けない。
 特定の要素からのみ使う content・component・layer は、その要素配下の `_contents/`・`_components/`・`_layers/` へネストする。\
 判断基準は [component-nesting](../../../.claude/rules/react/component-nesting.md)。
 
-- 例: `stage-area` が並べる `stage` は `stage-area/_contents/stage`
+- 例: `stage-group` が並べる `stage` は `stage-group/_contents/stage`
 - 例: `stage` が中で使う `stage-settings` は `stage/_components/stage-settings`
 
 ### 移行状況
 
 expedition は以下が未対応。新規・改修時に本基準へ寄せる（issue #357 backlog）。
 
-- `stage-area`: 1 段目の横並び・bot の状態表示のレイアウトが混在している
 - 命名: `stage-area` を `stage-section` へ改名していない
 
 ### Provider
