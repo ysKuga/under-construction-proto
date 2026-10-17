@@ -1,5 +1,12 @@
 # steering ディレクトリ命名
 
+steering 文書（design.md・backlog.md・decision-records.md）の記述ルール、[.claude/.steering/CLAUDE.md](../.steering/CLAUDE.md)。
+
+- 追記・編集前に Read する
+  - 理由
+    - ネスト CLAUDE.md は配下ファイルの Read 時のみ読み込まれる
+    - Bash・スクリプト経由の編集では規約が読み込まれない
+
 `.claude/.steering/` 配下ディレクトリ、対応する issue/PR の有無で命名形式を分ける。プロジェクト固有ルール(global `/steering` コマンドの挙動は変更しない、`.claude/commands/steering.md` で上書き)。
 
 ## 形式
