@@ -11,7 +11,7 @@ const POPOVER_ID = 'expedition-stage-settings'
  * 設定アイコンと、クリックで開く調整スライダーのポップオーバー
  *
  * - HTML の Popover API で開閉する（開閉 state・外側クリック・Esc の処理なし）
- * - CSS anchor positioning でアイコンの下・右端揃えに置く
+ * - CSS anchor positioning でアイコンの下・左端揃えに置く（マスの情報パネルに重なる）
  * - 閉じても DOM は残るため、スライダーの値（tilt の `defaultValue` 含む）を保つ
  */
 export const StageSettings = () => (
@@ -26,7 +26,7 @@ export const StageSettings = () => (
       <Settings size={16} />
     </button>
     <div
-      className="m-0 mt-1 rounded border border-gray-300 bg-white p-3 shadow [position-anchor:--expedition-stage-settings] [position-area:bottom_span-left]"
+      className="m-0 mt-1 rounded border border-gray-300 bg-white p-3 shadow [position-anchor:--expedition-stage-settings] [position-area:bottom_span-right]"
       id={POPOVER_ID}
       popover="auto"
     >

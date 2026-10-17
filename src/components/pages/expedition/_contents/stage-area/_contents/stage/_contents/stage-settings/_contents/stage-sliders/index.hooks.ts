@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { useStage07HandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
 
-import { useDisplaySettingsStore } from '../../../../../../_stores/display-settings'
+import { useDisplaySettingsStore } from '../../../../../../../../_stores/display-settings'
 
 import { UseStageSlidersReturn } from './index.types'
 
