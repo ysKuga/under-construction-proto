@@ -11,6 +11,9 @@ export * from '../actor-settings/types'
 - 集約 index 名、`_<種類>/index.ts`(`_types/index.ts` `_constants/index.ts` 等)
 - 対象 store・types 限定せず。他ディレクトリ構成・他種類ファイル分離時も同パターン踏襲
 - 種類別ファイル未導入の対象は、対応する集約 index 自体 作成不要
+- ディレクトリ丸ごとのコピー・移動で対象を合流させた場合も同様。合流した対象の種類別ファイル 全て追加
+  - 合流元に集約 index 無い場合、漏れやすい(expedition への proto-03 コピー、PR #365)
+  - 合流した対象間の参照も、集約 index 経由へ直す
 
 ## 対象自身の index.ts では種類別ファイルを re-export しない
 
