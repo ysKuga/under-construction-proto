@@ -1,0 +1,191 @@
+import { useState } from 'react'
+import {
+  combineLatest,
+  concat,
+  distinctUntilChanged,
+  map,
+  of,
+  pairwise,
+  switchMap,
+  timer,
+} from 'rxjs'
+
+import { useEnergyStoreApi } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { fromStore } from '@/lib/rxjs/from-store'
+import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { useActorsStoreApi } from '@/prototypes/stage/stage-07/_stores/actors'
+
+import { BubbleSlotEntry } from '../../_components/bubble-slots/_stores/bubble-slots/types'
+import { EnergySpotChargedBubble } from '../../_components/energy-spot-charged-bubble'
+import { EnergySpotChargingBubble } from '../../_components/energy-spot-charging-bubble'
+import { countEnergySpotCharge } from '../../_lib/count-energy-spot-charge'
+import { useGamePhaseStoreApi } from '../../_stores/game-phase'
+import { useItemStoreApi } from '../../_stores/items'
+import { usePlayerActivityStoreApi } from '../../_stores/player-activity'
+import { useWaypointFlowStoreApi } from '../../_stores/waypoint-flow'
+import { ENERGY_SPOT_CHARGED_NOTICE_MS } from '../../constants'
+
+import { EnergyDepletedBubbleContent } from './_contents/energy-depleted-bubble'
+import { EnergySpotBubbleContent } from './_contents/energy-spot-bubble'
+import { ExecuteBubbleContent } from './_contents/execute-bubble'
+import { WaypointBubbleContent } from './_contents/waypoint-bubble'
+import { UseBotBubblesReturn } from './index.types'
+
+/**
+ * bot 頭上・目標セル上それぞれへ格納する吹き出しを組み立てる
+ *
+ * - 表示条件
+ *   - 中継点・実行: 経路提示中（中継点フローが `idle` 以外）
+ *   - EN 切れ: player が EN 切れ中、かつ EN スポットで補給中でない。表示中は中継点・実行
+ *     （種類 `action`）を隠す
+ *   - EN スポット: player が EN スポット上で停止中、かつ補給できる（EN が上限未満・残量あり）
+ *   - 補給中: player が EN スポットで補給中
+ *   - 補給完了: EN スポットでの補給の完了後、一定時間（`ENERGY_SPOT_CHARGED_NOTICE_MS`）
+ *     または次の行為（移動等）まで
+ * - 吹き出しの表示を許可しないフェーズ（ゴール後の終了状態）では全ての吹き出しを隠す
+ *   （頭上の旗との重なりも避ける、issue #137）
+ * - 補給完了（種類 `notice`）は、他の吹き出しの表示中は隠す（他の全ての吹き出しへ
+ *   `hides: ['notice']` を指定する）
+ * - store api は参照が安定しているため、初回のみ組み立てる
+ */
+export const useBotBubbles = (): UseBotBubblesReturn => {
+  const waypointFlowStoreApi = useWaypointFlowStoreApi()
+  const energyStoreApi = useEnergyStoreApi()
+  const actorsStoreApi = useActorsStoreApi()
+  const itemStoreApi = useItemStoreApi()
+  const playerActivityStoreApi = usePlayerActivityStoreApi()
+  const gamePhaseStoreApi = useGamePhaseStoreApi()
+
+  const [botBubbles] = useState(() => {
+    /** 吹き出しの表示を許可するフェーズか */
+    const showBubblesAllowed$ = fromStore(gamePhaseStoreApi).pipe(
+      map((state) => state.allows('showBubbles')),
+      distinctUntilChanged(),
+    )
+    /** 表示条件へ「フェーズが表示を許可している」を加える */
+    const restrictByPhase = (entry: BubbleSlotEntry): BubbleSlotEntry => ({
+      ...entry,
+      visible$: combineLatest([entry.visible$, showBubblesAllowed$]).pipe(
+        map(([visible, allowed]) => visible && allowed),
+        distinctUntilChanged(),
+      ),
+    })
+    /** 経路提示中か */
+    const proposing$ = fromStore(waypointFlowStoreApi).pipe(
+      map((state) => state.flowState !== 'idle'),
+      distinctUntilChanged(),
+    )
+    /** player の行為 */
+    const playerActivity$ = fromStore(playerActivityStoreApi).pipe(
+      map((state) => state.activity),
+      distinctUntilChanged(),
+    )
+    /** player が EN 切れ中か（補給中は救済手段を提示しないため除く） */
+    const energyDepleted$ = combineLatest([
+      fromStore(energyStoreApi),
+      playerActivity$,
+    ]).pipe(
+      map(
+        ([state, activity]) =>
+          state.getEnergyInfo(PLAYER_ACTOR_ID).current <= 0 &&
+          activity !== 'charging',
+      ),
+      distinctUntilChanged(),
+    )
+    /** player が EN スポットで補給中か */
+    const charging$ = playerActivity$.pipe(
+      map((activity) => activity === 'charging'),
+      distinctUntilChanged(),
+    )
+    /**
+     * EN スポットでの補給の完了直後か
+     *
+     * - 補給中から停止中へ切り替わった時点で true にする
+     * - `ENERGY_SPOT_CHARGED_NOTICE_MS` の経過、または次の行為の切替で false にする
+     */
+    const charged$ = playerActivity$.pipe(
+      pairwise(),
+      switchMap(([prev, next]) =>
+        prev === 'charging' && next === 'idle'
+          ? concat(
+              of(true),
+              timer(ENERGY_SPOT_CHARGED_NOTICE_MS).pipe(map(() => false)),
+            )
+          : of(false),
+      ),
+      distinctUntilChanged(),
+    )
+    /** player が EN スポット上で停止中、かつ補給できるか */
+    const energySpotUsable$ = combineLatest([
+      fromStore(actorsStoreApi),
+      fromStore(itemStoreApi),
+      fromStore(energyStoreApi),
+      playerActivity$,
+    ]).pipe(
+      map(([actors, items, energy, activity]) => {
+        const cell = actors.actors[PLAYER_ACTOR_ID]
+
+        return (
+          activity === 'idle' &&
+          cell !== undefined &&
+          countEnergySpotCharge(
+            items.getItemAtCell(cell),
+            energy.getEnergyInfo(PLAYER_ACTOR_ID),
+          ) > 0
+        )
+      }),
+      distinctUntilChanged(),
+    )
+    /** 中継点・実行の組 */
+    const pairBubbles: BubbleSlotEntry[] = [
+      {
+        Bubble: WaypointBubbleContent,
+        hides: ['notice'],
+        id: 'waypoint',
+        kinds: ['action'],
+        visible$: proposing$,
+      },
+      {
+        Bubble: ExecuteBubbleContent,
+        hides: ['notice'],
+        id: 'execute',
+        kinds: ['action'],
+        visible$: proposing$,
+      },
+    ]
+
+    return {
+      objectiveBubbles: pairBubbles.map(restrictByPhase),
+      playerBubbles: [
+        ...pairBubbles,
+        {
+          Bubble: EnergyDepletedBubbleContent,
+          hides: ['action', 'notice'],
+          id: 'energy-depleted',
+          kinds: ['rescue'],
+          visible$: energyDepleted$,
+        },
+        {
+          Bubble: EnergySpotBubbleContent,
+          hides: ['notice'],
+          id: 'energy-spot',
+          visible$: energySpotUsable$,
+        },
+        {
+          Bubble: EnergySpotChargingBubble,
+          hides: ['notice'],
+          id: 'energy-spot-charging',
+          visible$: charging$,
+        },
+        {
+          Bubble: EnergySpotChargedBubble,
+          id: 'energy-spot-charged',
+          kinds: ['notice'],
+          visible$: charged$,
+        },
+      ].map(restrictByPhase),
+    }
+  })
+
+  return botBubbles
+}
