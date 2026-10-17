@@ -29,9 +29,15 @@
     - 配置: 基本構成の下へ縦並び
   - [x] デバッグ要素とする対象を検討する
     - デバッグ要素
-      - `ControlPanel` の初期表示・到達済みマス表示・歩行モーション・移動可能マス表示・リセット・seed・生成・再生成
+      - `ControlPanel` の表示設定（初期表示・到達済みマス表示・歩行モーション・移動可能マス表示）
+      - `ControlPanel` のリセット
+      - `ControlPanel` の seed・生成・再生成
       - `EnergySliders`（EN 残量・EN 消費量）
-    - 基本構成: `ControlPanel` の `WaypointSelectingIndicator`・中継点数・ゴール到達表示、`StageArea` 一式・`Title`・`BotBubbles`
+      - hex-stage 組込みの調整スライダー群（下記の別項目で移す）
+    - 基本構成
+      - `ControlPanel` の `WaypointSelectingIndicator`・中継点数・ゴール到達表示
+      - `StageArea` 一式（hex-stage 組込みのスライダー群を除く）
+      - `Title`・`BotBubbles`
     - 削除: `ControlPanel` の「状態表示の向きを同期」（`FacingSyncToggle` と重複）
     - (decision-records.md 2026-10-17 デバッグ要素)
   - (decision-records.md 2026-10-17 未決事項)
@@ -39,7 +45,8 @@
   - 対象: tilt・移動時間・歩行周期上限・脚振り角・体の上下量
   - 手段
     - 値を hex-stage の props にする
-    - デバッグ要素がページ用 store（`display-settings`）へ書き込み、`stage` content が購読して渡す
+    - デバッグ要素がページ用 store（`display-settings`）へ書き込む
+    - `stage` content が購読し hex-stage へ渡す
   - `extraSliders` prop は不要になるため削除する
   - 別 PR で行う
   - (decision-records.md 2026-10-17 デバッグ要素)

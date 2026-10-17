@@ -29,9 +29,16 @@
   - 基本構成に残す
     - `WaypointSelectingIndicator`（中継点選択の完了操作に必須）
     - 中継点数・ゴール到達表示（状態表示）
-  - 削除: 「状態表示の向きを同期」checkbox（基本構成の `FacingSyncToggle` と同じ設定を切り替え、重複のため）
+    - `StageArea` 一式（hex-stage 組込みのスライダー群を除く）・`Title`・`BotBubbles`
+  - 削除: 「状態表示の向きを同期」checkbox
+    - 理由: 基本構成の `FacingSyncToggle` と重複（同じ設定を切り替える）
   - hex-stage のスライダー群の外出し
-    - 現状 hex-stage 内部の state のため、独立コンポーネント化に外出しが要る
-    - 値を hex-stage の props にし、デバッグ要素がページ用 store（`display-settings`）へ書き込み、`stage` content が購読して渡す
+    - 現状: hex-stage 内部の state
+    - 独立コンポーネント化には外出しが必要
+    - 手段
+      - 値を hex-stage の props にする
+      - デバッグ要素がページ用 store（`display-settings`）へ書き込む
+      - `stage` content が購読し hex-stage へ渡す
     - `extraSliders` prop は削除する
-    - store の責務が広がるため別 PR で行う
+    - 別 PR で行う
+      - 理由: store の責務が広がる
