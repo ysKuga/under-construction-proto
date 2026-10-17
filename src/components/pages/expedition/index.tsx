@@ -67,7 +67,7 @@ import { FindPathProto03Props } from './index.types'
  *   `useOutOfEnergyEventListener`（scope 全体で 1 回だけ）が
  *   `Energy-depleted`/`Energy-recovered` 購読で一元的に担う
  * - マスの情報表示（issue #137、PR #313）: `GeoLayer` が発行する `Stage07-cell-hover`
- *   を `CellInfoPanel`（ステージ直下）が購読し、hover 中マスの内包要素を一覧表示する。
+ *   を `CellInfoPanel`（ステージ・bot の状態表示の下）が購読し、hover 中マスの内包要素を一覧表示する。
  *   `ObstacleLayer` 等は `pointerEvents: none` の非対話オーバーレイのため、hover は
  *   `GeoLayer` のセル本体が受ける
  * - EN 補給アイテム/EN スポット（issue #181、proto-01 から移植）: proto-01 と同じ
