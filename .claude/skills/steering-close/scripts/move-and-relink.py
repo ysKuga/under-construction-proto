@@ -4,6 +4,7 @@
 - 対象: リポジトリ管理下の全 .md ファイル
   - 移動先を指すリンク(他ファイル → 移動対象)
   - 移動対象内から外を指すリンク(階層の深さが変わる場合)
+  - 表示テキストがリンク先のパスと同じリンクは、表示テキストも書き換える
 - リンク先が実在しないリンクは触らない(元から壊れているもの・プレースホルダ等)
 - 移動で空になった移動元の親ディレクトリ(`_pr/` 等)は削除する
 
@@ -15,7 +16,8 @@ import re
 import subprocess
 import sys
 
-LINK_RE = re.compile(r"(\]\()([^)\s]+)(\))")
+# 表示テキストに括弧を含むリンクは、表示テキストを取らずパス部分だけ照合する
+LINK_RE = re.compile(r"(?:\[([^\[\]]*))?\]\(([^)\s]+)\)")
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "#", "/")
 
 
@@ -44,7 +46,12 @@ def rewrite(text: str, file_orig: str, file_new: str, src: str, dst: str) -> str
         new_path = os.path.relpath(target_new, os.path.dirname(file_new))
         if path.endswith("/") and not new_path.endswith("/"):
             new_path += "/"
-        return f"{m.group(1)}{new_path}{sep}{anchor}{m.group(3)}"
+        new_link = f"{new_path}{sep}{anchor}"
+        # 表示テキストがパスそのもの: 旧パスが残らないよう揃える
+        label = m.group(1)
+        if label is None:
+            return f"]({new_link})"
+        return f"[{new_link if label == link else label}]({new_link})"
 
     return LINK_RE.sub(replace, text)
 
