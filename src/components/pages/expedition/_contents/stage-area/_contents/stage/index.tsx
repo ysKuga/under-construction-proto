@@ -13,7 +13,6 @@ import { WaypointSelectLayer } from '../../../../_layers/waypoint-select-layer'
 import { BOT_SIZE, GRID, HEX_SIZE } from '../../../../constants'
 
 import { CellInfoPanel } from './_components/cell-info-panel'
-import { EnergySliders } from './_components/energy-sliders'
 import { useStage } from './index.hooks'
 
 /**
@@ -60,7 +59,6 @@ export const Stage = () => {
         canEnterCell={canEnterCell}
         cols={GRID.cols}
         enableWalking={enableWalking}
-        extraSliders={<EnergySliders />}
         hexSize={HEX_SIZE}
         initialTiltDeg={55}
         interactive={interactive}
