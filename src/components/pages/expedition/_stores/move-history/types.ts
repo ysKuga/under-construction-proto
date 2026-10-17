@@ -2,7 +2,7 @@ import { StoreApi } from 'zustand/vanilla'
 
 import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
-import { ItemKind } from '../items/types'
+import { ItemKind } from '../_types'
 
 /**
  * 手数の履歴の 1 件

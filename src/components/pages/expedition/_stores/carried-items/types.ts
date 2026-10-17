@@ -1,6 +1,6 @@
 import { StoreApi } from 'zustand/vanilla'
 
-import { ItemInstance } from '../items/types'
+import { ItemInstance } from '../_types'
 
 /**
  * 携行中アイテムを保持する store
