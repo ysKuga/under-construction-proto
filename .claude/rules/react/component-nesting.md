@@ -2,6 +2,9 @@
 
 `_components/` 配下、特定の親コンポーネントからのみ使用する子コンポーネントは、親と同列に置かず親配下の `_components/` へ配置する。
 
+- 親が import してよいのは、親の実装を分割しただけの子部品（単独で意味を持たない）のみ
+- 独立した component を親の内側へ入れる場合、親は children・slot で受ける（[components/CLAUDE.md](../../../src/components/CLAUDE.md)「実装と組み合わせ」）
+
 ## 判断基準
 
 - 複数の親から参照される、またはページ直下(`index.tsx`)から直接使用される → 同列 `_components/`

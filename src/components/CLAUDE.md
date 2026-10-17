@@ -5,7 +5,8 @@
 component を「実装する箇所」と「組み合わせる箇所」に分ける。
 
 - 実装する箇所: ロジック・store 購読・見た目を持つ
-  - 他の component を内側へ入れる場合、children・slot で外から受ける。自身で import して配置しない
+  - 独立した component（組み合わせる対象になるもの）を内側へ入れる場合、children・slot で外から受ける。自身で import して配置しない
+  - 実装を分割しただけの子部品（親から props を受け、単独で意味を持たない）は、親配下の `_components/` から import してよい（[component-nesting](../../.claude/rules/react/component-nesting.md)）
 - 組み合わせる箇所: 実装した component をレゴブロックのように並べるのみ
   - ロジック・状態・hook を持たない
   - 許容: 定数の列挙で同じ component を並べる（`ITEM_KINDS.map` 等）
