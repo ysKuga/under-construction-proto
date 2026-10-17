@@ -14,9 +14,10 @@
   - test: コピーする
   - story: 基本構成 + デバッグモード（基本構成とデバッグ要素を story 上で組み合わせて表示）
   - (decision-records.md 2026-10-17 未決事項)
-- [ ] 依存先を本実装側へコピーする
+- [x] 依存先を本実装側へコピーする
   - `src/prototypes/stage/stage-07`
   - `src/prototypes/stage/stage-06/constants`
+  - `src/prototypes/stage/stage-05/_hooks/use-perspective-control`（コピー時に判明）
   - `find-path/_prototypes/_stores/energy`（proto-01/02/03 共有）
   - `src/prototypes/time-control/time-control-03/types`
   - (../../decision-records.md 2026-10-17 本実装移行)
