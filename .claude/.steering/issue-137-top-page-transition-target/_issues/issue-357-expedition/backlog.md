@@ -20,9 +20,7 @@
   - 現状: `src/app` に未設置
 - [ ] content と component の置き場を分ける
   - (decision-records.md 2026-10-18 content と component)
-  - PR 単位（ルール修正と 1 は並行可）
-    - ルール修正: `src/components/CLAUDE.md`・`pages/CLAUDE.md`・`component-nesting.md`
-    - 1. content 内部の部品を `_components/` へ移す: [_pr/pr-379-expedition-move-components/design.md](_closed/pr-379-expedition-move-components/design.md)
+  - PR 単位
     - 2. `stage-area` から `stage-group`（1 段目）・`bot-status-panel` を切り出す
     - 3. `stage-area` を `stage-section` へ改名する
   - 旧計画の残りは要否を新基準で見直す
