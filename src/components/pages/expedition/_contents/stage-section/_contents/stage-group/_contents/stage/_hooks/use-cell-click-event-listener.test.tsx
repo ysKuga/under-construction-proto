@@ -20,8 +20,8 @@ import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-compon
 import { StageLayoutProvider } from '../../../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../../../_contexts/stage-layout/constants'
 import {
-  FindPathEventProvider,
-  useFindPathEventListener,
+  ExpeditionEventProvider,
+  useExpeditionEventListener,
 } from '../../../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../../../_stores/carried-items'
 import { MoveHistoryStoreProvider } from '../../../../../../../_stores/move-history'
@@ -41,7 +41,7 @@ const Wrapper = (props: PropsWithChildren) => (
       <MoveHistoryStoreProvider>
         <CarriedItemStoreProvider>
           <PlayerActivityStoreProvider>
-            <FindPathEventProvider>
+            <ExpeditionEventProvider>
               <ActorsStoreProvider
                 initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
               >
@@ -53,7 +53,7 @@ const Wrapper = (props: PropsWithChildren) => (
                   </WaypointFlowStoreProvider>
                 </Stage07EventProvider>
               </ActorsStoreProvider>
-            </FindPathEventProvider>
+            </ExpeditionEventProvider>
           </PlayerActivityStoreProvider>
         </CarriedItemStoreProvider>
       </MoveHistoryStoreProvider>
@@ -65,7 +65,7 @@ const Wrapper = (props: PropsWithChildren) => (
  * listener を有効化し、`Stage07-cell-click` を発行できるようにする
  *
  * @param moveTo handle の `moveTo`（既定は常に移動できない）
- * @param onShakeBotBubble `FindPath-shake-bot-bubble` の購読
+ * @param onShakeBotBubble `Expedition-shake-bot-bubble` の購読
  */
 const renderListener = (
   moveTo = vi.fn<(cell: HexCell) => boolean>(() => false),
@@ -86,7 +86,10 @@ const renderListener = (
         }
       }, [stage07HandleRef])
       useCellClickEventListener()
-      useFindPathEventListener('FindPath-shake-bot-bubble', onShakeBotBubble)
+      useExpeditionEventListener(
+        'Expedition-shake-bot-bubble',
+        onShakeBotBubble,
+      )
 
       return {
         dispatcher,

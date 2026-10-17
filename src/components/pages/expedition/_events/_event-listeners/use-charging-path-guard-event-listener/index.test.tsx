@@ -9,8 +9,8 @@ import {
   PlayerActivityStoreProvider,
   usePlayerActivityStoreApi,
 } from '../../../_stores/player-activity'
-import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
-import { FindPathEventProvider } from '../../index.contexts'
+import { useExpeditionEventDispatcher } from '../../_hooks/use-expedition-event-dispatcher'
+import { ExpeditionEventProvider } from '../../index.contexts'
 
 vi.unmock('zustand')
 
@@ -19,7 +19,7 @@ const Wrapper = (props: PropsWithChildren) => (
     <MoveHistoryStoreProvider>
       <CarriedItemStoreProvider>
         <PlayerActivityStoreProvider>
-          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+          <ExpeditionEventProvider>{props.children}</ExpeditionEventProvider>
         </PlayerActivityStoreProvider>
       </CarriedItemStoreProvider>
     </MoveHistoryStoreProvider>
@@ -29,7 +29,7 @@ const Wrapper = (props: PropsWithChildren) => (
 const renderGuard = () =>
   renderHook(
     () => ({
-      dispatcher: useFindPathEventDispatcher(),
+      dispatcher: useExpeditionEventDispatcher(),
       playerActivity: usePlayerActivityStoreApi(),
     }),
     { wrapper: Wrapper },
@@ -40,10 +40,10 @@ test('停止中なら経路の提示・実行を許可する', async () => {
   const { dispatcher } = result.current
 
   await expect(
-    dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),
+    dispatcher['Expedition-propose-path']({ cell: { q: 2, r: 0 } }),
   ).resolves.toBe(true)
   await expect(
-    dispatcher['FindPath-execute-path']({ path: [{ q: 1, r: 0 }] }),
+    dispatcher['Expedition-execute-path']({ path: [{ q: 1, r: 0 }] }),
   ).resolves.toBe(true)
 })
 
@@ -53,9 +53,9 @@ test('EN スポットで補給中なら経路の提示・実行を拒否する',
   playerActivity.getState().setActivity('charging')
 
   await expect(
-    dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),
+    dispatcher['Expedition-propose-path']({ cell: { q: 2, r: 0 } }),
   ).resolves.toBe(false)
   await expect(
-    dispatcher['FindPath-execute-path']({ path: [{ q: 1, r: 0 }] }),
+    dispatcher['Expedition-execute-path']({ path: [{ q: 1, r: 0 }] }),
   ).resolves.toBe(false)
 })

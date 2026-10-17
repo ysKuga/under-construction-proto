@@ -13,7 +13,7 @@ import { ResetProvider } from './_contexts/reset'
 import { useStageLayout } from './_contexts/stage-layout'
 import { StageSeedProvider } from './_contexts/stage-seed'
 import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
-import { FindPathEventProvider } from './_events'
+import { ExpeditionEventProvider } from './_events'
 import { createInitialItems } from './_lib/create-initial-items'
 import { CarriedItemStoreProvider } from './_stores/carried-items'
 import { DisplaySettingsStoreProvider } from './_stores/display-settings'
@@ -33,11 +33,11 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  * proto-03 のページ全体で共有する Provider（store・event・context）をまとめてネストする
  *
  * - 並び順の制約（それ以外の Provider 間に依存はない）
- *   - `FindPathEventProvider` は `EnergyStoreProvider` の内側に置く\
+ *   - `ExpeditionEventProvider` は `EnergyStoreProvider` の内側に置く\
  *     （EN 判定の listener が energy store を参照するため）
- *   - `FindPathEventProvider` は `CarriedItemStoreProvider` の内側に置く\
+ *   - `ExpeditionEventProvider` は `CarriedItemStoreProvider` の内側に置く\
  *     （携行アイテム使用の listener が携行 store を参照するため）
- *   - `FindPathEventProvider` は `PlayerActivityStoreProvider` の内側に置く\
+ *   - `ExpeditionEventProvider` は `PlayerActivityStoreProvider` の内側に置く\
  *     （EN スポットで補給中の操作を拒否する listener が行為 store を参照するため）
  *   - `VisibilityRegistryProvider` は `FogStoreProvider` の内側に置く\
  *     （fog store を購読するため）
@@ -49,7 +49,7 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  *   配下の Provider 群（position 含む）へ `key` を付け、`reset` で丸ごと再マウントする
  *   （proto-01 と同じ方式）。表示設定・霧のモード含め全 store が初期状態へ戻る。seed は保持されるため盤面は同じ配置
  * - 手数の履歴（issue #315）: `MoveHistoryStoreProvider` は `ResetProvider` の外側に置き、リセットをまたいで通算する。
- *   アイテム使用の listener が履歴へ記録するため、`FindPathEventProvider` の外側にもなる。
+ *   アイテム使用の listener が履歴へ記録するため、`ExpeditionEventProvider` の外側にもなる。
  *   `StageSeedProvider` の内側のため、seed 変更時は破棄される
  * - `VisibilityRegistryProvider` は未到達マスを非表示にするための Provider（proto-02
  *   の hex 版）。霧の状態・可視判定は `FogStoreProvider`（`_stores/fog`）が持ち、
@@ -93,7 +93,7 @@ const StageProviders = (props: FindPathProto03ProvidersProps) => {
     <EnergyStoreProvider>
       <CarriedItemStoreProvider>
         <PlayerActivityStoreProvider>
-          <FindPathEventProvider>
+          <ExpeditionEventProvider>
             <ItemStoreProvider initialItems={createInitialItems(stageLayout)}>
               <ActorsStoreProvider
                 initialActors={{
@@ -123,7 +123,7 @@ const StageProviders = (props: FindPathProto03ProvidersProps) => {
                 </Stage07EventProvider>
               </ActorsStoreProvider>
             </ItemStoreProvider>
-          </FindPathEventProvider>
+          </ExpeditionEventProvider>
         </PlayerActivityStoreProvider>
       </CarriedItemStoreProvider>
     </EnergyStoreProvider>

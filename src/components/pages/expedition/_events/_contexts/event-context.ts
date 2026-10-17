@@ -2,11 +2,11 @@ import { createRequiredContext } from '@/utils/create-required-context'
 
 const { RequiredContext, useRequiredContext } =
   createRequiredContext<EventTarget>(
-    'useFindPathEventTarget should be used within <FindPathEventProvider>',
+    'useExpeditionEventTarget should be used within <ExpeditionEventProvider>',
   )
 
-/** find-path event 用 Context */
-export const FindPathEventContext = RequiredContext
+/** expedition event 用 Context */
+export const ExpeditionEventContext = RequiredContext
 
-/** find-path event の発火対象 (EventTarget) を取得する */
-export const useFindPathEventTarget = (): EventTarget => useRequiredContext()
+/** expedition event の発火対象 (EventTarget) を取得する */
+export const useExpeditionEventTarget = (): EventTarget => useRequiredContext()

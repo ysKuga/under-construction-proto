@@ -75,7 +75,7 @@ import { FindPathProto03Props } from './index.types'
  *   `handleCellChange` で、EN 補給アイテムは携行（`_stores/carried-items`、issue #281）、
  *   EN スポットは即時補給する
 
- * - 経路の提示・実行（issue #226）: UI は `FindPathEventProvider`（`_events`）の
+ * - 経路の提示・実行（issue #226）: UI は `ExpeditionEventProvider`（`_events`）の
  *   EventTarget へ担当範囲の情報を発行し、EN 等のゲーム要素による実行可否は
  *   listener 側で判定する（docs/concept/implementation/ui-jurisdiction）
  */

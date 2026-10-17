@@ -1,5 +1,5 @@
 import { usePlayerActivityStoreApi } from '../../../_stores/player-activity'
-import { useFindPathEventListener } from '../../_hooks/use-find-path-event-listener'
+import { useExpeditionEventListener } from '../../_hooks/use-expedition-event-listener'
 
 /**
  * 経路の提示・実行を、EN スポットで補給中なら拒否する
@@ -18,10 +18,10 @@ export const useChargingPathGuardEventListener = () => {
     }
   }
 
-  useFindPathEventListener('FindPath-propose-path', guard, {
+  useExpeditionEventListener('Expedition-propose-path', guard, {
     allowMultiple: true,
   })
-  useFindPathEventListener('FindPath-execute-path', guard, {
+  useExpeditionEventListener('Expedition-execute-path', guard, {
     allowMultiple: true,
   })
 }

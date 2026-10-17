@@ -9,7 +9,7 @@ export type UseEnergyDepletedBubbleContentReturn = {
   /**
    * 吹き出しクリック時。提示中の救済手段を実行する
    *
-   * - 拒否されたら吹き出しを揺らす（`FindPath-shake-bot-bubble`）
+   * - 拒否されたら吹き出しを揺らす（`Expedition-shake-bot-bubble`）
    */
   handleRescueClick: () => Promise<void>
   /**

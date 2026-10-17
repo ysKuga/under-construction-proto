@@ -8,7 +8,7 @@ import { useStage07EventListener } from '@/components/pages/expedition/_stage-co
 import { useActorsStoreApi } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { useStageLayout } from '../../../../../../../_contexts/stage-layout'
-import { useFindPathEventDispatcher } from '../../../../../../../_events'
+import { useExpeditionEventDispatcher } from '../../../../../../../_events'
 import { canEnterForPath } from '../../../../../../../_lib/can-enter-for-path'
 import { classifyCellClick } from '../../../../../../../_lib/classify-cell-click'
 import { findHexPathViaWaypoints } from '../../../../../../../_lib/find-hex-path-via-waypoints'
@@ -26,18 +26,18 @@ import { GRID } from '../../../../../../../constants'
  * - 直接移動できないマスは、そのマスを目標として BFS で経路を求め `PathPreviewLayer` へ表示する
  *   （自動移動は吹き出しの「実行」で開始する、issue #226）。到達不能なら通知する
  *   - 新しい目標は中継点なしで経路を求める（前の目標の中継点は引き継がない）
- *   - 提示前に `FindPath-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
- *     bot 頭上の吹き出しを揺らすのみ（`FindPath-shake-bot-bubble`）。拒否の理由（EN 等）は
+ *   - 提示前に `Expedition-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
+ *     bot 頭上の吹き出しを揺らすのみ（`Expedition-shake-bot-bubble`）。拒否の理由（EN 等）は
  *     ここでは扱わない（ui-jurisdiction）
  * - 経路提示中に目標セルを再クリックした場合は目標設定をキャンセルする（タッチ操作向け、
- *   ESC の代替）。キャンセルは提示ではないため `FindPath-propose-path` を発行しない
+ *   ESC の代替）。キャンセルは提示ではないため `Expedition-propose-path` を発行しない
  */
 export const useCellClickEventListener = (): void => {
   const actorsStoreApi = useActorsStoreApi()
   const stage07HandleRef = useStage07HandleRef()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   const addNotification = useNotifications((state) => state.addNotification)
-  const findPathEventDispatcher = useFindPathEventDispatcher()
+  const expeditionEventDispatcher = useExpeditionEventDispatcher()
   const stageLayout = useStageLayout()
 
   useStage07EventListener(
@@ -57,13 +57,15 @@ export const useCellClickEventListener = (): void => {
         /** cell を目標として経路を提示する（拒否・到達不能時はそれぞれ知らせる） */
         const proposeObjective = async () => {
           /** listener が経路の提示を許可したか（EN 切れ等で拒否される） */
-          const proposeAllowed = await findPathEventDispatcher[
-            'FindPath-propose-path'
+          const proposeAllowed = await expeditionEventDispatcher[
+            'Expedition-propose-path'
           ]({ cell })
 
           // 提示を拒否された: bot 頭上の吹き出しを揺らして知らせる
           if (!proposeAllowed) {
-            void findPathEventDispatcher['FindPath-shake-bot-bubble'](undefined)
+            void expeditionEventDispatcher['Expedition-shake-bot-bubble'](
+              undefined,
+            )
 
             return
           }
@@ -113,7 +115,7 @@ export const useCellClickEventListener = (): void => {
       [
         actorsStoreApi,
         addNotification,
-        findPathEventDispatcher,
+        expeditionEventDispatcher,
         stage07HandleRef,
         stageLayout,
         waypointFlowStoreApi,

@@ -8,7 +8,7 @@ import {
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import { useActorsStoreApi } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
-import { useFindPathEventListener } from '../../../../../../../_events'
+import { useExpeditionEventListener } from '../../../../../../../_events'
 import { countEnergySpotCharge } from '../../../../../../../_lib/count-energy-spot-charge'
 import { useItemStoreApi } from '../../../../../../../_stores/items'
 import { useMoveHistoryStoreApi } from '../../../../../../../_stores/move-history'
@@ -41,7 +41,7 @@ export const useEnergySpotUseEventListener = (): void => {
   // unmount（リセットによる再マウント含む）: 補給の時間経過を止める
   useEffect(() => () => chargeSubscriptionRef.current?.unsubscribe(), [])
 
-  useFindPathEventListener('FindPath-use-energy-spot', (event) => {
+  useExpeditionEventListener('Expedition-use-energy-spot', (event) => {
     const cell = actorsStoreApi.getState().actors[PLAYER_ACTOR_ID]
     const spot = cell && itemStoreApi.getState().getItemAtCell(cell)
     /** 補給回数 */

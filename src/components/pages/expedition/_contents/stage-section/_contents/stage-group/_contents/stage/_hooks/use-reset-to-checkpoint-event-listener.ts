@@ -5,7 +5,7 @@ import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components
 import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useReset } from '../../../../../../../_contexts/reset'
-import { useFindPathEventListener } from '../../../../../../../_events'
+import { useExpeditionEventListener } from '../../../../../../../_events'
 import { useMoveHistoryStoreApi } from '../../../../../../../_stores/move-history'
 import { usePlayerActivityStoreApi } from '../../../../../../../_stores/player-activity'
 
@@ -47,7 +47,7 @@ export const useResetToCheckpointEventListener = (): void => {
     { allowMultiple: true },
   )
 
-  useFindPathEventListener('FindPath-reset-to-checkpoint', (event) => {
+  useExpeditionEventListener('Expedition-reset-to-checkpoint', (event) => {
     const { current } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
     /** EN 切れ中かつ停止中（補給中でない）か（リセットを提示する状況） */
