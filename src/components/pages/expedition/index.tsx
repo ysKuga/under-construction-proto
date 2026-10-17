@@ -16,7 +16,6 @@ import { FindPathProto03Props } from './index.types'
  *   - `_contents/stage-area`: ステージ（`_contents/stage`: `Stage07` + 各レイヤー、
  *     移動・経路・中継点の操作）と独立 bot（`_contents/standalone-bot`）
  *   - `_contents/bot-bubbles`: bot 頭上の吹き出し（中継点・実行・EN 切れ）
- *   - `_contents/status-panel`: ゴール到達・中継点選択状況
  * - デバッグ要素（`_contents/debug-panel`: 表示設定の切替・EN・リセット等）は表示しない。story で並べる
  * - 直接移動できないセルのクリック時は `Stage07-cell-click` の購読（`useCellClickEventListener`）で BFS 経路探索（`stage-07/_lib/hex-path`）
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
@@ -36,9 +35,8 @@ import { FindPathProto03Props } from './index.types'
  *   `Stage07` を `interactive={false}` にし、
  *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する
  *   （設置済みセルへ 📍 を表示）。通常モードのクリック（`useHexMove` 経由）とは
- *   完全に別イベントとして分離する設計方針。`WaypointSelectingIndicator`
- *   （選択中インジケータ + 「完了」ボタン）で選択モードを終了し経路提示中へ戻る。
- *   `WaypointBubble`/`WaypointSelectLayer`/`WaypointSelectingIndicator` は
+ *   完全に別イベントとして分離する設計方針。
+ *   `WaypointBubble`/`WaypointSelectLayer` は
  *   いずれも表示制御（`useCssToggle`）込みで自己完結したコンポーネントへ切り出し
  *   済み、親からは `visible` prop のみで駆動する（各 content が
  *   `waypointFlowState`（`_stores/waypoint-flow`）を購読して渡す）。

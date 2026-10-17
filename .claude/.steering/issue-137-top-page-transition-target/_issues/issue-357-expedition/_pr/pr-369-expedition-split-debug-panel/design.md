@@ -26,8 +26,8 @@ expedition のレイアウトを基本構成とデバッグ要素へ分け、本
   - `EnergySliders`（`_contents/debug-panel/_components/energy-sliders/` へ移す）
   - 開閉: `<details>`/`<summary>` でアコーディオン状にする
   - `_contents/index.tsx` からは並べない
-- 基本構成の状態表示: `_contents/status-panel/` を新設
-  - `WaypointSelectingIndicator`・中継点数・ゴール到達表示
+- `ControlPanel` の状態表示（`WaypointSelectingIndicator`・中継点数・ゴール到達表示）は削除する
+  - (decision-records.md 2026-10-17 状態表示)
 - `ControlPanel` は削除する
   - 「状態表示の向きを同期」は移さず削除（`FacingSyncToggle` と重複）
 - story: `Debug` story を追加し、`render` で Providers の内側へ基本構成とデバッグ要素を並べる

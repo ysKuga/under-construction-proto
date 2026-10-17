@@ -4,7 +4,6 @@ import { ClearedPhase } from '../_game-phases/cleared'
 
 import { BotBubbles } from './bot-bubbles'
 import { StageArea } from './stage-area'
-import { StatusPanel } from './status-panel'
 import { Title } from './title'
 
 /**
@@ -20,6 +19,5 @@ export const FindPathProto03Contents = () => (
     <StageArea />
     <BotBubbles />
     <ClearedPhase />
-    <StatusPanel />
   </div>
 )
