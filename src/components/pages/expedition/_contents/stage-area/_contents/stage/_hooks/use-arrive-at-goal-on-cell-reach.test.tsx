@@ -1,12 +1,12 @@
 import { act, renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
   Stage07EventProvider,
   useStage07EventDispatcher,
-} from '@/prototypes/stage/stage-07/_events'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'

@@ -2,14 +2,14 @@
 
 import { CSSProperties, memo } from 'react'
 
-import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { HEX_INSET_RATIO } from '@/prototypes/stage/stage-07/_components/geo-layer'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { useEnergyStore } from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { HEX_INSET_RATIO } from '@/components/pages/expedition/_stage-components/hex-stage/_components/geo-layer'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 import {
   computeHexGridBounds,
   hexPolygonPoints,
-} from '@/prototypes/stage/stage-07/_lib/hex-layout'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex-layout'
 
 import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 import { useFollowPathStore } from '../../_stores/follow-path'

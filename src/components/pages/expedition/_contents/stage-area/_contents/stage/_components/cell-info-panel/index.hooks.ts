@@ -1,7 +1,7 @@
-import { useEnergyStore } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { useEnergyStore } from '@/components/pages/expedition/_stores/energy'
 import { term } from '@/features/term-registry'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { useStageLayout } from '../../../../../../_contexts/stage-layout'
 import { describeCellContent } from '../../../../../../_lib/describe-cell-content'

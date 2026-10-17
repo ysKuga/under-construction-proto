@@ -3,8 +3,8 @@
 import { motion } from 'motion/react'
 import { createPortal } from 'react-dom'
 
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { BOT_SIZE } from '../../../../constants'
 import { useGamePhaseStore } from '../../../../_stores/game-phase'

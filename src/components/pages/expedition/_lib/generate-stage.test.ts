@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
 
-import { findHexPath } from '@/prototypes/stage/stage-07/_lib/hex-path'
+import { findHexPath } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex-path'
 import {
   colRowToAxial,
   hexDistance,
   HexCell,
   isHexCellInGrid,
-} from '@/prototypes/stage/stage-07/_lib/hex'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { StageLayout } from '../_contexts/stage-layout/types'
 

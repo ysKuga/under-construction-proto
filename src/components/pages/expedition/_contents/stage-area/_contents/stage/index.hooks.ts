@@ -1,6 +1,6 @@
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { useStage07HandleRef } from '@/prototypes/stage/stage-07/_contexts/stage07-handle'
-import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { useStage07HandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
+import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { usePlayerActorEventTarget } from '../../../../_contexts/player-actor-event-target'
 import { useAdvanceFollowPathOnCellReach } from '../../../../_hooks/use-advance-follow-path-on-cell-reach'

@@ -1,4 +1,4 @@
-import { EnergyInfo } from '@/components/pages/find-path/_prototypes/_stores/energy/types'
+import { EnergyInfo } from '@/components/pages/expedition/_stores/energy/types'
 
 import { ItemInstance } from '../_stores/items/types'
 

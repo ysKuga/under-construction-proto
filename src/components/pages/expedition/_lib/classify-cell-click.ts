@@ -1,9 +1,9 @@
-import { isCellSelectable } from '@/prototypes/stage/stage-07/_lib/cell-selectable'
+import { isCellSelectable } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/cell-selectable'
 import {
   HexCell,
   isHexAdjacent,
   isSameHexCell,
-} from '@/prototypes/stage/stage-07/_lib/hex'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { WaypointFlowState } from '../_stores/waypoint-flow/types'
 

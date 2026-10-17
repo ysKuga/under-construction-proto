@@ -1,4 +1,4 @@
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 /** axial セルの一致判定 */
 export const isSameCell = (a: HexCell, b: HexCell): boolean =>

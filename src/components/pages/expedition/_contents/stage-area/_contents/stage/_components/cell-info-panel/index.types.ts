@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 /** セル情報パネルへ表示する要素1件 */
 export type CellInfoEntry = {

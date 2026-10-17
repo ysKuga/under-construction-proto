@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import { useNotifications } from '@/components/ui/notifications'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { useFollowPathStoreApi } from '../../../../../_stores/follow-path'
 import { useGamePhaseStoreApi } from '../../../../../_stores/game-phase'

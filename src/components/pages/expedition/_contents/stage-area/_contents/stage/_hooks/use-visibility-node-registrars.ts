@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { useVisibilityRegistry } from '../../../../../_contexts/visibility-registry'
 import { UseStageReturn } from '../index.types'

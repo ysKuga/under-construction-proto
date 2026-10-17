@@ -2,11 +2,11 @@
 
 import { PropsWithChildren } from 'react'
 
-import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { Stage07HandleProvider } from '@/prototypes/stage/stage-07/_contexts/stage07-handle'
-import { Stage07EventProvider } from '@/prototypes/stage/stage-07/_events'
-import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
+import { EnergyStoreProvider } from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { Stage07HandleProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
+import { Stage07EventProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-target'
 import { ResetProvider } from './_contexts/reset'

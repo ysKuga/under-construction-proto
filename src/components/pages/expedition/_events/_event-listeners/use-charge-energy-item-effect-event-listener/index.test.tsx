@@ -4,8 +4,8 @@ import { PropsWithChildren } from 'react'
 import {
   EnergyStoreProvider,
   useEnergyStoreApi,
-} from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+} from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
 import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
 import { ItemInstance } from '../../../_stores/items/types'

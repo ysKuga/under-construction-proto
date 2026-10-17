@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
-import { ActorId } from '@/prototypes/time-control/time-control-03/types'
+import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { Actor } from '@/types/theater/actor'
 
 import { useFollowPathStoreApi } from '../_stores/follow-path'
 
@@ -15,7 +15,7 @@ import { useFollowPathStoreApi } from '../_stores/follow-path'
  *
  * @param actorId 対象 actor
  */
-export const useAdvanceFollowPathOnCellReach = (actorId: ActorId) => {
+export const useAdvanceFollowPathOnCellReach = (actorId: Actor['id']) => {
   const followPathStoreApi = useFollowPathStoreApi()
 
   useStage07EventListener(

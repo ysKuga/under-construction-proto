@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 
-import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { EnergyStoreProvider } from '@/components/pages/expedition/_stores/energy'
 
 import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
 import { MoveHistoryStoreProvider } from '../../../_stores/move-history'

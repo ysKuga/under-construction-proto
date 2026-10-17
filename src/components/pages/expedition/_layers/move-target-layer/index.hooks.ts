@@ -6,12 +6,12 @@ import {
   colRowToAxial,
   HexCell,
   isHexAdjacent,
-} from '@/prototypes/stage/stage-07/_lib/hex'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 import {
   computeHexGridBounds,
   hexCellCenter,
   PixelPoint,
-} from '@/prototypes/stage/stage-07/_lib/hex-layout'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex-layout'
 
 import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 

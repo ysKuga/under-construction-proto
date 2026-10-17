@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-import { ENERGY_OUT_DELAY_MS } from '@/components/pages/find-path/_prototypes/_stores/energy/constants'
-import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
-import { ActorId } from '@/prototypes/time-control/time-control-03/types'
+import { ENERGY_OUT_DELAY_MS } from '@/components/pages/expedition/_stores/energy/constants'
+import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { Actor } from '@/types/theater/actor'
 
 /**
  * EN 切れ演出（`energyOut`）を actor の停止まで待たせる
@@ -25,7 +25,7 @@ import { ActorId } from '@/prototypes/time-control/time-control-03/types'
  * @param energyOut box-bot-01 の energyOut action dispatcher
  */
 export const useEnergyOutAfterStop = (
-  actorId: ActorId,
+  actorId: Actor['id'],
   energyOut: () => Promise<void>,
 ): (() => Promise<void>) => {
   /** 移動中か */

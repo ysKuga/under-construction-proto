@@ -1,11 +1,11 @@
 import { CSSProperties, memo, useCallback } from 'react'
 
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 import {
   computeHexGridBounds,
   hexCellCenter,
-} from '@/prototypes/stage/stage-07/_lib/hex-layout'
-import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex-layout'
+import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { OBJECTIVE_OVERLAY_ID } from '../../constants'
 

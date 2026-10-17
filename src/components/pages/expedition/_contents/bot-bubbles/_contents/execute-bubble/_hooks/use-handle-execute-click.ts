@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { useStage07HandleRef } from '@/prototypes/stage/stage-07/_contexts/stage07-handle'
+import { useStage07HandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
 
 import { useFindPathEventDispatcher } from '../../../../../_events'
 import { usePreviewPath } from '../../../../../_hooks/use-preview-path'

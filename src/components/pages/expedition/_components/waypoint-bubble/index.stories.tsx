@@ -5,7 +5,7 @@ import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import {
   computeHexGridBounds,
   hexCellCenter,
-} from '@/prototypes/stage/stage-07/_lib/hex-layout'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex-layout'
 
 import {
   WaypointBubble as StoryComponent,

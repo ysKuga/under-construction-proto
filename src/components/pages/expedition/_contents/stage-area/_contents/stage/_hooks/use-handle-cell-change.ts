@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 
-import { useEnergyEventDispatcher } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { useEnergyEventDispatcher } from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { isSameCell } from '../../../../../_lib/is-same-cell'

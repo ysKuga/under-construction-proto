@@ -1,9 +1,9 @@
-import { useRegisterEnergyOut } from '@/components/pages/find-path/_prototypes/_stores/energy'
+import { useRegisterEnergyOut } from '@/components/pages/expedition/_stores/energy'
 import {
   energyOutAction,
   useBoxBotActionDispatcher,
 } from '@/components/theater/figure/box-bot'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
 import { usePlayerActorEventTarget } from '../../../../../_contexts/player-actor-event-target'
 import { useEnergyOutAfterStop } from '../../../../../_hooks/use-energy-out-after-stop'

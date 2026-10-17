@@ -1,6 +1,6 @@
 'use client'
 
-import { Stage07 } from '@/prototypes/stage/stage-07'
+import { Stage07 } from '@/components/pages/expedition/_stage-components/hex-stage'
 
 import { GoalMarkerLayer } from '../../../../_layers/goal-marker-layer'
 import { ItemLayer } from '../../../../_layers/item-layer'

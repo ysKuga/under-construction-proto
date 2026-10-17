@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { colRowToAxial } from '@/prototypes/stage/stage-07/_lib/hex'
+import { colRowToAxial } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { StageLayout } from '../_contexts/stage-layout/types'
 

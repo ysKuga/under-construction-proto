@@ -1,5 +1,5 @@
-import { useEnergyEventDispatcher } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { useEnergyEventDispatcher } from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
 import { useFindPathEventListener } from '../../_hooks/use-find-path-event-listener'
 

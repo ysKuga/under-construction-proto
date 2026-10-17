@@ -1,11 +1,11 @@
 import { CSSProperties, memo } from 'react'
 
-import { HEX_INSET_RATIO } from '@/prototypes/stage/stage-07/_components/geo-layer'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HEX_INSET_RATIO } from '@/components/pages/expedition/_stage-components/hex-stage/_components/geo-layer'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 import {
   computeHexGridBounds,
   hexCellCenter,
-} from '@/prototypes/stage/stage-07/_lib/hex-layout'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex-layout'
 
 import { useStageLayout } from '../../_contexts/stage-layout'
 import { OneWayDirection } from '../../_contexts/stage-layout/types'

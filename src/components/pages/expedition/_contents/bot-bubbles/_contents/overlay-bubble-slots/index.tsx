@@ -2,8 +2,8 @@
 
 import { createPortal } from 'react-dom'
 
-import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
-import { ActorId } from '@/prototypes/time-control/time-control-03/types'
+import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
+import { Actor } from '@/types/theater/actor'
 
 import { BubbleSlots } from '../../../../_components/bubble-slots'
 import { BubbleSlotsStoreProvider } from '../../../../_components/bubble-slots/_stores/bubble-slots'
@@ -17,7 +17,7 @@ type OverlayBubbleSlotsProps = {
    *
    * - bot 頭上なら `PLAYER_ACTOR_ID`、目標セル上なら `OBJECTIVE_OVERLAY_ID`
    */
-  overlayId: ActorId
+  overlayId: Actor['id']
 }
 
 /**

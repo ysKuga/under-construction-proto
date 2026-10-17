@@ -1,4 +1,7 @@
-import { HexCell, hexDistance } from '@/prototypes/stage/stage-07/_lib/hex'
+import {
+  HexCell,
+  hexDistance,
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 /**
  * 中継点の経由順を最近傍法で決める

@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'react'
 
-import { useEnergyStoreApi } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
+import { useEnergyStoreApi } from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useReset } from '../../../../../_contexts/reset'
 import { useFindPathEventListener } from '../../../../../_events'

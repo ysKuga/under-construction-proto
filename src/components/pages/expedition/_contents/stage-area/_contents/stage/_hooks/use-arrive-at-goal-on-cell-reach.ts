@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
-import { ActorId } from '@/prototypes/time-control/time-control-03/types'
+import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { Actor } from '@/types/theater/actor'
 
 import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { useGamePhaseStoreApi } from '../../../../../_stores/game-phase'
@@ -16,7 +16,7 @@ import { useGamePhaseStoreApi } from '../../../../../_stores/game-phase'
  *
  * @param actorId 対象 actor
  */
-export const useArriveAtGoalOnCellReach = (actorId: ActorId) => {
+export const useArriveAtGoalOnCellReach = (actorId: Actor['id']) => {
   const gamePhaseStoreApi = useGamePhaseStoreApi()
   const { goal } = useStageLayout()
 

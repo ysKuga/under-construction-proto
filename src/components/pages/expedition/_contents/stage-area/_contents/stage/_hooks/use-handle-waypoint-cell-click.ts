@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
 import { useNotifications } from '@/components/ui/notifications'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
-import { useActorsStore } from '@/prototypes/stage/stage-07/_stores/actors'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
+import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { useStageLayout } from '../../../../../_contexts/stage-layout'
 import { canEnterForPath } from '../../../../../_lib/can-enter-for-path'

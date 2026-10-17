@@ -1,11 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
   Stage07EventProvider,
   useStage07EventDispatcher,
-} from '@/prototypes/stage/stage-07/_events'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useReachedCell } from '../_layers/move-target-layer/_hooks/use-reached-cell'
 import {

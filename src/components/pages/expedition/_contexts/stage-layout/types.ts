@@ -1,4 +1,4 @@
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 /** 一方通行セルの退出方向（axial の6近傍、`HEX_DIRECTIONS` と対応） */
 export type OneWayDirection =

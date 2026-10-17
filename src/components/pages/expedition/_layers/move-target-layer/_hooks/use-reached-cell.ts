@@ -2,9 +2,9 @@
 
 import { useCallback, useState } from 'react'
 
-import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
-import { ActorId } from '@/prototypes/time-control/time-control-03/types'
+import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
+import { Actor } from '@/types/theater/actor'
 
 /**
  * actor が最後に中心へ到達したセルを返す
@@ -15,7 +15,7 @@ import { ActorId } from '@/prototypes/time-control/time-control-03/types'
  *
  * @param actorId 対象 actor
  */
-export const useReachedCell = (actorId: ActorId): HexCell | undefined => {
+export const useReachedCell = (actorId: Actor['id']): HexCell | undefined => {
   const [reachedCell, setReachedCell] = useState<HexCell>()
 
   useStage07EventListener(

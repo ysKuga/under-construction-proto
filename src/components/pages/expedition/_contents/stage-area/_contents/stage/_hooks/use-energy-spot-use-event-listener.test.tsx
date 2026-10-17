@@ -4,9 +4,9 @@ import { PropsWithChildren } from 'react'
 import {
   EnergyStoreProvider,
   useEnergyStoreApi,
-} from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
+} from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import {
   FindPathEventProvider,

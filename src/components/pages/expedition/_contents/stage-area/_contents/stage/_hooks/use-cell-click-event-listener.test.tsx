@@ -4,18 +4,18 @@ import { PropsWithChildren, useEffect } from 'react'
 import {
   EnergyStoreProvider,
   useEnergyStoreApi,
-} from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+} from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
   Stage07HandleProvider,
   useStage07HandleRef,
-} from '@/prototypes/stage/stage-07/_contexts/stage07-handle'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
 import {
   Stage07EventProvider,
   useStage07EventDispatcher,
-} from '@/prototypes/stage/stage-07/_events'
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
-import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
+import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'

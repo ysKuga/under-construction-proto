@@ -1,4 +1,4 @@
-import { DEFAULT_ENERGY_INFO } from '@/components/pages/find-path/_prototypes/_stores/energy/constants'
+import { DEFAULT_ENERGY_INFO } from '@/components/pages/expedition/_stores/energy/constants'
 
 import { GenerateStageParams } from '../../_lib/generate-stage'
 import { CARRIED_ITEM_CAPACITY } from '../../_stores/carried-items/constants'

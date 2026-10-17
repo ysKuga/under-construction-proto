@@ -1,4 +1,4 @@
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { ItemUsage } from '../_lib/item-usage'
 import { ItemInstance } from '../_stores/items/types'

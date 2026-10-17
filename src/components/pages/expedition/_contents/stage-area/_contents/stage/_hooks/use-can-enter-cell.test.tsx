@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
 
-import { EnergyStoreProvider } from '@/components/pages/find-path/_prototypes/_stores/energy'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { HEX_DIRECTIONS } from '@/prototypes/stage/stage-07/_lib/hex'
-import { ActorsStoreProvider } from '@/prototypes/stage/stage-07/_stores/actors'
+import { EnergyStoreProvider } from '@/components/pages/expedition/_stores/energy'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { HEX_DIRECTIONS } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
+import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { StageLayoutProvider } from '../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../_contexts/stage-layout/constants'

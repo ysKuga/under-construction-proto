@@ -1,6 +1,6 @@
 import { StoreApi } from 'zustand/vanilla'
 
-import { HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 /**
  * 霧（マスの非表示）の適用範囲

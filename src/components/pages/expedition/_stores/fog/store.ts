@@ -1,6 +1,9 @@
 import { createStore } from 'zustand/vanilla'
 
-import { HEX_DIRECTIONS, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import {
+  HEX_DIRECTIONS,
+  HexCell,
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { FogState, FogStore, FogStoreOptions } from './types'
 

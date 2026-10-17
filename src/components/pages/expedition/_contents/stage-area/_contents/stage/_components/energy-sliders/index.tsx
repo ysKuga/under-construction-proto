@@ -1,6 +1,6 @@
 'use client'
 
-import { SLIDER_LABEL_STYLE } from '@/prototypes/stage/stage-07/constants'
+import { SLIDER_LABEL_STYLE } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
 import { EnergyDebugPanel } from '../../../../../../_components/energy-debug-panel'
 import { useEnergySettingsStore } from '../../../../../../_stores/energy-settings'

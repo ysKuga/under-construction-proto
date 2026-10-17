@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
-import { useStage07EventListener } from '@/prototypes/stage/stage-07/_events'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
+import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { usePlayerActivityStoreApi } from '../../../../../_stores/player-activity'
 

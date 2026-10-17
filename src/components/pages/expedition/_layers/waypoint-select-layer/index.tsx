@@ -3,11 +3,14 @@
 import { CSSProperties, memo, useEffect } from 'react'
 
 import { useCssToggle } from '@/hooks/use-css-toggle'
-import { colRowToAxial, HexCell } from '@/prototypes/stage/stage-07/_lib/hex'
+import {
+  colRowToAxial,
+  HexCell,
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 import {
   computeHexGridBounds,
   hexCellCenter,
-} from '@/prototypes/stage/stage-07/_lib/hex-layout'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex-layout'
 
 type WaypointSelectLayerProps = {
   /** 列数 */

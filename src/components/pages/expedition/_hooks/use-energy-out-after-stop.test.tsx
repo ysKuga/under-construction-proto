@@ -1,11 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 
-import { ENERGY_OUT_DELAY_MS } from '@/components/pages/find-path/_prototypes/_stores/energy/constants'
-import { PLAYER_ACTOR_ID } from '@/prototypes/stage/stage-06/constants'
+import { ENERGY_OUT_DELAY_MS } from '@/components/pages/expedition/_stores/energy/constants'
+import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
   Stage07EventProvider,
   useStage07EventDispatcher,
-} from '@/prototypes/stage/stage-07/_events'
+} from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useEnergyOutAfterStop } from './use-energy-out-after-stop'
 
