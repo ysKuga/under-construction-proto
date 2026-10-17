@@ -5,7 +5,7 @@ import { useCellInfoPanel } from './index.hooks'
 /**
  * hover 中マスの内包要素を一覧表示するパネル（issue #137、PR #313）
  *
- * - 床の直下へ、床と同じ幅で置く（`Stage07` の `belowFloor`）。高さは固定し、要素が多い場合はパネル内で
+ * - 幅は並べる側に合わせる。高さは固定し、要素が多い場合はパネル内で
  *   スクロールする（hover でレイアウトをずらさない）
  * - `Stage07-cell-hover` を自身で購読する。hover で再レンダリングされるのは本パネルのみ
  * - 移動中（`interactive=false`）は hover 通知が来ないため更新されない

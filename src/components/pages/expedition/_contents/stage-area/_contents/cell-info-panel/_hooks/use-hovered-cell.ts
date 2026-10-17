@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
-import { isSameCell } from '../../../../../../../_lib/is-same-cell'
+import { isSameCell } from '../../../../../_lib/is-same-cell'
 import { UseCellInfoPanelReturn } from '../index.types'
 
 /** 同じセル（どちらも hover なしを含む）か */

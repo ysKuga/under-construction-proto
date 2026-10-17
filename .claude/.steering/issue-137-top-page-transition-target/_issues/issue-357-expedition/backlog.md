@@ -4,7 +4,9 @@
   - 現状: `expedition/_prototypes` の proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
-- [ ] ステージ・bot の状態表示・手数の履歴・セル情報パネルのレイアウトを検討する
+- [ ] レスポンシブ対応を検討する
+  - breakpoint
+  - 表示の仕方（ビューポートに応じたサイズ調整等）
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)

@@ -15,18 +15,18 @@ import {
   useActorsStoreApi,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
-import { StageLayoutProvider } from '../../../../../../_contexts/stage-layout'
-import { DEFAULT_STAGE_LAYOUT } from '../../../../../../_contexts/stage-layout/constants'
+import { StageLayoutProvider } from '../../../../_contexts/stage-layout'
+import { DEFAULT_STAGE_LAYOUT } from '../../../../_contexts/stage-layout/constants'
 import {
   GamePhaseStoreProvider,
   useGamePhaseStore,
-} from '../../../../../../_stores/game-phase'
-import { ItemStoreProvider } from '../../../../../../_stores/items'
-import { ItemInstance } from '../../../../../../_stores/items/types'
+} from '../../../../_stores/game-phase'
+import { ItemStoreProvider } from '../../../../_stores/items'
+import { ItemInstance } from '../../../../_stores/items/types'
 import {
   useWaypointFlowStoreApi,
   WaypointFlowStoreProvider,
-} from '../../../../../../_stores/waypoint-flow'
+} from '../../../../_stores/waypoint-flow'
 
 import { OBJECTIVE_CANCEL_HINT, useCellInfoPanel } from './index.hooks'
 
