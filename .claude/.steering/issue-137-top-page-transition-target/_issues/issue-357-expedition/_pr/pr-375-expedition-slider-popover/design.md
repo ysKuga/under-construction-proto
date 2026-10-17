@@ -22,12 +22,12 @@ PR: #375（親: #357）
   - 開閉 state・外側クリック・Esc の処理が不要
   - 閉じても DOM は残るため、tilt の `defaultValue` 運用のままで値を保てる
 - 位置合わせ: CSS anchor positioning（`anchor-name`・`position-anchor`・`position-area`）
-  - アイコンの下・右端揃えで開く
+  - アイコンの下・左端揃えで開く（セル情報パネルに重なる）
 - 置き場
-  - `stage-area/_contents/stage-settings`: 設定アイコン + ポップオーバー
+  - `stage/_contents/stage-settings`: 設定アイコン + ポップオーバー
   - `stage-settings/_contents/stage-sliders`: tilt・移動時間（既存 `stage-sliders` を移動）
   - `debug-panel/_contents/motion-sliders`: 歩行周期上限・脚振り角・体の上下量
-- アイコン: `FacingSyncToggle` と同じ丸ボタン（lucide `Settings`）、ステージ右上へ重ねる
+- アイコン: `FacingSyncToggle` と同じ丸ボタン（lucide `Settings`）、床の左下（セル情報パネルの左上の外側）へ重ねる
 
 ## 懸念・リスク
 
