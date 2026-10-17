@@ -42,4 +42,4 @@ Namespace
 
 ## 対象
 
-現時点では [find-path proto-03](../src/components/pages/find-path/_prototypes/proto-03/index.tsx) のみをモデリング対象とする([find-path proto-03 優先](../.claude/.steering/issue-137-top-page-transition-target/design.md) 方針に合わせる)。
+現時点では [find-path proto-03](../src/components/pages/expedition/_prototypes/proto-03/index.tsx) のみをモデリング対象とする([find-path proto-03 優先](../.claude/.steering/issue-137-top-page-transition-target/design.md) 方針に合わせる)。

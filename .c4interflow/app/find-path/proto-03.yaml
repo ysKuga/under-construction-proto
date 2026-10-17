@@ -1,7 +1,7 @@
 # find-path proto-03(hex 版)のアーキテクチャモデル
 #
 # 参照元:
-#   src/components/pages/find-path/_prototypes/proto-03/index.tsx
+#   src/components/pages/expedition/_prototypes/proto-03/index.tsx
 #   src/prototypes/stage/stage-07/
 #
 # Interfaces.*.Flows.Expression のパス表記は公式ドキュメントに具体例が
