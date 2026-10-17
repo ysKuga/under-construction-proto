@@ -20,7 +20,7 @@
   - `find-path/_prototypes/_stores/energy`（proto-01/02/03 共有）
   - `src/prototypes/time-control/time-control-03/types`
   - (../../decision-records.md 2026-10-17 本実装移行)
-  - [_pr/pr-360-expedition-copy-deps/design.md](_pr/pr-360-expedition-copy-deps/design.md)
+  - [_closed/pr-360-expedition-copy-deps/design.md](_closed/pr-360-expedition-copy-deps/design.md)
 - [ ] レイアウトを基本構成とデバッグ要素へ分ける
   - 基本構成: マップ・状態表示系
   - デバッグ要素
