@@ -175,7 +175,9 @@ Storybook + Playwright ヘッドレス Chromium 検証、端末に Chromium 本�
   - 理由: 検証出力・スクリーンショット大量でメインのコンテキスト圧迫。使うのは OK/NG・観測値のみ
 - `story-verifier` へ、変更の影響する story 全て渡す(`Default`・`Debug` 等)。一部の story のみの確認禁止。
   - レイアウト変更時、変更対象に加え周辺要素の位置も観測値として返させる
-  - 理由: PR #369 で `Debug` のみ確認し `Default` の確認漏れ、周辺要素(ゴール到達表示)の位置ずれ見逃し
+  - 理由: PR #369
+    - `Default` の確認漏れ(`Debug` のみ確認)
+    - 周辺要素(ゴール到達表示)の位置ずれ見逃し
 
 ### Storybook 常駐
 
