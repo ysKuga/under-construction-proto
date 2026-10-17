@@ -1,9 +1,8 @@
 'use client'
 
-import { useStage07HandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
-
-import { useDisplaySettingsStore } from '../../../../_stores/display-settings'
 import { INITIAL_TILT_DEG, SLIDER_LABEL_STYLE } from '../../../../constants'
+
+import { useStageSliders } from './index.hooks'
 
 /**
  * ステージの調整スライダー（tilt・移動時間・歩行周期上限・脚振り角・体の上下量）
@@ -12,31 +11,17 @@ import { INITIAL_TILT_DEG, SLIDER_LABEL_STYLE } from '../../../../constants'
  * - tilt 以外は `display-settings` store へ書き込み、stage content が購読して `Stage07` へ渡す
  */
 export const StageSliders = () => {
-  const stage07HandleRef = useStage07HandleRef()
-  /** セル間移動アニメーションの所要時間(ms) */
-  const moveDurationMs = useDisplaySettingsStore(
-    (state) => state.moveDurationMs,
-  )
-  const setMoveDurationMs = useDisplaySettingsStore(
-    (state) => state.setMoveDurationMs,
-  )
-  /** walking の脚振り周期の上限(秒) */
-  const maxWalkCycleSec = useDisplaySettingsStore(
-    (state) => state.maxWalkCycleSec,
-  )
-  const setMaxWalkCycleSec = useDisplaySettingsStore(
-    (state) => state.setMaxWalkCycleSec,
-  )
-  /** walking の脚振り角の振幅(rad) */
-  const legSwingAngle = useDisplaySettingsStore((state) => state.legSwingAngle)
-  const setLegSwingAngle = useDisplaySettingsStore(
-    (state) => state.setLegSwingAngle,
-  )
-  /** 歩行中の体の上下の最大持ち上げ量(world) */
-  const bodyBobHeight = useDisplaySettingsStore((state) => state.bodyBobHeight)
-  const setBodyBobHeight = useDisplaySettingsStore(
-    (state) => state.setBodyBobHeight,
-  )
+  const {
+    bodyBobHeight,
+    handleTiltChange,
+    legSwingAngle,
+    maxWalkCycleSec,
+    moveDurationMs,
+    setBodyBobHeight,
+    setLegSwingAngle,
+    setMaxWalkCycleSec,
+    setMoveDurationMs,
+  } = useStageSliders()
 
   return (
     <div>
@@ -47,7 +32,7 @@ export const StageSliders = () => {
           max={85}
           min={0}
           onChange={(event) => {
-            stage07HandleRef.current?.setTilt(Number(event.target.value))
+            handleTiltChange(Number(event.target.value))
           }}
           step={1}
           type="range"

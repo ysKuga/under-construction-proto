@@ -126,7 +126,11 @@ type Stage07Props = PropsWithChildren<{
   interactive?: boolean
   /** walking の脚振り角の振幅(rad)（省略時は `MOTION_DEFAULTS.legSwingAngle`） */
   legSwingAngle?: number
-  /** walking の脚振り周期(`cycleSec`)の上限(秒)（省略時は `MOTION_DEFAULTS.maxWalkCycleSec`）。歩幅は変えず周期の伸びだけ頭打ちにする */
+  /**
+   * walking の脚振り周期(`cycleSec`)の上限(秒)（省略時は `MOTION_DEFAULTS.maxWalkCycleSec`）
+   *
+   * - 歩幅(`swingAngle`)は変えず、周期の伸びだけをここで頭打ちにする
+   */
   maxWalkCycleSec?: number
   /** セル間移動アニメーションの所要時間(ms)（省略時は `MOTION_DEFAULTS.moveDurationMs`） */
   moveDurationMs?: number
