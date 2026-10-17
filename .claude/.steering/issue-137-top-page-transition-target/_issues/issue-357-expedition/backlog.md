@@ -5,6 +5,7 @@
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
 - [ ] レイアウトを基本構成とデバッグ要素へ分ける
+  - [_pr/pr-369-expedition-split-debug-panel/design.md](_pr/pr-369-expedition-split-debug-panel/design.md)
   - 基本構成: マップ・状態表示系
   - デバッグ要素
     - 構成: 独立したコンポーネント
