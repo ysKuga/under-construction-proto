@@ -14,12 +14,14 @@
   - test: コピーする
   - story: 基本構成 + デバッグモード（基本構成とデバッグ要素を story 上で組み合わせて表示）
   - (decision-records.md 2026-10-17 未決事項)
-- [ ] 依存先を本実装側へコピーする
+- [x] 依存先を本実装側へコピーする
   - `src/prototypes/stage/stage-07`
   - `src/prototypes/stage/stage-06/constants`
+  - `src/prototypes/stage/stage-05/_hooks/use-perspective-control`（コピー時に判明）
   - `find-path/_prototypes/_stores/energy`（proto-01/02/03 共有）
   - `src/prototypes/time-control/time-control-03/types`
   - (../../decision-records.md 2026-10-17 本実装移行)
+  - [_closed/pr-360-expedition-copy-deps/design.md](_closed/pr-360-expedition-copy-deps/design.md)
 - [ ] レイアウトを基本構成とデバッグ要素へ分ける
   - 基本構成: マップ・状態表示系
   - デバッグ要素
@@ -32,5 +34,11 @@
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)
+- [ ] コピーした依存先に残るコピー元の名前を見直す
+  - 対象
+    - コメント内の `find-path proto-03`・`stage-06` 等への言及
+    - `stage07` を含むファイル・ディレクトリ名（`stage07-handle`・`use-stage07-event-*` 等）
+  - 範囲: `expedition/_stage-components/hex-stage`・`expedition/_stores/energy`
+  - 別 PR で行う
 - [ ] route を配線する
   - 現状: `src/app` に未設置
