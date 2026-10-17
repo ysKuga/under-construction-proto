@@ -17,7 +17,7 @@ import {
   INITIAL_TILT_DEG,
 } from '../../../../constants'
 
-import { StageSettings } from './_contents/stage-settings'
+import { StageSettings } from './_components/stage-settings'
 import { useStage } from './index.hooks'
 
 /**

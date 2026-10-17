@@ -3,8 +3,8 @@
 import { MoveTargetDisplayMode } from '../../_stores/display-settings/types'
 import { FogMode } from '../../_stores/fog/types'
 
-import { EnergySliders } from './_contents/energy-sliders'
-import { MotionSliders } from './_contents/motion-sliders'
+import { EnergySliders } from './_components/energy-sliders'
+import { MotionSliders } from './_components/motion-sliders'
 import { useDebugPanel } from './index.hooks'
 
 /** 「初期表示」select の選択肢 */

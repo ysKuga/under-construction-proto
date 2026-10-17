@@ -25,10 +25,10 @@ import { usePlayerActivityStoreApi } from '../../_stores/player-activity'
 import { useWaypointFlowStoreApi } from '../../_stores/waypoint-flow'
 import { ENERGY_SPOT_CHARGED_NOTICE_MS } from '../../constants'
 
-import { EnergyDepletedBubbleContent } from './_contents/energy-depleted-bubble'
-import { EnergySpotBubbleContent } from './_contents/energy-spot-bubble'
-import { ExecuteBubbleContent } from './_contents/execute-bubble'
-import { WaypointBubbleContent } from './_contents/waypoint-bubble'
+import { EnergyDepletedBubbleContent } from './_components/energy-depleted-bubble'
+import { EnergySpotBubbleContent } from './_components/energy-spot-bubble'
+import { ExecuteBubbleContent } from './_components/execute-bubble'
+import { WaypointBubbleContent } from './_components/waypoint-bubble'
 import { UseBotBubblesReturn } from './index.types'
 
 /**

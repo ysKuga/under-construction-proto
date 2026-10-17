@@ -2,7 +2,7 @@
 
 import { ITEM_KINDS } from '../../../../_stores/items/constants'
 
-import { CarriedItemButton } from './_contents/carried-item-button'
+import { CarriedItemButton } from './_components/carried-item-button'
 
 /**
  * 状態表示の bot に重ねるショートカット群

@@ -3,7 +3,7 @@ import { StoreApi } from 'zustand/vanilla'
 /**
  * 表示・演出の切替設定を保持する store
  *
- * - デバッグ要素（`_contents/debug-panel`）・調整スライダー（`stage/_contents/stage-settings`）で切り替え、ステージ側が購読する
+ * - デバッグ要素（`_components/debug-panel`）・調整スライダー（`stage/_components/stage-settings`）で切り替え、ステージ側が購読する
  */
 export type DisplaySettingsState = {
   /** 歩行中の体の上下の最大持ち上げ量(world) */
