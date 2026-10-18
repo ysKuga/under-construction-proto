@@ -114,3 +114,12 @@
 - 2026-10-18（event 名の改名）: event 名を `FindPath` から `Expedition` へ改名した（PR #385）
   - [_closed/pr-385-expedition-rename-events/design.md](_closed/pr-385-expedition-rename-events/design.md)
   - コンポーネント名（`FindPathProto03*`）は別 PR
+- 2026-10-18（レスポンシブ）: レスポンシブ対応の方針を決めた
+  - 対象の最小幅: スマホ縦（375px）
+  - 並べ方: `md` 未満で縦積み
+  - ステージの大きさ: 表示領域（viewport）で盤面の一部を表示する
+    - 理由: 将来、表示領域に収まらない大きさの盤面を想定する
+    - `hexSize` の切替は併用可
+      - 収まらない場合: 表示領域で扱う
+    - CSS `scale` は不採用
+      - 理由: 吹き出しの追従（`getBoundingClientRect` の差分）へ scale の補正が要る
