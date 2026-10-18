@@ -39,7 +39,7 @@ store・context の購読有無、実装かどうかでは分けない。
 - `_stage-components/`: ステージ本体（`hex-stage` 等）。ゲーム上の役割を持つため `_components/` と分ける
   - ページの状態を知らず、props・handle で駆動する
   - 例: `expedition/_stage-components/hex-stage`（stage-07 のコピー）
-- `_layers/`: ステージ（`Stage07` 等）の children として重ねるレイヤー
+- `_layers/`: ステージ（`HexStage` 等）の children として重ねるレイヤー
 
 ### 組み合わせの命名
 

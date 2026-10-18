@@ -41,7 +41,7 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
 /**
  * 中継点選択モード中のクリックレイヤー
  *
- * - `Stage07` の `interactive={false}`（`index.tsx` が `waypointFlowState ===
+ * - `HexStage` の `interactive={false}`（`index.tsx` が `waypointFlowState ===
  *   'selecting'` の間切替える）と組ませて使う。`GeoLayer` が非対話になった間、
  *   このレイヤーが全セルのクリックを拾い `onCellClick` を発火する
  * - 通常モードのセルクリック（`useHexMove` 経由、隣接移動・直接移動できないセルのクリックでの
@@ -53,7 +53,7 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  * - 表示/非表示は `useCssToggle`（`src/hooks/use-css-toggle`）で自己管理する
  *   （`WaypointBubble` と同型）。`visible` prop の変化を hidden checkbox の
  *   checked へ同期するだけで、React state による条件付きレンダリングは行わない
- * - wrapper の `position: 'absolute'`（`Stage07` の floor(3D 空間) 全体を覆う
+ * - wrapper の `position: 'absolute'`（`HexStage` の floor(3D 空間) 全体を覆う
  *   絶対配置オーバーレイにする。指定しないと通常のブロック要素として
  *   ドキュメントフローに乗ってしまい、内部の絶対位置計算の基準が floor
  *   全体からズレる）・`transformStyle: 'preserve-3d'`（指定しないと子孫が

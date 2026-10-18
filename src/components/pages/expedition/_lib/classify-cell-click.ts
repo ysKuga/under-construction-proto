@@ -12,7 +12,7 @@ import { WaypointFlowState } from '../_stores/waypoint-flow/types'
  *
  * - `current`: 現在マス。何もしない
  * - `cancel-objective`: 経路提示中の目標セルの再クリック。目標設定をキャンセルする
- * - `move`: 隣接マス。移動を試みる（進入可否は `Stage07Handle.moveTo` が判定し、拒否されたら目標として扱う）
+ * - `move`: 隣接マス。移動を試みる（進入可否は `HexStageHandle.moveTo` が判定し、拒否されたら目標として扱う）
  * - `objective`: 上記以外。目標として経路を提示する（EN 切れによる拒否・到達不能もここに含む）
  */
 export type CellClickKind =
@@ -34,7 +34,7 @@ export type CellClickContext = {
 /**
  * セルクリックを分類する
  *
- * - 現在マス判定は `Stage07` の選択可能表示と同じ `isCellSelectable` を使う
+ * - 現在マス判定は `HexStage` の選択可能表示と同じ `isCellSelectable` を使う
  * - 目標セルの再クリックは隣接判定より先に見る。目標になる隣接マスは進入不可のマス
  *   （障害物・一方通行の壁）のみのため、移動を試みる前にキャンセルとして扱う
  * - 進入可否は扱わない。`moveTo` の判定と二重にしないため
@@ -50,7 +50,7 @@ export const classifyCellClick = (
 ): CellClickKind => {
   const { currentCell, flowState, objectiveCell } = context
 
-  /** クリックで何かが起きるセルか（現在マス以外、`Stage07` の選択可能表示と同じ判定） */
+  /** クリックで何かが起きるセルか（現在マス以外、`HexStage` の選択可能表示と同じ判定） */
   const selectable = isCellSelectable(cell, currentCell)
 
   // 現在マス: 何もしない

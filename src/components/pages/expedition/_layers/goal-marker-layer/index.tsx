@@ -28,7 +28,7 @@ type GoalMarkerLayerProps = {
 /**
  * ゴールセルの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
+ * - `HexStage` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
  *   ゴール (axial) のセル中心へマーカーを表示するだけの非対話層
  * - 座標計算は `GeoLayer`/`ActorsLayer` と同じ `computeHexGridBounds`/`hexCellCenter`
  *   を共有し、見た目位置がズレないようにする

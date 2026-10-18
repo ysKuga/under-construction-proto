@@ -4,8 +4,8 @@ import { PropsWithChildren } from 'react'
 
 import { EnergyStoreProvider } from '@/components/pages/expedition/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
-import { Stage07HandleProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
-import { Stage07EventProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { HexStageHandleProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/hex-stage-handle'
+import { HexStageEventProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-target'
@@ -55,10 +55,10 @@ type ExpeditionProvidersProps = PropsWithChildren<ExpeditionProps>
  *   の hex 版）。霧の状態・可視判定は `FogStoreProvider`（`_stores/fog`）が持ち、
  *   registry は DOM の登録・反映のみを担う。可視判定は霧セルについて「視界（現在地
  *   基準の6近傍）」または「到達済み表示ONかつ到達済みセル」（`setShowVisited` で
- *   切替可能、既定 ON）。`Stage07`（hex タイルの表示/非表示）・`GoalMarkerLayer`
- *   （旗の表示/非表示）から読めるよう `Stage07` の外側に置く
+ *   切替可能、既定 ON）。`HexStage`（hex タイルの表示/非表示）・`GoalMarkerLayer`
+ *   （旗の表示/非表示）から読めるよう `HexStage` の外側に置く
  * - `ActorsStoreProvider`（hex 版、zustand store）は actorId ごとの現在セルを
- *   保持する Provider。`Stage07` の外側に置く（issue #181 PR-A。tick 駆動実行の
+ *   保持する Provider。`HexStage` の外側に置く（issue #181 PR-A。tick 駆動実行の
  *   追加に備え、外部からクリックを介さず actor を動かせるようにするため）。
  *   player・mob を区別せず一元管理する（issue #215）
  */
@@ -98,7 +98,7 @@ const StageProviders = (props: ExpeditionProvidersProps) => {
                   [PLAYER_ACTOR_ID]: stageLayout.start,
                 }}
               >
-                <Stage07EventProvider>
+                <HexStageEventProvider>
                   <FogStoreProvider initialMode={initialFogMode}>
                     <VisibilityRegistryProvider>
                       <FollowPathStoreProvider>
@@ -106,11 +106,11 @@ const StageProviders = (props: ExpeditionProvidersProps) => {
                           <DisplaySettingsStoreProvider>
                             <EnergySettingsStoreProvider>
                               <GamePhaseStoreProvider>
-                                <Stage07HandleProvider>
+                                <HexStageHandleProvider>
                                   <PlayerActorEventTargetProvider>
                                     {children}
                                   </PlayerActorEventTargetProvider>
-                                </Stage07HandleProvider>
+                                </HexStageHandleProvider>
                               </GamePhaseStoreProvider>
                             </EnergySettingsStoreProvider>
                           </DisplaySettingsStoreProvider>
@@ -118,7 +118,7 @@ const StageProviders = (props: ExpeditionProvidersProps) => {
                       </FollowPathStoreProvider>
                     </VisibilityRegistryProvider>
                   </FogStoreProvider>
-                </Stage07EventProvider>
+                </HexStageEventProvider>
               </ActorsStoreProvider>
             </ItemStoreProvider>
           </ExpeditionEventProvider>

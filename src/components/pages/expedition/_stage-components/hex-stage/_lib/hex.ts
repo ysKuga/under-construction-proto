@@ -62,7 +62,7 @@ const hexDirectionScreenAngle = (direction: HexCell): number => {
  *
  * - 隣接セル前提(`HEX_DIRECTIONS` のいずれとも一致しない場合は `undefined`)
  * - box-bot-01 の yaw(3D 空間の y 軸回転)への変換は行わない。box-bot-01 のカメラモデルを
- *   知らない疎結合を保つため、呼び出し側(`Stage07`)が `screenAngleToYaw`（box-bot-01 側）
+ *   知らない疎結合を保つため、呼び出し側(`HexStage`)が `screenAngleToYaw`（box-bot-01 側）
  *   でこの画面角度を yaw へ変換する
  */
 export const hexDirectionToScreenAngle = (

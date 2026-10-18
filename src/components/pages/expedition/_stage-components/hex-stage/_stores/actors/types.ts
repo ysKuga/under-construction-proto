@@ -9,7 +9,7 @@ import { HexCell } from '../../_lib/hex'
  *
  * - `move`: 移動アニメーションあり
  * - `warp`: 移動アニメーションなし。通過マスを経由しないため、通過マスの到達\
- *   (`Stage07-cell-reach`)は発行されない
+ *   (`HexStage-cell-reach`)は発行されない
  */
 export type ActorMoveKind = 'move' | 'warp'
 

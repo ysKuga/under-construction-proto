@@ -4,19 +4,19 @@ import { createRequiredContext } from '@/utils/create-required-context'
 
 const { RequiredContext, useRequiredContext } =
   createRequiredContext<EventTarget>(
-    'useStage07EventTarget should be used within <Stage07EventProvider>',
+    'useHexStageEventTarget should be used within <HexStageEventProvider>',
   )
 
-/** stage-07 event 用 Context */
-export const Stage07EventContext = RequiredContext
+/** hex-stage event 用 Context */
+export const HexStageEventContext = RequiredContext
 
-/** stage-07 event の発火対象 (EventTarget) を取得する */
-export const useStage07EventTarget = (): EventTarget => useRequiredContext()
+/** hex-stage event の発火対象 (EventTarget) を取得する */
+export const useHexStageEventTarget = (): EventTarget => useRequiredContext()
 
 /**
- * stage-07 event の発火対象 (EventTarget) を取得する（Provider 外なら `null`）
+ * hex-stage event の発火対象 (EventTarget) を取得する（Provider 外なら `null`）
  *
- * - `Stage07` 自身の発行用。Provider なしでも単体でマウントできるようにする
+ * - `HexStage` 自身の発行用。Provider なしでも単体でマウントできるようにする
  */
-export const useOptionalStage07EventTarget = (): EventTarget | null =>
-  useContext(Stage07EventContext)
+export const useOptionalHexStageEventTarget = (): EventTarget | null =>
+  useContext(HexStageEventContext)

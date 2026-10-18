@@ -7,7 +7,7 @@ import { useCellInfoPanel } from './index.hooks'
  *
  * - 幅は並べる側に合わせる。高さは固定し、要素が多い場合はパネル内で
  *   スクロールする（hover でレイアウトをずらさない）
- * - `Stage07-cell-hover` を自身で購読する。hover で再レンダリングされるのは本パネルのみ
+ * - `HexStage-cell-hover` を自身で購読する。hover で再レンダリングされるのは本パネルのみ
  * - 移動中（`interactive=false`）は hover 通知が来ないため更新されない
  */
 export const CellInfoPanel = () => {

@@ -7,12 +7,12 @@ import {
 } from '@/components/pages/expedition/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
-  Stage07HandleProvider,
-  useStage07HandleRef,
-} from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
+  HexStageHandleProvider,
+  useHexStageHandleRef,
+} from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/hex-stage-handle'
 import {
-  Stage07EventProvider,
-  useStage07EventDispatcher,
+  HexStageEventProvider,
+  useHexStageEventDispatcher,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
@@ -45,13 +45,13 @@ const Wrapper = (props: PropsWithChildren) => (
               <ActorsStoreProvider
                 initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}
               >
-                <Stage07EventProvider>
+                <HexStageEventProvider>
                   <WaypointFlowStoreProvider>
-                    <Stage07HandleProvider>
+                    <HexStageHandleProvider>
                       {props.children}
-                    </Stage07HandleProvider>
+                    </HexStageHandleProvider>
                   </WaypointFlowStoreProvider>
-                </Stage07EventProvider>
+                </HexStageEventProvider>
               </ActorsStoreProvider>
             </ExpeditionEventProvider>
           </PlayerActivityStoreProvider>
@@ -62,7 +62,7 @@ const Wrapper = (props: PropsWithChildren) => (
 )
 
 /**
- * listener を有効化し、`Stage07-cell-click` を発行できるようにする
+ * listener を有効化し、`HexStage-cell-click` を発行できるようにする
  *
  * @param moveTo handle の `moveTo`（既定は常に移動できない）
  * @param onShakeBotBubble `Expedition-shake-bot-bubble` の購読
@@ -73,18 +73,18 @@ const renderListener = (
 ) => {
   const { result } = renderHook(
     () => {
-      const stage07HandleRef = useStage07HandleRef()
-      const dispatcher = useStage07EventDispatcher()
+      const hexStageHandleRef = useHexStageHandleRef()
+      const dispatcher = useHexStageEventDispatcher()
 
       useEffect(() => {
         // handle を moveTo のみ差し替える
-        stage07HandleRef.current = {
+        hexStageHandleRef.current = {
           followPath: () => {},
           moveTo,
           setTilt: () => {},
           warp: () => {},
         }
-      }, [stage07HandleRef])
+      }, [hexStageHandleRef])
       useCellClickEventListener()
       useExpeditionEventListener(
         'Expedition-shake-bot-bubble',
@@ -102,7 +102,7 @@ const renderListener = (
 
   /** セルのクリックを発行する */
   const click = (cell: HexCell) =>
-    act(() => result.current.dispatcher['Stage07-cell-click']({ cell }))
+    act(() => result.current.dispatcher['HexStage-cell-click']({ cell }))
 
   return { click, moveTo, onShakeBotBubble, result }
 }

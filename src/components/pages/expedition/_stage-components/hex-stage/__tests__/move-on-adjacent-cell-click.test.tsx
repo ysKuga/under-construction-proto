@@ -2,42 +2,42 @@ import { act, render } from '@testing-library/react'
 import { useEffect } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { Stage07Handle } from '..'
+import { HexStageHandle } from '..'
 import { MoveOnAdjacentCellClick } from '../_components/move-on-adjacent-cell-click'
 import {
-  Stage07HandleProvider,
-  useStage07HandleRef,
-} from '../_contexts/stage07-handle'
-import { Stage07EventProvider, useStage07EventDispatcher } from '../_events'
+  HexStageHandleProvider,
+  useHexStageHandleRef,
+} from '../_contexts/hex-stage-handle'
+import { HexStageEventProvider, useHexStageEventDispatcher } from '../_events'
 import { HexCell } from '../_lib/hex'
 
-/** テストから `Stage07-cell-click` を発行する dispatcher */
+/** テストから `HexStage-cell-click` を発行する dispatcher */
 type Dispatch = (cell: HexCell) => Promise<unknown>
 
 /** context の handle を差し替え、dispatcher を外へ渡す */
 const Harness = (props: {
-  handle: null | Stage07Handle
+  handle: null | HexStageHandle
   onReady: (dispatch: Dispatch) => void
 }) => {
   const { handle, onReady } = props
-  const handleRef = useStage07HandleRef()
-  const dispatcher = useStage07EventDispatcher()
+  const handleRef = useHexStageHandleRef()
+  const dispatcher = useHexStageEventDispatcher()
 
   useEffect(() => {
     // handle を差し替え、dispatcher をテストへ渡す
     handleRef.current = handle
-    onReady((cell) => dispatcher['Stage07-cell-click']({ cell }))
+    onReady((cell) => dispatcher['HexStage-cell-click']({ cell }))
   })
 
   return null
 }
 
-const renderMoveOnAdjacentCellClick = (handle: null | Stage07Handle) => {
+const renderMoveOnAdjacentCellClick = (handle: null | HexStageHandle) => {
   let dispatch: Dispatch = async () => {}
 
   render(
-    <Stage07HandleProvider>
-      <Stage07EventProvider>
+    <HexStageHandleProvider>
+      <HexStageEventProvider>
         <MoveOnAdjacentCellClick />
         <Harness
           handle={handle}
@@ -45,8 +45,8 @@ const renderMoveOnAdjacentCellClick = (handle: null | Stage07Handle) => {
             dispatch = next
           }}
         />
-      </Stage07EventProvider>
-    </Stage07HandleProvider>,
+      </HexStageEventProvider>
+    </HexStageHandleProvider>,
   )
 
   return (cell: HexCell) => act(() => dispatch(cell))

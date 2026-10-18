@@ -2,7 +2,7 @@ import { RefObject, useEffect, useRef } from 'react'
 
 import { Actor } from '@/types/theater/actor'
 
-import { useStage07EventDispatcher } from '../_events'
+import { useHexStageEventDispatcher } from '../_events'
 import { judgeCellReach } from '../_lib/cell-reach'
 import { HexCell } from '../_lib/hex'
 import { computeHexGridBounds } from '../_lib/hex-layout'
@@ -11,7 +11,7 @@ import { computeHexGridBounds } from '../_lib/hex-layout'
 const CELL_REACH_CHECK_INTERVAL_RATIO = 1 / 5
 
 /**
- * actor の描画位置がセル中心に到達したら `Stage07-cell-reach` を発行する
+ * actor の描画位置がセル中心に到達したら `HexStage-cell-reach` を発行する
  *
  * - セル間移動は CSS transition のため、途中の描画位置は `getComputedStyle` で読む
  * - `targetCell` の変化(移動開始)を契機に、`moveDurationMs` の
@@ -37,7 +37,7 @@ export const useEffectCellReach = (
   hexSize: number,
   moveDurationMs: number,
 ) => {
-  const stage07EventDispatcher = useStage07EventDispatcher()
+  const hexStageEventDispatcher = useHexStageEventDispatcher()
   /** 最後に到達を発行したセル */
   const lastReachedCellRef = useRef<HexCell | undefined>(undefined)
 
@@ -65,7 +65,7 @@ export const useEffectCellReach = (
 
       if (reachedCell) {
         lastReachedCellRef.current = reachedCell
-        void stage07EventDispatcher['Stage07-cell-reach']({
+        void hexStageEventDispatcher['HexStage-cell-reach']({
           actorId,
           cell: reachedCell,
         })
@@ -93,7 +93,7 @@ export const useEffectCellReach = (
     hexSize,
     moveDurationMs,
     rows,
-    stage07EventDispatcher,
+    hexStageEventDispatcher,
     targetCell,
   ])
 }

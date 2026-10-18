@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react'
 
 import { useEnergyStoreApi } from '@/components/pages/expedition/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
-import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { useHexStageEventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useReset } from '../../../../../../../_contexts/reset'
 import { useExpeditionEventListener } from '../../../../../../../_events'
@@ -13,7 +13,7 @@ import { usePlayerActivityStoreApi } from '../../../../../../../_stores/player-a
  * チェックポイント（開始位置）へのリセットを受け付け、盤面ごと初期状態へ戻す
  *
  * - EN 切れ中かつ停止中でなければ `preventDefault()` で拒否する
- *   - 停止中かは `Stage07-move-start`/`Stage07-move-stop` の購読で知る
+ *   - 停止中かは `HexStage-move-start`/`HexStage-move-stop` の購読で知る
  *   - EN スポットで補給中も拒否する（issue #297）
  * - 受け付けたら `useReset` で配下を丸ごと再マウントする（issue #315）\
  *   位置・EN・アイテム・霧等の全 store が初期状態へ戻る。seed は保持されるため盤面は同じ配置
@@ -27,8 +27,8 @@ export const useResetToCheckpointEventListener = (): void => {
   /** player が移動中か */
   const isMovingRef = useRef(false)
 
-  useStage07EventListener(
-    'Stage07-move-start',
+  useHexStageEventListener(
+    'HexStage-move-start',
     useCallback((event) => {
       if (event.detail.actorId !== PLAYER_ACTOR_ID) return
 
@@ -37,8 +37,8 @@ export const useResetToCheckpointEventListener = (): void => {
     { allowMultiple: true },
   )
 
-  useStage07EventListener(
-    'Stage07-move-stop',
+  useHexStageEventListener(
+    'HexStage-move-stop',
     useCallback((event) => {
       if (event.detail.actorId !== PLAYER_ACTOR_ID) return
 

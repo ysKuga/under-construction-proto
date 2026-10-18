@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { useHexStageEventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import { Actor } from '@/types/theater/actor'
 
 import { useFollowPathStoreApi } from '../_stores/follow-path'
@@ -8,7 +8,7 @@ import { useFollowPathStoreApi } from '../_stores/follow-path'
 /**
  * actor がセル中心に到達したら、自動移動の進行を記録する
  *
- * - `Stage07-cell-reach` を購読し、follow-path store の `advance` を呼ぶ。経路
+ * - `HexStage-cell-reach` を購読し、follow-path store の `advance` を呼ぶ。経路
  *   プレビューの点が、bot がそのマスの中心に着いた時点で消えるようにするため
  * - 進入開始時（`onCellChange`）に数えると、移動を始めた時点で点が消えてしまう
  * - 自動移動中でなければ `advance` は何もしない（マウント時・停止時の到達通知は無視される）
@@ -18,8 +18,8 @@ import { useFollowPathStoreApi } from '../_stores/follow-path'
 export const useAdvanceFollowPathOnCellReach = (actorId: Actor['id']) => {
   const followPathStoreApi = useFollowPathStoreApi()
 
-  useStage07EventListener(
-    'Stage07-cell-reach',
+  useHexStageEventListener(
+    'HexStage-cell-reach',
     useCallback(
       (event) => {
         if (event.detail.actorId !== actorId) return

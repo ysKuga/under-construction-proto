@@ -20,15 +20,15 @@ const HEX_SIZE = 40
 const BOT_SIZE = 56
 /** bot を配置するセル */
 const CURRENT_CELL = { q: 2, r: 2 } as const
-/** `Stage07` の既定値(`initialTiltDeg`)と同じ、tilt スライダーの初期値(deg) */
+/** `HexStage` の既定値(`initialTiltDeg`)と同じ、tilt スライダーの初期値(deg) */
 const DEFAULT_TILT_DEG = 55
-/** `Stage07` の tilt スライダーと同じ範囲(deg) */
+/** `HexStage` の tilt スライダーと同じ範囲(deg) */
 const TILT_RANGE = { max: 85, min: 0 } as const
-/** `Stage07` の `sceneStyle.perspective` と同じ値(px) */
+/** `HexStage` の `sceneStyle.perspective` と同じ値(px) */
 const PERSPECTIVE_PX = 800
 
 /**
- * `Stage07`/`ActorsLayer` と同じ位置計算(`hexCellCenter` + `translate(-50%,
+ * `HexStage`/`ActorsLayer` と同じ位置計算(`hexCellCenter` + `translate(-50%,
  * -53%)`)で bot を配置し、その頭上へ `children`（吹き出し）を重ねて確認する
  *
  * - decorator でなく通常のコンポーネントとして各 story の `render` から呼ぶ
@@ -36,7 +36,7 @@ const PERSPECTIVE_PX = 800
  * - `WaypointBubble` はセル中心から bot の高さぶん上に自身を配置するだけで、
  *   実際に bot が同じ位置にいることは前提にしていない。組み合わせないと
  *   「bot 頭上」として正しい位置か判断できない
- * - `Stage07` の `floor`(`perspective` + `rotateX(var(--floor-tilt))`)を
+ * - `HexStage` の `floor`(`perspective` + `rotateX(var(--floor-tilt))`)を
  *   同じ構造で再現し、tilt スライダーで `--floor-tilt` を動的に変更できる
  *   ようにする。bot 自体も `ActorsLayer` と同じ逆 `rotateX` で tilt を打ち消して
  *   直立させる（打ち消さないと tilt を動かすたび bot も一緒に傾いてしまい

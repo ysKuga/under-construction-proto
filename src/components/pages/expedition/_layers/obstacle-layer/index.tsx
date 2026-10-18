@@ -35,12 +35,12 @@ const UPRIGHT_STYLE: CSSProperties = {
 /**
  * 障害物セルの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
+ * - `HexStage` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
  *   障害物 (axial) のセルを塗りつぶすだけの非対話層
  * - 座標計算は `GeoLayer`/`ActorsLayer` と同じ `computeHexGridBounds`/`hexCellCenter`
  *   を共有し、見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。選択拒否自体は
- *   `Stage07` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
+ *   `HexStage` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
  * - `registerVisibilityNode` 経由で障害物セルの DOM を visibility registry へ登録する
  *   （渡された場合のみ）。未到達マスの岩が視界外から見えてしまうのを防ぐ
  * - 暗色の円は床の影として floor と一緒に寝かせ、岩の絵文字のみ `ActorsLayer` の

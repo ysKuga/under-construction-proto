@@ -3,8 +3,8 @@ import { act, renderHook } from '@testing-library/react'
 import { ENERGY_OUT_DELAY_MS } from '@/components/pages/expedition/_stores/energy/constants'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
-  Stage07EventProvider,
-  useStage07EventDispatcher,
+  HexStageEventProvider,
+  useHexStageEventDispatcher,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useEnergyOutAfterStop } from './use-energy-out-after-stop'
@@ -13,19 +13,19 @@ const renderAfterStop = () => {
   const energyOut = vi.fn<() => Promise<void>>(async () => {})
   const { result } = renderHook(
     () => ({
-      dispatcher: useStage07EventDispatcher(),
+      dispatcher: useHexStageEventDispatcher(),
       energyOutAfterStop: useEnergyOutAfterStop(PLAYER_ACTOR_ID, energyOut),
     }),
-    { wrapper: Stage07EventProvider },
+    { wrapper: HexStageEventProvider },
   )
 
   const moveStart = (actorId = PLAYER_ACTOR_ID) =>
     act(async () => {
-      await result.current.dispatcher['Stage07-move-start']({ actorId })
+      await result.current.dispatcher['HexStage-move-start']({ actorId })
     })
   const moveStop = (actorId = PLAYER_ACTOR_ID) =>
     act(async () => {
-      await result.current.dispatcher['Stage07-move-stop']({ actorId })
+      await result.current.dispatcher['HexStage-move-stop']({ actorId })
     })
   const callEnergyOut = () => act(() => result.current.energyOutAfterStop())
 

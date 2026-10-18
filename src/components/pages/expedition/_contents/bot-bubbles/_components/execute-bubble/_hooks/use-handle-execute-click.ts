@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { useStage07HandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
+import { useHexStageHandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/hex-stage-handle'
 
 import { useExpeditionEventDispatcher } from '../../../../../_events'
 import { usePreviewPath } from '../../../../../_hooks/use-preview-path'
@@ -15,7 +15,7 @@ import { UseExecuteBubbleContentReturn } from '../index.types'
  * - 中継点フローは終了する（`objectiveCell`/`waypoints` は最初の 1 マス移動時に
  *   stage content の `handleCellChange` がクリアする）
  * - 経路は follow-path store へ固定し、自動移動中はその残りをプレビューする
- * - 自動移動中は `Stage07` を非対話化し、クリックによる割込みを防ぐ
+ * - 自動移動中は `HexStage` を非対話化し、クリックによる割込みを防ぐ
  * - 開始前に `Expedition-execute-path` を発行し、listener に拒否されたら（EN 切れ等）
  *   開始しない。経路提示後に EN が切れた場合の対策
  * - 開始した経路を 1 手として手数の履歴へ記録する
@@ -23,7 +23,7 @@ import { UseExecuteBubbleContentReturn } from '../index.types'
 export const useHandleExecuteClick =
   (): UseExecuteBubbleContentReturn['handleClick'] => {
     const previewPath = usePreviewPath()
-    const stage07HandleRef = useStage07HandleRef()
+    const hexStageHandleRef = useHexStageHandleRef()
     const expeditionEventDispatcher = useExpeditionEventDispatcher()
     const followPathStoreApi = useFollowPathStoreApi()
     const moveHistoryStoreApi = useMoveHistoryStoreApi()
@@ -41,14 +41,14 @@ export const useHandleExecuteClick =
 
       waypointFlowStoreApi.getState().setFlowState('idle')
       followPathStoreApi.getState().start(previewPath)
-      stage07HandleRef.current?.followPath(previewPath)
+      hexStageHandleRef.current?.followPath(previewPath)
       moveHistoryStoreApi.getState().record({ kind: 'move', path: previewPath })
     }, [
       expeditionEventDispatcher,
       followPathStoreApi,
       moveHistoryStoreApi,
       previewPath,
-      stage07HandleRef,
+      hexStageHandleRef,
       waypointFlowStoreApi,
     ])
   }

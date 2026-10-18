@@ -3,8 +3,8 @@ import { PropsWithChildren } from 'react'
 
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
-  Stage07EventProvider,
-  useStage07EventDispatcher,
+  HexStageEventProvider,
+  useHexStageEventDispatcher,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
@@ -22,9 +22,9 @@ const Wrapper = (props: PropsWithChildren) => {
 
   return (
     <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
-      <Stage07EventProvider>
+      <HexStageEventProvider>
         <GamePhaseStoreProvider>{children}</GamePhaseStoreProvider>
-      </Stage07EventProvider>
+      </HexStageEventProvider>
     </StageLayoutProvider>
   )
 }
@@ -35,7 +35,7 @@ const renderArrive = () => {
       useArriveAtGoalOnCellReach(PLAYER_ACTOR_ID)
 
       return {
-        dispatcher: useStage07EventDispatcher(),
+        dispatcher: useHexStageEventDispatcher(),
         gamePhaseStoreApi: useGamePhaseStoreApi(),
       }
     },
@@ -44,7 +44,7 @@ const renderArrive = () => {
 
   const cellReach = (cell: HexCell, actorId = PLAYER_ACTOR_ID) =>
     act(async () => {
-      await result.current.dispatcher['Stage07-cell-reach']({ actorId, cell })
+      await result.current.dispatcher['HexStage-cell-reach']({ actorId, cell })
     })
 
   return { cellReach, gamePhaseStoreApi: result.current.gamePhaseStoreApi }

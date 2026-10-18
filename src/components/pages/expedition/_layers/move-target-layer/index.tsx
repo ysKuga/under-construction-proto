@@ -23,7 +23,7 @@ type MoveTargetLayerProps = {
    *
    * - EN 残量チェックは含まない。EN 残量は `MoveTargetLayer` 自身が EN store を
    *   直接購読し、EN 切れで表示を引っ込める（issue-181-en backlog: `EnergyDebugPanel` 操作で
-   *   `Stage07` 配下ツリー全体が再レンダリングされる問題の解消）
+   *   `HexStage` 配下ツリー全体が再レンダリングされる問題の解消）
    */
   canEnterCell?: (cell: HexCell) => boolean
   /** 列数 */
@@ -41,7 +41,7 @@ type MoveTargetLayerProps = {
 /**
  * 移動可能マスの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。非対話
+ * - `HexStage` の floor へ children として重ねる絶対配置オーバーレイ。非対話
  *   (`pointerEvents: none`) でクリックは下層（`GeoLayer`）へ通す
  * - 表示演出（非表示 → 出現準備 → 表示）は `useMoveTargetLayer` が管理する
  *   （詳細は同フックの JSDoc 参照）。ここでは渡された位置・不透明度・拡大率へ
@@ -57,7 +57,7 @@ type MoveTargetLayerProps = {
  *   直接購読して判定する（issue #226）
  * - bot が現在地セルの中心に着くまで表示しない。現在地セルは進入開始時に切り替わる
  *   ため、移動時間が長いと歩いている途中に次の移動可能マスが出てしまう。到達は
- *   `Stage07-cell-reach` を購読して知る（`useReachedCell`、issue #226）
+ *   `HexStage-cell-reach` を購読して知る（`useReachedCell`、issue #226）
  */
 export const MoveTargetLayer = memo((props: MoveTargetLayerProps) => {
   const { canEnterCell, cols, currentCell, hexSize, mode, rows } = props

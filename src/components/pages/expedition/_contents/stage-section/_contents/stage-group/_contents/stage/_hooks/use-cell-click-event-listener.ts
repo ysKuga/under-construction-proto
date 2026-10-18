@@ -3,8 +3,8 @@ import { match } from 'ts-pattern'
 
 import { useNotifications } from '@/components/ui/notifications'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
-import { useStage07HandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
-import { useStage07EventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
+import { useHexStageHandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/hex-stage-handle'
+import { useHexStageEventListener } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import { useActorsStoreApi } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { useStageLayout } from '../../../../../../../_contexts/stage-layout'
@@ -16,12 +16,12 @@ import { useWaypointFlowStoreApi } from '../../../../../../../_stores/waypoint-f
 import { GRID } from '../../../../../../../constants'
 
 /**
- * セルのクリック（`Stage07-cell-click`）を、移動・目標設定へ振り分ける
+ * セルのクリック（`HexStage-cell-click`）を、移動・目標設定へ振り分ける
  *
- * - クリックの分類はここに集約する。`Stage07` はクリックしたセルを発行するのみ
+ * - クリックの分類はここに集約する。`HexStage` はクリックしたセルを発行するのみ
  * - 分類は `classifyCellClick` で行う（選択可能表示の判定と同じ元）
  * - 現在マスは何もしない
- * - 隣接マスは `Stage07Handle.moveTo` で移動を試みる。進入不可（障害物・EN 切れ等）で
+ * - 隣接マスは `HexStageHandle.moveTo` で移動を試みる。進入不可（障害物・EN 切れ等）で
  *   拒否された場合は、目標として扱う
  * - 直接移動できないマスは、そのマスを目標として BFS で経路を求め `PathPreviewLayer` へ表示する
  *   （自動移動は吹き出しの「実行」で開始する、issue #226）。到達不能なら通知する
@@ -34,14 +34,14 @@ import { GRID } from '../../../../../../../constants'
  */
 export const useCellClickEventListener = (): void => {
   const actorsStoreApi = useActorsStoreApi()
-  const stage07HandleRef = useStage07HandleRef()
+  const hexStageHandleRef = useHexStageHandleRef()
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
   const addNotification = useNotifications((state) => state.addNotification)
   const expeditionEventDispatcher = useExpeditionEventDispatcher()
   const stageLayout = useStageLayout()
 
-  useStage07EventListener(
-    'Stage07-cell-click',
+  useHexStageEventListener(
+    'HexStage-cell-click',
     useCallback(
       async (event) => {
         const { cell } = event.detail
@@ -100,7 +100,7 @@ export const useCellClickEventListener = (): void => {
           .with('current', () => {})
           .with('move', async () => {
             /** 移動できたか（進入不可なら拒否される） */
-            const moved = stage07HandleRef.current?.moveTo(cell) ?? false
+            const moved = hexStageHandleRef.current?.moveTo(cell) ?? false
 
             // 移動を拒否された: 目標として扱う
             if (!moved) await proposeObjective()
@@ -116,7 +116,7 @@ export const useCellClickEventListener = (): void => {
         actorsStoreApi,
         addNotification,
         expeditionEventDispatcher,
-        stage07HandleRef,
+        hexStageHandleRef,
         stageLayout,
         waypointFlowStoreApi,
       ],

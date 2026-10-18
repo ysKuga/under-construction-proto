@@ -1,6 +1,6 @@
 import { CSSProperties, memo } from 'react'
 
-import { useStage07EventDispatcher } from '../../_events'
+import { useHexStageEventDispatcher } from '../../_events'
 import { colRowToAxial, HexCell } from '../../_lib/hex'
 import {
   computeHexGridBounds,
@@ -56,17 +56,17 @@ type GeoLayerProps = {
  *   ここでは選択可能セル（`useIsCellSelectable`、現在セル以外）の `cursor: pointer` のみ付与する（issue #137）
  * - `interactive=false` のセルは非対話の `<div>` で描画する（stage-06 の
  *   `GeoLayer` と同じ方針）
- * - hover 中セルの変化は `Stage07-cell-hover` で発行する（PR #308）。購読側だけが
+ * - hover 中セルの変化は `HexStage-cell-hover` で発行する（PR #308）。購読側だけが
  *   再レンダリングされ、本 layer は再レンダリングされない。解除は layer 外へ出た時
  *   のみ発行する（セル間移動で解除 → 進入の2回発行を避ける）
- * - クリックは `Stage07-cell-click` で発行するのみ。分類（移動・目標設定等）は購読側が行う
+ * - クリックは `HexStage-cell-click` で発行するのみ。分類（移動・目標設定等）は購読側が行う
  * - `React.memo` 化済み（issue-181-en backlog）。選択可能表示のため現在セル（actors store）を
  *   購読しており、移動のたび再レンダリングされる
  */
 export const GeoLayer = memo((props: GeoLayerProps) => {
   const { cols, hexSize, interactive, registerVisibilityNode, rows } = props
 
-  const stage07EventDispatcher = useStage07EventDispatcher()
+  const hexStageEventDispatcher = useHexStageEventDispatcher()
   const isCellSelectable = useIsCellSelectable()
   const bounds = computeHexGridBounds(cols, rows, hexSize)
 
@@ -83,7 +83,7 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
   return (
     <div
       onPointerLeave={() =>
-        void stage07EventDispatcher['Stage07-cell-hover']({ cell: undefined })
+        void hexStageEventDispatcher['HexStage-cell-hover']({ cell: undefined })
       }
       style={containerStyle}
     >
@@ -117,10 +117,14 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
             aria-label={`hex ${axial.q}-${axial.r}`}
             key={`${axial.q}-${axial.r}`}
             onClick={() =>
-              void stage07EventDispatcher['Stage07-cell-click']({ cell: axial })
+              void hexStageEventDispatcher['HexStage-cell-click']({
+                cell: axial,
+              })
             }
             onPointerEnter={() =>
-              void stage07EventDispatcher['Stage07-cell-hover']({ cell: axial })
+              void hexStageEventDispatcher['HexStage-cell-hover']({
+                cell: axial,
+              })
             }
             ref={(el) => registerVisibilityNode?.(axial, el)}
             style={{ ...cellStyle, cursor: selectable ? 'pointer' : 'default' }}

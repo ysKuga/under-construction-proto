@@ -12,7 +12,7 @@ const { RequiredContext, useRequiredContext } =
 /**
  * player bot（box-bot-01）と共有する EventTarget を生成し配布する
  *
- * - stage content が `Stage07` の `actorEventTarget` へ渡し、bot への action
+ * - stage content が `HexStage` の `actorEventTarget` へ渡し、bot への action
  *   （walking・face・energyOut 等）の dispatch 先にする
  * - standalone-bot content が walking 等を購読し、独立 bot へ中継する（issue #248）。
  *   複数 content から参照するため Context で配布する

@@ -27,7 +27,7 @@ type ItemLayerProps = {
 /**
  * アイテムの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。`ItemStore`
+ * - `HexStage` の floor へ children として重ねる絶対配置オーバーレイ。`ItemStore`
  *   の全アイテムを種類問わず表示する非対話層。消費済み（store から削除済み）の
  *   アイテムは表示されない
  * - 表示（アイコン・className）は `getItemPresentation`（`ItemKind` ベースの辞書、

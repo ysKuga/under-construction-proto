@@ -1,6 +1,6 @@
 import { RefObject } from 'react'
 
-import { Stage07Handle } from '@/components/pages/expedition/_stage-components/hex-stage'
+import { HexStageHandle } from '@/components/pages/expedition/_stage-components/hex-stage'
 import { HexCell } from '@/components/pages/expedition/_stage-components/hex-stage/_lib/hex'
 
 import { MoveTargetDisplayMode } from '../../../../../../_stores/display-settings/types'
@@ -21,11 +21,11 @@ export type EnterGuard = {
 }
 
 export type UseStageReturn = {
-  /** `Stage07` と player bot で共有する EventTarget（`PlayerActorEventTargetProvider`） */
+  /** `HexStage` と player bot で共有する EventTarget（`PlayerActorEventTargetProvider`） */
   actorEventTarget: EventTarget
   /** 歩行中の体の上下の最大持ち上げ量(world) */
   bodyBobHeight: number
-  /** `Stage07` へ渡す進入可否（実際の移動判定・選択可能表示用。EN 残量チェック込みの全ガード） */
+  /** `HexStage` へ渡す進入可否（実際の移動判定・選択可能表示用。EN 残量チェック込みの全ガード） */
   canEnterCell: (cell: HexCell) => boolean
   /**
    * `MoveTargetLayer` へ渡す進入可否（`perceived` ガードのみ、EN 残量チェックは除く）
@@ -46,7 +46,7 @@ export type UseStageReturn = {
   handleFollowPathEnd: (blockedCell?: HexCell) => void
   /** 中継点選択モード中のセルクリック時 */
   handleWaypointCellClick: (cell: HexCell) => void
-  /** `Stage07` を操作可能にするか（中継点選択中・自動移動中・補給中・ゴール到達後は不可） */
+  /** `HexStage` を操作可能にするか（中継点選択中・自動移動中・補給中・ゴール到達後は不可） */
   interactive: boolean
   /** walking の脚振り角の振幅(rad) */
   legSwingAngle: number
@@ -58,7 +58,7 @@ export type UseStageReturn = {
   objectiveMarkerCell?: HexCell
   /** 提示中の経路 */
   previewPath: HexCell[]
-  /** `Stage07`（hex タイル）の DOM を visibility registry へ登録する（`kind: 'floor'` 固定） */
+  /** `HexStage`（hex タイル）の DOM を visibility registry へ登録する（`kind: 'floor'` 固定） */
   registerFloorVisibilityNode: RegisterCellVisibilityNode
   /** `GoalMarkerLayer`/`ObstacleLayer`/`OneWayLayer`/`ItemLayer` の DOM を visibility registry へ登録する（`kind: 'marker'` 固定） */
   registerMarkerVisibilityNode: RegisterCellVisibilityNode
@@ -71,8 +71,8 @@ export type UseStageReturn = {
    * - 視界外セルへも中継点を設置できてしまう見た目の不整合（実機検証で発見）を防ぐ
    */
   registerWaypointVisibilityNode: RegisterCellVisibilityNode
-  /** `Stage07` の imperative API。経路に沿った自動移動を命令する */
-  stage07HandleRef: RefObject<null | Stage07Handle>
+  /** `HexStage` の imperative API。経路に沿った自動移動を命令する */
+  hexStageHandleRef: RefObject<null | HexStageHandle>
   /** 設置済みの中継点 */
   waypoints: HexCell[]
   /** 中継点選択モード中か */
