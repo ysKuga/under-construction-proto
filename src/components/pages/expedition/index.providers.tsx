@@ -25,12 +25,12 @@ import { ItemStoreProvider } from './_stores/items'
 import { MoveHistoryStoreProvider } from './_stores/move-history'
 import { PlayerActivityStoreProvider } from './_stores/player-activity'
 import { WaypointFlowStoreProvider } from './_stores/waypoint-flow'
-import { FindPathProto03Props } from './index.types'
+import { ExpeditionProps } from './index.types'
 
-type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
+type ExpeditionProvidersProps = PropsWithChildren<ExpeditionProps>
 
 /**
- * proto-03 のページ全体で共有する Provider（store・event・context）をまとめてネストする
+ * expedition のページ全体で共有する Provider（store・event・context）をまとめてネストする
  *
  * - 並び順の制約（それ以外の Provider 間に依存はない）
  *   - `ExpeditionEventProvider` は `EnergyStoreProvider` の内側に置く\
@@ -62,9 +62,7 @@ type FindPathProto03ProvidersProps = PropsWithChildren<FindPathProto03Props>
  *   追加に備え、外部からクリックを介さず actor を動かせるようにするため）。
  *   player・mob を区別せず一元管理する（issue #215）
  */
-export const FindPathProto03Providers = (
-  props: FindPathProto03ProvidersProps,
-) => {
+export const ExpeditionProviders = (props: ExpeditionProvidersProps) => {
   const { children, initialFogMode, initialSeed } = props
 
   return (
@@ -85,7 +83,7 @@ export const FindPathProto03Providers = (
  *
  * - アイテム・開始位置の初期値を `useStageLayout` の盤面配置から組み立てる
  */
-const StageProviders = (props: FindPathProto03ProvidersProps) => {
+const StageProviders = (props: ExpeditionProvidersProps) => {
   const { children, initialFogMode = 'all-hidden' } = props
   const stageLayout = useStageLayout()
 
