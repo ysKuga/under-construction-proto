@@ -83,6 +83,17 @@ python3 -I .claude/skills/steering-close/scripts/move-and-relink.py <移動元> 
   - [_closed/pr-385-expedition-rename-events/design.md](_closed/pr-385-expedition-rename-events/design.md)
 ```
 
+backlog の項目の削除・書換は、行番号指定の `sed -i` でなく `replace-in-files.py` の範囲置換で行う([CLAUDE.md](../../../CLAUDE.md)「複数ファイルの一括置換」)。
+
+- 理由: 行番号指定は、事前に読んだ時点から行がずれると別の行を消す
+- 項目ごと削除: `start` に項目の行、`end` に次の項目の行を書く
+
+```bash
+python3 -I -B .claude/scripts/replace-in-files.py - <<'EOF'
+{"<親>/backlog.md": [{"start": "- [ ] `expedition` に合わせて改名する", "end": "- [ ] コピーした依存先", "new": ""}]}
+EOF
+```
+
 ### 5. コミット
 
 [.claude/rules/commit.md](../../rules/commit.md) に従い、中身の変更有無で分ける。

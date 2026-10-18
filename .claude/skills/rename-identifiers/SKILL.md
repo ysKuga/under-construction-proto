@@ -16,6 +16,8 @@ description: 識別子(型・コンポーネント・変数・event key)とフ�
 - 旧名を洗い出す
   - `git grep -o -h -E "<旧名の正規表現>" -- <対象> | sort | uniq -c`
   - 表記の揺れも含める: `FindPath`・`findPath`・`find-path`・`find_path`
+  - 旧名が複合語(`FindPathProto03` 等)の場合、構成要素ごとの揺れも含める: `proto-03`・`Proto03`
+  - ここで洗い出した揺れを、手順 4・5 の検索パターンにもそのまま使う
 - 対応表(旧 → 新)と対象外の範囲をユーザーへ提示し、合意してから着手する
   - 対象外の例: prototypes、別 PR へ回す名前、経緯として残す言及
 - 新しい名前は既存の命名と照合する([naming-consistency.md](../../rules/naming-consistency.md))
@@ -53,7 +55,7 @@ EOF
 識別子の置換は、自然文中の旧名(「find-path 専用」等)を拾わない。
 
 ```bash
-git grep -n -i -E "find-?path" -- <対象> ':!<対象外>'
+git grep -n -i -E "find-?path|proto-?03" -- <対象> ':!<対象外>'
 ```
 
 - 1 件ずつ、直すか経緯として残すかを判断する
