@@ -8,8 +8,8 @@ import {
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
 import {
-  FindPathEventProvider,
-  useFindPathEventListener,
+  ExpeditionEventProvider,
+  useExpeditionEventListener,
 } from '../../../../../_events'
 import {
   CarriedItemStoreProvider,
@@ -28,7 +28,7 @@ const Wrapper = (props: PropsWithChildren) => (
     <MoveHistoryStoreProvider>
       <CarriedItemStoreProvider>
         <PlayerActivityStoreProvider>
-          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+          <ExpeditionEventProvider>{props.children}</ExpeditionEventProvider>
         </PlayerActivityStoreProvider>
       </CarriedItemStoreProvider>
     </MoveHistoryStoreProvider>
@@ -54,11 +54,14 @@ const renderRescue = (
 ) =>
   renderHook(
     () => {
-      useFindPathEventListener(
-        'FindPath-reset-to-checkpoint',
+      useExpeditionEventListener(
+        'Expedition-reset-to-checkpoint',
         onResetToCheckpoint,
       )
-      useFindPathEventListener('FindPath-shake-bot-bubble', onShakeBotBubble)
+      useExpeditionEventListener(
+        'Expedition-shake-bot-bubble',
+        onShakeBotBubble,
+      )
 
       return {
         carriedItems: useCarriedItemStoreApi(),

@@ -38,7 +38,7 @@ export type CellClickContext = {
  * - 目標セルの再クリックは隣接判定より先に見る。目標になる隣接マスは進入不可のマス
  *   （障害物・一方通行の壁）のみのため、移動を試みる前にキャンセルとして扱う
  * - 進入可否は扱わない。`moveTo` の判定と二重にしないため
- * - 同期で判定できる範囲のみ扱う。EN 切れによる拒否（`FindPath-propose-path`）・
+ * - 同期で判定できる範囲のみ扱う。EN 切れによる拒否（`Expedition-propose-path`）・
  *   到達不能（BFS）は `objective` の処理側で判定する
  *
  * @param cell クリックしたセル

@@ -11,8 +11,8 @@ import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
 import { ItemInstance } from '../../../_stores/items/types'
 import { MoveHistoryStoreProvider } from '../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../_stores/player-activity'
-import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
-import { FindPathEventProvider } from '../../index.contexts'
+import { useExpeditionEventDispatcher } from '../../_hooks/use-expedition-event-dispatcher'
+import { ExpeditionEventProvider } from '../../index.contexts'
 
 const CHARGE_ITEM: ItemInstance = {
   amount: 3,
@@ -26,7 +26,7 @@ const Wrapper = (props: PropsWithChildren) => (
     <MoveHistoryStoreProvider>
       <CarriedItemStoreProvider>
         <PlayerActivityStoreProvider>
-          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+          <ExpeditionEventProvider>{props.children}</ExpeditionEventProvider>
         </PlayerActivityStoreProvider>
       </CarriedItemStoreProvider>
     </MoveHistoryStoreProvider>
@@ -36,7 +36,7 @@ const Wrapper = (props: PropsWithChildren) => (
 test('charge-energy で使用されたアイテムの amount 分 EN を補給する', async () => {
   const { result } = renderHook(
     () => ({
-      dispatcher: useFindPathEventDispatcher(),
+      dispatcher: useExpeditionEventDispatcher(),
       energy: useEnergyStoreApi(),
     }),
     { wrapper: Wrapper },
@@ -45,7 +45,7 @@ test('charge-energy で使用されたアイテムの amount 分 EN を補給す
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
   energy.getState().consume(PLAYER_ACTOR_ID, max)
 
-  await dispatcher['FindPath-item-used']({
+  await dispatcher['Expedition-item-used']({
     item: CHARGE_ITEM,
     usage: 'charge-energy',
   })

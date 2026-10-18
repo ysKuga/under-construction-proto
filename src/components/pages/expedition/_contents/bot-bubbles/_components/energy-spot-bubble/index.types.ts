@@ -8,7 +8,7 @@ export type UseEnergySpotBubbleContentReturn = {
   /**
    * 吹き出しクリック時。現在セルの EN スポットを使用する
    *
-   * - 拒否されたら吹き出しを揺らす（`FindPath-shake-bot-bubble`）
+   * - 拒否されたら吹き出しを揺らす（`Expedition-shake-bot-bubble`）
    */
   handleClick: () => Promise<void>
 }

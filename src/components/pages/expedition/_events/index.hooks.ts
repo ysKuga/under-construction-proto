@@ -1,2 +1,2 @@
-export * from './_hooks/use-find-path-event-dispatcher'
-export * from './_hooks/use-find-path-event-listener'
+export * from './_hooks/use-expedition-event-dispatcher'
+export * from './_hooks/use-expedition-event-listener'

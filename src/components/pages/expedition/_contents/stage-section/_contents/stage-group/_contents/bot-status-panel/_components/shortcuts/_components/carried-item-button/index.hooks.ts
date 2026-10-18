@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { useFindPathEventDispatcher } from '../../../../../../../../../../_events'
+import { useExpeditionEventDispatcher } from '../../../../../../../../../../_events'
 import { getPrimaryItemUsage } from '../../../../../../../../../../_lib/item-usage'
 import {
   useCarriedItemStore,
@@ -40,7 +40,7 @@ export const useCarriedItemButton = (
     (state) => state.carriedItems.filter((item) => item.kind === kind).length,
   )
   const carriedItemStoreApi = useCarriedItemStoreApi()
-  const findPathEventDispatcher = useFindPathEventDispatcher()
+  const expeditionEventDispatcher = useExpeditionEventDispatcher()
 
   const handleClick = useCallback(() => {
     const oldest = carriedItemStoreApi
@@ -51,11 +51,11 @@ export const useCarriedItemButton = (
       return
     }
 
-    void findPathEventDispatcher['FindPath-use-item']({
+    void expeditionEventDispatcher['Expedition-use-item']({
       itemId: oldest.id,
       usage: getPrimaryItemUsage(oldest),
     })
-  }, [carriedItemStoreApi, findPathEventDispatcher, kind])
+  }, [carriedItemStoreApi, expeditionEventDispatcher, kind])
 
   return { carriedCount, handleClick }
 }

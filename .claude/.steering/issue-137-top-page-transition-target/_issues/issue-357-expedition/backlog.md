@@ -10,6 +10,7 @@
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)
+  - event 名は改名済み（残りはコンポーネント名）
 - [ ] コピーした依存先に残るコピー元の名前を見直す
   - 対象
     - コメント内の `find-path proto-03`・`stage-06` 等への言及

@@ -15,8 +15,8 @@ import { ResetProvider } from '../../../../../../../_contexts/reset'
 import { StageLayoutProvider } from '../../../../../../../_contexts/stage-layout'
 import { DEFAULT_STAGE_LAYOUT } from '../../../../../../../_contexts/stage-layout/constants'
 import {
-  FindPathEventProvider,
-  useFindPathEventDispatcher,
+  ExpeditionEventProvider,
+  useExpeditionEventDispatcher,
 } from '../../../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../../../_stores/carried-items'
 import {
@@ -40,13 +40,13 @@ const Wrapper = (props: PropsWithChildren) => (
         <EnergyStoreProvider>
           <CarriedItemStoreProvider>
             <PlayerActivityStoreProvider>
-              <FindPathEventProvider>
+              <ExpeditionEventProvider>
                 <Stage07EventProvider>
                   <FogStoreProvider initialMode="all-hidden">
                     {props.children}
                   </FogStoreProvider>
                 </Stage07EventProvider>
-              </FindPathEventProvider>
+              </ExpeditionEventProvider>
             </PlayerActivityStoreProvider>
           </CarriedItemStoreProvider>
         </EnergyStoreProvider>
@@ -62,7 +62,7 @@ const setupResetToCheckpoint = () =>
 
       return {
         energy: useEnergyStoreApi(),
-        findPathDispatch: useFindPathEventDispatcher(),
+        expeditionDispatch: useExpeditionEventDispatcher(),
         fog: useFogStoreApi(),
         moveHistory: useMoveHistoryStoreApi(),
         stage07Dispatch: useStage07EventDispatcher(),
@@ -74,7 +74,7 @@ const setupResetToCheckpoint = () =>
 describe('useResetToCheckpointEventListener', () => {
   it('EN 切れ中かつ停止中なら、配下を再マウントして盤面ごと初期状態へ戻す', async () => {
     const result = setupResetToCheckpoint()
-    const { energy, findPathDispatch, fog } = result.current
+    const { energy, expeditionDispatch, fog } = result.current
     const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
     energy.getState().consume(PLAYER_ACTOR_ID, max)
@@ -82,7 +82,7 @@ describe('useResetToCheckpointEventListener', () => {
 
     await act(async () => {
       await expect(
-        findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
+        expeditionDispatch['Expedition-reset-to-checkpoint'](undefined),
       ).resolves.toBe(true)
     })
 
@@ -102,10 +102,10 @@ describe('useResetToCheckpointEventListener', () => {
 
   it('EN が残っていれば拒否する', async () => {
     const result = setupResetToCheckpoint()
-    const { energy, findPathDispatch } = result.current
+    const { energy, expeditionDispatch } = result.current
 
     await expect(
-      findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
+      expeditionDispatch['Expedition-reset-to-checkpoint'](undefined),
     ).resolves.toBe(false)
     expect(result.current.energy).toBe(energy)
     expect(result.current.moveHistory.getState().entries).toEqual([])
@@ -113,14 +113,14 @@ describe('useResetToCheckpointEventListener', () => {
 
   it('移動中は拒否し、停止後は受理する', async () => {
     const result = setupResetToCheckpoint()
-    const { energy, findPathDispatch, stage07Dispatch } = result.current
+    const { energy, expeditionDispatch, stage07Dispatch } = result.current
     const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
     energy.getState().consume(PLAYER_ACTOR_ID, max)
     await stage07Dispatch['Stage07-move-start']({ actorId: PLAYER_ACTOR_ID })
 
     await expect(
-      findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
+      expeditionDispatch['Expedition-reset-to-checkpoint'](undefined),
     ).resolves.toBe(false)
     expect(result.current.energy).toBe(energy)
 
@@ -128,7 +128,7 @@ describe('useResetToCheckpointEventListener', () => {
 
     await act(async () => {
       await expect(
-        findPathDispatch['FindPath-reset-to-checkpoint'](undefined),
+        expeditionDispatch['Expedition-reset-to-checkpoint'](undefined),
       ).resolves.toBe(true)
     })
     expect(result.current.energy).not.toBe(energy)

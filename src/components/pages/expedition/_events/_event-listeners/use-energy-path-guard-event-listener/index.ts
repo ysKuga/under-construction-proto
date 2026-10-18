@@ -1,7 +1,7 @@
 import { useEnergyStoreApi } from '@/components/pages/expedition/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
-import { useFindPathEventListener } from '../../_hooks/use-find-path-event-listener'
+import { useExpeditionEventListener } from '../../_hooks/use-expedition-event-listener'
 
 /**
  * 経路の提示・実行を EN 残量で判定し、EN 切れなら拒否する
@@ -20,10 +20,10 @@ export const useEnergyPathGuardEventListener = () => {
     }
   }
 
-  useFindPathEventListener('FindPath-propose-path', guard, {
+  useExpeditionEventListener('Expedition-propose-path', guard, {
     allowMultiple: true,
   })
-  useFindPathEventListener('FindPath-execute-path', guard, {
+  useExpeditionEventListener('Expedition-execute-path', guard, {
     allowMultiple: true,
   })
 }

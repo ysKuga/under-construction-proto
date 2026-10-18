@@ -9,8 +9,8 @@ import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components
 import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import {
-  FindPathEventProvider,
-  useFindPathEventDispatcher,
+  ExpeditionEventProvider,
+  useExpeditionEventDispatcher,
 } from '../../../../../../../_events'
 import { CarriedItemStoreProvider } from '../../../../../../../_stores/carried-items'
 import {
@@ -46,7 +46,7 @@ const Wrapper = (props: PropsWithChildren) => (
     <MoveHistoryStoreProvider>
       <CarriedItemStoreProvider>
         <PlayerActivityStoreProvider>
-          <FindPathEventProvider>
+          <ExpeditionEventProvider>
             <ItemStoreProvider initialItems={[CHARGE_SPOT]}>
               <ActorsStoreProvider
                 initialActors={{ [PLAYER_ACTOR_ID]: CHARGE_SPOT.cell }}
@@ -56,7 +56,7 @@ const Wrapper = (props: PropsWithChildren) => (
                 </WaypointFlowStoreProvider>
               </ActorsStoreProvider>
             </ItemStoreProvider>
-          </FindPathEventProvider>
+          </ExpeditionEventProvider>
         </PlayerActivityStoreProvider>
       </CarriedItemStoreProvider>
     </MoveHistoryStoreProvider>
@@ -74,7 +74,7 @@ const setupEnergySpotUse = (consumed: number) => {
       useEnergySpotUseEventListener()
 
       return {
-        dispatcher: useFindPathEventDispatcher(),
+        dispatcher: useExpeditionEventDispatcher(),
         energy: useEnergyStoreApi(),
         items: useItemStoreApi(),
         moveHistory: useMoveHistoryStoreApi(),
@@ -107,7 +107,7 @@ test('不足分だけ時間経過ごとに 1 ずつ補給し、完了で停止�
 
   await act(async () => {
     await expect(
-      dispatcher['FindPath-use-energy-spot'](undefined),
+      dispatcher['Expedition-use-energy-spot'](undefined),
     ).resolves.toBe(true)
   })
 
@@ -137,7 +137,7 @@ test('不足分が残量を超える場合、残量の分だけ補給する', as
   const before = currentEnergy(energy)
 
   await act(async () => {
-    await dispatcher['FindPath-use-energy-spot'](undefined)
+    await dispatcher['Expedition-use-energy-spot'](undefined)
     await vi.advanceTimersByTimeAsync(ENERGY_SPOT_CHARGE_INTERVAL_MS * 10)
   })
 
@@ -148,9 +148,9 @@ test('不足分が残量を超える場合、残量の分だけ補給する', as
 test('EN が上限なら使用を拒否する', async () => {
   const { dispatcher, moveHistory, playerActivity } = setupEnergySpotUse(0)
 
-  await expect(dispatcher['FindPath-use-energy-spot'](undefined)).resolves.toBe(
-    false,
-  )
+  await expect(
+    dispatcher['Expedition-use-energy-spot'](undefined),
+  ).resolves.toBe(false)
   expect(playerActivity.getState().activity).toBe('idle')
   expect(moveHistory.getState().entries).toEqual([])
 })
@@ -160,13 +160,13 @@ test('移動中・補給中なら使用を拒否する', async () => {
 
   playerActivity.getState().setActivity('moving')
 
-  await expect(dispatcher['FindPath-use-energy-spot'](undefined)).resolves.toBe(
-    false,
-  )
+  await expect(
+    dispatcher['Expedition-use-energy-spot'](undefined),
+  ).resolves.toBe(false)
 
   playerActivity.getState().setActivity('charging')
 
-  await expect(dispatcher['FindPath-use-energy-spot'](undefined)).resolves.toBe(
-    false,
-  )
+  await expect(
+    dispatcher['Expedition-use-energy-spot'](undefined),
+  ).resolves.toBe(false)
 })

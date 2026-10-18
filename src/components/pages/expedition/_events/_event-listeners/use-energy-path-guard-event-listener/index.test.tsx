@@ -10,15 +10,15 @@ import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components
 import { CarriedItemStoreProvider } from '../../../_stores/carried-items'
 import { MoveHistoryStoreProvider } from '../../../_stores/move-history'
 import { PlayerActivityStoreProvider } from '../../../_stores/player-activity'
-import { useFindPathEventDispatcher } from '../../_hooks/use-find-path-event-dispatcher'
-import { FindPathEventProvider } from '../../index.contexts'
+import { useExpeditionEventDispatcher } from '../../_hooks/use-expedition-event-dispatcher'
+import { ExpeditionEventProvider } from '../../index.contexts'
 
 const Wrapper = (props: PropsWithChildren) => (
   <EnergyStoreProvider>
     <MoveHistoryStoreProvider>
       <CarriedItemStoreProvider>
         <PlayerActivityStoreProvider>
-          <FindPathEventProvider>{props.children}</FindPathEventProvider>
+          <ExpeditionEventProvider>{props.children}</ExpeditionEventProvider>
         </PlayerActivityStoreProvider>
       </CarriedItemStoreProvider>
     </MoveHistoryStoreProvider>
@@ -28,7 +28,7 @@ const Wrapper = (props: PropsWithChildren) => (
 const renderGuard = () =>
   renderHook(
     () => ({
-      dispatcher: useFindPathEventDispatcher(),
+      dispatcher: useExpeditionEventDispatcher(),
       energy: useEnergyStoreApi(),
     }),
     { wrapper: Wrapper },
@@ -39,10 +39,10 @@ test('EN が残っていれば経路の提示・実行を許可する', async ()
   const { dispatcher } = result.current
 
   await expect(
-    dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),
+    dispatcher['Expedition-propose-path']({ cell: { q: 2, r: 0 } }),
   ).resolves.toBe(true)
   await expect(
-    dispatcher['FindPath-execute-path']({ path: [{ q: 1, r: 0 }] }),
+    dispatcher['Expedition-execute-path']({ path: [{ q: 1, r: 0 }] }),
   ).resolves.toBe(true)
 })
 
@@ -53,9 +53,9 @@ test('EN 切れなら経路の提示・実行を拒否する', async () => {
   energy.getState().consume(PLAYER_ACTOR_ID, max)
 
   await expect(
-    dispatcher['FindPath-propose-path']({ cell: { q: 2, r: 0 } }),
+    dispatcher['Expedition-propose-path']({ cell: { q: 2, r: 0 } }),
   ).resolves.toBe(false)
   await expect(
-    dispatcher['FindPath-execute-path']({ path: [{ q: 1, r: 0 }] }),
+    dispatcher['Expedition-execute-path']({ path: [{ q: 1, r: 0 }] }),
   ).resolves.toBe(false)
 })
