@@ -96,10 +96,10 @@ store・context の購読有無、実装かどうかでは分けない。
 - `index.tsx` は `<PageName>Providers` と `<PageName>Contents` を組み合わせるのみにする
 
 ```tsx
-const FindPathProto03 = (props: FindPathProto03Props) => (
-  <FindPathProto03Providers {...props}>
-    <FindPathProto03Contents />
-  </FindPathProto03Providers>
+const Expedition = (props: ExpeditionProps) => (
+  <ExpeditionProviders {...props}>
+    <ExpeditionContents />
+  </ExpeditionProviders>
 )
 ```
 

@@ -1,16 +1,16 @@
 'use client'
 
-import { FindPathProto03Contents } from './_contents'
-import { FindPathProto03Providers } from './index.providers'
-import { FindPathProto03Props } from './index.types'
+import { ExpeditionContents } from './_contents'
+import { ExpeditionProviders } from './index.providers'
+import { ExpeditionProps } from './index.types'
 
 /**
- * FindPathProto03 —find-path ページ試作（hex グリッド版）
+ * Expedition — expedition ページ（hex グリッド版）
  *
  * - proto-02（矩形グリッド・隣接クリック逐次移動）を hex グリッドへ移し替えた
  *   試作。移動方式自体は `Stage07` の `useHexMove` に内蔵済み（issue #162）
- * - ここでは Provider 群（`FindPathProto03Providers`、`index.providers.tsx`）と
- *   ページ内容（`FindPathProto03Contents`、`_contents/index.tsx`）を組み合わせるのみ
+ * - ここでは Provider 群（`ExpeditionProviders`、`index.providers.tsx`）と
+ *   ページ内容（`ExpeditionContents`、`_contents/index.tsx`）を組み合わせるのみ
  *   （構造見直し、issue #137）。content 間で共有する state は `_stores/` の各 store に置く
  *   - `_contents/stage-section`: ステージ（`stage-group/_contents/stage`: `Stage07` + 各レイヤー、
  *     移動・経路・中継点の操作）と bot の状態表示（`stage-group/_contents/bot-status-panel`）
@@ -79,10 +79,10 @@ import { FindPathProto03Props } from './index.types'
  *   EventTarget へ担当範囲の情報を発行し、EN 等のゲーム要素による実行可否は
  *   listener 側で判定する（docs/concept/implementation/ui-jurisdiction）
  */
-const FindPathProto03 = (props: FindPathProto03Props) => (
-  <FindPathProto03Providers {...props}>
-    <FindPathProto03Contents />
-  </FindPathProto03Providers>
+const Expedition = (props: ExpeditionProps) => (
+  <ExpeditionProviders {...props}>
+    <ExpeditionContents />
+  </ExpeditionProviders>
 )
 
-export default FindPathProto03
+export default Expedition

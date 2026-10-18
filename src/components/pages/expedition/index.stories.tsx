@@ -2,13 +2,13 @@ import { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { layoutDecorator } from '@/components/pages/layout.decorator'
 
-import { FindPathProto03Contents } from './_contents'
+import { ExpeditionContents } from './_contents'
 import { DebugPanel } from './_components/debug-panel'
-import { FindPathProto03Providers } from './index.providers'
+import { ExpeditionProviders } from './index.providers'
 
-import FindPathProto03 from '.'
+import Expedition from '.'
 
-const meta: Meta<typeof FindPathProto03> = {
+const meta: Meta<typeof Expedition> = {
   argTypes: {
     initialFogMode: {
       control: 'radio',
@@ -16,12 +16,12 @@ const meta: Meta<typeof FindPathProto03> = {
     },
     initialSeed: { control: 'number' },
   },
-  component: FindPathProto03,
+  component: Expedition,
   decorators: [layoutDecorator],
 }
 
 export default meta
-type Story = StoryObj<typeof FindPathProto03>
+type Story = StoryObj<typeof Expedition>
 
 export const Default: Story = {}
 
@@ -40,10 +40,10 @@ export const PartialFog: Story = {
 /** 基本構成の下へデバッグ要素を並べる */
 export const Debug: Story = {
   render: (args) => (
-    <FindPathProto03Providers {...args}>
-      <FindPathProto03Contents />
+    <ExpeditionProviders {...args}>
+      <ExpeditionContents />
       <DebugPanel />
-    </FindPathProto03Providers>
+    </ExpeditionProviders>
   ),
 }
 
