@@ -126,3 +126,6 @@
 - 2026-10-18（コンポーネント名の改名）: コンポーネント名を `FindPathProto03` から `Expedition` へ改名した（PR #388）
   - [_closed/pr-388-expedition-rename-components/design.md](_closed/pr-388-expedition-rename-components/design.md)
   - 親 backlog の「`expedition` に合わせて改名する」が完了
+- 2026-10-18（Stage07 の改名）: hex-stage の識別子・event key・ファイル名を `Stage07` から `HexStage` へ改名した（PR #390）
+  - [_closed/pr-390-expedition-rename-hex-stage/design.md](_closed/pr-390-expedition-rename-hex-stage/design.md)
+  - コメント内の言及は別 PR
