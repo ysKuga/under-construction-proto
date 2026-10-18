@@ -4,9 +4,6 @@
   - 現状: `expedition/_prototypes` の proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
-- [ ] レスポンシブ対応を検討する
-  - breakpoint
-  - 表示の仕方（ビューポートに応じたサイズ調整等）
 - [ ] `expedition` に合わせて改名する
   - 対象: `FindPath-` の event 名・`FindPathProto03*` のコンポーネント名等
   - (../../decision-records.md 2026-10-17 名前)
@@ -24,3 +21,16 @@
   - 旧計画の残りは要否を新基準で見直す
     - `stage`・`stage-settings` の中身を children・slot で受ける（レイヤー群の独立）
     - `bot-bubbles` のロジック（`useBotBubbles`）を実装側へ移す
+- [ ] 狭い画面向けに並べ方を切り替える
+  - `md` 未満で縦積み
+  - bot の状態表示は床の下で試す（床の上も検討）
+  - `h-screen` を `min-h-screen` へ（縦にはみ出した時の scroll）
+  - (decision-records.md 2026-10-18 レスポンシブ)
+- [ ] スマホの幅での bot の状態表示を検討する
+  - かなり小さくする
+  - 表現方法（非表示・ポップオーバー・ドロワー等）
+- [ ] 表示領域（盤面の一部の表示）を検討する
+  - 表示範囲の追従（bot 中心等）
+  - 傾けた床での表示範囲の移動
+  - 盤面全体の表示への切替（アイテム等）
+  - (decision-records.md 2026-10-18 レスポンシブ)
