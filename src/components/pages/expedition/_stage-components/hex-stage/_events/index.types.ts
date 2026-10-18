@@ -6,7 +6,7 @@ import { HexCell } from '../_lib/hex'
  * イベント名 → payload 型の対応表
  *
  * - key prefix: `HexStage-`
- * - `HexStage` が actor の状態変化・セルの hover を通知する。find-path 固有の概念は持たない
+ * - `HexStage` が actor の状態変化・セルの hover を通知する。expedition 固有の概念は持たない
  */
 export type HexStageEventMap = {
   /**

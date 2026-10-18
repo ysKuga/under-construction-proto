@@ -22,7 +22,7 @@ type UseHexMoveReturn = {
  * @param onFacingChange 移動方向の画面角度(rad、atan2 基準)算出時（省略可）。box-bot-01 の
  *   yaw への変換・dispatch は呼び出し側(`HexStage`)が持つため、ここでは画面角度を渡すのみ
  * @param canEnter 対象セルへ進入可能か（省略時は常に進入可能）。隣接判定に加えて
- *   このセルへの移動を拒否できる（find-path proto-03 の障害物セル判定等）
+ *   このセルへの移動を拒否できる（expedition の障害物セル判定等）
  */
 export const useHexMove = (
   currentCell: HexCell,

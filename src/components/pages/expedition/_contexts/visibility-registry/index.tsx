@@ -25,7 +25,7 @@ type VisibilityRegistryValue = {
    * セルの表示切替対象 DOM を登録する
    *
    * - JSX の `ref` コールバックから呼ぶ。unmount 時は el=null で解除
-   * - `kind` ごとに別 DOM を持てる（`GeoLayer`（stage-07）の hex タイル =
+   * - `kind` ごとに別 DOM を持てる（`GeoLayer`（hex-stage）の hex タイル =
    *   `floor`、`GoalMarkerLayer` 等の疎な配置マーカー = `marker`、全セルに
    *   存在する `WaypointSelectLayer` は `marker` と同一セルで衝突しうるため
    *   独立した `waypoint`）

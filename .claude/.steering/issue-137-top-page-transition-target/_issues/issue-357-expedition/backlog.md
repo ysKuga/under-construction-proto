@@ -4,11 +4,6 @@
   - 現状: `expedition/_prototypes` の proto-01/02/03・`_stores` → stage-06/07・time-control-03、stage-07 → time-control-03/types
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
-- [ ] コピーした依存先に残るコピー元の名前を見直す
-  - 識別子・ファイル名の `Stage07*` は改名済み（残りはコメント）
-  - 対象: コメント内の `find-path proto-03`・`stage-06`・`stage-07`・`use-find-path-tick` 等への言及
-  - 範囲: `expedition/_stage-components/hex-stage`・`expedition/_stores/energy`
-    - hex-stage の外の言及（`index.tsx`・`path-preview-layer`・`visibility-registry`）も含める
 - [ ] route を配線する
   - 現状: `src/app` に未設置
 - [ ] content と component の置き場を分ける
@@ -16,6 +11,9 @@
   - 旧計画の残りは要否を新基準で見直す
     - `stage`・`stage-settings` の中身を children・slot で受ける（レイヤー群の独立）
     - `bot-bubbles` のロジック（`useBotBubbles`）を実装側へ移す
+- [ ] `energy-debug-panel` を `debug-panel/_components/` 配下へ移す
+  - 使用元が `debug-panel/_components/energy-sliders` の 1 つのみ（component-nesting）
+  - (decision-records.md 2026-10-18 コメントの見直し)
 - [ ] 狭い画面向けに並べ方を切り替える
   - `md` 未満で縦積み
   - bot の状態表示は床の下で試す（床の上も検討）

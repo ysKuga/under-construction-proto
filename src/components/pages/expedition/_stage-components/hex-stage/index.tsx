@@ -85,7 +85,7 @@ type HexStageProps = PropsWithChildren<{
   /**
    * 床の直下へ置く要素（省略可）
    *
-   * - 床と同じ幅で置く（find-path proto-03 のセル情報パネル等）
+   * - 床と同じ幅で置く（expedition のセル情報パネル等）
    */
   belowFloor?: ReactNode
   /** 歩行中の体の上下(body-bobbing)の最大持ち上げ量(world)（省略時は `MOTION_DEFAULTS.bodyBobHeight`） */
@@ -95,7 +95,7 @@ type HexStageProps = PropsWithChildren<{
   /**
    * 対象セルへ進入可能か（省略時は常に進入可能）
    *
-   * - 隣接判定に加えてこのセルへの移動を拒否できる（find-path proto-03 の
+   * - 隣接判定に加えてこのセルへの移動を拒否できる（expedition の
    *   障害物セル判定等）。`useHexMove` へそのまま渡す
    */
   canEnterCell?: (cell: HexCell) => boolean
@@ -121,7 +121,7 @@ type HexStageProps = PropsWithChildren<{
    * セルクリックで actor を移動させるか（省略時は `true`）
    *
    * - `false` にすると `GeoLayer` は非対話になる。クリックを外側のレイヤー
-   *   （find-path の予定経路レイヤー等）へ委ねるとき使う
+   *   （expedition の `WaypointSelectLayer` 等）へ委ねるとき使う
    */
   interactive?: boolean
   /** walking の脚振り角の振幅(rad)（省略時は `MOTION_DEFAULTS.legSwingAngle`） */
@@ -151,7 +151,7 @@ type HexStageProps = PropsWithChildren<{
    * `GeoLayer` の hex タイルの DOM を visibility registry 等へ登録する
    *
    * - 省略時は登録しない（常時表示）。渡した場合、hex タイル自体の表示/非表示が
-   *   呼び出し元の可視判定に従って切り替わる（find-path proto-03 で使用）
+   *   呼び出し元の可視判定に従って切り替わる（expedition で使用）
    */
   registerCellVisibilityNode?: ComponentProps<
     typeof GeoLayer
@@ -175,7 +175,7 @@ type HexStageProps = PropsWithChildren<{
  *   store を直接 selector 購読して描画するため props 経由では受け取らない(issue #215)。
  *   spawn/despawn は呼び出し元が `useActorsStoreApi` 経由で store を直接操作する
  * - `interactive`（既定 `true`）を `false` にすると `GeoLayer` は非対話になる。
- *   クリックを外側のレイヤー（tick 駆動実行時の予定経路レイヤー等）へ委ねる
+ *   クリックを外側のレイヤー（expedition の `WaypointSelectLayer` 等）へ委ねる
  * - セル移動のたび `useHexMove` が算出した進行方向の画面角度を `screenAngleToYaw`
  *   （box-bot-01 のカメラモデルに基づく数値逆算）で yaw へ変換し、bot と共有する
  *   `eventTarget` 経由で `face` action へ dispatch。bot を進行方向へ向かせる
@@ -188,9 +188,9 @@ type HexStageProps = PropsWithChildren<{
  *   続けば `onArrived` は発火しない（transition が新しい移動先へ上書きされる）ため
  *   自然に on が維持される
  * - `registerCellVisibilityNode` を渡すと hex タイルの表示/非表示を呼び出し元
- *   （visibility registry）に委ねられる（find-path proto-03 で使用）
+ *   （visibility registry）に委ねられる（expedition で使用）
  * - `canEnterCell` を渡すと `useHexMove` の隣接判定に加えてそのセルへの移動を
- *   拒否できる（find-path proto-03 の障害物セル判定で使用）
+ *   拒否できる（expedition の障害物セル判定で使用）
  * - セルのクリックは分類（現在セル・移動可・不可）せず `HexStage-cell-click` で発行するのみ。
  *   移動は呼び出し側が分類し `HexStageHandle.moveTo` で命令する。単体で隣接クリック移動
  *   させる場合は `MoveOnAdjacentCellClick` を置く。選択可能表示（`cursor: pointer`）は
@@ -203,9 +203,9 @@ type HexStageProps = PropsWithChildren<{
  *   （store の `moveActor` に移動種別 `warp` を指定、issue #289）。チェックポイントへのリセット等で使う
  * - actor の移動開始・停止は `HexStageEventProvider`（`_events`、`HexStage` の外側に置く）の
  *   EventTarget へ `HexStage-move-start`/`HexStage-move-stop` として発行する。停止箇所に
- *   着いてから行う演出（find-path proto-03 の EN 切れ演出等）で使う。Provider がなければ
+ *   着いてから行う演出（expedition の EN 切れ演出等）で使う。Provider がなければ
  *   何も起きない
- * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
+ * - `children` は floor 内・`ActorsLayer` の後に重ねる（expedition の
  *   ゴールマーカー等、overlay 用途。stage-06 と同一パターン）
  * - player bot 頭上へのオーバーレイ注入用コンテナは `ActorOverlayLayer` が
  *   floor の 3D 空間外(scene の後ろ)に用意し、`useActorsStore` の
@@ -268,8 +268,8 @@ export const HexStage = (props: HexStageProps) => {
    *
    * - lazy initializer で 1 度だけ生成する（`BoxBotEventProvider` と同じ手法）。
    *   `face` action(進行方向転換)を外部から発火するために `ActorsLayer` へ渡す
-   * - `actorEventTarget` prop が渡された場合はそれを使う。呼び出し元(find-path
-   *   proto-03 等)が `energyOutAction`(issue #181)のような、`HexStage` 自身が
+   * - `actorEventTarget` prop が渡された場合はそれを使う。呼び出し元(expedition
+   *   等)が `energyOutAction`(issue #181)のような、`HexStage` 自身が
    *   知らない action を同じ bot へ直接 dispatch できるようにするため
    */
   const [eventTarget] = useState<EventTarget>(

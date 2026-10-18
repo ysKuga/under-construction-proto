@@ -129,3 +129,8 @@
 - 2026-10-18（Stage07 の改名）: hex-stage の識別子・event key・ファイル名を `Stage07` から `HexStage` へ改名した（PR #390）
   - [_closed/pr-390-expedition-rename-hex-stage/design.md](_closed/pr-390-expedition-rename-hex-stage/design.md)
   - コメント内の言及は別 PR
+- 2026-10-18（コメントの見直し）: コメントに残るコピー元の言及を見直した（PR #392）
+  - [_closed/pr-392-expedition-copy-source-comments/design.md](_closed/pr-392-expedition-copy-source-comments/design.md)
+  - 親 backlog の「コピーした依存先に残るコピー元の名前を見直す」が完了
+  - 「tick 駆動」「tick ドライバ」の言及は、設計理由・一般的な用途例として残す
+  - `energy-debug-panel` の置き場は backlog へ回す（使用元が 1 つのみ）

@@ -5,7 +5,7 @@ import { HexCell, isSameHexCell } from './hex'
  *
  * - 現在セル以外は、クリックで移動か呼び出し側の処理（目標設定等）のいずれかが起きるため全て対象
  * - 現在セルはクリックしても何もしないため除く
- * - `GeoLayer` の `cursor: pointer` と、クリックを分類する呼び出し側（find-path proto-03 の
+ * - `GeoLayer` の `cursor: pointer` と、クリックを分類する呼び出し側（expedition の
  *   `classifyCellClick` 等）の双方がこの判定を使い、表示と挙動を揃える
  *
  * @param cell 判定対象セル

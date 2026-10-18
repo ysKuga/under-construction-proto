@@ -91,7 +91,7 @@ type ActorsLayerProps = {
  *   セルのみ発行される。0ms の transition は `transitionend` が発火しないため
  *   `onArrived` は呼ばれない
  * - visibility registry・ref registry 化は対象外（試作スコープ、issue #162）
- * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 find-path 固有の状態変化に
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等 expedition 固有の状態変化に
  *   巻き込まれず再レンダリングしないため、呼び出し元は `onArrived` 等の関数 props を
  *   安定化すること
  * - player bot の位置決め div 内にオーバーレイ追従先(アンカー) DOM を用意し、
@@ -135,7 +135,7 @@ const WALK_CADENCE_EXPONENT = 1.5
  * walking の速度収束レート(`speedApproachRate`)の基準値。`cycleSec` = 1 のときの値
  *
  * - `cycleSec` に反比例させ、周期が短いほど速く収束させる(`cycleSec` 計算の隣で使用)。
- *   box-bot 既定のレートのまま stage-07 の短い `moveDurationMs`(数百 ms)で使うと、
+ *   box-bot 既定のレートのまま hex-stage の短い `moveDurationMs`(数百 ms)で使うと、
  *   歩行の減速だけで数秒かかり「到着後も行進が続く」ように見えるため
  * - box-bot 既定値(`WALKING_DEFAULTS.speedApproachRate` = 3)より大きくする。3 だと
  *   時定数が `cycleSec / 3` となり、1 マス単発移動では加速しきる前に到着して
