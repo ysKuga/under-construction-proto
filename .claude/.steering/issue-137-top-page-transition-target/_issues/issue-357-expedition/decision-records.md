@@ -123,3 +123,6 @@
       - 収まらない場合: 表示領域で扱う
     - CSS `scale` は不採用
       - 理由: 吹き出しの追従（`getBoundingClientRect` の差分）へ scale の補正が要る
+- 2026-10-18（コンポーネント名の改名）: コンポーネント名を `FindPathProto03` から `Expedition` へ改名した（PR #388）
+  - [_closed/pr-388-expedition-rename-components/design.md](_closed/pr-388-expedition-rename-components/design.md)
+  - 親 backlog の「`expedition` に合わせて改名する」が完了
