@@ -5,7 +5,10 @@ import { CSSProperties } from 'react'
 import { term } from '@/features/term-registry'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 
-import { useEnergyEventDispatcher, useEnergyStore } from '../../_stores/energy'
+import {
+  useEnergyEventDispatcher,
+  useEnergyStore,
+} from '../../../../../../_stores/energy'
 
 /**
  * EN 残量調整デバッグパネル

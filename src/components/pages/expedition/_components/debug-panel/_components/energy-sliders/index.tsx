@@ -1,6 +1,6 @@
 'use client'
 
-import { EnergyDebugPanel } from '../../../../_components/energy-debug-panel'
+import { EnergyDebugPanel } from './_components/energy-debug-panel'
 import { useEnergySettingsStore } from '../../../../_stores/energy-settings'
 import { SLIDER_LABEL_STYLE } from '../../../../constants'
 
