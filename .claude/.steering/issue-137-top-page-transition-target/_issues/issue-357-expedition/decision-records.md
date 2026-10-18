@@ -136,3 +136,12 @@
   - `energy-debug-panel` の置き場は backlog へ回す（使用元が 1 つのみ）
 - 2026-10-19: レスポンシブ対応を、#357 から独立させて #137 直下のサブ issue #393 として分離した
   - [../issue-393-expedition-responsive/backlog.md](../issue-393-expedition-responsive/backlog.md)
+- 2026-10-19（content と component の残り）: 旧計画の残りを新基準で見直し、いずれも不要とした
+  - `stage` のレイヤー群を children・slot で受ける: 不要
+    - `stage` は `stage-group` が並べる子のため `_contents` に置ける。`_contents` → `_layers` の参照は依存方向上 許可
+  - `bot-bubbles` のロジックを実装側へ移す: 不要
+    - `bot-bubbles` は `ExpeditionContents` が並べる子。ロジックを持てないのは組み合わせ自身のみ
+  - トップレベル `_components` の吹き出し部品（`bot-bubble`・`bubble-slots`・各吹き出し）は移さない
+    - 使用元は `bot-bubbles` のみだが、`bot-bubble` を共有する部品群として残す
+    - `bot-bubbles/_components` の同名ラッパーとの衝突も避けられる
+  - backlog の「content と component の置き場を分ける」が完了
