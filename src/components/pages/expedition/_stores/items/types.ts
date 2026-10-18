@@ -30,9 +30,9 @@ export type ItemInstance = {
    *
    * - 未指定は1回限り（EN 補給アイテム）、指定時は指定回数で枯渇しうる（EN スポット）
    * - この有無で「携行する（未指定）」「据置で使用する（指定）」を判別する。
-   *   proto-01 は `use-find-path-tick`（issue #181）、proto-03 は `handleCellChange`
+   *   proto-01 は `use-find-path-tick`（issue #181）、expedition は `handleCellChange`
    *   （issue #281）で判別する
-   * - proto-03 の EN スポットは 1 回の補給ごとに 1 減らす（残りの補給回数。issue #297）
+   * - expedition の EN スポットは 1 回の補給ごとに 1 減らす（残りの補給回数。issue #297）
    */
   stock?: number
 }

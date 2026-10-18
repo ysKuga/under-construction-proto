@@ -67,7 +67,7 @@ const hexVertex = (index: number, hexSize: number) => {
  *   見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。選択拒否自体は
  *   `HexStage` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
- * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の expedition 固有の
  *   状態変化に巻き込まれて再レンダリングしない
  */
 export const OneWayLayer = memo((props: OneWayLayerProps) => {

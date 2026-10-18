@@ -14,7 +14,7 @@ import { useEnergyEventDispatcher, useEnergyStore } from '../../_stores/energy'
  *   増減し、EN 切れ等の任意の残量を作れる
  * - リセットは対象外。ゲーム全体のリセットボタン（別途用意予定）が担う範囲で、\
  *   EN store 単体のリセットは想定しない
- * - proto-01/03 共通。単一の親に属さないため `_prototypes/_components/` へ配置
+ * - `DebugPanel` の `EnergySliders` から使う
  * - EN 残量はここでのみ購読する。EN 変化で再レンダリングされるのは本パネルのみ
  * - スライダー値と現在の残量の差分を `Energy-consume`/`Energy-charge` イベントで発行（実処理・\
  *   `Energy-depleted`/`Energy-recovered` 発行は consume/charge-listener が担う。\

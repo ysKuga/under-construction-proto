@@ -21,7 +21,7 @@ import { StageSettings } from './_components/stage-settings'
 import { useStage } from './index.hooks'
 
 /**
- * ステージ（`HexStage` + find-path 固有のレイヤー群）
+ * ステージ（`HexStage` + expedition 固有のレイヤー群）
  *
  * - 隣接クリック移動は `HexStage` の `useHexMove` に内蔵済み（issue #162）。ここでは
  *   移動成立時の処理（EN 消費・アイテムによる補給・ゴール到達判定）を `onCellChange` で受ける

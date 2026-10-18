@@ -38,7 +38,7 @@ type GoalMarkerLayerProps = {
  *   ここでは再レンダリングを起こさない
  * - floor の tilt（`rotateX`）と一緒に寝ないよう、`ActorsLayer` の bot と同じく
  *   `rotateX(calc(-1 * var(--floor-tilt)))` で打ち消して直立させる（issue #137）
- * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の expedition 固有の
  *   状態変化に巻き込まれて再レンダリングしない
  * - ゴール到達後は床上の旗を透明にする。隠す判定はフェーズ `cleared` の処理（`ClearedPhase`）側の `useGoalFloorFlagHidden` に従う（issue #137）
  *   - 可視状態は registry が `visibility` を直書きするため、`opacity` で消して競合を避ける

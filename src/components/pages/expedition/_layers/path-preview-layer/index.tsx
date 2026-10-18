@@ -29,7 +29,7 @@ type PathPreviewLayerProps = {
  *
  * - `HexStage` の floor へ children として重ねる絶対配置オーバーレイ。`path` の
  *   各セルへ小さい点マーカーを表示するだけの非対話層（`ObstacleLayer` 同型）
- * - 経路探索(BFS)自体は `index.tsx` が `findHexPath`（`stage-07/_lib/hex-path`）を
+ * - 経路探索(BFS)自体は `index.tsx` が `findHexPath`（`hex-stage/_lib/hex-path`）を
  *   呼んで行う。ここは表示のみを担う
  * - `registerVisibilityNode` は持たない。経路は未到達(視界外)セルを通ることが
  *   あるが、プレイヤーが選んだ移動先までの道筋を示す表示のため、到達済み表示の

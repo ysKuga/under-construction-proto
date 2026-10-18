@@ -46,7 +46,7 @@ const UPRIGHT_STYLE: CSSProperties = {
  * - 暗色の円は床の影として floor と一緒に寝かせ、岩の絵文字のみ `ActorsLayer` の
  *   bot と同じく `rotateX(calc(-1 * var(--floor-tilt)))` で tilt を打ち消して
  *   直立させる（issue #137）
- * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
+ * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の expedition 固有の
  *   状態変化に巻き込まれて再レンダリングしない
  */
 export const ObstacleLayer = memo((props: ObstacleLayerProps) => {

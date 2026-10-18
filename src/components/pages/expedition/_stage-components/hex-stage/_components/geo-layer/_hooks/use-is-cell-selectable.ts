@@ -9,7 +9,7 @@ import { useActorsStore } from '../../../_stores/actors'
  * セルを選択可能表示（`cursor: pointer`）にするかの判定を返す
  *
  * - `_lib/cell-selectable` の `isCellSelectable` を player の現在セルで束縛する。\
- *   クリックを分類する呼び出し側（find-path proto-03 の `classifyCellClick` 等）も同じ関数を使い揃える
+ *   クリックを分類する呼び出し側（expedition の `classifyCellClick` 等）も同じ関数を使い揃える
  * - 現在セルの変化で新しい参照になる（`GeoLayer` は移動のたび再レンダリングされる）
  */
 export const useIsCellSelectable = (): ((cell: HexCell) => boolean) => {
