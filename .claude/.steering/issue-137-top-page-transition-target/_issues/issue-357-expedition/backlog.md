@@ -10,6 +10,7 @@
     - `stage07` を含むファイル・ディレクトリ名（`stage07-handle`・`use-stage07-event-*` 等）
   - 範囲: `expedition/_stage-components/hex-stage`・`expedition/_stores/energy`
   - 別 PR で行う
+  - 識別子 `Stage07*` → `HexStage*`: [#390](_pr/pr-390-expedition-rename-hex-stage/design.md)
 - [ ] route を配線する
   - 現状: `src/app` に未設置
 - [ ] content と component の置き場を分ける
