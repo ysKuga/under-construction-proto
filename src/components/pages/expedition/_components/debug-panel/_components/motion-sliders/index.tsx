@@ -7,7 +7,7 @@ import { useMotionSliders } from './index.hooks'
 /**
  * 歩行モーションの調整スライダー（歩行周期上限・脚振り角・体の上下量）
  *
- * - `display-settings` store へ書き込み、stage content が購読して `Stage07` へ渡す
+ * - `display-settings` store へ書き込み、stage content が購読して `HexStage` へ渡す
  */
 export const MotionSliders = () => {
   const {

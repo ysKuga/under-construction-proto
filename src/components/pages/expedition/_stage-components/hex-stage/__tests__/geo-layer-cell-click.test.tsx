@@ -3,19 +3,19 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { PLAYER_ACTOR_ID } from '../constants'
 import { GeoLayer } from '../_components/geo-layer'
-import { Stage07EventProvider, useStage07EventListener } from '../_events'
+import { HexStageEventProvider, useHexStageEventListener } from '../_events'
 import { HexCell } from '../_lib/hex'
 import { ActorsStoreProvider } from '../_stores/actors'
 
 vi.unmock('zustand')
 
-/** `Stage07-cell-click` の発行を `onCellClickEvent` へ中継する */
+/** `HexStage-cell-click` の発行を `onCellClickEvent` へ中継する */
 const CellClickListener = (props: {
   onCellClickEvent: (cell: HexCell) => void
 }) => {
   const { onCellClickEvent } = props
 
-  useStage07EventListener('Stage07-cell-click', (event) =>
+  useHexStageEventListener('HexStage-cell-click', (event) =>
     onCellClickEvent(event.detail.cell),
   )
 
@@ -28,10 +28,10 @@ const renderGeoLayer = (
 ) =>
   render(
     <ActorsStoreProvider initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}>
-      <Stage07EventProvider>
+      <HexStageEventProvider>
         <CellClickListener onCellClickEvent={onCellClickEvent} />
         <GeoLayer cols={2} hexSize={20} interactive={interactive} rows={1} />
-      </Stage07EventProvider>
+      </HexStageEventProvider>
     </ActorsStoreProvider>,
   )
 
@@ -48,7 +48,7 @@ describe('GeoLayer の選択可能表示', () => {
   })
 })
 
-describe('GeoLayer の Stage07-cell-click 発行', () => {
+describe('GeoLayer の HexStage-cell-click 発行', () => {
   it('セルをクリックすると、そのセルを通知する', () => {
     const onCellClickEvent = vi.fn<(cell: HexCell) => void>()
     renderGeoLayer(onCellClickEvent, true)

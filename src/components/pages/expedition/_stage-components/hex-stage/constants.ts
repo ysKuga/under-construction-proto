@@ -1,7 +1,7 @@
 /**
  * 移動・歩行の調整値の既定値
  *
- * - `Stage07` の props 省略時の値。呼び出し元が調整値を持つ場合の初期値にも使う
+ * - `HexStage` の props 省略時の値。呼び出し元が調整値を持つ場合の初期値にも使う
  */
 export const MOTION_DEFAULTS = {
   /**

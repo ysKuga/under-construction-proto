@@ -8,7 +8,7 @@ import { HexCell } from '@/components/pages/expedition/_stage-components/hex-sta
  * - `idle`: 通常状態。セルクリックは `useHexMove` 経由の隣接移動/経路探索
  * - `proposing`: 直接移動できないセルのクリックで経路が求まった直後。bot 頭上に `WaypointBubble`
  *   （思考吹き出し）を表示する
- * - `selecting`: `WaypointBubble` クリックで移行。`Stage07` を非対話化し
+ * - `selecting`: `WaypointBubble` クリックで移行。`HexStage` を非対話化し
  *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する。
  *   「完了」で中継点を残したまま（確定）、再度の `WaypointBubble` クリックで
  *   中継点を消して（キャンセル）`proposing` へ戻る

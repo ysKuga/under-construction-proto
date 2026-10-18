@@ -58,7 +58,7 @@ const hexVertex = (index: number, hexSize: number) => {
 /**
  * 一方通行セルの表示レイヤー
  *
- * - `Stage07` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
+ * - `HexStage` の floor へ children として重ねる絶対配置オーバーレイ。盤面配置の
  *   一方通行の各セルへ進入禁止方向（退出方向の反対側）の辺だけバリア線を引く非対話層
  * - 矢印表示（退出方向を指す）は「その方向にしか行けない」ように見え、実際の判定
  *   （進入方向が退出方向の逆のときだけ拒否。それ以外は自由に出入り可）と見た目が
@@ -66,7 +66,7 @@ const hexVertex = (index: number, hexSize: number) => {
  * - 座標計算は `ObstacleLayer` と同じ `computeHexGridBounds`/`hexCellCenter` を共有し、
  *   見た目位置がズレないようにする
  * - `pointerEvents: none` でクリックを下層（`GeoLayer`）へ通す。選択拒否自体は
- *   `Stage07` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
+ *   `HexStage` の `canEnterCell` 判定（`useHexMove` 組込み）で行う
  * - `React.memo` 化済み（issue-181-en backlog）。EN 残量等の find-path 固有の
  *   状態変化に巻き込まれて再レンダリングしない
  */

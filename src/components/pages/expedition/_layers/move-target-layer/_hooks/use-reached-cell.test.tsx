@@ -2,8 +2,8 @@ import { act, renderHook } from '@testing-library/react'
 
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
-  Stage07EventProvider,
-  useStage07EventDispatcher,
+  HexStageEventProvider,
+  useHexStageEventDispatcher,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useReachedCell } from './use-reached-cell'
@@ -11,15 +11,15 @@ import { useReachedCell } from './use-reached-cell'
 const renderReachedCell = () => {
   const { result } = renderHook(
     () => ({
-      dispatcher: useStage07EventDispatcher(),
+      dispatcher: useHexStageEventDispatcher(),
       reachedCell: useReachedCell(PLAYER_ACTOR_ID),
     }),
-    { wrapper: Stage07EventProvider },
+    { wrapper: HexStageEventProvider },
   )
 
   const cellReach = (actorId = PLAYER_ACTOR_ID) =>
     act(async () => {
-      await result.current.dispatcher['Stage07-cell-reach']({
+      await result.current.dispatcher['HexStage-cell-reach']({
         actorId,
         cell: { q: 1, r: 2 },
       })

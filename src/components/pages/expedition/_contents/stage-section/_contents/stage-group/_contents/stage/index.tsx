@@ -1,6 +1,6 @@
 'use client'
 
-import { Stage07 } from '@/components/pages/expedition/_stage-components/hex-stage'
+import { HexStage } from '@/components/pages/expedition/_stage-components/hex-stage'
 
 import { GoalMarkerLayer } from '../../../../../../_layers/goal-marker-layer'
 import { ItemLayer } from '../../../../../../_layers/item-layer'
@@ -21,13 +21,13 @@ import { StageSettings } from './_components/stage-settings'
 import { useStage } from './index.hooks'
 
 /**
- * ステージ（`Stage07` + find-path 固有のレイヤー群）
+ * ステージ（`HexStage` + find-path 固有のレイヤー群）
  *
- * - 隣接クリック移動は `Stage07` の `useHexMove` に内蔵済み（issue #162）。ここでは
+ * - 隣接クリック移動は `HexStage` の `useHexMove` に内蔵済み（issue #162）。ここでは
  *   移動成立時の処理（EN 消費・アイテムによる補給・ゴール到達判定）を `onCellChange` で受ける
- * - セルのクリック（`Stage07-cell-click`）は `useCellClickEventListener` が移動・目標設定へ振り分ける。
+ * - セルのクリック（`HexStage-cell-click`）は `useCellClickEventListener` が移動・目標設定へ振り分ける。
  *   直接移動できないセルのクリックで経路を求め `PathPreviewLayer` へ表示する（issue #137/#226）
- * - 中継点選択モード中は `Stage07` を非対話化し、`WaypointSelectLayer` がセルクリックを
+ * - 中継点選択モード中は `HexStage` を非対話化し、`WaypointSelectLayer` がセルクリックを
  *   拾って中継点を設置/除去する（通常モードのクリックとは完全に別イベント）
  * - 各レイヤーの DOM は visibility registry へ登録し、未到達マスを非表示にする
  * - 床の左下（`belowFloor`）へ設定アイコン（調整スライダーのポップオーバー）を重ねる
@@ -53,7 +53,7 @@ export const Stage = () => {
     registerFloorVisibilityNode,
     registerMarkerVisibilityNode,
     registerWaypointVisibilityNode,
-    stage07HandleRef,
+    hexStageHandleRef,
     waypoints,
     waypointSelecting,
   } = useStage()
@@ -61,7 +61,7 @@ export const Stage = () => {
   return (
     // 床(scene)の幅へ合わせる
     <div className="w-min">
-      <Stage07
+      <HexStage
         actorEventTarget={actorEventTarget}
         belowFloor={
           // 設定アイコンを床の左下へ重ねる
@@ -84,7 +84,7 @@ export const Stage = () => {
         moveDurationMs={moveDurationMs}
         onCellChange={handleCellChange}
         onFollowPathEnd={handleFollowPathEnd}
-        ref={stage07HandleRef}
+        ref={hexStageHandleRef}
         registerCellVisibilityNode={registerFloorVisibilityNode}
         rows={GRID.rows}
       >
@@ -142,7 +142,7 @@ export const Stage = () => {
           visible={waypointSelecting}
           waypoints={waypoints}
         />
-      </Stage07>
+      </HexStage>
     </div>
   )
 }

@@ -8,8 +8,8 @@ import { useStageSliders } from './index.hooks'
  * ステージの調整スライダー（tilt・移動時間）
  *
  * - 見出しの下へ字下げしてスライダーを置き、ポップオーバーの幅を抑える
- * - tilt は `Stage07Handle.setTilt` で床へ直接反映する（再レンダリングなし）
- * - 移動時間は `display-settings` store へ書き込み、stage content が購読して `Stage07` へ渡す
+ * - tilt は `HexStageHandle.setTilt` で床へ直接反映する（再レンダリングなし）
+ * - 移動時間は `display-settings` store へ書き込み、stage content が購読して `HexStage` へ渡す
  */
 export const StageSliders = () => {
   const { handleTiltChange, moveDurationMs, setMoveDurationMs } =

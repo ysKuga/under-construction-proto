@@ -5,37 +5,37 @@ import { PLAYER_ACTOR_ID } from './constants'
 
 import { MoveOnAdjacentCellClick } from './_components/move-on-adjacent-cell-click'
 import {
-  Stage07HandleProvider,
-  useStage07HandleRef,
-} from './_contexts/stage07-handle'
-import { Stage07EventProvider, useStage07EventListener } from './_events'
+  HexStageHandleProvider,
+  useHexStageHandleRef,
+} from './_contexts/hex-stage-handle'
+import { HexStageEventProvider, useHexStageEventListener } from './_events'
 import { colRowToAxial, HexCell } from './_lib/hex'
 import { ActorsStoreProvider, useActorsStore } from './_stores/actors'
 
-import { Stage07 as StoryComponent } from '.'
+import { HexStage as StoryComponent } from '.'
 
-/** context の handle を `ref` へ渡して `Stage07` を描画する（`MoveOnAdjacentCellClick` が参照する） */
-const Stage07WithHandle = (args: Story['args']) => {
-  const stage07HandleRef = useStage07HandleRef()
+/** context の handle を `ref` へ渡して `HexStage` を描画する（`MoveOnAdjacentCellClick` が参照する） */
+const HexStageWithHandle = (args: Story['args']) => {
+  const hexStageHandleRef = useHexStageHandleRef()
 
-  return <StoryComponent {...DEFAULT_ARGS} {...args} ref={stage07HandleRef} />
+  return <StoryComponent {...DEFAULT_ARGS} {...args} ref={hexStageHandleRef} />
 }
 
 const meta: Meta<typeof StoryComponent> = {
   component: StoryComponent,
-  // Stage07 はクリックを `Stage07-cell-click` で発行するのみのため、隣接クリック移動を
+  // HexStage はクリックを `HexStage-cell-click` で発行するのみのため、隣接クリック移動を
   // `MoveOnAdjacentCellClick` で補う。各 story の decorator（ActorsStoreProvider 等）はこの内側になる
   decorators: [
     (Story) => (
-      <Stage07HandleProvider>
-        <Stage07EventProvider>
+      <HexStageHandleProvider>
+        <HexStageEventProvider>
           <MoveOnAdjacentCellClick />
           <Story />
-        </Stage07EventProvider>
-      </Stage07HandleProvider>
+        </HexStageEventProvider>
+      </HexStageHandleProvider>
     ),
   ],
-  render: (args) => <Stage07WithHandle {...args} />,
+  render: (args) => <HexStageWithHandle {...args} />,
 }
 
 export default meta
@@ -69,7 +69,7 @@ const SpawnMobButton = () => {
   )
 }
 
-// provider は Stage07 の外側に置く構成（issue #181 PR-A）。story では decorator で巻く。
+// provider は HexStage の外側に置く構成（issue #181 PR-A）。story では decorator で巻く。
 // 初期 actor 構成が story ごとに異なるため decorator も story 単位で定義する
 export const Default: Story = {
   args: DEFAULT_ARGS,
@@ -101,8 +101,8 @@ export const WithMob: Story = {
   ],
 }
 
-// store は Stage07 の外側から直接操作できる(issue #215)。ボタンで spawnActor を
-// 叩いても Stage07 に props を渡し直す必要はなく、ActorsLayer だけが再レンダリングされる
+// store は HexStage の外側から直接操作できる(issue #215)。ボタンで spawnActor を
+// 叩いても HexStage に props を渡し直す必要はなく、ActorsLayer だけが再レンダリングされる
 export const SpawnableMob: Story = {
   args: DEFAULT_ARGS,
   decorators: [
@@ -117,13 +117,13 @@ export const SpawnableMob: Story = {
   ],
 }
 
-/** player の到達(`Stage07-cell-reach`)セルを発行順に一覧表示する(ワープ時の到達確認用) */
+/** player の到達(`HexStage-cell-reach`)セルを発行順に一覧表示する(ワープ時の到達確認用) */
 const ReachLog = () => {
   /** 到達したセルの発行順の一覧 */
   const [reachedCells, setReachedCells] = useState<HexCell[]>([])
 
-  useStage07EventListener(
-    'Stage07-cell-reach',
+  useHexStageEventListener(
+    'HexStage-cell-reach',
     useCallback((event) => {
       if (event.detail.actorId !== PLAYER_ACTOR_ID) return
 
@@ -142,10 +142,10 @@ const ReachLog = () => {
   )
 }
 
-/** クリックごとにランダムなセルへ player をワープさせる story 用 render(`Stage07Handle.warp` 動作確認用) */
+/** クリックごとにランダムなセルへ player をワープさせる story 用 render(`HexStageHandle.warp` 動作確認用) */
 const WarpRender = (args: Story['args']) => {
-  /** `Stage07` の imperative API */
-  const stage07HandleRef = useStage07HandleRef()
+  /** `HexStage` の imperative API */
+  const hexStageHandleRef = useHexStageHandleRef()
 
   return (
     <>
@@ -154,13 +154,13 @@ const WarpRender = (args: Story['args']) => {
           const col = Math.floor(Math.random() * DEFAULT_ARGS.cols)
           const row = Math.floor(Math.random() * DEFAULT_ARGS.rows)
 
-          stage07HandleRef.current?.warp(colRowToAxial(col, row))
+          hexStageHandleRef.current?.warp(colRowToAxial(col, row))
         }}
         type="button"
       >
         ワープ
       </button>
-      <StoryComponent {...DEFAULT_ARGS} {...args} ref={stage07HandleRef} />
+      <StoryComponent {...DEFAULT_ARGS} {...args} ref={hexStageHandleRef} />
       <ReachLog />
     </>
   )
@@ -187,18 +187,18 @@ const formatHoveredCell = (cell: HexCell | undefined) =>
   cell ? `q=${cell.q}, r=${cell.r}` : 'なし'
 
 /**
- * hover 中セルを表示する(`Stage07-cell-hover` の動作確認用)
+ * hover 中セルを表示する(`HexStage-cell-hover` の動作確認用)
  *
  * - hover の変化を state に持たず、ref 経由で DOM の `textContent` を直接書き換える。\
- *   hover しても本 component・`Stage07` とも再レンダリングされない
+ *   hover しても本 component・`HexStage` とも再レンダリングされない
  * - React が子要素を描画しない空要素へのみ書き込む(React の差分更新と衝突させない)
  */
 const HoveredCellLabel = () => {
   /** 表示先の要素 */
   const labelRef = useRef<HTMLParagraphElement>(null)
 
-  useStage07EventListener(
-    'Stage07-cell-hover',
+  useHexStageEventListener(
+    'HexStage-cell-hover',
     useCallback((event) => {
       if (!labelRef.current) return
 

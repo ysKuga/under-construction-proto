@@ -7,8 +7,8 @@ import {
 } from '@/components/pages/expedition/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
-  Stage07EventProvider,
-  useStage07EventDispatcher,
+  HexStageEventProvider,
+  useHexStageEventDispatcher,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import {
   ActorsStoreProvider,
@@ -47,13 +47,13 @@ const Wrapper = (props: PropsWithChildren) => (
   <StageLayoutProvider stageLayout={DEFAULT_STAGE_LAYOUT}>
     <EnergyStoreProvider>
       <ActorsStoreProvider initialActors={{ [PLAYER_ACTOR_ID]: start }}>
-        <Stage07EventProvider>
+        <HexStageEventProvider>
           <ItemStoreProvider initialItems={[SPOT]}>
             <WaypointFlowStoreProvider>
               <GamePhaseStoreProvider>{props.children}</GamePhaseStoreProvider>
             </WaypointFlowStoreProvider>
           </ItemStoreProvider>
-        </Stage07EventProvider>
+        </HexStageEventProvider>
       </ActorsStoreProvider>
     </EnergyStoreProvider>
   </StageLayoutProvider>
@@ -70,7 +70,7 @@ const renderCellInfoPanel = () => {
       return {
         actors: useActorsStoreApi(),
         cellInfoPanel: useCellInfoPanel(),
-        dispatcher: useStage07EventDispatcher(),
+        dispatcher: useHexStageEventDispatcher(),
         energy: useEnergyStoreApi(),
         reachGoal: useGamePhaseStore((state) => state.reachGoal),
         waypointFlow: useWaypointFlowStoreApi(),
@@ -78,10 +78,10 @@ const renderCellInfoPanel = () => {
     },
     { wrapper: Wrapper },
   )
-  /** `Stage07-cell-hover` を発行する */
+  /** `HexStage-cell-hover` を発行する */
   const hover = (cell: ItemInstance['cell'] | undefined) =>
     act(async () => {
-      await view.result.current.dispatcher['Stage07-cell-hover']({ cell })
+      await view.result.current.dispatcher['HexStage-cell-hover']({ cell })
     })
 
   return { getHookCallCount: () => renderCount, hover, ...view }

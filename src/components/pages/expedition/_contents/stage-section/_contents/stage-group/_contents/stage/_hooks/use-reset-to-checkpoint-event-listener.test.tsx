@@ -7,8 +7,8 @@ import {
 } from '@/components/pages/expedition/_stores/energy'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
-  Stage07EventProvider,
-  useStage07EventDispatcher,
+  HexStageEventProvider,
+  useHexStageEventDispatcher,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { ResetProvider } from '../../../../../../../_contexts/reset'
@@ -41,11 +41,11 @@ const Wrapper = (props: PropsWithChildren) => (
           <CarriedItemStoreProvider>
             <PlayerActivityStoreProvider>
               <ExpeditionEventProvider>
-                <Stage07EventProvider>
+                <HexStageEventProvider>
                   <FogStoreProvider initialMode="all-hidden">
                     {props.children}
                   </FogStoreProvider>
-                </Stage07EventProvider>
+                </HexStageEventProvider>
               </ExpeditionEventProvider>
             </PlayerActivityStoreProvider>
           </CarriedItemStoreProvider>
@@ -65,7 +65,7 @@ const setupResetToCheckpoint = () =>
         expeditionDispatch: useExpeditionEventDispatcher(),
         fog: useFogStoreApi(),
         moveHistory: useMoveHistoryStoreApi(),
-        stage07Dispatch: useStage07EventDispatcher(),
+        hexStageDispatch: useHexStageEventDispatcher(),
       }
     },
     { wrapper: Wrapper },
@@ -113,18 +113,18 @@ describe('useResetToCheckpointEventListener', () => {
 
   it('移動中は拒否し、停止後は受理する', async () => {
     const result = setupResetToCheckpoint()
-    const { energy, expeditionDispatch, stage07Dispatch } = result.current
+    const { energy, expeditionDispatch, hexStageDispatch } = result.current
     const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
     energy.getState().consume(PLAYER_ACTOR_ID, max)
-    await stage07Dispatch['Stage07-move-start']({ actorId: PLAYER_ACTOR_ID })
+    await hexStageDispatch['HexStage-move-start']({ actorId: PLAYER_ACTOR_ID })
 
     await expect(
       expeditionDispatch['Expedition-reset-to-checkpoint'](undefined),
     ).resolves.toBe(false)
     expect(result.current.energy).toBe(energy)
 
-    await stage07Dispatch['Stage07-move-stop']({ actorId: PLAYER_ACTOR_ID })
+    await hexStageDispatch['HexStage-move-stop']({ actorId: PLAYER_ACTOR_ID })
 
     await act(async () => {
       await expect(

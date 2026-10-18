@@ -1,5 +1,5 @@
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
-import { useStage07HandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/stage07-handle'
+import { useHexStageHandleRef } from '@/components/pages/expedition/_stage-components/hex-stage/_contexts/hex-stage-handle'
 import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { usePlayerActorEventTarget } from '../../../../../../_contexts/player-actor-event-target'
@@ -27,7 +27,7 @@ import { useSetPlayerActivityOnMove } from './_hooks/use-set-player-activity-on-
 import { useVisibilityNodeRegistrars } from './_hooks/use-visibility-node-registrars'
 import { UseStageReturn } from './index.types'
 
-/** ステージ（`Stage07` + 各レイヤー）の表示値・操作をまとめる */
+/** ステージ（`HexStage` + 各レイヤー）の表示値・操作をまとめる */
 export const useStage = (): UseStageReturn => {
   const currentCell = useActorsStore((state) => state.actors[PLAYER_ACTOR_ID])
   const displayMode = useDisplaySettingsStore((state) => state.displayMode)
@@ -58,9 +58,9 @@ export const useStage = (): UseStageReturn => {
    *   `PathPreviewLayer` が直接購読するため、ここでは購読しない
    */
   const followingPath = useFollowPathStore((state) => state.followingPath)
-  /** 経路に沿った自動移動中か（`Stage07` を非対話化する） */
+  /** 経路に沿った自動移動中か（`HexStage` を非対話化する） */
   const isAutoMoving = useFollowPathStore((state) => state.isFollowing())
-  /** EN スポットで補給中か（`Stage07` を非対話化する） */
+  /** EN スポットで補給中か（`HexStage` を非対話化する） */
   const isCharging = usePlayerActivityStore(
     (state) => state.activity === 'charging',
   )
@@ -68,7 +68,7 @@ export const useStage = (): UseStageReturn => {
   const operateStageAllowed = useGamePhaseStore((state) =>
     state.allows('operateStage'),
   )
-  const stage07HandleRef = useStage07HandleRef()
+  const hexStageHandleRef = useHexStageHandleRef()
   const previewPath = usePreviewPath()
   const actorEventTarget = usePlayerActorEventTarget()
   const { canEnterCell, canEnterCellPerceived } = useCanEnterCell()
@@ -115,7 +115,7 @@ export const useStage = (): UseStageReturn => {
     registerFloorVisibilityNode,
     registerMarkerVisibilityNode,
     registerWaypointVisibilityNode,
-    stage07HandleRef,
+    hexStageHandleRef,
     waypoints,
     waypointSelecting,
   }

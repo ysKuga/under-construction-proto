@@ -13,7 +13,7 @@ import { BotBubble, BotBubbleHandle } from '../bot-bubble'
 /**
  * bot 基準点(0, 0)から見た推奨表示位置(px)
  *
- * - `Stage07` の `ActorOverlayLayer` が用意するコンテナ原点
+ * - `HexStage` の `ActorOverlayLayer` が用意するコンテナ原点
  *   (bot の位置決め div の画面上の左上)からの相対位置。呼び出し元がそのまま使うことを想定
  *   するが、`offset` prop 自体は任意の値を受け付ける
  */

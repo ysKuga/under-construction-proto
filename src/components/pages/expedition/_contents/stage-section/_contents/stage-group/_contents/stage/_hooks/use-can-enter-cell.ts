@@ -16,7 +16,7 @@ import { EnterGuard, UseStageReturn } from '../index.types'
  *
  * - 進入拒否条件一覧（`EnterGuard`）は EN 残量チェックを含まない。EN 残量チェックは
  *   `MoveTargetLayer` 自身が EN store を直接購読して適用する（issue-181-en backlog:
- *   `EnergyDebugPanel` 操作で `Stage07` 配下ツリー全体が再レンダリングされる問題の解消）
+ *   `EnergyDebugPanel` 操作で `HexStage` 配下ツリー全体が再レンダリングされる問題の解消）
  * - EN は残量の有無（boolean）のみ購読する。残量の増減だけでは再レンダリングしない
  * - ゴール到達後は全セル進入不可（終了状態）。自動移動も次のマスで打ち切られ、\
  *   移動可能マスも表示しない

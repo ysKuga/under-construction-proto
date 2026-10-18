@@ -1,2 +1,2 @@
-export * from './_hooks/use-stage07-event-dispatcher'
-export * from './_hooks/use-stage07-event-listener'
+export * from './_hooks/use-hex-stage-event-dispatcher'
+export * from './_hooks/use-hex-stage-event-listener'

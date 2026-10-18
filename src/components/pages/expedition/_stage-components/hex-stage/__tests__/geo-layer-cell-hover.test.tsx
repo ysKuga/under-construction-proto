@@ -3,19 +3,19 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { PLAYER_ACTOR_ID } from '../constants'
 import { GeoLayer } from '../_components/geo-layer'
-import { Stage07EventProvider, useStage07EventListener } from '../_events'
+import { HexStageEventProvider, useHexStageEventListener } from '../_events'
 import { HexCell } from '../_lib/hex'
 import { ActorsStoreProvider } from '../_stores/actors'
 
 vi.unmock('zustand')
 
-/** `Stage07-cell-hover` の発行を `onCellHover` へ中継する */
+/** `HexStage-cell-hover` の発行を `onCellHover` へ中継する */
 const CellHoverListener = (props: {
   onCellHover: (cell: HexCell | undefined) => void
 }) => {
   const { onCellHover } = props
 
-  useStage07EventListener('Stage07-cell-hover', (event) =>
+  useHexStageEventListener('HexStage-cell-hover', (event) =>
     onCellHover(event.detail.cell),
   )
 
@@ -25,14 +25,14 @@ const CellHoverListener = (props: {
 const renderGeoLayer = (onCellHover: (cell: HexCell | undefined) => void) =>
   render(
     <ActorsStoreProvider initialActors={{ [PLAYER_ACTOR_ID]: { q: 0, r: 0 } }}>
-      <Stage07EventProvider>
+      <HexStageEventProvider>
         <CellHoverListener onCellHover={onCellHover} />
         <GeoLayer cols={2} hexSize={20} interactive rows={1} />
-      </Stage07EventProvider>
+      </HexStageEventProvider>
     </ActorsStoreProvider>,
   )
 
-describe('GeoLayer の Stage07-cell-hover 発行', () => {
+describe('GeoLayer の HexStage-cell-hover 発行', () => {
   it('セルへ入ると、そのセルを通知する', () => {
     const onCellHover = vi.fn<(cell: HexCell | undefined) => void>()
     renderGeoLayer(onCellHover)

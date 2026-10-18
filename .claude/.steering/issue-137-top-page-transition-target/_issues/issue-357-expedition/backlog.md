@@ -5,11 +5,10 @@
   - 昇格候補の筆頭: `time-control-03/types`（4 か所から参照）
   - (decision-records.md 2026-10-17 import 方針)
 - [ ] コピーした依存先に残るコピー元の名前を見直す
-  - 対象
-    - コメント内の `find-path proto-03`・`stage-06` 等への言及
-    - `stage07` を含むファイル・ディレクトリ名（`stage07-handle`・`use-stage07-event-*` 等）
+  - 識別子・ファイル名の `Stage07*` は改名済み（残りはコメント）
+  - 対象: コメント内の `find-path proto-03`・`stage-06`・`stage-07`・`use-find-path-tick` 等への言及
   - 範囲: `expedition/_stage-components/hex-stage`・`expedition/_stores/energy`
-  - 別 PR で行う
+    - hex-stage の外の言及（`index.tsx`・`path-preview-layer`・`visibility-registry`）も含める
 - [ ] route を配線する
   - 現状: `src/app` に未設置
 - [ ] content と component の置き場を分ける

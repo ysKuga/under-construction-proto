@@ -10,7 +10,7 @@ export type DisplaySettingsState = {
   bodyBobHeight: number
   /** 移動可能マスの表示演出 */
   displayMode: MoveTargetDisplayMode
-  /** 歩行モーション（`Stage07` の `enableWalking`）を有効にするか */
+  /** 歩行モーション（`HexStage` の `enableWalking`）を有効にするか */
   enableWalking: boolean
   /** walking の脚振り角の振幅(rad) */
   legSwingAngle: number

@@ -66,7 +66,7 @@ type ActorsLayerProps = {
  *
  * - `useActorsStore`(zustand store)を直接 selector 購読し、`actors` map の変化(player
  *   移動・mob の spawn/despawn)のたびこのコンポーネントのみ再レンダリングする。呼び出し元
- *   (`Stage07`)を経由しないため、mob の動的追加/削除で `Stage07` 以下全体が再レンダリング
+ *   (`HexStage`)を経由しないため、mob の動的追加/削除で `HexStage` 以下全体が再レンダリング
  *   されることはない(issue #215)
  * - `PLAYER_ACTOR_ID` のセルへ walking/face 対応の bot を、それ以外の actorId には
  *   `actions=[]`・`interactive=false` の静的 bot を描画する
@@ -84,7 +84,7 @@ type ActorsLayerProps = {
  * - 上限未満の区間は `WALK_CADENCE_EXPONENT` 乗で周期を縮め、速い移動ほど 1 マスあたりの
  *   歩数を増やす（`computeWalkCycleSec`）。線形連動のみだと 1 マスあたり常に 1 歩で、
  *   速い移動なのにほとんど振らないように見えるため
- * - player の描画位置がセル中心に到達したら `Stage07-cell-reach` を発行する
+ * - player の描画位置がセル中心に到達したら `HexStage-cell-reach` を発行する
  *   （`useEffectCellReach`）
  * - player の移動種別(`moveKinds`)が `warp` のときは `left`/`top` の transition を
  *   0ms にし、移動先へ即座に描画する（issue #289）。通過マスがないため到達は移動先

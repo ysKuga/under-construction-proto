@@ -27,7 +27,7 @@ import { MOTION_DEFAULTS, PLAYER_ACTOR_ID } from './constants'
 import { ActorOverlayLayer } from './_components/actor-overlay-layer'
 import { ActorsLayer } from './_components/actors-layer'
 import { GeoLayer } from './_components/geo-layer'
-import { useStage07EventDispatcher } from './_events'
+import { useHexStageEventDispatcher } from './_events'
 import { useFollowPath } from './_hooks/use-follow-path'
 import { useHexMove } from './_hooks/use-hex-move'
 import {
@@ -37,8 +37,8 @@ import {
 } from './_lib/hex'
 import { useActorsStore } from './_stores/actors'
 
-/** `Stage07` が呼び出し元へ公開する imperative API */
-export type Stage07Handle = {
+/** `HexStage` が呼び出し元へ公開する imperative API */
+export type HexStageHandle = {
   /**
    * player を `path` に沿って 1 マスずつ自動移動させる
    *
@@ -51,8 +51,8 @@ export type Stage07Handle = {
    * player を隣接セル `cell` へ 1 マス移動させる。移動したら `true`、隣接でない・進入不可なら `false`
    *
    * - クリック移動と同じ検証(隣接判定・`canEnterCell`)を通し、移動成立時は
-   *   `onCellChange`・`Stage07-move-start` を通知する
-   * - 呼出し側(`Stage07-cell-click` の購読側等)がクリックを分類して移動を命令するために使う
+   *   `onCellChange`・`HexStage-move-start` を通知する
+   * - 呼出し側(`HexStage-cell-click` の購読側等)がクリックを分類して移動を命令するために使う
    */
   moveTo: (cell: HexCell) => boolean
   /**
@@ -65,15 +65,15 @@ export type Stage07Handle = {
   /**
    * player を移動アニメーションなしで `cell` へ移す
    *
-   * - 通過マスの到達(`Stage07-cell-reach`)は発行せず、`cell` の到達のみ発行する
-   * - 移動成立の通知(`onCellChange`・`Stage07-move-start`/`Stage07-move-stop`)は行わない
+   * - 通過マスの到達(`HexStage-cell-reach`)は発行せず、`cell` の到達のみ発行する
+   * - 移動成立の通知(`onCellChange`・`HexStage-move-start`/`HexStage-move-stop`)は行わない
    * - 向きは `pickInitialFacingTarget` で選んだ隣接マスへ向ける
    * - 停止中の呼出を前提とする（移動中の歩行・自動移動は止めない）
    */
   warp: (cell: HexCell) => void
 }
 
-type Stage07Props = PropsWithChildren<{
+type HexStageProps = PropsWithChildren<{
   /**
    * player bot と共有する EventTarget（省略可）
    *
@@ -114,7 +114,7 @@ type Stage07Props = PropsWithChildren<{
   /**
    * rotateX の初期角度 (deg)（省略時は 0）
    *
-   * - 以降の変更は `Stage07Handle.setTilt` で行う
+   * - 以降の変更は `HexStageHandle.setTilt` で行う
    */
   initialTiltDeg?: number
   /**
@@ -145,8 +145,8 @@ type Stage07Props = PropsWithChildren<{
   onFollowPathEnd?: (blockedCell?: HexCell) => void
   /** perspective 視点距離 (px)。小さいほど遠近が強い（省略時は 800） */
   perspectivePx?: number
-  /** imperative API(`Stage07Handle`)の受け取り先（省略可） */
-  ref?: Ref<Stage07Handle>
+  /** imperative API(`HexStageHandle`)の受け取り先（省略可） */
+  ref?: Ref<HexStageHandle>
   /**
    * `GeoLayer` の hex タイルの DOM を visibility registry 等へ登録する
    *
@@ -170,7 +170,7 @@ type Stage07Props = PropsWithChildren<{
  * - actor(player・mob 共通)の位置は外側の `ActorsStoreProvider`（zustand store）が
  *   `actorId` ごとに保持する。`useHexMove` はクリック検証（隣接判定・進入可否）と
  *   facing 算出のみ行い、位置更新は store の `moveActor` へ委ねる（tick 駆動実行時、
- *   外部からクリックを介さず `moveActor` を直接呼べるようにするため）。`Stage07` 自身は
+ *   外部からクリックを介さず `moveActor` を直接呼べるようにするため）。`HexStage` 自身は
  *   `PLAYER_ACTOR_ID` の位置のみ扱う。mob(player 以外の actor)は `ActorsLayer` が
  *   store を直接 selector 購読して描画するため props 経由では受け取らない(issue #215)。
  *   spawn/despawn は呼び出し元が `useActorsStoreApi` 経由で store を直接操作する
@@ -191,18 +191,18 @@ type Stage07Props = PropsWithChildren<{
  *   （visibility registry）に委ねられる（find-path proto-03 で使用）
  * - `canEnterCell` を渡すと `useHexMove` の隣接判定に加えてそのセルへの移動を
  *   拒否できる（find-path proto-03 の障害物セル判定で使用）
- * - セルのクリックは分類（現在セル・移動可・不可）せず `Stage07-cell-click` で発行するのみ。
- *   移動は呼び出し側が分類し `Stage07Handle.moveTo` で命令する。単体で隣接クリック移動
+ * - セルのクリックは分類（現在セル・移動可・不可）せず `HexStage-cell-click` で発行するのみ。
+ *   移動は呼び出し側が分類し `HexStageHandle.moveTo` で命令する。単体で隣接クリック移動
  *   させる場合は `MoveOnAdjacentCellClick` を置く。選択可能表示（`cursor: pointer`）は
  *   `GeoLayer` が `_lib/cell-selectable` の `isCellSelectable` で判定する。分類する呼び出し側も同じ関数を使い揃える
- * - `ref`（`Stage07Handle.moveTo`）で隣接セルへの 1 マス移動を命令できる
- * - `ref`（`Stage07Handle.followPath`）で経路に沿った自動移動を命令できる
+ * - `ref`（`HexStageHandle.moveTo`）で隣接セルへの 1 マス移動を命令できる
+ * - `ref`（`HexStageHandle.followPath`）で経路に沿った自動移動を命令できる
  *   （`useFollowPath`、issue #226）。1 マスごとにクリック移動と同じ検証を通し、
  *   進入不可ならその場で停止して `onFollowPathEnd` へ通知する
- * - `ref`（`Stage07Handle.warp`）で移動アニメーションなしに任意セルへ移せる
+ * - `ref`（`HexStageHandle.warp`）で移動アニメーションなしに任意セルへ移せる
  *   （store の `moveActor` に移動種別 `warp` を指定、issue #289）。チェックポイントへのリセット等で使う
- * - actor の移動開始・停止は `Stage07EventProvider`（`_events`、`Stage07` の外側に置く）の
- *   EventTarget へ `Stage07-move-start`/`Stage07-move-stop` として発行する。停止箇所に
+ * - actor の移動開始・停止は `HexStageEventProvider`（`_events`、`HexStage` の外側に置く）の
+ *   EventTarget へ `HexStage-move-start`/`HexStage-move-stop` として発行する。停止箇所に
  *   着いてから行う演出（find-path proto-03 の EN 切れ演出等）で使う。Provider がなければ
  *   何も起きない
  * - `children` は floor 内・`ActorsLayer` の後に重ねる（find-path proto-03 の
@@ -239,7 +239,7 @@ const computeWarpFacingRad = (
 /** 到着時、腕・脚を規定位置(0)へ戻す(`walkingReset`)のにかける時間(ms) */
 const WALKING_RESET_DURATION_MS = 200
 
-export const Stage07 = (props: Stage07Props) => {
+export const HexStage = (props: HexStageProps) => {
   const {
     actorEventTarget,
     belowFloor,
@@ -269,7 +269,7 @@ export const Stage07 = (props: Stage07Props) => {
    * - lazy initializer で 1 度だけ生成する（`BoxBotEventProvider` と同じ手法）。
    *   `face` action(進行方向転換)を外部から発火するために `ActorsLayer` へ渡す
    * - `actorEventTarget` prop が渡された場合はそれを使う。呼び出し元(find-path
-   *   proto-03 等)が `energyOutAction`(issue #181)のような、`Stage07` 自身が
+   *   proto-03 等)が `energyOutAction`(issue #181)のような、`HexStage` 自身が
    *   知らない action を同じ bot へ直接 dispatch できるようにするため
    */
   const [eventTarget] = useState<EventTarget>(
@@ -300,7 +300,7 @@ export const Stage07 = (props: Stage07Props) => {
     walkingResetRef.current = walkingReset
   })
 
-  const stage07EventDispatcher = useStage07EventDispatcher()
+  const hexStageEventDispatcher = useHexStageEventDispatcher()
 
   const { tryMove } = useHexMove(
     currentCell,
@@ -311,7 +311,7 @@ export const Stage07 = (props: Stage07Props) => {
         void walking()
       }
 
-      void stage07EventDispatcher['Stage07-move-start']({
+      void hexStageEventDispatcher['HexStage-move-start']({
         actorId: PLAYER_ACTOR_ID,
       })
       onCellChange?.(cell)
@@ -342,7 +342,7 @@ export const Stage07 = (props: Stage07Props) => {
     moveDurationMs,
     (blockedCell) => {
       stopWalking()
-      void stage07EventDispatcher['Stage07-move-stop']({
+      void hexStageEventDispatcher['HexStage-move-stop']({
         actorId: PLAYER_ACTOR_ID,
       })
       onFollowPathEnd?.(blockedCell)
@@ -372,17 +372,17 @@ export const Stage07 = (props: Stage07Props) => {
    * - `ActorsLayer`（`React.memo` 化済み、issue-181-en backlog）の `onArrived`
    *   prop が毎レンダー新規関数だと memo が効かなくなるため `useCallback`
    *   で参照を固定する
-   * - 自動移動(`followPath`)中は途中の到着で歩行を止めない。停止（`Stage07-move-stop`
+   * - 自動移動(`followPath`)中は途中の到着で歩行を止めない。停止（`HexStage-move-stop`
    *   の発行含む）は `useFollowPath` の終了通知側で行う
    */
   const handleArrived = useCallback(() => {
     if (notifyArrived()) return
 
     stopWalking()
-    void stage07EventDispatcher['Stage07-move-stop']({
+    void hexStageEventDispatcher['HexStage-move-stop']({
       actorId: PLAYER_ACTOR_ID,
     })
-  }, [notifyArrived, stage07EventDispatcher, stopWalking])
+  }, [notifyArrived, hexStageEventDispatcher, stopWalking])
 
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
   const sceneStyle: CSSProperties = {

@@ -17,7 +17,7 @@ export type GamePhase = 'playing' | 'clearing' | 'cleared'
 export type PhasePermissions = {
   /** セルへの進入（進入ガード） */
   enterCell: boolean
-  /** ステージの操作（`Stage07` の `interactive`） */
+  /** ステージの操作（`HexStage` の `interactive`） */
   operateStage: boolean
   /** EN 切れ演出（予防姿勢） */
   performEnergyOut: boolean

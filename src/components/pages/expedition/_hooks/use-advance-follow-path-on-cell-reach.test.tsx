@@ -3,8 +3,8 @@ import { PropsWithChildren } from 'react'
 
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import {
-  Stage07EventProvider,
-  useStage07EventDispatcher,
+  HexStageEventProvider,
+  useHexStageEventDispatcher,
 } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 
 import { useReachedCell } from '../_layers/move-target-layer/_hooks/use-reached-cell'
@@ -19,9 +19,9 @@ const Wrapper = (props: PropsWithChildren) => {
   const { children } = props
 
   return (
-    <Stage07EventProvider>
+    <HexStageEventProvider>
       <FollowPathStoreProvider>{children}</FollowPathStoreProvider>
-    </Stage07EventProvider>
+    </HexStageEventProvider>
   )
 }
 
@@ -31,7 +31,7 @@ const renderAdvance = () => {
       useAdvanceFollowPathOnCellReach(PLAYER_ACTOR_ID)
 
       return {
-        dispatcher: useStage07EventDispatcher(),
+        dispatcher: useHexStageEventDispatcher(),
         followPathStoreApi: useFollowPathStoreApi(),
       }
     },
@@ -40,7 +40,7 @@ const renderAdvance = () => {
 
   const cellReach = (actorId = PLAYER_ACTOR_ID) =>
     act(async () => {
-      await result.current.dispatcher['Stage07-cell-reach']({
+      await result.current.dispatcher['HexStage-cell-reach']({
         actorId,
         cell: { q: 0, r: 1 },
       })
@@ -72,7 +72,7 @@ describe('useAdvanceFollowPathOnCellReach', () => {
   })
 })
 
-describe('Stage07-cell-reach の多重購読', () => {
+describe('HexStage-cell-reach の多重購読', () => {
   it('useReachedCell と同時に購読できる', () => {
     expect(() =>
       renderHook(
