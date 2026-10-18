@@ -55,6 +55,8 @@ gh pr create --draft --base <main or 依存先ブランチ> --title "#<issue番�
 ```
 
 - 親 backlog の該当項目へ、新しい design.md へのリンクを子要素として追記する
+  - 行番号指定の `sed -i` でなく `replace-in-files.py` で、項目の末尾の行を「末尾の行 + リンク行」へ置換する([CLAUDE.md](../../../CLAUDE.md)「複数ファイルの一括置換」)
+  - 理由: 行番号指定は、事前に読んだ時点から行がずれると別の位置へ入る
 - `~/.claude/recent.md` へ1行追記する(`/steering` コマンドと同形式)
 
 ### 5. コミット
