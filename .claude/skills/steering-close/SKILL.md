@@ -47,15 +47,41 @@ python3 -I .claude/skills/steering-close/scripts/move-and-relink.py <移動元> 
 - `git mv` と、全 `.md` ファイル内の相対リンク書換を一括で行う
   - 他ファイルから移動対象を指すリンク
   - 移動対象内から外を指すリンク(階層が変わる場合)
+  - 表示テキストがリンク先のパスと同じ場合は、表示テキストも書き換える
 - リンク先が実在しないリンクは触らない
 - 移動で空になった移動元の親ディレクトリ(`_pr/` 等)は削除する
 
 ### 4. 親 backlog へ反映する
 
 - 親 issue の backlog.md で、対象に当たる項目を完了にする
-  - 既存ファイルの完了表記の運用(`[x]` 化 or 削除、[.claude/.steering/CLAUDE.md](../../.steering/CLAUDE.md))に合わせる
+  - 完了した項目は削除する([.claude/.steering/CLAUDE.md](../../.steering/CLAUDE.md))
 - 項目内のリンクがスクリプトで書き換わったか確認する
-- 必要なら decision-records.md へ完了の旨を1行追記する
+- decision-records.md へ完了の旨を追記する
+
+親 backlog の項目の一部(PR 単位の子要素)だけが完了した場合、項目は残し子要素を書き換える。
+
+- 項目全体が完了: 項目ごと削除する
+- 一部が完了: 完了した子要素(PR へのリンク行)を削除するか、残りが分かる状況説明へ置き換える
+
+```markdown
+<!-- 前 -->
+- [ ] `expedition` に合わせて改名する
+  - event 名: [_closed/pr-385-expedition-rename-events/design.md](_closed/pr-385-expedition-rename-events/design.md)
+
+<!-- 後 -->
+- [ ] `expedition` に合わせて改名する
+  - event 名は改名済み（残りはコンポーネント名）
+```
+
+親 decision-records.md へ以下の形で追記する。
+
+- 1 行目: 日付・見出し・PR 番号
+- 子要素: `_closed/` の design.md へのリンク
+
+```markdown
+- 2026-10-18（event 名の改名）: event 名を `FindPath` から `Expedition` へ改名した（PR #385）
+  - [_closed/pr-385-expedition-rename-events/design.md](_closed/pr-385-expedition-rename-events/design.md)
+```
 
 ### 5. コミット
 

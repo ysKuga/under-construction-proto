@@ -7,6 +7,9 @@
   - 同一ファイル内の置換は記述順に適用する(前の置換結果に対して次を照合する)
   - パスに glob(`*`/`?`/`[`、`**` で再帰)を含む場合、一致した全ファイルへ同じ置換を適用する
     - 置換対象が見つからないファイルは飛ばす。一致したファイルが1つも無い置換のみ失敗する
+  - `!` で始まるキーは除外の glob。全ての glob 指定の一致から、除外に一致するファイルを外す
+    - 値は空配列: {"!src/a/_prototypes/**": []}
+    - glob を含まないパス指定には効かない
 - 置換は3形式
   - ["<置換前>", "<置換後>"]: 完全一致の文字列置換。一致箇所はすべて置換する
   - {"start": "<開始>", "end": "<終了>", "new": "<置換後>"}: 範囲置換
@@ -84,13 +87,27 @@ def main() -> int:
         return 2
 
     spec = load_spec(sys.argv[1])
+    excluded = {
+        path
+        for pattern in spec
+        if pattern.startswith("!")
+        for path in glob.glob(pattern[1:], recursive=True)
+    }
     texts: dict[str, str] = {}
     changed: set[str] = set()
     errors: list[str] = []
 
     for pattern, replacements in spec.items():
+        # 除外の指定: 置換対象ではない
+        if pattern.startswith("!"):
+            continue
+
         is_glob = glob.has_magic(pattern)
-        paths = sorted(glob.glob(pattern, recursive=True)) if is_glob else [pattern]
+        paths = (
+            sorted(set(glob.glob(pattern, recursive=True)) - excluded)
+            if is_glob
+            else [pattern]
+        )
 
         if is_glob and not paths:
             errors.append(f"{pattern}: no files matched")
