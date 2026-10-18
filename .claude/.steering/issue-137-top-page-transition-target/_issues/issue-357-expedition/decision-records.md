@@ -145,3 +145,5 @@
     - 使用元は `bot-bubbles` のみだが、`bot-bubble` を共有する部品群として残す
     - `bot-bubbles/_components` の同名ラッパーとの衝突も避けられる
   - backlog の「content と component の置き場を分ける」が完了
+- 2026-10-19（energy-debug-panel の移動）: `energy-debug-panel` を `debug-panel/_components/energy-sliders/_components/` へ移した
+  - 使用元の `energy-sliders` 配下（component-nesting）。backlog 記載の `debug-panel/_components/` 直下でなく使用元配下とした

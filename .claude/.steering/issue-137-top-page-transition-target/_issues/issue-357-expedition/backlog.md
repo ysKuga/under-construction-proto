@@ -6,6 +6,3 @@
   - (decision-records.md 2026-10-17 import 方針)
 - [ ] route を配線する
   - 現状: `src/app` に未設置
-- [ ] `energy-debug-panel` を `debug-panel/_components/` 配下へ移す
-  - 使用元が `debug-panel/_components/energy-sliders` の 1 つのみ（component-nesting）
-  - (decision-records.md 2026-10-18 コメントの見直し)
