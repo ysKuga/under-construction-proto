@@ -134,3 +134,5 @@
   - 親 backlog の「コピーした依存先に残るコピー元の名前を見直す」が完了
   - 「tick 駆動」「tick ドライバ」の言及は、設計理由・一般的な用途例として残す
   - `energy-debug-panel` の置き場は backlog へ回す（使用元が 1 つのみ）
+- 2026-10-19: レスポンシブ対応を、#357 から独立させて #137 直下のサブ issue #393 として分離した
+  - [../issue-393-expedition-responsive/backlog.md](../issue-393-expedition-responsive/backlog.md)
