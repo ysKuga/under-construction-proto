@@ -8,8 +8,8 @@ expedition をスマホ縦（375px）の幅まで遊べるようにする。
 
 ## 背景・制約
 
-- #357 の backlog 項目「レスポンシブ対応する」から切り出した
-  - [../issue-357-expedition/backlog.md](../issue-357-expedition/backlog.md)
+- #357 の backlog のレスポンシブ関連 3 項目を切り出した
+  - (../issue-357-expedition/decision-records.md 2026-10-19)
 - 方針（../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ）
   - 対象の最小幅: スマホ縦（375px）
   - 並べ方: `md` 未満で縦積み

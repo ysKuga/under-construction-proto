@@ -102,6 +102,7 @@
   - (decision-records.md 2026-10-17 本実装移行)
 - [ ] expedition をレスポンシブ対応する
   - サブ issue #393 へ分離（[_issues/issue-393-expedition-responsive](_issues/issue-393-expedition-responsive/backlog.md)）
+  - (decision-records.md 2026-10-19)
 - [x] 目標設定後に EN 切れを発生させると、吹き出しが表示されたまま残る
   - デバッグ操作（値調整 UI）での EN 切れで発生
   - 隣接選択は EN 切れで消える
