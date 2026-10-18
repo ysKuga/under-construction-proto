@@ -9,7 +9,7 @@
   - 対象: コメント内の `find-path proto-03`・`stage-06`・`stage-07`・`use-find-path-tick` 等への言及
   - 範囲: `expedition/_stage-components/hex-stage`・`expedition/_stores/energy`
     - hex-stage の外の言及（`index.tsx`・`path-preview-layer`・`visibility-registry`）も含める
-  - [#392](_pr/pr-392-expedition-copy-source-comments/design.md)
+  - [#392](_closed/pr-392-expedition-copy-source-comments/design.md)
 - [ ] route を配線する
   - 現状: `src/app` に未設置
 - [ ] content と component の置き場を分ける
