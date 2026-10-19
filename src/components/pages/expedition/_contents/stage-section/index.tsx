@@ -1,8 +1,9 @@
 'use client'
 
+import { BotStatusPanel } from './_contents/bot-status-panel'
 import { CellInfoPanel } from './_contents/cell-info-panel'
 import { MoveHistoryPanel } from './_contents/move-history-panel'
-import { StageGroup } from './_contents/stage-group'
+import { Stage } from './_contents/stage'
 
 /**
  * ステージと bot の状態表示・マスの情報・手数の履歴を並べる
@@ -14,7 +15,10 @@ import { StageGroup } from './_contents/stage-group'
  */
 export const StageSection = () => (
   <div className="flex w-min flex-col gap-4">
-    <StageGroup />
+    <div className="flex items-center">
+      <Stage />
+      <BotStatusPanel />
+    </div>
     <CellInfoPanel />
     <MoveHistoryPanel />
   </div>
