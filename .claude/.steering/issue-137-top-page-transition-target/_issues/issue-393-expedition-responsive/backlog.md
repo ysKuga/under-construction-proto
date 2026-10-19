@@ -4,6 +4,7 @@
   - 幅: 画面幅へ収め、はみ出しを切る
   - 高さ: 傾けた床の実測に合わせる
   - (decision-records.md 2026-10-19 表示領域)
+  - [_pr/pr-400-expedition-stage-viewport/design.md](_pr/pr-400-expedition-stage-viewport/design.md)
 - [ ] 状態表示・マスの情報・手数の履歴の表示・非表示を切り替える
   - 着手前に `event-binding-design` で設計する
   - (decision-records.md 2026-10-19 表示・非表示)
