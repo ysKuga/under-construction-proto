@@ -9,3 +9,39 @@
       - 先に決めると作り直しになりやすい
   - 表示領域を追従・傾けた床・全体表示の切替へ分けた
     - 全体表示: アイテム等のゲーム要素が前提のため末尾
+- 2026-10-19（並べ方）: `StageSection` を CSS grid にし、`md` 未満で並べ方を切り替える
+  - `md` 未満
+    - 1 段目: `Stage`（1 行を占める）
+    - 2 段目: `BotStatusPanel`・`CellInfoPanel` を横並び（`grid-cols-[auto_1fr]`）
+    - 3 段目: `MoveHistoryPanel`
+  - `md` 以上: 従来どおり（`Stage`・`BotStatusPanel` を横並び → `CellInfoPanel` → `MoveHistoryPanel`）
+  - `StageGroup` を廃止し、`stage`・`bot-status-panel` を `stage-section/_contents/` へ移す
+    - 理由: `StageGroup` の横並びのままでは `md` 未満で崩せない
+  - ページの外枠
+    - `h-screen` を `min-h-screen` へ
+    - `md` 未満は上寄せ
+    - 理由: `h-screen` の中央寄せで、ステージの上下に隙間ができていた
+- 2026-10-19（表示・非表示）: `BotStatusPanel`・`CellInfoPanel`・`MoveHistoryPanel` の表示・非表示の制御を検討する
+  - grid の自動配置で、非表示にした要素を詰める
+    - 例: `CellInfoPanel` のみ非表示 → `BotStatusPanel`・`MoveHistoryPanel` が横並び
+  - `md` 以上で非表示にした時の並びは、着手時に決める
+- 2026-10-19（表示領域）: 盤面のはみ出しの扱いを決めた
+  - 盤面の画面からのはみ出し: 許容しない
+  - 表示領域からのはみ出し（画面外）: 許容
+  - 幅: 盤面の幅と画面幅（左右 16px を除く）の小さい方
+    - はみ出し: `overflow-hidden` で切る
+  - 高さ
+    - 傾けた床の実際の高さに合わせる
+    - 下端に揃える
+    - 理由: `rotateX` は外枠の高さを傾ける前のまま残し、床の上側に余白ができる
+    - 手段: 床の `getBoundingClientRect()` を傾きの書込み時に測る
+    - 不採用: cos からの計算（perspective の補正が要るため）
+  - 吹き出し（`ActorOverlayLayer`）: 切らない
+    - 範囲外の bot の吹き出しが見える状態: 追従の導入まで許容
+- 2026-10-19（PR の分け方）: 並べ方 → 表示領域 → 表示・非表示の制御の順に PR を分ける
+  - 表示領域
+    - 並べ方と並行可
+    - 追従はその上に載せる
+  - 表示・非表示の制御
+    - 並べ方に依存
+    - 着手前に `event-binding-design` で切替の経路を設計する
