@@ -51,6 +51,10 @@ def replace_range(text: str, replacement: dict[str, str]) -> tuple[str, str | No
     if text.count(start) > 1:
         return text, f"start is ambiguous: {start[:80]!r}"
 
+    # 終了の空文字: 開始の直後に一致し内容が二重になるため拒否する（末尾までは省略で指定）
+    if end == "":
+        return text, "end is empty: omit end to replace to the end of file"
+
     # 終了の省略: ファイル末尾までを差し替える
     if end is None:
         return text[:start_index] + new, None
