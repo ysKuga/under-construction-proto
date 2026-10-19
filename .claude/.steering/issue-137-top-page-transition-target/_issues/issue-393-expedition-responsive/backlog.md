@@ -4,12 +4,22 @@
   - `md` 未満で縦積み
   - bot の状態表示は床の下で試す（床の上も検討）
   - `h-screen` を `min-h-screen` へ（縦にはみ出した時の scroll）
+  - 375px で盤面が横にはみ出す場合の扱いを決める
+    - 途中の状態として許容
+    - `hexSize` の切替を併用
   - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
+- [ ] 表示領域（盤面の一部の表示）で表示範囲を追従させる
+  - bot 中心等
+  - 吹き出しの追従・pointer の座標計算への影響を確認する
+  - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
+- [ ] 傾けた床での表示範囲の移動を検討する
+  - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
+  - (decision-records.md 2026-10-19 実行順序)
 - [ ] スマホの幅での bot の状態表示を検討する
   - かなり小さくする
   - 表現方法（非表示・ポップオーバー・ドロワー等）
-- [ ] 表示領域（盤面の一部の表示）を検討する
-  - 表示範囲の追従（bot 中心等）
-  - 傾けた床での表示範囲の移動
-  - 盤面全体の表示への切替（アイテム等）
-  - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
+  - (decision-records.md 2026-10-19 実行順序)
+- [ ] 盤面全体の表示への切替を検討する
+  - アイテム等
+  - 後回し・別 issue も可
+  - (decision-records.md 2026-10-19 実行順序)
