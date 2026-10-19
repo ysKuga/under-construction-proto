@@ -1,12 +1,5 @@
 # 実装計画（expedition のレスポンシブ対応）
 
-- [ ] 狭い画面向けに並べ方を切り替える
-  - `StageGroup` を廃止し、`stage`・`bot-status-panel` を `stage-section/_contents/` へ移す
-  - `StageSection` を grid にし、`md` 未満で並べ方を切り替える
-  - `h-screen` を `min-h-screen` へ
-  - `md` 未満は上寄せ
-  - (decision-records.md 2026-10-19 並べ方)
-  - [_pr/pr-398-expedition-responsive-layout](_closed/pr-398-expedition-responsive-layout/design.md)
 - [ ] 表示領域で盤面の画面からのはみ出し・傾きによる余白をなくす
   - 幅: 画面幅へ収め、はみ出しを切る
   - 高さ: 傾けた床の実測に合わせる
