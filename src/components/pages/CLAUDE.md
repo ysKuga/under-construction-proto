@@ -46,7 +46,7 @@ store・context の購読有無、実装かどうかでは分けない。
 - ページ直下の組み合わせ: `-section`（`stage-section` 等）
   - `-section` は入れ子にしない
   - HTML の `<section>` 要素とは無関係（下記「HTML 要素」）
-- section の中の組み合わせ: `-group`（`stage-group` 等）
+- section の中の組み合わせ: `-group`
 
 ### レイアウト
 
@@ -82,7 +82,7 @@ store・context の購読有無、実装かどうかでは分けない。
 特定の要素からのみ使う content・component・layer は、その要素配下の `_contents/`・`_components/`・`_layers/` へネストする。\
 判断基準は [component-nesting](../../../.claude/rules/react/component-nesting.md)。
 
-- 例: `stage-group` が並べる `stage` は `stage-group/_contents/stage`
+- 例: `stage-section` が並べる `stage` は `stage-section/_contents/stage`
 - 例: `stage` が中で使う `stage-settings` は `stage/_components/stage-settings`
 
 ### Provider

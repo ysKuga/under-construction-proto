@@ -45,3 +45,5 @@
   - 表示・非表示の制御
     - 並べ方に依存
     - 着手前に `event-binding-design` で切替の経路を設計する
+- 2026-10-19（並べ方の切替）: `md` 未満の並べ方の切替を完了した（PR #398）
+  - [_closed/pr-398-expedition-responsive-layout/design.md](_closed/pr-398-expedition-responsive-layout/design.md)

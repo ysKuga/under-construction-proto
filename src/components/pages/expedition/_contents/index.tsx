@@ -13,7 +13,7 @@ import { StageSection } from './stage-section'
  * - デバッグ要素（`../_components/debug-panel`）は並べない。story で本要素の下へ並べる
  */
 export const ExpeditionContents = () => (
-  <div className="flex h-screen flex-col items-center justify-center gap-8 bg-white">
+  <div className="flex min-h-screen flex-col items-center gap-8 bg-white px-4 md:justify-center">
     <StageSection />
     <BotBubbles />
     <ClearedPhase />
