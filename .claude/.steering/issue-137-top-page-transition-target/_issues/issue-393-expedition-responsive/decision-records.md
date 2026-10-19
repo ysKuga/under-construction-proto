@@ -38,6 +38,9 @@
     - 不採用: cos からの計算（perspective の補正が要るため）
   - 吹き出し（`ActorOverlayLayer`）: 切らない
     - 範囲外の bot の吹き出しが見える状態: 追従の導入まで許容
+- 2026-10-19（表示領域の見直し）: 表示領域を固定サイズにし、bot 中心のカメラ追従を同じ PR へ取り込んだ
+  - 上の「表示領域」の高さ・吹き出しの決定を置き換える
+  - [_pr/pr-400-expedition-stage-viewport/decision-records.md](_pr/pr-400-expedition-stage-viewport/decision-records.md)
 - 2026-10-19（PR の分け方）: 並べ方 → 表示領域 → 表示・非表示の制御の順に PR を分ける
   - 表示領域
     - 並べ方と並行可

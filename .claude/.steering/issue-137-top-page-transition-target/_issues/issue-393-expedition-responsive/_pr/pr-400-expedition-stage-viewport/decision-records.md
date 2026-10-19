@@ -1,10 +1,14 @@
 # 決定事項（expedition の盤面を表示領域へ収める）
 
-- 2026-10-19: 表示領域の置き場・測り方を決めた
+- 2026-10-19（見直し）: 表示領域を固定サイズにし、カメラを bot へ追従させる
+  - 当初案（高さを床の実測に合わせる）を取り下げた
+    - 理由: 床の上端を基準にすると、立ち上がった bot の頭・頭上の吹き出しが切れた
+  - 大きさ: 幅は画面幅 − 32px（上限 480px）、縦横比 4:3
+    - 上限 480px: `md` 以上で bot の状態表示（186px）と横並びでも 768px に収まるため
+  - 切り方: `overflow: clip`
+    - 理由: `hidden` は表示領域の外のマスへの focus でスクロールした
+  - カメラ: rAF で player bot のアンカーを実測し、scene を平行移動する
+    - 盤面の端でも止めず、常に bot を中心へ置く
+    - 理由: 吹き出しを表示領域の外へ出さないため
   - 置き場: `HexStage` の内側で scene を包む
-    - 理由: `Stage` 側で包むと `ActorOverlayLayer` の吹き出しまで切れる
-  - 幅: `max-width: calc(100vw - 32px)` + `overflow: hidden`
-    - 理由: `max-width: 100%` は親の `w-min`・grid の `auto` 列の連鎖を崩す要がある
-  - 高さ: 床の `getBoundingClientRect().height` を表示領域の `style.height` へ直書きする
-    - 測る時: 初回・`setTilt`・`transitionend`
-    - 下端揃え: `flex-direction: column` + `justify-content: flex-end`
+    - 理由: `ActorOverlayLayer`（吹き出し）は表示領域の外に置き、bot と共に動かすため

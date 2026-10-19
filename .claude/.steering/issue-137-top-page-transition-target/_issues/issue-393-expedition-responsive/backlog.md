@@ -1,17 +1,12 @@
 # 実装計画（expedition のレスポンシブ対応）
 
 - [ ] 表示領域で盤面の画面からのはみ出し・傾きによる余白をなくす
-  - 幅: 画面幅へ収め、はみ出しを切る
-  - 高さ: 傾けた床の実測に合わせる
+  - 固定サイズの表示領域 + bot 中心のカメラ追従
   - (decision-records.md 2026-10-19 表示領域)
   - [_pr/pr-400-expedition-stage-viewport/design.md](_pr/pr-400-expedition-stage-viewport/design.md)
 - [ ] 状態表示・マスの情報・手数の履歴の表示・非表示を切り替える
   - 着手前に `event-binding-design` で設計する
   - (decision-records.md 2026-10-19 表示・非表示)
-- [ ] 表示領域（盤面の一部の表示）で表示範囲を追従させる
-  - bot 中心等
-  - 吹き出しの追従・pointer の座標計算への影響を確認する
-  - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
 - [ ] 傾けた床での表示範囲の移動を検討する
   - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
   - (decision-records.md 2026-10-19 実行順序)
