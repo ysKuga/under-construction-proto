@@ -1,13 +1,17 @@
 # 実装計画（expedition のレスポンシブ対応）
 
 - [ ] 狭い画面向けに並べ方を切り替える
-  - `md` 未満で縦積み
-  - bot の状態表示は床の下で試す（床の上も検討）
-  - `h-screen` を `min-h-screen` へ（縦にはみ出した時の scroll）
-  - 375px で盤面が横にはみ出す場合の扱いを決める
-    - 途中の状態として許容
-    - `hexSize` の切替を併用
-  - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
+  - `StageGroup` を廃止し、`stage`・`bot-status-panel` を `stage-section/_contents/` へ移す
+  - `StageSection` を grid にし、`md` 未満で並べ方を切り替える
+  - `h-screen` を `min-h-screen` へ、`md` 未満は上寄せ
+  - (decision-records.md 2026-10-19 並べ方)
+- [ ] 表示領域で盤面の画面からのはみ出し・傾きによる余白をなくす
+  - 幅: 画面幅へ収め、はみ出しを切る
+  - 高さ: 傾けた床の実測に合わせる
+  - (decision-records.md 2026-10-19 表示領域)
+- [ ] 状態表示・マスの情報・手数の履歴の表示・非表示を切り替える
+  - 着手前に `event-binding-design` で設計する
+  - (decision-records.md 2026-10-19 表示・非表示)
 - [ ] 表示領域（盤面の一部の表示）で表示範囲を追従させる
   - bot 中心等
   - 吹き出しの追従・pointer の座標計算への影響を確認する
