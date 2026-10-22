@@ -6,7 +6,7 @@
 - [ ] 傾けた床での表示範囲の移動を検討する
   - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
   - (decision-records.md 2026-10-19 実行順序)
-- [ ] スマホの幅で bot の状態表示を横一列のバーにする
+- [ ] スマホの幅で bot の状態表示を小さい正方形にする
   - (decision-records.md 2026-10-22 スマホの幅での bot の状態表示)
   - [_pr/pr-402-expedition-bot-status-bar/design.md](_pr/pr-402-expedition-bot-status-bar/design.md)
 - [ ] タッチ端末でマスの情報を表示する方法を検討する

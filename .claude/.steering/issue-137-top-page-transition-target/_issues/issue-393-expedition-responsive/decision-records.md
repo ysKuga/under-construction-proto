@@ -55,6 +55,8 @@
 - 2026-10-22（スマホの幅での bot の状態表示）: `md` 未満で `BotStatusPanel` を横一列のバーにする
   - 並び: 小さい独立 bot（64px）・向き矢印・ショートカットを横一列
   - `CellInfoPanel`: バーの下で全幅
+  - 実装時に見直し、小さい正方形にしてマスの情報と横並びにした
+    - (_pr/pr-402-expedition-bot-status-bar/decision-records.md 2026-10-22 見直し)
   - 向きの同期トグル（`FacingSyncToggle`）: 非表示
   - `md` 以上: 従来どおり
   - 理由
