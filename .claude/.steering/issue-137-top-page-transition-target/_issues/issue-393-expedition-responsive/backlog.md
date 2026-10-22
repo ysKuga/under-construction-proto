@@ -1,9 +1,5 @@
 # 実装計画（expedition のレスポンシブ対応）
 
-- [ ] 表示領域で盤面の画面からのはみ出し・傾きによる余白をなくす
-  - 固定サイズの表示領域 + bot 中心のカメラ追従
-  - (decision-records.md 2026-10-19 表示領域)
-  - [_closed/pr-400-expedition-stage-viewport/design.md](_closed/pr-400-expedition-stage-viewport/design.md)
 - [ ] 状態表示・マスの情報・手数の履歴の表示・非表示を切り替える
   - 着手前に `event-binding-design` で設計する
   - (decision-records.md 2026-10-19 表示・非表示)

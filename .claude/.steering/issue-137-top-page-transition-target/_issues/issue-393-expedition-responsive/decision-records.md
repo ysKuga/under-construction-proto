@@ -50,3 +50,5 @@
     - 着手前に `event-binding-design` で切替の経路を設計する
 - 2026-10-19（並べ方の切替）: `md` 未満の並べ方の切替を完了した（PR #398）
   - [_closed/pr-398-expedition-responsive-layout/design.md](_closed/pr-398-expedition-responsive-layout/design.md)
+- 2026-10-22（表示領域）: 固定サイズの表示領域と bot 中心のカメラ追従を完了した（PR #400）
+  - [_closed/pr-400-expedition-stage-viewport/design.md](_closed/pr-400-expedition-stage-viewport/design.md)
