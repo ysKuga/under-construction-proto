@@ -9,9 +9,12 @@ import { useFacingRotateRef } from './_hooks/use-facing-rotate-ref'
  *
  * - 独立 bot は状態表示用に向きを変えないため、向きは別途矢印で示す
  * - 中心回転・半径端の2案を比較し、中心回転を採用した
+ * - `md` 未満は独立 bot の角へ重ねるため小さくする(issue #393)
  */
 export const FacingIndicator = () => {
   const facingRotateRef = useFacingRotateRef()
 
-  return <FacingArrowCenter ref={facingRotateRef} />
+  return (
+    <FacingArrowCenter className="size-6 md:size-16" ref={facingRotateRef} />
+  )
 }
