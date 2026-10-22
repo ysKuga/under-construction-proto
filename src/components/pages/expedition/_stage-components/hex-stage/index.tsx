@@ -21,6 +21,7 @@ import {
   walkingResetAction,
 } from '@/components/theater/figure/box-bot'
 
+import { useEffectFollowCamera } from './_hooks/use-effect-follow-camera'
 import { usePerspectiveControl } from './_hooks/use-perspective-control'
 import { MOTION_DEFAULTS, PLAYER_ACTOR_ID } from './constants'
 
@@ -167,6 +168,9 @@ type HexStageProps = PropsWithChildren<{
  *   absolute 配置する（issue #162）
  * - 遠近表現（perspective + rotateX の台形床）は stage-05/06 と同一。傾きは
  *   `usePerspectiveControl`（stage-05 からコピー）が `--floor-tilt` を ref 直書き
+ * - scene は表示領域で包む（issue #393）。表示領域の大きさは中身で変わらず、幅は画面幅基準・縦横比 4:3。
+ *   はみ出しは切る。`useEffectFollowCamera` が player bot を表示領域の中心へ合わせる（カメラの追従）。
+ *   吹き出し(`ActorOverlayLayer`)は表示領域の外に置く。bot へ追従するため、カメラと共に動く
  * - actor(player・mob 共通)の位置は外側の `ActorsStoreProvider`（zustand store）が
  *   `actorId` ごとに保持する。`useHexMove` はクリック検証（隣接判定・進入可否）と
  *   facing 算出のみ行い、位置更新は store の `moveActor` へ委ねる（tick 駆動実行時、
@@ -324,6 +328,13 @@ export const HexStage = (props: HexStageProps) => {
 
   const { floorRef, setTilt } = usePerspectiveControl()
 
+  /** 表示領域の要素 */
+  const viewportRef = useRef<HTMLDivElement>(null)
+  /** カメラの追従で平行移動させる scene の要素 */
+  const sceneRef = useRef<HTMLDivElement>(null)
+
+  useEffectFollowCamera(viewportRef, sceneRef)
+
   /**
    * 歩行を off にする(腕・脚を規定位置へ戻す)
    *
@@ -384,9 +395,27 @@ export const HexStage = (props: HexStageProps) => {
     })
   }, [notifyArrived, hexStageEventDispatcher, stopWalking])
 
+  /**
+   * scene を包む表示領域のスタイル
+   *
+   * - 大きさは中身(盤面の広さ・傾き)で変えない
+   *   - 幅: 画面幅（左右 16px を除く）、上限 480px
+   *   - 高さ: 幅 × 3/4
+   * - はみ出しは切る。`hidden` でなく `clip`（表示領域の外のマスへの focus 等でスクロールさせないため）
+   */
+  const viewportStyle: CSSProperties = {
+    aspectRatio: '4 / 3',
+    overflow: 'clip',
+    position: 'relative',
+    width: 'min(calc(100vw - 32px), 480px)',
+  }
+
   /** 透視の視点距離を持つ外枠のスタイル（floor と同じくコンテンツ幅にフィットさせ、消失点を floor 中心付近に保つ） */
   const sceneStyle: CSSProperties = {
     display: 'inline-block',
+    left: 0,
+    position: 'absolute',
+    top: 0,
     perspective: `${perspectivePx}px`,
     perspectiveOrigin: 'center 30%',
   }
@@ -412,28 +441,31 @@ export const HexStage = (props: HexStageProps) => {
           width: 'min-content',
         }}
       >
-        <div style={sceneStyle}>
-          <div ref={floorRef} style={floorStyle}>
-            <GeoLayer
-              cols={cols}
-              hexSize={hexSize}
-              interactive={interactive}
-              registerVisibilityNode={registerCellVisibilityNode}
-              rows={rows}
-            />
-            <ActorsLayer
-              bodyBobHeight={bodyBobHeight}
-              cols={cols}
-              eventTarget={eventTarget}
-              hexSize={hexSize}
-              legSwingAngle={legSwingAngle}
-              maxWalkCycleSec={maxWalkCycleSec}
-              moveDurationMs={moveDurationMs}
-              onArrived={handleArrived}
-              rows={rows}
-              size={botSize}
-            />
-            {children}
+        {/* 吹き出し(ActorOverlayLayer)は表示領域の外に置くため、表示領域は scene のみ包む */}
+        <div ref={viewportRef} style={viewportStyle}>
+          <div ref={sceneRef} style={sceneStyle}>
+            <div ref={floorRef} style={floorStyle}>
+              <GeoLayer
+                cols={cols}
+                hexSize={hexSize}
+                interactive={interactive}
+                registerVisibilityNode={registerCellVisibilityNode}
+                rows={rows}
+              />
+              <ActorsLayer
+                bodyBobHeight={bodyBobHeight}
+                cols={cols}
+                eventTarget={eventTarget}
+                hexSize={hexSize}
+                legSwingAngle={legSwingAngle}
+                maxWalkCycleSec={maxWalkCycleSec}
+                moveDurationMs={moveDurationMs}
+                onArrived={handleArrived}
+                rows={rows}
+                size={botSize}
+              />
+              {children}
+            </div>
           </div>
         </div>
         {belowFloor}

@@ -38,6 +38,9 @@
     - 不採用: cos からの計算（perspective の補正が要るため）
   - 吹き出し（`ActorOverlayLayer`）: 切らない
     - 範囲外の bot の吹き出しが見える状態: 追従の導入まで許容
+- 2026-10-19（表示領域の見直し）: 表示領域を固定サイズにし、bot 中心のカメラ追従を同じ PR へ取り込んだ
+  - 上の「表示領域」の高さ・吹き出しの決定を置き換える
+  - [_closed/pr-400-expedition-stage-viewport/decision-records.md](_closed/pr-400-expedition-stage-viewport/decision-records.md)
 - 2026-10-19（PR の分け方）: 並べ方 → 表示領域 → 表示・非表示の制御の順に PR を分ける
   - 表示領域
     - 並べ方と並行可
@@ -47,3 +50,5 @@
     - 着手前に `event-binding-design` で切替の経路を設計する
 - 2026-10-19（並べ方の切替）: `md` 未満の並べ方の切替を完了した（PR #398）
   - [_closed/pr-398-expedition-responsive-layout/design.md](_closed/pr-398-expedition-responsive-layout/design.md)
+- 2026-10-22（表示領域）: 固定サイズの表示領域と bot 中心のカメラ追従を完了した（PR #400）
+  - [_closed/pr-400-expedition-stage-viewport/design.md](_closed/pr-400-expedition-stage-viewport/design.md)
