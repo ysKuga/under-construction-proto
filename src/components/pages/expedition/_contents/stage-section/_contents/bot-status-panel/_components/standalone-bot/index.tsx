@@ -5,7 +5,7 @@ import { BoxBot01 } from '@/components/theater/figure/box-bot'
 import {
   STANDALONE_BOT_ACTION_CONFIG,
   STANDALONE_BOT_ACTIONS,
-} from './constants'
+} from './index.constants'
 import { useStandaloneBot } from './index.hooks'
 
 /**

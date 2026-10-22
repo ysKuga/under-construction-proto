@@ -1,12 +1,11 @@
-import { useState } from 'react'
-
 import { usePlayerActorEventTarget } from '../../../../../../_contexts/player-actor-event-target'
 import { useDisplaySettingsStore } from '../../../../../../_stores/display-settings'
 
 import { useRelayEvents } from './_hooks/use-relay-events'
 import { useRelayFacing } from './_hooks/use-relay-facing'
+import { useStandaloneBotEventTarget } from './_hooks/use-standalone-bot-event-target'
 import { useStandaloneBotSize } from './_hooks/use-standalone-bot-size'
-import { STANDALONE_BOT_RELAYED_ACTIONS } from './constants'
+import { STANDALONE_BOT_RELAYED_ACTIONS } from './index.constants'
 import { UseStandaloneBotReturn } from './index.types'
 
 /**
@@ -23,10 +22,7 @@ export const useStandaloneBot = (): UseStandaloneBotReturn => {
   const syncStandaloneBotFacing = useDisplaySettingsStore(
     (state) => state.syncStandaloneBotFacing,
   )
-  /** 独立 bot の EventTarget（中継先） */
-  const [standaloneBotEventTarget] = useState<EventTarget>(
-    () => new EventTarget(),
-  )
+  const { standaloneBotEventTarget } = useStandaloneBotEventTarget()
 
   useRelayEvents(
     playerActorEventTarget,
