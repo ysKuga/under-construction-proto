@@ -13,7 +13,7 @@
     - 揃えは `StageSection` 側（包む要素 `h-0 min-h-full`）。中身の量で行が伸びないため
 - 2026-10-22（余白）: ページ内容の左右の余白（`px-4`）を外した
   - 理由: body 側の余白と重なり、表示領域（343px）と下の段（311px）の幅がずれていた
-- 2026-10-22（構成分割）: standalone-bot をベース hook・`index.types.ts`・`constants.ts` へ分割した
+- 2026-10-22（構成分割）: standalone-bot をベース hook・`index.types.ts`・`index.constants.ts` へ分割した
 - 2026-10-22（確認）: 375・767・768・1280px で全 story を確認した
   - `md` の境界をまたぐリサイズにも追従
   - 本 PR の範囲外: `Debug`・375px でデバッグ要素の label が横にはみ出す
