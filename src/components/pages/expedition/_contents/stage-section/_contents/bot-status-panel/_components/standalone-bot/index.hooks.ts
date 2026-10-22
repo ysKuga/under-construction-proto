@@ -1,60 +1,29 @@
 import { useState } from 'react'
 
-import {
-  armToggleAction,
-  bodyBobbingAction,
-  energyOutAction,
-  faceAction,
-  walkingAction,
-  walkingResetAction,
-} from '@/components/theater/figure/box-bot'
-
 import { usePlayerActorEventTarget } from '../../../../../../_contexts/player-actor-event-target'
 import { useDisplaySettingsStore } from '../../../../../../_stores/display-settings'
 
 import { useRelayEvents } from './_hooks/use-relay-events'
 import { useRelayFacing } from './_hooks/use-relay-facing'
+import { useStandaloneBotSize } from './_hooks/use-standalone-bot-size'
+import { STANDALONE_BOT_RELAYED_ACTIONS } from './constants'
+import { UseStandaloneBotReturn } from './index.types'
 
 /**
- * 独立 bot が受け付け、ステージ上の bot から同期する action
- *
- * - face（向き）は含めない。同期の有無を切り替えるため `useRelayFacing` で別途中継する
- * - energyOut はステージ上の bot 宛てに停止待ち（`useEnergyOutAfterStop`）を経て
- *   dispatch されるため、独立 bot も停止後に演出する
- * - armToggle はゴール到達時の両手上げ（issue #137）。`energyOut` より後に置き、腕の持ち上げ角を後勝ちで書く
- */
-export const STANDALONE_BOT_RELAYED_ACTIONS = [
-  walkingAction,
-  walkingResetAction,
-  energyOutAction,
-  armToggleAction,
-]
-
-/**
- * 独立 bot の `actions`
- *
- * - 中継対象に加え、dispatch 不要で walking に連動する bodyBobbing を含める（中継はしない）
- * - face は向き同期オプション(`useRelayFacing`)の dispatch 先として含める
- */
-export const STANDALONE_BOT_ACTIONS = [
-  ...STANDALONE_BOT_RELAYED_ACTIONS,
-  bodyBobbingAction,
-  faceAction,
-]
-
-/**
- * 独立 bot の EventTarget を生成し、ステージ上の bot 宛ての action を中継する
+ * 独立 bot の EventTarget を生成し、大きさとともに返す
  *
  * - player bot と共有する EventTarget（`PlayerActorEventTargetProvider`）へ dispatch
  *   された `STANDALONE_BOT_RELAYED_ACTIONS` のイベントを、独立 bot の EventTarget へ再送する
  * - 向き(face)は、操作パネルの「状態表示の向きを同期」が有効な間のみ再送する
  */
-export const useStandaloneBotEventTarget = (): EventTarget => {
+export const useStandaloneBot = (): UseStandaloneBotReturn => {
+  /** ステージ上の bot と共有する EventTarget（中継元） */
   const playerActorEventTarget = usePlayerActorEventTarget()
   /** 向きをステージ上の bot と同期するか */
   const syncStandaloneBotFacing = useDisplaySettingsStore(
     (state) => state.syncStandaloneBotFacing,
   )
+  /** 独立 bot の EventTarget（中継先） */
   const [standaloneBotEventTarget] = useState<EventTarget>(
     () => new EventTarget(),
   )
@@ -70,5 +39,5 @@ export const useStandaloneBotEventTarget = (): EventTarget => {
     syncStandaloneBotFacing,
   )
 
-  return standaloneBotEventTarget
+  return { standaloneBotEventTarget, ...useStandaloneBotSize() }
 }
