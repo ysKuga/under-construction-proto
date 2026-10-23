@@ -72,3 +72,13 @@
   - 経路の提示時、「実行？」「中継点？」の吹き出しが 2 組横に重なって見えた（未調査）
 - 2026-10-23（スマホの幅での bot の状態表示）: `md` 未満で bot の状態表示を小さい正方形にした（PR #402）
   - [_closed/pr-402-expedition-bot-status-bar/design.md](_closed/pr-402-expedition-bot-status-bar/design.md)
+- 2026-10-23（タッチ端末でのマスの情報）: 最後にタップしたマスの情報を残す
+  - 原因: タッチでは指を離した直後に `pointerleave` が必ず起き、`GeoLayer` の外枠が hover 解除を発行する
+  - 手段: `GeoLayer` の `onPointerLeave` で、`pointerType === 'touch'` なら発行しない
+    - `(hover: none)` でなく `pointerType` で判定する（マウス・タッチ両用の端末で操作ごとに切り替わる）
+  - 隣接マスは情報を見る前に移動する: 許容
+    - 障害物のマスは移動を拒否され目標扱いになるため、情報だけ見られる
+  - 不採用
+    - 2 段階タップ: 操作が増える、目標の再タップでのキャンセルと衝突する
+    - 長押しで情報のみ: 気づきにくい、タイマー・click の抑止が要る
+    - hover の detail へ `pointerType` を足し `useHoveredCell` で無視: 発行側で止めれば足りる
