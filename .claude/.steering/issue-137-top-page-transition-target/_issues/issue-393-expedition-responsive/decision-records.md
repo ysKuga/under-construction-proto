@@ -104,3 +104,5 @@
   - 経路の提示時の吹き出しを 1 組にする検討: 不要になった
 - 2026-10-23（タッチ端末でのマスの情報）: 最後にタップしたマスの情報を残すようにした（PR #404）
   - [_closed/pr-404-expedition-touch-cell-info/design.md](_closed/pr-404-expedition-touch-cell-info/design.md)
+- 2026-10-23（吹き出しの汎用部品の移動）: `bot-bubble`・`bubble-slots` を `src/components/theater/aside/` へ移した（PR #405）
+  - [_closed/pr-405-expedition-bubble-to-theater-aside/design.md](_closed/pr-405-expedition-bubble-to-theater-aside/design.md)
