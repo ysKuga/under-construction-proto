@@ -14,7 +14,7 @@ PR: #405（親: #393）
   - `expedition/_components/bot-bubble` → `theater/aside/bot-bubble`
   - `expedition/_components/bubble-slots` → `theater/aside/bubble-slots`
 - 中身は変えない。移動と参照の付け替えのみ
-- aside（傍白）の定義: [docs/terminology/theater/actor/aside/](../../../../../../../../docs/terminology/theater/actor/aside/README.md)
+- aside（傍白）の定義: [docs/terminology/theater/actor/aside/](../../../../../../../docs/terminology/theater/actor/aside/README.md)
 - ベース: PR #404 のブランチ（#393 の steering の競合を避けるため）
 
 ## 懸念・リスク
