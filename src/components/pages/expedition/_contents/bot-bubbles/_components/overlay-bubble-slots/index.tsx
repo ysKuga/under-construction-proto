@@ -5,9 +5,9 @@ import { createPortal } from 'react-dom'
 import { useActorsStore } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 import { Actor } from '@/types/theater/actor'
 
-import { BubbleSlots } from '../../../../_components/bubble-slots'
-import { BubbleSlotsStoreProvider } from '../../../../_components/bubble-slots/_stores/bubble-slots'
-import { BubbleSlotEntry } from '../../../../_components/bubble-slots/_stores/bubble-slots/types'
+import { BubbleSlots } from '@/components/theater/aside/bubble-slots'
+import { BubbleSlotsStoreProvider } from '@/components/theater/aside/bubble-slots/_stores/bubble-slots'
+import { BubbleSlotEntry } from '@/components/theater/aside/bubble-slots/_stores/bubble-slots/types'
 
 type OverlayBubbleSlotsProps = {
   /** 格納する吹き出し */

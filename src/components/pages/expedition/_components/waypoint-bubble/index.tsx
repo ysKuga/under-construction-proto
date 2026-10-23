@@ -8,7 +8,10 @@ import {
   useRef,
 } from 'react'
 
-import { BotBubble, BotBubbleHandle } from '../bot-bubble'
+import {
+  BotBubble,
+  BotBubbleHandle,
+} from '@/components/theater/aside/bot-bubble'
 
 /**
  * bot 基準点(0, 0)から見た推奨表示位置(px)

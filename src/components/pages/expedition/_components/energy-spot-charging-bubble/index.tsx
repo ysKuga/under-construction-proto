@@ -2,7 +2,7 @@
 
 import { memo } from 'react'
 
-import { BotBubble } from '../bot-bubble'
+import { BotBubble } from '@/components/theater/aside/bot-bubble'
 
 type EnergySpotChargingBubbleProps = {
   /**
