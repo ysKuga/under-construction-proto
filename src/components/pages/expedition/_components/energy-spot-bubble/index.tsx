@@ -8,7 +8,10 @@ import {
   useRef,
 } from 'react'
 
-import { BotBubble, BotBubbleHandle } from '../bot-bubble'
+import {
+  BotBubble,
+  BotBubbleHandle,
+} from '@/components/theater/aside/bot-bubble'
 
 /**
  * `EnergySpotBubble` が呼び出し元へ公開する imperative API

@@ -15,7 +15,7 @@ import { fromStore } from '@/lib/rxjs/from-store'
 import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
 import { useActorsStoreApi } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
-import { BubbleSlotEntry } from '../../_components/bubble-slots/_stores/bubble-slots/types'
+import { BubbleSlotEntry } from '@/components/theater/aside/bubble-slots/_stores/bubble-slots/types'
 import { EnergySpotChargedBubble } from '../../_components/energy-spot-charged-bubble'
 import { EnergySpotChargingBubble } from '../../_components/energy-spot-charging-bubble'
 import { countEnergySpotCharge } from '../../_lib/count-energy-spot-charge'

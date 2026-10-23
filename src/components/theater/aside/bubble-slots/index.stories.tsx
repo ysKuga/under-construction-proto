@@ -3,8 +3,7 @@ import { of } from 'rxjs'
 
 import { BoxBot01 } from '@/components/theater/figure/box-bot'
 
-import { ExecuteBubble } from '../execute-bubble'
-import { WaypointBubble } from '../waypoint-bubble'
+import { BotBubble } from '../bot-bubble'
 
 import { BubbleSlotsStoreProvider } from './_stores/bubble-slots'
 import { BubbleSlotEntry } from './_stores/bubble-slots/types'
@@ -18,10 +17,29 @@ const BOT_SIZE = 56
 const noop = () => {}
 
 /** 中継点の吹き出し（操作は未接続） */
-const StoryWaypointBubble = () => <WaypointBubble onClick={noop} />
+const StoryWaypointBubble = () => (
+  <BotBubble
+    ariaLabel="中継点選択モードの切替"
+    offset={{ x: 24, y: -36 }}
+    onClick={noop}
+    speechHoverText="中継点🚫"
+    speechText="中継点！"
+    thoughtText="中継点？"
+  />
+)
 
 /** 実行の吹き出し（操作は未接続） */
-const StoryExecuteBubble = () => <ExecuteBubble onClick={noop} onClose={noop} />
+const StoryExecuteBubble = () => (
+  <BotBubble
+    ariaLabel="経路に沿って自動移動を開始"
+    closeAriaLabel="目標設定をキャンセル"
+    offset={{ x: 20, y: -36 }}
+    onClick={noop}
+    onClose={noop}
+    speechText="実行！"
+    thoughtText="実行？"
+  />
+)
 
 /** 格納する吹き出し */
 const INITIAL_BUBBLES: BubbleSlotEntry[] = [
