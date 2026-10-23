@@ -8,7 +8,7 @@
   - (decision-records.md 2026-10-19 実行順序)
 - [ ] 吹き出しの汎用部品（`bot-bubble`・`bubble-slots`）を theater へ移す
   - (decision-records.md 2026-10-23 選択肢パネル)
-  - [_pr/pr-405-expedition-bubble-to-theater-aside/design.md](_pr/pr-405-expedition-bubble-to-theater-aside/design.md)
+  - [_closed/pr-405-expedition-bubble-to-theater-aside/design.md](_closed/pr-405-expedition-bubble-to-theater-aside/design.md)
 - [ ] 選択肢パネルを新設し、実行・中継点・キャンセルを移す
   - (decision-records.md 2026-10-23 選択肢パネル)
 - [ ] EN スポットの使用・EN 切れの救助を選択肢パネルへ移す
