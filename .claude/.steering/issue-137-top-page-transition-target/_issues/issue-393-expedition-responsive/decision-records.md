@@ -102,3 +102,5 @@
     3. EN スポットの使用・EN 切れの救助を移す
     4. マスの情報・手数の履歴の padding を `md` 未満で 4px にする（並行可）
   - 経路の提示時の吹き出しを 1 組にする検討: 不要になった
+- 2026-10-23（タッチ端末でのマスの情報）: 最後にタップしたマスの情報を残すようにした（PR #404）
+  - [_closed/pr-404-expedition-touch-cell-info/design.md](_closed/pr-404-expedition-touch-cell-info/design.md)

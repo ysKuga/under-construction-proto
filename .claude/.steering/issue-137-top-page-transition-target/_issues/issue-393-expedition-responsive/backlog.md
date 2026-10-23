@@ -6,9 +6,6 @@
 - [ ] 傾けた床での表示範囲の移動を検討する
   - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
   - (decision-records.md 2026-10-19 実行順序)
-- [ ] タッチ端末で最後にタップしたマスの情報を残す
-  - (decision-records.md 2026-10-23 タッチ端末でのマスの情報)
-  - [_pr/pr-404-expedition-touch-cell-info/design.md](_pr/pr-404-expedition-touch-cell-info/design.md)
 - [ ] 吹き出しの汎用部品（`bot-bubble`・`bubble-slots`）を theater へ移す
   - (decision-records.md 2026-10-23 選択肢パネル)
   - [_pr/pr-405-expedition-bubble-to-theater-aside/design.md](_pr/pr-405-expedition-bubble-to-theater-aside/design.md)
