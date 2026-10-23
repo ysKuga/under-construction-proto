@@ -59,6 +59,8 @@ type GeoLayerProps = {
  * - hover 中セルの変化は `HexStage-cell-hover` で発行する（PR #308）。購読側だけが
  *   再レンダリングされ、本 layer は再レンダリングされない。解除は layer 外へ出た時
  *   のみ発行する（セル間移動で解除 → 進入の2回発行を避ける）
+ *   - タッチでは解除を発行しない。\
+ *     指を離すたび leave が起き、タップしたセルの情報がすぐ消えるため（PR #404）
  * - クリックは `HexStage-cell-click` で発行するのみ。分類（移動・目標設定等）は購読側が行う
  * - `React.memo` 化済み（issue-181-en backlog）。選択可能表示のため現在セル（actors store）を
  *   購読しており、移動のたび再レンダリングされる
@@ -82,9 +84,12 @@ export const GeoLayer = memo((props: GeoLayerProps) => {
 
   return (
     <div
-      onPointerLeave={() =>
+      onPointerLeave={(event) => {
+        // タッチ: 指を離すたび leave が起きるため、解除せず最後にタップしたセルを残す
+        if (event.pointerType === 'touch') return
+
         void hexStageEventDispatcher['HexStage-cell-hover']({ cell: undefined })
-      }
+      }}
       style={containerStyle}
     >
       {cells.map((axial) => {

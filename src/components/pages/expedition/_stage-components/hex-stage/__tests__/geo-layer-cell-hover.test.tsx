@@ -71,6 +71,26 @@ describe('GeoLayer の HexStage-cell-hover 発行', () => {
     expect(onCellHover).toHaveBeenLastCalledWith(undefined)
   })
 
+  it('タッチで layer 外へ出ても解除せず、最後にタップしたセルを残す', () => {
+    const onCellHover = vi.fn<(cell: HexCell | undefined) => void>()
+    renderGeoLayer(onCellHover)
+
+    fireEvent.pointerEnter(screen.getByRole('button', { name: 'hex 0-0' }))
+    // jsdom は PointerEvent 未実装で pointerType が落ちるため MouseEvent へ付与して代用
+    const touchLeave = Object.assign(
+      new MouseEvent('pointerout', { bubbles: true }),
+      {
+        pointerType: 'touch',
+      },
+    )
+    fireEvent(
+      screen.getByRole('button', { name: 'hex 0-0' }).parentElement as Element,
+      touchLeave,
+    )
+
+    expect(onCellHover).toHaveBeenLastCalledWith({ q: 0, r: 0 })
+  })
+
   it('event の Provider がなくても動作する', () => {
     render(
       <ActorsStoreProvider

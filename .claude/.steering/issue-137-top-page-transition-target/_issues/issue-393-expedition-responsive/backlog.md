@@ -6,11 +6,14 @@
 - [ ] 傾けた床での表示範囲の移動を検討する
   - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
   - (decision-records.md 2026-10-19 実行順序)
-- [ ] タッチ端末でマスの情報を表示する方法を検討する
-  - 例: タップで表示を残す
-  - (decision-records.md 2026-10-22 タッチ端末でのマスの情報)
-- [ ] 経路の提示時の吹き出しを 1 組にすることを検討する
-  - (decision-records.md 2026-10-22 タッチ端末でのマスの情報)
+- [ ] 吹き出しの汎用部品（`bot-bubble`・`bubble-slots`）を theater へ移す
+  - (decision-records.md 2026-10-23 選択肢パネル)
+- [ ] 選択肢パネルを新設し、実行・中継点・キャンセルを移す
+  - (decision-records.md 2026-10-23 選択肢パネル)
+- [ ] EN スポットの使用・EN 切れの救助を選択肢パネルへ移す
+  - (decision-records.md 2026-10-23 選択肢パネル)
+- [ ] マスの情報・手数の履歴の padding を `md` 未満で 4px にする
+  - (decision-records.md 2026-10-23 選択肢パネル)
 - [ ] 盤面全体の表示への切替を検討する
   - アイテム等
   - 後回し・別 issue も可
