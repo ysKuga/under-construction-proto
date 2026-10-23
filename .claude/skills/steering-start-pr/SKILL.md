@@ -46,9 +46,16 @@ gh pr create --draft --base <main or 依存先ブランチ> --title "#<issue番�
   - design.md: `# タイトル` → `PR: #番号`(親があれば `(親: #N)`) → 目的 → 背景・制約 → 懸念・リスク
   - backlog.md: `# 実装計画（<タイトル>）` + 未完了項目
   - decision-records.md: `# 決定事項（<タイトル>）` + 当日日付のエントリ
-- 作成直後、相対リンクのリンク先が実在するか確認する
+- リポジトリ内の他ディレクトリ(`docs/` 等)へのリンクは、書く前に相対パスをコマンドで求める
   - 理由: `_issues/issue-K-slug/_pr/pr-M-slug/` 等の深い階層では `../` の数を誤りやすい
-  - エラーが出たリンクの `../` の数を直す
+    - PR #405 で 1 つ多かった
+
+```bash
+realpath -m --relative-to=<作成先ディレクトリ> <リンク先>
+```
+
+- 作成直後、相対リンクのリンク先が実在するか確認する
+  - エラーが出たリンクは、`sed -i` でなく `replace-in-files.py` で直す([CLAUDE.md](../../../CLAUDE.md)「複数ファイルの一括置換」)
 
 ```bash
 (cd <作成したディレクトリ> && grep -ohE '\]\([^)#]+' *.md | sed 's/^](//' | grep -v '^http' | xargs ls >/dev/null)
