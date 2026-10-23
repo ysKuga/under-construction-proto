@@ -17,7 +17,7 @@ const getCellTitle = useCellTitle()
 const getCellTitle = useGetCellTitle()
 ```
 
-### 構成分割 (index.tsx / index.hooks.ts / index.types.ts)
+### 構成分割 (index.tsx / index.hooks.ts / index.types.ts / index.constants.ts)
 
 ロジック規模大きいコンポーネント、下記構成へ分割する。
 
@@ -26,6 +26,7 @@ component-name/
   index.tsx        # JSX のみ。ロジックは index.hooks.ts の use<ComponentName> 呼出すだけ
   index.hooks.ts    # ベース hook use<ComponentName>。_hooks/ 配下の部品 hook 組合せるだけ
   index.types.ts    # <ComponentName>Props, Use<ComponentName>Return 定義
+  index.constants.ts # 定数(必要な場合のみ)
   _hooks/
     use-xxx.ts       # 関心事ごとの部品 hook。1 hook = 1 ファイル、kebab-case
 ```
@@ -33,6 +34,21 @@ component-name/
 - ベース hook 名: コンポーネント名に `use` 付与(`ActionBar` → `useActionBar`)
 - 部品 hook の引数: コンポーネント props そのまま渡す(個別プロパティへ分解しない)
 - 部品 hook の戻り値型: 個別定義せず、`index.types.ts` の `Use<ComponentName>Return` から `Pick` で抽出する。型の出所を一元化する
+- 定数ファイル名: 本構成では `index.constants.ts`(`constants.ts` にしない)
+  - `_stores`・`_contexts` の種類別ファイル(`constants.ts`)は [aggregation-index.md](../aggregation-index.md) に従う
+- 置き場の判断
+  - state の保持(`useState`)と、その派生値の計算 → 部品 hook(`_hooks/`)
+  - 部品 hook 同士の配線(ある部品 hook の戻り値を別の部品 hook へ渡す) → ベース hook
+    - 部品 hook 内で同列の部品 hook を import しない([sibling-import.md](../sibling-import.md))
+  - 定数 → `index.constants.ts`。部品 hook・ベース hook・`index.tsx` のどこからも参照できる
+
+#### 理由
+
+expedition の standalone-bot の分割(PR #402)で、規約の確認の指摘を受け置き場を 3 回直した。
+
+- `constants.ts` で作成 → 同じ構成の前例(`index.constants.ts`)へ改名
+- 中継の配線を部品 hook へ置いた → 同列の部品 hook の import になり、ベース hook へ移した
+- ベース hook で `useState` を直接持った → 部品 hook へ切り出した
 
 ## useEffect
 
