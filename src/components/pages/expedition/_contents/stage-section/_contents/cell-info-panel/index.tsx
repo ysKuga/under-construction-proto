@@ -16,7 +16,7 @@ export const CellInfoPanel = () => {
   return (
     <aside
       aria-label="マスの情報"
-      className="h-28 w-full overflow-y-auto rounded border border-gray-300 bg-white p-3 text-sm"
+      className="h-full w-full md:h-28 overflow-y-auto rounded border border-gray-300 bg-white p-3 text-sm"
     >
       {!hoveredCell ? (
         <p className="text-gray-500">マスにカーソルを合わせると内容を表示</p>

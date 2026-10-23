@@ -4,12 +4,18 @@ import { FacingArrowProps } from '../types'
  * 向き矢印(中心回転)
  *
  * - 右向きの矢印(切り欠き付き三角)を、矢印自身の中心で回転させる
+ * - 大きさは `className` で上書きできる(既定 `size-16`)
  */
-export const FacingArrowCenter = (props: FacingArrowProps) => {
-  const { ref } = props
+export const FacingArrowCenter = (
+  props: FacingArrowProps & {
+    /** ルート要素の className(大きさの指定。既定 `size-16`) */
+    className?: string
+  },
+) => {
+  const { className = 'size-16', ref } = props
 
   return (
-    <div className="size-16">
+    <div className={className}>
       <div className="size-full transition-transform duration-150" ref={ref}>
         <svg className="size-full" viewBox="-1 -1 2 2">
           <polygon

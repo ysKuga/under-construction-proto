@@ -52,3 +52,23 @@
   - [_closed/pr-398-expedition-responsive-layout/design.md](_closed/pr-398-expedition-responsive-layout/design.md)
 - 2026-10-22（表示領域）: 固定サイズの表示領域と bot 中心のカメラ追従を完了した（PR #400）
   - [_closed/pr-400-expedition-stage-viewport/design.md](_closed/pr-400-expedition-stage-viewport/design.md)
+- 2026-10-22（スマホの幅での bot の状態表示）: `md` 未満で `BotStatusPanel` を横一列のバーにする
+  - 並び: 小さい独立 bot（64px）・向き矢印・ショートカットを横一列
+  - `CellInfoPanel`: バーの下で全幅
+  - 実装時に見直し、小さい正方形にしてマスの情報と横並びにした
+    - (_closed/pr-402-expedition-bot-status-bar/decision-records.md 2026-10-22 見直し)
+  - 向きの同期トグル（`FacingSyncToggle`）: 非表示
+  - `md` 以上: 従来どおり
+  - 理由
+    - カメラ追従（PR #400）でステージ上の bot が常に中央に見え、独立 bot の演出と重なる
+    - 2 段目の縦幅（約 258px → 約 70px）と `CellInfoPanel` の幅（141px → 全幅）を確保する
+  - 不採用
+    - 縮小のみ: ショートカットが bot を覆う、`CellInfoPanel` の狭さが残る
+    - 表示領域へ重ねる: 盤面の隅が隠れる、吹き出しと干渉しうる
+    - 独立 bot を外す: 状態表示の見た目がほぼ無くなる
+- 2026-10-22（タッチ端末でのマスの情報）: 375px・タッチ端末での確認結果を記録した
+  - 短いタップ: `CellInfoPanel` が変わらない
+  - 長押し: 押している間だけ表示し、離すと初期文言へ戻る。離した時点で移動・経路の提示も起きる
+  - 経路の提示時、「実行？」「中継点？」の吹き出しが 2 組横に重なって見えた（未調査）
+- 2026-10-23（スマホの幅での bot の状態表示）: `md` 未満で bot の状態表示を小さい正方形にした（PR #402）
+  - [_closed/pr-402-expedition-bot-status-bar/design.md](_closed/pr-402-expedition-bot-status-bar/design.md)
