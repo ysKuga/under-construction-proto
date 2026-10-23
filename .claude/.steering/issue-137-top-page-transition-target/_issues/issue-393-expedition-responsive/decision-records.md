@@ -56,7 +56,7 @@
   - 並び: 小さい独立 bot（64px）・向き矢印・ショートカットを横一列
   - `CellInfoPanel`: バーの下で全幅
   - 実装時に見直し、小さい正方形にしてマスの情報と横並びにした
-    - (_pr/pr-402-expedition-bot-status-bar/decision-records.md 2026-10-22 見直し)
+    - (_closed/pr-402-expedition-bot-status-bar/decision-records.md 2026-10-22 見直し)
   - 向きの同期トグル（`FacingSyncToggle`）: 非表示
   - `md` 以上: 従来どおり
   - 理由
@@ -70,3 +70,5 @@
   - 短いタップ: `CellInfoPanel` が変わらない
   - 長押し: 押している間だけ表示し、離すと初期文言へ戻る。離した時点で移動・経路の提示も起きる
   - 経路の提示時、「実行？」「中継点？」の吹き出しが 2 組横に重なって見えた（未調査）
+- 2026-10-23（スマホの幅での bot の状態表示）: `md` 未満で bot の状態表示を小さい正方形にした（PR #402）
+  - [_closed/pr-402-expedition-bot-status-bar/design.md](_closed/pr-402-expedition-bot-status-bar/design.md)
