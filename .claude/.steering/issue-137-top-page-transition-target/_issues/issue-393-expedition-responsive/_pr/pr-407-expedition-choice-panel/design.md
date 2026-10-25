@@ -20,9 +20,9 @@ PR: #407（親: #393）
 - 構成
   - 表示部品: `_components/choice-panel`（選択肢を props で受け、story 付き）
   - 組み合わせ: `_contents/choice-panel`
+- 依存: 設定ポップオーバーの Esc の fix PR（decision-records.md 2026-10-25 Esc）
 - 対象外: EN スポットの使用・EN 切れの救助・揺れの event の改名（後続 PR）
 
 ## 懸念・リスク
 
 - `resolveVisibility` がパネルの選択肢の形に合うか未確認
-- レイアウト変更のため、実装前に並びの合意を取る（layout-change）
