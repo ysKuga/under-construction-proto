@@ -15,4 +15,4 @@ Esc を、開いた順に 1 つずつ処理する（`useKeyLayer` の層）形�
 
 ## 懸念・リスク
 
-- keydown の `preventDefault()` でブラウザ標準の Esc での閉じが止まるか、Chromium で未確認
+- なし
