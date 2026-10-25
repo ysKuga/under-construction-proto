@@ -76,6 +76,36 @@ describe('useKeyLayer', () => {
     expect(lower).toHaveBeenCalledTimes(1)
   })
 
+  it('処理した押下は既定動作を止め、どの層も処理しなければ止めない', () => {
+    renderLayer(() => {})
+    const handled = new KeyboardEvent('keydown', {
+      cancelable: true,
+      key: 'Escape',
+    })
+    const unhandled = new KeyboardEvent('keydown', {
+      cancelable: true,
+      key: 'Enter',
+    })
+
+    window.dispatchEvent(handled)
+    window.dispatchEvent(unhandled)
+
+    expect(handled.defaultPrevented).toBe(true)
+    expect(unhandled.defaultPrevented).toBe(false)
+  })
+
+  it('全ての層が false を返した押下は既定動作を止めない', () => {
+    renderLayer(() => false)
+    const event = new KeyboardEvent('keydown', {
+      cancelable: true,
+      key: 'Escape',
+    })
+
+    window.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(false)
+  })
+
   it('他のキー・IME 変換中の押下は扱わない', () => {
     const handler = vi.fn<KeyLayerHandler>()
 

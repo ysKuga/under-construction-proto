@@ -21,7 +21,11 @@ type KeyLayer = { handlerRef: { current: KeyLayerHandler } }
 /** key ごとの層（末尾が最上位） */
 const layerStacks = new Map<string, KeyLayer[]>()
 
-/** 最上位の層から順に処理させ、処理済みになった時点で打ち切る */
+/**
+ * 最上位の層から順に処理させ、処理済みになった時点で打ち切る
+ *
+ * - 処理済みの押下は既定動作を止める（`popover="auto"` の Esc での閉じ等が層の外で起きないよう）
+ */
 const handleKeyDown = (event: KeyboardEvent) => {
   if (event.isComposing) return
 
@@ -31,7 +35,11 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
   // handler 内で層が増減しても今回の押下の走査対象は変えない
   for (const layer of [...stack].reverse()) {
-    if (layer.handlerRef.current(event) !== false) return
+    if (layer.handlerRef.current(event) !== false) {
+      event.preventDefault()
+
+      return
+    }
   }
 }
 
@@ -65,6 +73,7 @@ const removeLayer = (key: string, layer: KeyLayer) => {
  * - ESC 等の汎用キーを 1 つの操作が占有しないよう、key ごとに LIFO で管理する
  * - 登録は `enabled` の間のみ。状態から導いた条件を渡し、層を実際の状態と一致させる
  * - 1 回の押下で処理するのは、最上位から見て最初に `false` 以外を返した層のみ
+ * - 処理した押下は `preventDefault()` し、ブラウザの既定動作（ポップオーバーの Esc での閉じ等）を止める
  * - IME 変換中（`isComposing`）の押下は扱わない
  *
  * @param key 対象キー（`KeyboardEvent.key`）
