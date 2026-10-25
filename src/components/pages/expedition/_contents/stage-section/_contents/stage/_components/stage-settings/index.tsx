@@ -15,6 +15,7 @@ const POPOVER_ID = 'expedition-stage-settings'
  * - CSS anchor positioning でアイコンの下・左端揃えに置く（マスの情報パネルに重なる）
  * - 閉じても DOM は残るため、スライダーの値（tilt の `defaultValue` 含む）を保つ
  * - ピン留め中は `popover="manual"` にし、外側クリック・Esc で閉じない。解除で閉じる
+ * - Esc での閉じは `useKeyLayer` の層として扱い、後から開いたもの（経路提示等）を先に処理する
  */
 export const StageSettings = () => {
   const { handlePinClick, pinned, popoverRef } = useStageSettings()

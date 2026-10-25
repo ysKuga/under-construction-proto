@@ -1,9 +1,14 @@
 import { useCallback, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 
+import { useClosePopoverOnEscape } from './_hooks/use-close-popover-on-escape'
 import { UseStageSettingsReturn } from './index.types'
 
-/** ポップオーバーのピン留め状態と切替操作 */
+/**
+ * ポップオーバーのピン留め状態と切替操作
+ *
+ * - ESC キーでの閉じは `useKeyLayer` の層として扱う（`useClosePopoverOnEscape`）
+ */
 export const useStageSettings = (): UseStageSettingsReturn => {
   /** ピン留め中か */
   const [pinned, setPinned] = useState(false)
@@ -23,6 +28,8 @@ export const useStageSettings = (): UseStageSettingsReturn => {
       popoverRef.current?.showPopover()
     }
   }, [pinned])
+
+  useClosePopoverOnEscape(popoverRef, pinned)
 
   return { handlePinClick, pinned, popoverRef }
 }
