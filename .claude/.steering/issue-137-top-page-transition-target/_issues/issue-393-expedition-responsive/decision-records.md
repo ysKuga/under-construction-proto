@@ -106,3 +106,13 @@
   - [_closed/pr-404-expedition-touch-cell-info/design.md](_closed/pr-404-expedition-touch-cell-info/design.md)
 - 2026-10-23（吹き出しの汎用部品の移動）: `bot-bubble`・`bubble-slots` を `src/components/theater/aside/` へ移した（PR #405）
   - [_closed/pr-405-expedition-bubble-to-theater-aside/design.md](_closed/pr-405-expedition-bubble-to-theater-aside/design.md)
+- 2026-10-23（選択肢パネルの event 設計）: 新しい event は足さず、既存の配線をパネルへ移す
+  - 実行・EN スポット・救助: 既存の event（`Expedition-execute-path` 等）をそのまま使う。各吹き出しのクリック処理をパネル側へ移す
+  - 中継点の切替・キャンセル: event 化せず `waypoint-flow` store を直接操作する
+    - 理由: 中継点フローの内部状態の操作で、ゲーム要素の判定が無い（セルクリックの listener・Escape も直接操作）
+  - 表示条件: `useBotBubbles` の `visible$` の組み立てをパネル側へ移し、排他は theater の `resolveVisibility` を使い回す
+  - 中継点の選択中: 半透明でなく選択中の表示（`aria-pressed`）にする
+  - 揺れ: `Expedition-shake-bot-bubble` を `Expedition-action-rejected`（通知型）へ改名し、パネル全体を揺らす
+    - 理由: 発行元がパネルを知らずに済む。`Expedition-item-used` と同じ形。セルクリックの拒否では揺らす選択肢が決まらない
+    - 不採用: `Expedition-shake-choice-panel`（命令型の機械的改名）
+  - 構成: 表示部品 `_components/choice-panel`（選択肢を props で受け、story 付き）・組み合わせ `_contents/choice-panel`
