@@ -16,7 +16,7 @@ PR: #407（親: #393）
 - event 設計（../../decision-records.md 2026-10-23 選択肢パネルの event 設計）
   - 実行: 既存の `Expedition-execute-path` を使う
   - 中継点の切替・キャンセル: `waypoint-flow` store を直接操作する
-  - 表示条件: `useBotBubbles` の `visible$` の組み立てを移し、排他は [resolveVisibility](../../../../../../../src/components/theater/aside/bubble-slots/_lib/resolve-visibility.ts) を使い回す
+  - 表示条件: 経路提示中のみ。選択肢ごとの表示条件・排他は持たない（decision-records.md 2026-10-26 表示条件）
 - 構成
   - 表示部品: `_components/choice-panel`（選択肢を props で受け、story 付き）
   - 組み合わせ: `_contents/choice-panel`
@@ -24,4 +24,4 @@ PR: #407（親: #393）
 
 ## 懸念・リスク
 
-- `resolveVisibility` がパネルの選択肢の形に合うか未確認
+- なし
