@@ -1,7 +1,7 @@
 # 実装計画（expedition のレスポンシブ対応）
 
 - [ ] 設定ポップオーバーの Esc を `useKeyLayer` へ揃える
-  - [_pr/pr-408-expedition-settings-escape/design.md](_pr/pr-408-expedition-settings-escape/design.md)
+  - [_closed/pr-408-expedition-settings-escape/design.md](_closed/pr-408-expedition-settings-escape/design.md)
 - [ ] 状態表示・マスの情報・手数の履歴の表示・非表示を切り替える
   - 着手前に `event-binding-design` で設計する
   - (decision-records.md 2026-10-19 表示・非表示)
