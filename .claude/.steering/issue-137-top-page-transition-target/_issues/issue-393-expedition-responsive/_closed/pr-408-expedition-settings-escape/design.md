@@ -10,7 +10,7 @@ Esc を、開いた順に 1 つずつ処理する（`useKeyLayer` の層）形�
 
 - 設定ポップオーバーは `popover="auto"` で、ブラウザが Esc で直接閉じる
   - `useKeyLayer` の層（目標設定のキャンセル）と同時に処理される
-- 選択肢パネル（#407）の Esc の前例にする（../pr-407-expedition-choice-panel/decision-records.md 2026-10-25 Esc）
+- 選択肢パネル（#407）の Esc の前例にする（#407 の decision-records.md 2026-10-25 Esc）
 - 外側クリックで閉じる挙動（`auto`）は残す
 
 ## 懸念・リスク

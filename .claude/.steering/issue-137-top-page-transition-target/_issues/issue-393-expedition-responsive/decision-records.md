@@ -106,3 +106,5 @@
   - [_closed/pr-404-expedition-touch-cell-info/design.md](_closed/pr-404-expedition-touch-cell-info/design.md)
 - 2026-10-23（吹き出しの汎用部品の移動）: `bot-bubble`・`bubble-slots` を `src/components/theater/aside/` へ移した（PR #405）
   - [_closed/pr-405-expedition-bubble-to-theater-aside/design.md](_closed/pr-405-expedition-bubble-to-theater-aside/design.md)
+- 2026-10-26（設定ポップオーバーの Esc）: 開いている間、Esc で閉じる層を `useKeyLayer` へ積むようにした（PR #408）
+  - [_closed/pr-408-expedition-settings-escape/design.md](_closed/pr-408-expedition-settings-escape/design.md)
