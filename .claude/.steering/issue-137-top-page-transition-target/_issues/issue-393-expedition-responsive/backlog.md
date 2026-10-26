@@ -1,7 +1,5 @@
 # 実装計画（expedition のレスポンシブ対応）
 
-- [ ] 設定ポップオーバーの Esc を `useKeyLayer` へ揃える
-  - [_pr/pr-408-expedition-settings-escape/design.md](_pr/pr-408-expedition-settings-escape/design.md)
 - [ ] 選択肢パネルを新設し、実行・中継点・キャンセルを移す
   1. 表示部品 `_components/choice-panel` と story
   2. 実行・中継点・キャンセルの配線（既存の event・store へ繋ぐのみ）
