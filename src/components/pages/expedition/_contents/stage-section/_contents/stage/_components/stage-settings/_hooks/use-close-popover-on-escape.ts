@@ -6,7 +6,8 @@ import { useKeyLayer } from '@/hooks/use-key-layer'
  * ESC キーでポップオーバーを閉じる処理を `useKeyLayer` の層として積む
  *
  * - 開いている間（ピン留め中を除く）のみ積む。後から開いたもの（経路提示等）が先に処理される
- * - `popover="auto"` のブラウザ標準の Esc での閉じは、`useKeyLayer` の `preventDefault()` で止まる
+ * - 最上位の層で閉じるため、下の層（目標設定のキャンセル等）へは回らない
+ * - `popover="auto"` のブラウザ標準の Esc での閉じも走るが、閉じ済みのため影響しない
  *
  * @param popoverRef ポップオーバーの要素
  * @param pinned ピン留め中か
