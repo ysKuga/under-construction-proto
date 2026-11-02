@@ -23,3 +23,5 @@
   - 表示部品: `expedition/_components/choice-panel`
   - 高さ: 90px 固定（`md` 未満の状態表示と同じ）。あふれたら縦スクロール
   - 位置: CSS anchor positioning。上端・左端は呼び出しボタン、右端は画面右端から 16px（`md` 以上はステージの右端）
+- 2026-11-02（表示部品）: パネルの幅を `w-auto` にした
+  - 理由: ポップオーバーの UA スタイル `width: fit-content` で中身の幅に縮み、右端が画面右端 - 16px にならなかった
