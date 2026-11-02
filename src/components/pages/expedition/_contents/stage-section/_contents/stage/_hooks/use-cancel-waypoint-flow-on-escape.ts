@@ -6,7 +6,7 @@ import { useWaypointFlowStore } from '../../../../../_stores/waypoint-flow'
  * ESC キーで中継点フローを 1 段ずつキャンセルする
  *
  * - 中継点選択中: `cancelSelecting`（中継点を消し経路提示中へ戻す）。
- *   `WaypointBubble` の再クリックと同じ
+ *   選択肢パネルの「中継点」の再選択と同じ
  * - 経路提示中: `clear`（目標設定をキャンセルし通常状態へ戻す）
  * - `useKeyLayer` の層として積むため、1 回の押下で進むのは 1 段のみ。
  *   選択中の層が後から積まれるため先に処理される

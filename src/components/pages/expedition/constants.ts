@@ -25,14 +25,6 @@ export const SLIDER_LABEL_STYLE: CSSProperties = {
   gridTemplateColumns: '10em 160px auto',
 }
 
-/**
- * 目標セルのオーバーレイアンカーを actors store へ登録する際の擬似 id
- *
- * - 目標セル側にも bot と同じ吹き出しを注入するため、actor 用の overlay anchor を流用する
- * - actor の id（`PLAYER_ACTOR_ID` 等）と重複しない値にする
- */
-export const OBJECTIVE_OVERLAY_ID = 'objective'
-
 /** EN スポットでの 1 回の補給あたりの所要時間（ms。issue #297） */
 export const ENERGY_SPOT_CHARGE_INTERVAL_MS = 300
 

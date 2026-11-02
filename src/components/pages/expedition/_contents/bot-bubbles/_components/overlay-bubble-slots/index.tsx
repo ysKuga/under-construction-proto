@@ -15,7 +15,7 @@ type OverlayBubbleSlotsProps = {
   /**
    * 注入先オーバーレイコンテナの id（actors store の `overlayContainers` のキー）
    *
-   * - bot 頭上なら `PLAYER_ACTOR_ID`、目標セル上なら `OBJECTIVE_OVERLAY_ID`
+   * - bot 頭上なら `PLAYER_ACTOR_ID`
    */
   overlayId: Actor['id']
 }

@@ -17,6 +17,7 @@ import {
   INITIAL_TILT_DEG,
 } from '../../../../constants'
 
+import { ChoicePanelContent } from './_components/choice-panel'
 import { StageSettings } from './_components/stage-settings'
 import { useStage } from './index.hooks'
 
@@ -30,7 +31,8 @@ import { useStage } from './index.hooks'
  * - 中継点選択モード中は `HexStage` を非対話化し、`WaypointSelectLayer` がセルクリックを
  *   拾って中継点を設置/除去する（通常モードのクリックとは完全に別イベント）
  * - 各レイヤーの DOM は visibility registry へ登録し、未到達マスを非表示にする
- * - 床の左下（`belowFloor`）へ設定アイコン（調整スライダーのポップオーバー）を重ねる
+ * - 床の左下（`belowFloor`）へ設定アイコン（調整スライダーのポップオーバー）と選択肢パネルの呼び出しボタンを重ねる
+ * - 外枠へ anchor 名 `--expedition-stage` を付け、選択肢パネルの右端（`md` 以上）を合わせる
  */
 export const Stage = () => {
   const {
@@ -60,14 +62,15 @@ export const Stage = () => {
 
   return (
     // 床(scene)の幅へ合わせる
-    <div className="w-min">
+    <div className="w-min [anchor-name:--expedition-stage]">
       <HexStage
         actorEventTarget={actorEventTarget}
         belowFloor={
-          // 設定アイコンを床の左下へ重ねる
+          // 設定アイコン・選択肢パネルの呼び出しボタンを床の左下へ重ねる
           <div className="relative">
-            <div className="absolute bottom-full left-0 z-10">
+            <div className="absolute bottom-full left-0 z-10 flex gap-1">
               <StageSettings />
+              <ChoicePanelContent />
             </div>
           </div>
         }
@@ -127,7 +130,6 @@ export const Stage = () => {
           rows={GRID.rows}
         />
         <ObjectiveMarkerLayer
-          anchorSize={BOT_SIZE}
           cols={GRID.cols}
           hexSize={HEX_SIZE}
           objectiveCell={objectiveMarkerCell}

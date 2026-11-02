@@ -6,11 +6,11 @@ import { HexCell } from '@/components/pages/expedition/_stage-components/hex-sta
  * 中継点フローの状態（issue #137 backlog「中継点の設定」）
  *
  * - `idle`: 通常状態。セルクリックは `useHexMove` 経由の隣接移動/経路探索
- * - `proposing`: 直接移動できないセルのクリックで経路が求まった直後。bot 頭上に `WaypointBubble`
- *   （思考吹き出し）を表示する
- * - `selecting`: `WaypointBubble` クリックで移行。`HexStage` を非対話化し
+ * - `proposing`: 直接移動できないセルのクリックで経路が求まった直後。選択肢パネルに
+ *   実行・中継点・キャンセルを並べる
+ * - `selecting`: 選択肢パネルの「中継点」で移行。`HexStage` を非対話化し
  *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する。
- *   「完了」で中継点を残したまま（確定）、再度の `WaypointBubble` クリックで
+ *   「完了」で中継点を残したまま（確定）、再度の「中継点」で
  *   中継点を消して（キャンセル）`proposing` へ戻る
  */
 export type WaypointFlowState = 'idle' | 'proposing' | 'selecting'

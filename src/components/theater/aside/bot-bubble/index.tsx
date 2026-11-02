@@ -118,7 +118,7 @@ type BotBubbleProps = {
 /**
  * bot から伸びる吹き出し(思考吹き出し⇔発言吹き出し)
  *
- * - `WaypointBubble`/`ExecuteBubble` の共通実装（issue #226）
+ * - expedition の旧 `WaypointBubble`/`ExecuteBubble` の共通実装として作った（issue #226）
  * - 表示/非表示は `useCssToggle`（`src/hooks/use-css-toggle`）で自己管理する。
  *   `visible` prop の変化を hidden checkbox の checked へ同期するだけで、
  *   React state による条件付きレンダリング（マウント/アンマウント）は行わない。

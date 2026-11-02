@@ -18,15 +18,14 @@ import {
 /**
  * bot 基準点(0, 0)から見た推奨表示位置(px)
  *
- * - `WaypointBubble` と同じ bot 右上。EN 切れ時は目標設定がキャンセルされ、
- *   中継点・実行の吹き出しと同時には表示されないため重ならない
+ * - bot 右上
  */
 export const ENERGY_DEPLETED_BUBBLE_OFFSET = { x: 24, y: -36 }
 
 /**
  * `EnergyDepletedBubble` が呼び出し元へ公開する imperative API
  *
- * - `WaypointBubbleHandle` と同じく props でなく ref 経由の命令で伝える
+ * - `BotBubbleHandle` と同じく props でなく ref 経由の命令で伝える
  */
 export type EnergyDepletedBubbleHandle = {
   /** 左右に小刻みに揺らす（`BotBubbleHandle.shake`） */
