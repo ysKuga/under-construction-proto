@@ -24,10 +24,14 @@ export type ChoicePanelProps = {
 }
 
 export type UseChoicePanelReturn = {
-  /** パネルを閉じる */
+  /** パネルを閉じる。ピン留めも外す */
   close: () => void
+  /** ピン留めボタンのクリック時。ピン留め ⇔ 解除を切り替える */
+  handlePinClick: () => void
   /** パネルが開いているか */
   open: boolean
+  /** ピン留め中か（外側のクリック・Esc で閉じない） */
+  pinned: boolean
   /** パネル（ポップオーバー）の要素 */
   popoverRef: RefObject<HTMLDivElement | null>
   /** 呼び出しボタンのクリック時。開閉を切り替える */

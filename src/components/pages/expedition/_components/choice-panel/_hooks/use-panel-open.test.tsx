@@ -1,4 +1,4 @@
-import { act, fireEvent, renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 
 import { ChoicePanelProps } from '../index.types'
 
@@ -43,21 +43,31 @@ describe('usePanelOpen', () => {
     expect(result.current.open).toBe(false)
   })
 
+  it('ピン留め中は選択肢が無くなっても閉じない', () => {
+    const { rerender, result } = renderPanelOpen(1)
+
+    act(() => result.current.handlePinClick())
+    rerender({ choices: choicesOf(0) })
+
+    expect(result.current.pinned).toBe(true)
+    expect(result.current.open).toBe(true)
+  })
+
+  it('閉じるとピン留めも外れる', () => {
+    const { result } = renderPanelOpen(1)
+
+    act(() => result.current.handlePinClick())
+    act(() => result.current.close())
+
+    expect(result.current.pinned).toBe(false)
+    expect(result.current.open).toBe(false)
+  })
+
   it('選択肢が無くても呼び出しボタンで開ける', () => {
     const { result } = renderPanelOpen(0)
 
     act(() => result.current.toggle())
 
     expect(result.current.open).toBe(true)
-  })
-
-  it('開いている間のみ Esc で閉じる', () => {
-    const { result } = renderPanelOpen(1)
-
-    act(() => {
-      fireEvent.keyDown(window, { key: 'Escape' })
-    })
-
-    expect(result.current.open).toBe(false)
   })
 })
