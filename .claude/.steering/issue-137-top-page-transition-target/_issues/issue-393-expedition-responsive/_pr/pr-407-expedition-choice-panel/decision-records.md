@@ -18,3 +18,8 @@
   - 実行・中継点・キャンセルは全て「経路提示中」で決まる。組み合わせ側で `waypoint-flow` を購読し、選択肢の配列を表示部品へ渡す
   - 排他が不要な理由: EN 切れ中は経路提示が起きない（中継点フローのクリア・`Expedition-propose-path` の拒否）
   - EN スポット・救助を移す PR で、選択肢ごとの表示条件の形（`visible$` 等）を決める
+- 2026-11-02（置き場・寸法）: 組み合わせは `_contents/` でなく `stage/_components/choice-panel` に置く
+  - 理由: `Stage` の床の左下（`belowFloor`）へ置く、`Stage` が中で使う部品。`stage-settings` と同じ形
+  - 表示部品: `expedition/_components/choice-panel`
+  - 高さ: 90px 固定（`md` 未満の状態表示と同じ）。あふれたら縦スクロール
+  - 位置: CSS anchor positioning。上端・左端は呼び出しボタン、右端は画面右端から 16px（`md` 以上はステージの右端）

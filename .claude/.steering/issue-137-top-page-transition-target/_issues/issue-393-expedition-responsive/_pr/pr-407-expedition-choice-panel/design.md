@@ -19,7 +19,7 @@ PR: #407（親: #393）
   - 表示条件: 経路提示中のみ。選択肢ごとの表示条件・排他は持たない（decision-records.md 2026-10-26 表示条件）
 - 構成
   - 表示部品: `_components/choice-panel`（選択肢を props で受け、story 付き）
-  - 組み合わせ: `_contents/choice-panel`
+  - 組み合わせ: `stage/_components/choice-panel`（decision-records.md 2026-11-02 置き場・寸法）
 - 対象外: EN スポットの使用・EN 切れの救助・揺れの event の改名（後続 PR）
 
 ## 懸念・リスク
