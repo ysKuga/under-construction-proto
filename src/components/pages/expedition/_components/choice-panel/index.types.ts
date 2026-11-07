@@ -1,11 +1,11 @@
-import { RefObject } from 'react'
+import { ReactNode, RefObject } from 'react'
 
 /** パネルへ並べる選択肢 1 つ */
 export type Choice = {
   /** 選択肢の識別子。描画の key に使う */
   id: string
   /** 表示する文言 */
-  label: string
+  label: ReactNode
   /** 選択時 */
   onSelect: () => void
   /** 押下中の表示にするか（`aria-pressed`）。未指定なら押下の状態を持たない */
