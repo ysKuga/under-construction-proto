@@ -65,11 +65,11 @@ const Wrapper = (props: PropsWithChildren) => (
  * listener を有効化し、`HexStage-cell-click` を発行できるようにする
  *
  * @param moveTo handle の `moveTo`（既定は常に移動できない）
- * @param onShakeBotBubble `Expedition-shake-bot-bubble` の購読
+ * @param onActionRejected `Expedition-action-rejected` の購読
  */
 const renderListener = (
   moveTo = vi.fn<(cell: HexCell) => boolean>(() => false),
-  onShakeBotBubble = vi.fn<() => void>(),
+  onActionRejected = vi.fn<() => void>(),
 ) => {
   const { result } = renderHook(
     () => {
@@ -86,10 +86,7 @@ const renderListener = (
         }
       }, [hexStageHandleRef])
       useCellClickEventListener()
-      useExpeditionEventListener(
-        'Expedition-shake-bot-bubble',
-        onShakeBotBubble,
-      )
+      useExpeditionEventListener('Expedition-action-rejected', onActionRejected)
 
       return {
         dispatcher,
@@ -104,7 +101,7 @@ const renderListener = (
   const click = (cell: HexCell) =>
     act(() => result.current.dispatcher['HexStage-cell-click']({ cell }))
 
-  return { click, moveTo, onShakeBotBubble, result }
+  return { click, moveTo, onActionRejected, result }
 }
 
 test('現在マスのクリックでは移動も目標設定もしない', async () => {
@@ -169,8 +166,8 @@ test('EN 切れでも目標セルの再クリックでキャンセルできる',
   expect(waypointFlow.getState().flowState).toBe('idle')
 })
 
-test('EN 切れで提示を拒否されると bot 頭上の吹き出しを揺らす', async () => {
-  const { click, onShakeBotBubble, result } = renderListener()
+test('EN 切れで提示を拒否されると拒否を通知する', async () => {
+  const { click, onActionRejected, result } = renderListener()
   const { energy, waypointFlow } = result.current
   const { max } = energy.getState().getEnergyInfo(PLAYER_ACTOR_ID)
 
@@ -179,15 +176,15 @@ test('EN 切れで提示を拒否されると bot 頭上の吹き出しを揺ら
   })
   await click({ q: 2, r: 0 })
 
-  expect(onShakeBotBubble).toHaveBeenCalledTimes(1)
+  expect(onActionRejected).toHaveBeenCalledTimes(1)
   expect(waypointFlow.getState().flowState).toBe('idle')
 })
 
-test('提示を許可されれば吹き出しを揺らさず経路を提示する', async () => {
-  const { click, onShakeBotBubble, result } = renderListener()
+test('提示を許可されれば拒否を通知せず経路を提示する', async () => {
+  const { click, onActionRejected, result } = renderListener()
 
   await click({ q: 2, r: 0 })
 
-  expect(onShakeBotBubble).not.toHaveBeenCalled()
+  expect(onActionRejected).not.toHaveBeenCalled()
   expect(result.current.waypointFlow.getState().flowState).toBe('proposing')
 })

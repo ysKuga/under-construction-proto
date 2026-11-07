@@ -19,8 +19,8 @@ export const useEnergySpotBubbleContent =
       bubbleRef.current?.shake()
     }, [])
 
-    // bot 頭上の吹き出しを揺らす要求: 非表示中の揺れは見えないため条件を設けない
-    useExpeditionEventListener('Expedition-shake-bot-bubble', shake, {
+    // 操作の拒否: 非表示中の揺れは見えないため条件を設けない
+    useExpeditionEventListener('Expedition-action-rejected', shake, {
       allowMultiple: true,
     })
 
@@ -29,11 +29,9 @@ export const useEnergySpotBubbleContent =
       const accepted =
         await expeditionEventDispatcher['Expedition-use-energy-spot'](undefined)
 
-      // 拒否された: 吹き出しを揺らして知らせる
+      // 拒否された: 拒否を通知する
       if (!accepted) {
-        await expeditionEventDispatcher['Expedition-shake-bot-bubble'](
-          undefined,
-        )
+        await expeditionEventDispatcher['Expedition-action-rejected'](undefined)
       }
     }, [expeditionEventDispatcher])
 

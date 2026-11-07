@@ -12,6 +12,12 @@ export type Choice = {
   pressed?: boolean
 }
 
+/** `ChoicePanel` が呼び出し元へ公開する imperative API */
+export type ChoicePanelHandle = {
+  /** パネルを左右に小刻みに揺らす（操作の拒否を知らせる） */
+  shake: () => void
+}
+
 export type ChoicePanelProps = {
   /** 並べる選択肢。空なら「選択肢なし」を表示する */
   choices: Choice[]
