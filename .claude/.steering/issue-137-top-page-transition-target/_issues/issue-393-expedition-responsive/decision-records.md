@@ -119,3 +119,5 @@
     - 組み合わせの置き場は後に `stage/_components/choice-panel` へ変更（_pr/pr-407-expedition-choice-panel/decision-records.md 2026-11-02 置き場・寸法）
 - 2026-10-26（設定ポップオーバーの Esc）: 開いている間、Esc で閉じる層を `useKeyLayer` へ積むようにした（PR #408）
   - [_closed/pr-408-expedition-settings-escape/design.md](_closed/pr-408-expedition-settings-escape/design.md)
+- 2026-11-07（選択肢パネル）: 選択肢パネルを新設し、実行・中継点・キャンセルを移した（PR #407）
+  - [_closed/pr-407-expedition-choice-panel/design.md](_closed/pr-407-expedition-choice-panel/design.md)
