@@ -2,6 +2,7 @@
 
 - [ ] EN スポットの使用・EN 切れの救助を選択肢パネルへ移す
   1. EN スポット・救助の吹き出しを外す
+     - [_pr/pr-411-expedition-energy-choices/design.md](_pr/pr-411-expedition-energy-choices/design.md)
   2. 補給中・補給完了のみ残る `bot-bubbles` の名前を見直す
   - (decision-records.md 2026-10-23 選択肢パネル / 選択肢パネルの event 設計)
 - [ ] マスの情報・手数の履歴の padding を `md` 未満で 4px にする
