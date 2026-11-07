@@ -11,6 +11,12 @@ import { ItemInstance } from '../_stores/items/types'
  *   戻り値が `false` になり、UI 側は実行を取りやめる（ui-jurisdiction 案 1）
  */
 export type ExpeditionEventMap = {
+  /**
+   * 操作が拒否された（拒否の理由は問わない）
+   *
+   * - 表示中の吹き出しが購読して揺れる。購読がなければ何も起きない
+   */
+  'Expedition-action-rejected': undefined
   /** 提示中の経路に沿って自動移動を開始する */
   'Expedition-execute-path': {
     /** 自動移動する経路 */
@@ -39,13 +45,6 @@ export type ExpeditionEventMap = {
    * - 盤面ごと初期状態へ戻す（issue #315）。seed は保持されるため盤面は同じ配置
    */
   'Expedition-reset-to-checkpoint': undefined
-  /**
-   * bot 頭上に表示中の吹き出しを揺らす
-   *
-   * - 操作が拒否されたことを知らせるために発行する（拒否の理由は問わない）
-   * - 表示中の吹き出しが購読して揺れる。購読がなければ何も起きない
-   */
-  'Expedition-shake-bot-bubble': undefined
   /**
    * player の現在セルの EN スポットを使用し、EN を補給する
    *

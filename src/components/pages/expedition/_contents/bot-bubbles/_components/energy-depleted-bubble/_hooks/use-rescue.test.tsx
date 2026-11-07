@@ -46,11 +46,11 @@ const chargeItem: ItemInstance = {
  * `useRescue` を描画する
  *
  * @param onResetToCheckpoint チェックポイントへのリセットの listener
- * @param onShakeBotBubble 吹き出しを揺らす要求の listener
+ * @param onActionRejected `Expedition-action-rejected` の listener
  */
 const renderRescue = (
   onResetToCheckpoint: (event: Event) => void,
-  onShakeBotBubble: () => void,
+  onActionRejected: () => void,
 ) =>
   renderHook(
     () => {
@@ -58,10 +58,7 @@ const renderRescue = (
         'Expedition-reset-to-checkpoint',
         onResetToCheckpoint,
       )
-      useExpeditionEventListener(
-        'Expedition-shake-bot-bubble',
-        onShakeBotBubble,
-      )
+      useExpeditionEventListener('Expedition-action-rejected', onActionRejected)
 
       return {
         carriedItems: useCarriedItemStoreApi(),
@@ -96,25 +93,25 @@ test('手持ちがあれば、そのアイテムを救済手段として使う',
 
 test('手持ちがなければ、チェックポイントへのリセットを要求する', async () => {
   const onResetToCheckpoint = vi.fn<(event: Event) => void>()
-  const onShakeBotBubble = vi.fn<() => void>()
-  const { result } = renderRescue(onResetToCheckpoint, onShakeBotBubble)
+  const onActionRejected = vi.fn<() => void>()
+  const { result } = renderRescue(onResetToCheckpoint, onActionRejected)
 
   expect(result.current.rescue.rescueItemKind).toBeUndefined()
 
   await act(() => result.current.rescue.handleRescueClick())
 
   expect(onResetToCheckpoint).toHaveBeenCalledTimes(1)
-  expect(onShakeBotBubble).not.toHaveBeenCalled()
+  expect(onActionRejected).not.toHaveBeenCalled()
 })
 
-test('救済手段を拒否されたら吹き出しを揺らす', async () => {
-  const onShakeBotBubble = vi.fn<() => void>()
+test('救済手段を拒否されたら拒否を通知する', async () => {
+  const onActionRejected = vi.fn<() => void>()
   const { result } = renderRescue(
     (event) => event.preventDefault(),
-    onShakeBotBubble,
+    onActionRejected,
   )
 
   await act(() => result.current.rescue.handleRescueClick())
 
-  expect(onShakeBotBubble).toHaveBeenCalledTimes(1)
+  expect(onActionRejected).toHaveBeenCalledTimes(1)
 })

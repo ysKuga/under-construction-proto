@@ -18,7 +18,7 @@ const canChargeEnergy = (item: ItemInstance) =>
  *
  * - 手持ち（EN 補給を許可された携行アイテム）があれば最古のものを使う（`Expedition-use-item`）
  * - なければチェックポイントへのリセットを要求する（`Expedition-reset-to-checkpoint`）
- * - 受理の判定・効果は各 listener が担う。拒否されたら吹き出しを揺らすのみ
+ * - 受理の判定・効果は各 listener が担う。拒否されたら通知するのみ
  */
 export const useRescue = (): Pick<
   UseEnergyDepletedBubbleContentReturn,
@@ -45,9 +45,9 @@ export const useRescue = (): Pick<
           undefined,
         )
 
-    // 拒否された: 吹き出しを揺らして知らせる
+    // 拒否された: 拒否を通知する
     if (!accepted) {
-      await expeditionEventDispatcher['Expedition-shake-bot-bubble'](undefined)
+      await expeditionEventDispatcher['Expedition-action-rejected'](undefined)
     }
   }, [carriedItemStoreApi, expeditionEventDispatcher])
 

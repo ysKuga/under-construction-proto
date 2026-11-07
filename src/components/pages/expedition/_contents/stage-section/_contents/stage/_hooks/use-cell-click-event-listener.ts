@@ -27,7 +27,7 @@ import { GRID } from '../../../../../constants'
  *   （自動移動は吹き出しの「実行」で開始する、issue #226）。到達不能なら通知する
  *   - 新しい目標は中継点なしで経路を求める（前の目標の中継点は引き継がない）
  *   - 提示前に `Expedition-propose-path` を発行し、listener に拒否されたら（EN 切れ等）
- *     bot 頭上の吹き出しを揺らすのみ（`Expedition-shake-bot-bubble`）。拒否の理由（EN 等）は
+ *     拒否を通知するのみ（`Expedition-action-rejected`）。拒否の理由（EN 等）は
  *     ここでは扱わない（ui-jurisdiction）
  * - 経路提示中に目標セルを再クリックした場合は目標設定をキャンセルする（タッチ操作向け、
  *   ESC の代替）。キャンセルは提示ではないため `Expedition-propose-path` を発行しない
@@ -61,9 +61,9 @@ export const useCellClickEventListener = (): void => {
             'Expedition-propose-path'
           ]({ cell })
 
-          // 提示を拒否された: bot 頭上の吹き出しを揺らして知らせる
+          // 提示を拒否された: 拒否を通知する
           if (!proposeAllowed) {
-            void expeditionEventDispatcher['Expedition-shake-bot-bubble'](
+            void expeditionEventDispatcher['Expedition-action-rejected'](
               undefined,
             )
 
