@@ -1,63 +1,30 @@
 import { useMemo } from 'react'
 
-import {
-  useWaypointFlowStore,
-  useWaypointFlowStoreApi,
-} from '../../../../../../../_stores/waypoint-flow'
+import { useExpeditionEventDispatcher } from '../../../../../../../_events'
+import { useChoicesStore } from '../../../../../../../_stores/choices'
 import { UseChoicePanelContentReturn } from '../index.types'
 
 /**
- * 経路提示中に並べる選択肢（実行・中継点・キャンセル）を組み立てる
+ * 登録済みの選択肢を、選択時に `Expedition-choice-select` を発行する選択肢へ変換する
  *
- * - 経路提示中（中継点フローが `idle` 以外）のみ並べ、それ以外は空にする
- * - 中継点: 選択モードを切り替える。選択中は押下中の表示にし、再選択で経路提示中へ戻す
- * - キャンセル: 目標設定をキャンセルし通常状態へ戻す（中継点選択中も含め一括）
- *
- * @param handleExecuteSelect 「実行」の選択時
+ * - 選択時の処理は持たない。選択肢を登録した機能が event を購読して処理する
+ * - パネルへ渡す id へ登録の通し番号を含める。登録し直した選択肢を新しい選択肢として扱い、パネルを開く
  */
-export const useChoices = (
-  handleExecuteSelect: UseChoicePanelContentReturn['handleExecuteSelect'],
-): UseChoicePanelContentReturn['choices'] => {
-  const waypointFlowStoreApi = useWaypointFlowStoreApi()
-  /** 中継点フローの状態 */
-  const flowState = useWaypointFlowStore((state) => state.flowState)
+export const useChoices = (): UseChoicePanelContentReturn['choices'] => {
+  /** 登録済みの選択肢 */
+  const choiceEntries = useChoicesStore((state) => state.choices)
+  /** 選択の event（`Expedition-choice-select`）の発行に使う */
+  const expeditionEventDispatcher = useExpeditionEventDispatcher()
 
-  return useMemo(() => {
-    // 経路提示中でない: 選択肢なし
-    if (flowState === 'idle') return []
-
-    /** 中継点選択モード中か */
-    const selecting = flowState === 'selecting'
-
-    return [
-      {
-        id: 'execute',
-        label: '実行',
-        onSelect: () => void handleExecuteSelect(),
-      },
-      {
-        id: 'waypoint',
-        label: '中継点',
-        onSelect: () => {
-          const { cancelSelecting, setFlowState } =
-            waypointFlowStoreApi.getState()
-
-          // 選択中: キャンセルして経路提示中へ戻す
-          if (selecting) {
-            cancelSelecting()
-
-            return
-          }
-
-          setFlowState('selecting')
-        },
-        pressed: selecting,
-      },
-      {
-        id: 'cancel',
-        label: 'キャンセル',
-        onSelect: () => waypointFlowStoreApi.getState().clear(),
-      },
-    ]
-  }, [flowState, handleExecuteSelect, waypointFlowStoreApi])
+  return useMemo(
+    () =>
+      choiceEntries.map(({ id, label, pressed, serial }) => ({
+        id: `${id}#${serial}`,
+        label,
+        onSelect: () =>
+          void expeditionEventDispatcher['Expedition-choice-select']({ id }),
+        pressed,
+      })),
+    [choiceEntries, expeditionEventDispatcher],
+  )
 }

@@ -40,4 +40,27 @@ describe('useCloseOnEscape', () => {
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(close).toHaveBeenCalledTimes(1)
   })
+
+  it('popover="auto" が閉じる直前（beforetoggle）に close を呼び、manual では呼ばない', () => {
+    const popover = document.createElement('div')
+    const close = vi.fn<() => void>()
+    /** 閉じる直前の `beforetoggle` event を発行する */
+    const dispatchBeforeClose = () =>
+      act(() => {
+        popover.dispatchEvent(
+          Object.assign(new Event('beforetoggle'), { newState: 'closed' }),
+        )
+      })
+
+    renderHook(() => useCloseOnEscape({ current: popover }, close, false))
+
+    // ピン留めの操作（属性を manual へ変更）で閉じる
+    popover.setAttribute('popover', 'manual')
+    dispatchBeforeClose()
+    expect(close).not.toHaveBeenCalled()
+
+    popover.setAttribute('popover', 'auto')
+    dispatchBeforeClose()
+    expect(close).toHaveBeenCalledTimes(1)
+  })
 })
