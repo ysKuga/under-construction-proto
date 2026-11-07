@@ -22,6 +22,7 @@ import { UseChoicePanelContentReturn } from '../index.types'
  */
 export const useHandleExecuteSelect =
   (): UseChoicePanelContentReturn['handleExecuteSelect'] => {
+    /** 表示中の経路 */
     const previewPath = usePreviewPath()
     const hexStageHandleRef = useHexStageHandleRef()
     const expeditionEventDispatcher = useExpeditionEventDispatcher()
