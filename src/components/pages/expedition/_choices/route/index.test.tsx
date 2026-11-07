@@ -146,4 +146,37 @@ describe('useRouteChoices', () => {
       'proposing',
     )
   })
+
+  it('目標を設定し直すと 3 つとも登録し直し、中継点の押下表示の切替では中継点のみ登録し直す', () => {
+    const { result } = renderRouteChoices()
+    /** 選択肢ごとの登録の通し番号 */
+    const serials = () =>
+      Object.fromEntries(
+        result.current.choices.map(({ id, serial }) => [id, serial]),
+      )
+
+    act(() =>
+      result.current.waypointFlowStoreApi.getState().propose({ q: 2, r: 3 }),
+    )
+    /** 1 回目の提示の通し番号 */
+    const first = serials()
+
+    act(() =>
+      result.current.waypointFlowStoreApi.getState().propose({ q: 4, r: 0 }),
+    )
+    /** 目標を設定し直した後の通し番号 */
+    const second = serials()
+
+    expect(second.execute).not.toBe(first.execute)
+    expect(second.waypoint).not.toBe(first.waypoint)
+    expect(second.cancel).not.toBe(first.cancel)
+
+    select(result, 'waypoint')
+    /** 中継点の押下表示を切り替えた後の通し番号 */
+    const third = serials()
+
+    expect(third.execute).toBe(second.execute)
+    expect(third.waypoint).not.toBe(second.waypoint)
+    expect(third.cancel).toBe(second.cancel)
+  })
 })
