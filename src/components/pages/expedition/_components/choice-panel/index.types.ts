@@ -2,7 +2,11 @@ import { ReactNode, RefObject } from 'react'
 
 /** パネルへ並べる選択肢 1 つ */
 export type Choice = {
-  /** 選択肢の識別子。描画の key に使う */
+  /**
+   * 選択肢の識別子。描画の key に使う
+   *
+   * - 前回と同じ id が 1 つも残らない時にパネルを開く。開き直したい時（内容の再提示）は id を変える
+   */
   id: string
   /** 表示する文言 */
   label: ReactNode
