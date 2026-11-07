@@ -24,6 +24,9 @@ PR 細かい単位で分ける。変更箇所 多いとレビュー時 把握不
 - PR 作成: `gh pr create --base <依存先ブランチ>`
 - 依存なし → main ベース
 - 依存先マージ後、GitHub が base を main へ自動変更。差分残る場合 main を取込む
+- 作業途中で下準備を別 PR へ切り出す場合、手作業でなく [steering-start-pr](../skills/steering-start-pr/SKILL.md) で作成
+  - 元の PR のベース付替え: 同スキルの手順に従う
+  - 理由: PR #408 を手作業で切り出し、元の PR #407 の rebase・ベース付替えも手で行った
 
 ## Storybook リンク
 

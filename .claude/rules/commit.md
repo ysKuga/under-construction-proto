@@ -28,6 +28,10 @@
 タイトル形式: `type(scope): 説明`。scope 省略可。type 一覧 下記。
 
 - GitHub などの Issue 番号は lefthook で branch 参照で自動で付与される。
+- branch 外(detached HEAD)でのコミット作り直し、番号 付与されない
+  - 例: `git checkout <hash>` からの amend
+  - 対処: メッセージへ `#<番号>` 手書き
+  - 理由: PR #407 の rebase 後の作り直しで番号 欠落、force push やり直し
 
 ## type
 
