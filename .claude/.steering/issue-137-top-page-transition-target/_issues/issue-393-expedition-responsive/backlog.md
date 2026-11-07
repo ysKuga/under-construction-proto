@@ -3,8 +3,10 @@
 - [ ] EN スポットの使用・EN 切れの救助を選択肢パネルへ移す
   1. `Expedition-shake-bot-bubble` を `Expedition-action-rejected` へ改名し、パネルが購読する
      - [_pr/pr-410-expedition-action-rejected/design.md](_pr/pr-410-expedition-action-rejected/design.md)
-  2. EN スポット・救助の吹き出しを外す
-  3. 補給中・補給完了のみ残る `bot-bubbles` の名前を見直す
+  1. 選択肢を event で登録する仕組みを足す
+     - [_pr/pr-412-expedition-choice-registry/design.md](_pr/pr-412-expedition-choice-registry/design.md)
+  1. EN スポット・救助の吹き出しを外す
+  1. 補給中・補給完了のみ残る `bot-bubbles` の名前を見直す
   - (decision-records.md 2026-10-23 選択肢パネル / 選択肢パネルの event 設計)
 - [ ] マスの情報・手数の履歴の padding を `md` 未満で 4px にする
   - (decision-records.md 2026-10-23 選択肢パネル)
@@ -14,6 +16,9 @@
 - [ ] 傾けた床での表示範囲の移動を検討する
   - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
   - (decision-records.md 2026-10-19 実行順序)
+- [ ] 経路の提示中に外側のクリックでパネルを閉じた後、Esc で経路がキャンセルされない問題を検討・対応する
+  - 独立した PR
+  - 現状: expedition の `Default` story で観測。修正前からかは未確認（2026-11-07）
 - [ ] 選択肢パネルが盤面の上部のマスに重なり、クリックできない問題を解消する
   - 現状: パネルの高さ 90px のうち下側が盤面の上部のマスを覆う（PR #407）
 - [ ] デバッグ要素を 375px で画面に収める
