@@ -19,6 +19,7 @@ page-name/
   _stage-components/   # ステージ本体（`hex-stage` 等）
   _components/         # 複数箇所で使う部品・ページ内容に含まれない実装（デバッグ要素等）
   _contexts/           # 個別 Context の実装
+  _choices/            # 選択肢パネルへ登録する選択肢（機能ごと。表示条件・登録・選択の処理）
   _stores/
 ```
 
@@ -68,6 +69,9 @@ store・context の購読有無、実装かどうかでは分けない。
 - `_stage-components` は `_components` と同じ最下層。`_layers` はステージの children として重なるため、ステージ本体の型・event・store を参照する
 
 - `_stores`/`_lib`/`_hooks`/`_events`/`_contexts` はいずれの層からも参照可
+- `_choices` は `index.providers.tsx` からのみ参照する（`ExpeditionEventListeners` と同じ扱い）
+  - 選択肢パネル（`_contents` 配下）は `_choices` を参照しない。store の購読と選択の event の発行のみ
+  - `_choices` は `_stores`・`_lib`・`_hooks`・`_events`・`_contexts`・`_stage-components` の context を参照する
 - store が layer の型を参照しないよう、store が扱う型は store の `types.ts` へ置く（`MoveTargetDisplayMode` の例）
 
 ### prototypes との依存
