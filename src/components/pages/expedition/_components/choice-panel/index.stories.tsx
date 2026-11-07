@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+
+import { ChoicePanelHandle } from './index.types'
 
 import { ChoicePanel as StoryComponent } from '.'
 
@@ -50,6 +52,31 @@ export const Overflow: Story = {
       label: `選択肢 ${index + 1}`,
       onSelect: noop,
     })),
+  },
+}
+
+/**
+ * 選択肢「揺らす」で揺れ（`ChoicePanelHandle.shake`）を再生する。操作の拒否を知らせる揺れの確認用
+ *
+ * - パネルの外のボタンだと、外側のクリックでパネルが閉じ揺れが見えないため選択肢にする
+ */
+export const Shake: Story = {
+  render: () => {
+    /** パネルの imperative API */
+    const choicePanelRef = useRef<ChoicePanelHandle>(null)
+
+    return (
+      <StoryComponent
+        choices={[
+          {
+            id: 'shake',
+            label: '揺らす',
+            onSelect: () => choicePanelRef.current?.shake(),
+          },
+        ]}
+        ref={choicePanelRef}
+      />
+    )
   },
 }
 
