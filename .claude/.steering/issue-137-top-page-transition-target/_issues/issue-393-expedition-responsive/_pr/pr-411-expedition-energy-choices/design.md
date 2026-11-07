@@ -16,7 +16,10 @@ EN スポットの使用・EN 切れの救助を、bot 頭上の吹き出しか�
   - EN スポット: 停止中、かつ補給できる
   - 盤面を操作できるフェーズのみ（`operateStage`）
 - 吹き出しは外す。補給中・補給完了（お知らせ）は吹き出しのまま
-- 依存: PR #410
+- 選択肢は `_choices/energy-spot`・`_choices/rescue` として登録する（PR #412 の仕組み）
+  - 変えてよいファイル: 各機能の置き場・`ExpeditionChoices` の 1 行のみ（.claude/rules/feature-addition-scope.md）
+  - パネル・組み合わせの props・hook の戻り値型は変えない
+- 依存: PR #412
 
 ## 懸念・リスク
 
