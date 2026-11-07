@@ -15,7 +15,7 @@ import { UseChoicePanelContentReturn } from '../index.types'
  *
  * @param handleExecuteSelect 「実行」の選択時
  */
-export const useChoices = (
+export const useRouteChoices = (
   handleExecuteSelect: UseChoicePanelContentReturn['handleExecuteSelect'],
 ): UseChoicePanelContentReturn['choices'] => {
   const waypointFlowStoreApi = useWaypointFlowStoreApi()

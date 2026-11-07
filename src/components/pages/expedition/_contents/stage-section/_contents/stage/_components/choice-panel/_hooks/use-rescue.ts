@@ -1,13 +1,13 @@
 import { useCallback } from 'react'
 
-import { useExpeditionEventDispatcher } from '../../../../../_events'
-import { getItemUsages } from '../../../../../_lib/item-usage'
+import { useExpeditionEventDispatcher } from '../../../../../../../_events'
+import { getItemUsages } from '../../../../../../../_lib/item-usage'
 import {
   useCarriedItemStore,
   useCarriedItemStoreApi,
-} from '../../../../../_stores/carried-items'
-import { ItemInstance } from '../../../../../_stores/items/types'
-import { UseEnergyDepletedBubbleContentReturn } from '../index.types'
+} from '../../../../../../../_stores/carried-items'
+import { ItemInstance } from '../../../../../../../_stores/items/types'
+import { UseChoicePanelContentReturn } from '../index.types'
 
 /** EN 補給に使えるアイテムか */
 const canChargeEnergy = (item: ItemInstance) =>
@@ -21,8 +21,8 @@ const canChargeEnergy = (item: ItemInstance) =>
  * - 受理の判定・効果は各 listener が担う。拒否されたら通知するのみ
  */
 export const useRescue = (): Pick<
-  UseEnergyDepletedBubbleContentReturn,
-  'handleRescueClick' | 'rescueItemKind'
+  UseChoicePanelContentReturn,
+  'handleRescueSelect' | 'rescueItemKind'
 > => {
   const rescueItemKind = useCarriedItemStore(
     (state) => state.carriedItems.find(canChargeEnergy)?.kind,
@@ -30,7 +30,7 @@ export const useRescue = (): Pick<
   const carriedItemStoreApi = useCarriedItemStoreApi()
   const expeditionEventDispatcher = useExpeditionEventDispatcher()
 
-  const handleRescueClick = useCallback(async () => {
+  const handleRescueSelect = useCallback(async () => {
     const rescueItem = carriedItemStoreApi
       .getState()
       .carriedItems.find(canChargeEnergy)
@@ -51,5 +51,5 @@ export const useRescue = (): Pick<
     }
   }, [carriedItemStoreApi, expeditionEventDispatcher])
 
-  return { handleRescueClick, rescueItemKind }
+  return { handleRescueSelect, rescueItemKind }
 }

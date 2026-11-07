@@ -7,7 +7,9 @@ import { useChoicePanelContent } from './index.hooks'
 /**
  * ステージの選択肢パネル（issue #393）
  *
- * - 経路提示中、実行・中継点・キャンセルを並べる
+ * - 経路提示中: 実行・中継点・キャンセル
+ * - EN スポット上で補給できる: EN スポットの使用
+ * - EN 切れ中: 救助
  * - 操作の拒否（`Expedition-action-rejected`）で揺れる
  * - 右端: `md` 未満は画面右端から 16px、`md` 以上はステージ（`--expedition-stage`）の右端
  */

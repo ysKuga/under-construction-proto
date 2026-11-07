@@ -10,14 +10,14 @@ import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components
 import {
   ExpeditionEventProvider,
   useExpeditionEventListener,
-} from '../../../../../_events'
+} from '../../../../../../../_events'
 import {
   CarriedItemStoreProvider,
   useCarriedItemStoreApi,
-} from '../../../../../_stores/carried-items'
-import { ItemInstance } from '../../../../../_stores/items/types'
-import { MoveHistoryStoreProvider } from '../../../../../_stores/move-history'
-import { PlayerActivityStoreProvider } from '../../../../../_stores/player-activity'
+} from '../../../../../../../_stores/carried-items'
+import { ItemInstance } from '../../../../../../../_stores/items/types'
+import { MoveHistoryStoreProvider } from '../../../../../../../_stores/move-history'
+import { PlayerActivityStoreProvider } from '../../../../../../../_stores/player-activity'
 
 import { useRescue } from './use-rescue'
 
@@ -82,7 +82,7 @@ test('手持ちがあれば、そのアイテムを救済手段として使う',
 
   expect(result.current.rescue.rescueItemKind).toBe('energy-charge')
 
-  await act(() => result.current.rescue.handleRescueClick())
+  await act(() => result.current.rescue.handleRescueSelect())
 
   expect(carriedItems.getState().carriedItems).toEqual([])
   expect(energy.getState().getEnergyInfo(PLAYER_ACTOR_ID).current).toBe(
@@ -98,7 +98,7 @@ test('手持ちがなければ、チェックポイントへのリセットを�
 
   expect(result.current.rescue.rescueItemKind).toBeUndefined()
 
-  await act(() => result.current.rescue.handleRescueClick())
+  await act(() => result.current.rescue.handleRescueSelect())
 
   expect(onResetToCheckpoint).toHaveBeenCalledTimes(1)
   expect(onActionRejected).not.toHaveBeenCalled()
@@ -111,7 +111,7 @@ test('救済手段を拒否されたら拒否を通知する', async () => {
     onActionRejected,
   )
 
-  await act(() => result.current.rescue.handleRescueClick())
+  await act(() => result.current.rescue.handleRescueSelect())
 
   expect(onActionRejected).toHaveBeenCalledTimes(1)
 })
