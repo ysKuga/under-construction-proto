@@ -116,5 +116,6 @@
     - 理由: 発行元がパネルを知らずに済む。`Expedition-item-used` と同じ形。セルクリックの拒否では揺らす選択肢が決まらない
     - 不採用: `Expedition-shake-choice-panel`（命令型の機械的改名）
   - 構成: 表示部品 `_components/choice-panel`（選択肢を props で受け、story 付き）・組み合わせ `_contents/choice-panel`
+    - 組み合わせの置き場は後に `stage/_components/choice-panel` へ変更（_pr/pr-407-expedition-choice-panel/decision-records.md 2026-11-02 置き場・寸法）
 - 2026-10-26（設定ポップオーバーの Esc）: 開いている間、Esc で閉じる層を `useKeyLayer` へ積むようにした（PR #408）
   - [_closed/pr-408-expedition-settings-escape/design.md](_closed/pr-408-expedition-settings-escape/design.md)
