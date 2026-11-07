@@ -70,4 +70,15 @@ describe('usePanelOpen', () => {
 
     expect(result.current.open).toBe(true)
   })
+
+  it('選択肢が別の選択肢へ入れ替わったら、閉じたパネルを開き直す', () => {
+    const { rerender, result } = renderPanelOpen(1)
+
+    act(() => result.current.close())
+    rerender({
+      choices: [{ id: 'rescue', label: 'rescue', onSelect: () => {} }],
+    })
+
+    expect(result.current.open).toBe(true)
+  })
 })
