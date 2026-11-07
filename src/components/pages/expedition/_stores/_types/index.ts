@@ -5,6 +5,7 @@
  *   ここに re-export を追加していく
  */
 export * from '../carried-items/types'
+export * from '../choices/types'
 export * from '../display-settings/types'
 export * from '../energy/types'
 export * from '../energy-settings/types'
