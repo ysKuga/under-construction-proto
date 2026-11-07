@@ -7,7 +7,7 @@ import { useChoicePanelContent } from './index.hooks'
 /**
  * ステージの選択肢パネル（issue #393）
  *
- * - 経路提示中、実行・中継点・キャンセルを並べる
+ * - 各機能が登録した選択肢（`_choices/`）を並べ、選択を `Expedition-choice-select` で発行する
  * - 操作の拒否（`Expedition-action-rejected`）で揺れる
  * - 右端: `md` 未満は画面右端から 16px、`md` 以上はステージ（`--expedition-stage`）の右端
  */
