@@ -22,22 +22,17 @@ import { countEnergySpotCharge } from '../../_lib/count-energy-spot-charge'
 import { useGamePhaseStoreApi } from '../../_stores/game-phase'
 import { useItemStoreApi } from '../../_stores/items'
 import { usePlayerActivityStoreApi } from '../../_stores/player-activity'
-import { useWaypointFlowStoreApi } from '../../_stores/waypoint-flow'
 import { ENERGY_SPOT_CHARGED_NOTICE_MS } from '../../constants'
 
 import { EnergyDepletedBubbleContent } from './_components/energy-depleted-bubble'
 import { EnergySpotBubbleContent } from './_components/energy-spot-bubble'
-import { ExecuteBubbleContent } from './_components/execute-bubble'
-import { WaypointBubbleContent } from './_components/waypoint-bubble'
 import { UseBotBubblesReturn } from './index.types'
 
 /**
- * bot 頭上・目標セル上それぞれへ格納する吹き出しを組み立てる
+ * bot 頭上へ格納する吹き出しを組み立てる
  *
  * - 表示条件
- *   - 中継点・実行: 経路提示中（中継点フローが `idle` 以外）
- *   - EN 切れ: player が EN 切れ中、かつ EN スポットで補給中でない。表示中は中継点・実行
- *     （種類 `action`）を隠す
+ *   - EN 切れ: player が EN 切れ中、かつ EN スポットで補給中でない
  *   - EN スポット: player が EN スポット上で停止中、かつ補給できる（EN が上限未満・残量あり）
  *   - 補給中: player が EN スポットで補給中
  *   - 補給完了: EN スポットでの補給の完了後、一定時間（`ENERGY_SPOT_CHARGED_NOTICE_MS`）
@@ -49,7 +44,6 @@ import { UseBotBubblesReturn } from './index.types'
  * - store api は参照が安定しているため、初回のみ組み立てる
  */
 export const useBotBubbles = (): UseBotBubblesReturn => {
-  const waypointFlowStoreApi = useWaypointFlowStoreApi()
   const energyStoreApi = useEnergyStoreApi()
   const actorsStoreApi = useActorsStoreApi()
   const itemStoreApi = useItemStoreApi()
@@ -70,11 +64,6 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
         distinctUntilChanged(),
       ),
     })
-    /** 経路提示中か */
-    const proposing$ = fromStore(waypointFlowStoreApi).pipe(
-      map((state) => state.flowState !== 'idle'),
-      distinctUntilChanged(),
-    )
     /** player の行為 */
     const playerActivity$ = fromStore(playerActivityStoreApi).pipe(
       map((state) => state.activity),
@@ -136,31 +125,11 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
       }),
       distinctUntilChanged(),
     )
-    /** 中継点・実行の組 */
-    const pairBubbles: BubbleSlotEntry[] = [
-      {
-        Bubble: WaypointBubbleContent,
-        hides: ['notice'],
-        id: 'waypoint',
-        kinds: ['action'],
-        visible$: proposing$,
-      },
-      {
-        Bubble: ExecuteBubbleContent,
-        hides: ['notice'],
-        id: 'execute',
-        kinds: ['action'],
-        visible$: proposing$,
-      },
-    ]
-
     return {
-      objectiveBubbles: pairBubbles.map(restrictByPhase),
       playerBubbles: [
-        ...pairBubbles,
         {
           Bubble: EnergyDepletedBubbleContent,
-          hides: ['action', 'notice'],
+          hides: ['notice'],
           id: 'energy-depleted',
           kinds: ['rescue'],
           visible$: energyDepleted$,

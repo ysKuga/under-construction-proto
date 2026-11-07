@@ -51,7 +51,7 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  *   （issue #137、当初は次段階予定だったが前倒し）。経由順（最近傍）は
  *   `index.tsx` 側の `findHexPathViaWaypoints` が決める（issue #226）
  * - 表示/非表示は `useCssToggle`（`src/hooks/use-css-toggle`）で自己管理する
- *   （`WaypointBubble` と同型）。`visible` prop の変化を hidden checkbox の
+ *   （`BotBubble` と同型）。`visible` prop の変化を hidden checkbox の
  *   checked へ同期するだけで、React state による条件付きレンダリングは行わない
  * - wrapper の `position: 'absolute'`（`HexStage` の floor(3D 空間) 全体を覆う
  *   絶対配置オーバーレイにする。指定しないと通常のブロック要素として
@@ -61,7 +61,7 @@ const isSameCell = (a: HexCell, b: HexCell) => a.q === b.q && a.r === b.r
  *   （指定しないと非表示時も wrapper 自体が `GeoLayer` のクリックをブロック
  *   してしまう。25 個のボタン自体は `toggledClassName` が表示時に
  *   `pointer-events: auto` を明示するため子要素側で上書きされる）は必須。
- *   `index.tsx` 側で他の `useCssToggle` インスタンス（`WaypointBubble` 等）と
+ *   `index.tsx` 側で他の `useCssToggle` インスタンス（`BotBubble` 等）と
  *   同じ親に並べると vanilla-extract の `~` セレクタが衝突する（Storybook
  *   `SharedScope` ストーリーが警告する既知の制約、実機検証で発覚）ため、
  *   専用の wrapper を持たせてスコープを分離する意図も兼ねる

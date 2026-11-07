@@ -19,29 +19,11 @@ import { ExpeditionProps } from './index.types'
  * - 直接移動できないセルのクリック時は `HexStage-cell-click` の購読（`useCellClickEventListener`）で BFS 経路探索（`hex-stage/_lib/hex-path`）
  *   を行い、`PathPreviewLayer` へ結果を表示する。到達不能なら `useNotifications` で
  *   通知する（issue #137 backlog）
- * - 中継点の設定（issue #137 backlog）: 経路が求まると bot 頭上に `WaypointBubble`
- *   （思考吹き出し）を表示し（`waypointFlowState !== 'idle'`、クリックで移行する
- *   選択モード中も表示を継続）、クリックで中継点選択モード（`'selecting'`）へ
- *   移行する。`WaypointBubble` は自身では
- *   座標計算を持たないため、`useActorsStore` の `overlayContainers` が公開する、
- *   player bot 用のコンテナ DOM（`playerOverlayContainer`、floor の 3D 空間外で
- *   bot の画面上の位置へ追従する）へ `createPortal` で注入する。位置は
- *   `WAYPOINT_BUBBLE_POSITION_CLASS_NAME`（bot 頭上の決め打ちオフセット）を渡す。`WaypointBubble` は現状、表示位置確認のための
- *   暫定実装（border 付き button）。`selectable` prop（枠線の実線/点線切替）は
- *   store で中継点選択モードを管理する想定の先行実装で、ここでは固定値 `false`
- *   を渡す（store 接続は次段階）。コンテナが floor の 3D 空間外にあるため、
- *   `GeoLayer` セルと重なってもクリックを奪われない。選択モード中は
- *   `HexStage` を `interactive={false}` にし、
- *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する
- *   （設置済みセルへ 📍 を表示）。通常モードのクリック（`useHexMove` 経由）とは
- *   完全に別イベントとして分離する設計方針。
- *   `WaypointBubble`/`WaypointSelectLayer` は
- *   いずれも表示制御（`useCssToggle`）込みで自己完結したコンポーネントへ切り出し
- *   済み、親からは `visible` prop のみで駆動する（各 content が
- *   `waypointFlowState`（`_stores/waypoint-flow`）を購読して渡す）。
+ * - 中継点の設定（issue #137 backlog）: 経路が求まると選択肢パネル（実行・中継点・キャンセル）を開く（issue #393）。
+ *   「中継点」で中継点選択モード（`'selecting'`）へ移行し、`HexStage` を `interactive={false}` にして
+ *   `WaypointSelectLayer` がセルクリックを拾って中継点を設置/除去する（設置済みセルへ 📍 を表示）。
  *   設置した中継点は最近傍順に経由する経路として `PathPreviewLayer` へ反映する
- *   （`findHexPathViaWaypoints`、issue #226）。bot を挟んで反対側の
- *   `ExecuteBubble`（「実行」吹き出し）で経路に沿って自動移動する（`HexStageHandle.followPath`）。EN 不足で進入できなくなったら
+ *   （`findHexPathViaWaypoints`、issue #226）。「実行」で経路に沿って自動移動する（`HexStageHandle.followPath`）。EN 不足で進入できなくなったら
  *   その場で停止し、トーストで警告する
 
  * - 霧の適用範囲（初期表示）はデバッグ要素の「初期表示」select でプレイ中に切替可能。初期値は
