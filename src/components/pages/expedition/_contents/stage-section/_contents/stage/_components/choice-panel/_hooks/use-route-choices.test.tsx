@@ -5,7 +5,7 @@ import {
   WaypointFlowStoreProvider,
 } from '../../../../../../../_stores/waypoint-flow'
 
-import { useChoices } from './use-choices'
+import { useRouteChoices } from './use-route-choices'
 
 vi.unmock('zustand')
 
@@ -15,7 +15,7 @@ const renderChoices = (
 ) =>
   renderHook(
     () => ({
-      choices: useChoices(handleExecuteSelect),
+      choices: useRouteChoices(handleExecuteSelect),
       waypointFlowStoreApi: useWaypointFlowStoreApi(),
     }),
     { wrapper: WaypointFlowStoreProvider },
@@ -23,9 +23,9 @@ const renderChoices = (
 
 /** 識別子で選択肢を探す */
 const findChoice = (
-  choices: ReturnType<typeof useChoices>,
+  choices: ReturnType<typeof useRouteChoices>,
   id: string,
-): ReturnType<typeof useChoices>[number] => {
+): ReturnType<typeof useRouteChoices>[number] => {
   const choice = choices.find((item) => item.id === id)
 
   if (!choice) throw new Error(`選択肢 ${id} がない`)
@@ -33,7 +33,7 @@ const findChoice = (
   return choice
 }
 
-describe('useChoices', () => {
+describe('useRouteChoices', () => {
   it('経路提示中でなければ選択肢なし', () => {
     expect(renderChoices().result.current.choices).toEqual([])
   })
