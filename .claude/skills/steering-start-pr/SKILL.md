@@ -25,6 +25,14 @@ description: 着手確定済みの作業について、空コミットで PR を
 
 - ブランチ名は issue 番号を先頭に付ける(例: `297-en-spot-use`、[.claude/rules/issue-linking.md](../../rules/issue-linking.md))
 - 未マージ PR に依存する場合は依存先ブランチから切る([.claude/rules/pr.md](../../rules/pr.md)「ベースブランチ」)
+- 作業途中の PR から下準備を切り出す場合(元の PR が切り出す PR に依存する)
+  - 切り出す PR のブランチは main(または元の PR のベース)から切る
+  - 下準備は切り出す PR のブランチ上で実装する
+    - 元のブランチへ既に積んだ場合: 切り出す PR のブランチへ cherry-pick し、元のブランチからは外す
+  - 切り出す PR の作成後、元の PR のブランチを切り出した PR のブランチへ rebase し、ベースを付け替える
+    - `git rebase <切り出したブランチ>` → `git push --force-with-lease`(force push はユーザーの承認を得る)
+    - `gh pr edit <元の PR 番号> --base <切り出したブランチ>`
+  - rebase 後に detached HEAD でコミットを作り直す場合(`git checkout <hash>` からの amend 等)、issue 番号が付かない([.claude/rules/commit.md](../../rules/commit.md)「メッセージ」)
 
 ### 3. 空コミットで PR を作成する
 
