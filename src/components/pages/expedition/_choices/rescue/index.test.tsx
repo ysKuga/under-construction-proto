@@ -29,6 +29,7 @@ import { useRescueChoice } from '.'
 
 vi.unmock('zustand')
 
+/** 救助の選択肢の描画に要る Provider 群 */
 const Wrapper = (props: PropsWithChildren) => (
   <GamePhaseStoreProvider>
     <EnergyStoreProvider>
@@ -47,6 +48,7 @@ const Wrapper = (props: PropsWithChildren) => (
   </GamePhaseStoreProvider>
 )
 
+/** EN 補給に使える手持ちのアイテム */
 const chargeItem: ItemInstance = {
   amount: 3,
   cell: { q: 1, r: 1 },
