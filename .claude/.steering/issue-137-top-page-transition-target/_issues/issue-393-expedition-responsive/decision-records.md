@@ -123,3 +123,5 @@
   - [_closed/pr-407-expedition-choice-panel/design.md](_closed/pr-407-expedition-choice-panel/design.md)
 - 2026-11-09（揺れの event の改名）: `Expedition-shake-bot-bubble` を `Expedition-action-rejected` へ改名し、選択肢パネルを揺らすようにした（PR #410）
   - [_closed/pr-410-expedition-action-rejected/design.md](_closed/pr-410-expedition-action-rejected/design.md)
+- 2026-11-09（選択肢の登録の仕組み）: 選択肢を store で登録し、選択を event で受け取る仕組みを足し、経路の選択肢を移した（PR #412）
+  - [_closed/pr-412-expedition-choice-registry/design.md](_closed/pr-412-expedition-choice-registry/design.md)
