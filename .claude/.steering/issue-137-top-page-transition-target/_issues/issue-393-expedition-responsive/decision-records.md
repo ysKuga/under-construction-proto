@@ -121,3 +121,5 @@
   - [_closed/pr-408-expedition-settings-escape/design.md](_closed/pr-408-expedition-settings-escape/design.md)
 - 2026-11-07（選択肢パネル）: 選択肢パネルを新設し、実行・中継点・キャンセルを移した（PR #407）
   - [_closed/pr-407-expedition-choice-panel/design.md](_closed/pr-407-expedition-choice-panel/design.md)
+- 2026-11-09（揺れの event の改名）: `Expedition-shake-bot-bubble` を `Expedition-action-rejected` へ改名し、選択肢パネルを揺らすようにした（PR #410）
+  - [_closed/pr-410-expedition-action-rejected/design.md](_closed/pr-410-expedition-action-rejected/design.md)
