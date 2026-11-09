@@ -113,6 +113,7 @@ export const reducePointerState = (
 
 @.claude/rules/event-driven-actions.md
 @.claude/rules/event-ui-jurisdiction.md
+@.claude/rules/feature-addition-scope.md
 
 ### ディレクトリ構成
 

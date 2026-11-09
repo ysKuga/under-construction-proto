@@ -17,6 +17,15 @@ export type ExpeditionEventMap = {
    * - 選択肢パネル・表示中の吹き出しが購読して揺れる。購読がなければ何も起きない
    */
   'Expedition-action-rejected': undefined
+  /**
+   * 選択肢パネルで選択肢が選ばれた
+   *
+   * - 選択肢を登録した機能が、自分の id の時のみ処理する（`useChoiceSelectEventListener`）
+   */
+  'Expedition-choice-select': {
+    /** 選ばれた選択肢の識別子 */
+    id: string
+  }
   /** 提示中の経路に沿って自動移動を開始する */
   'Expedition-execute-path': {
     /** 自動移動する経路 */

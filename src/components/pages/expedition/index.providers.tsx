@@ -8,6 +8,7 @@ import { HexStageHandleProvider } from '@/components/pages/expedition/_stage-com
 import { HexStageEventProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_events'
 import { ActorsStoreProvider } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
+import { ExpeditionChoices } from './_choices'
 import { PlayerActorEventTargetProvider } from './_contexts/player-actor-event-target'
 import { ResetProvider } from './_contexts/reset'
 import { useStageLayout } from './_contexts/stage-layout'
@@ -16,6 +17,7 @@ import { VisibilityRegistryProvider } from './_contexts/visibility-registry'
 import { ExpeditionEventProvider } from './_events'
 import { createInitialItems } from './_lib/create-initial-items'
 import { CarriedItemStoreProvider } from './_stores/carried-items'
+import { ChoicesStoreProvider } from './_stores/choices'
 import { DisplaySettingsStoreProvider } from './_stores/display-settings'
 import { EnergySettingsStoreProvider } from './_stores/energy-settings'
 import { FogStoreProvider } from './_stores/fog'
@@ -43,6 +45,8 @@ type ExpeditionProvidersProps = PropsWithChildren<ExpeditionProps>
  *     （fog store を購読するため）
  *   - `FogStoreProvider` は `StageLayoutProvider` の内側に置く\
  *     （霧セル・視界の初期中心を盤面配置から決めるため）
+ *   - `ExpeditionChoices` は最も内側（`ChoicesStoreProvider` の内側）に置く\
+ *     （選択肢の処理が中継点フロー・ステージの handle 等の Provider を参照するため）
  * - 盤面生成（issue #315）: 最外の `StageSeedProvider`（`_contexts/stage-seed`）が
  *   seed から盤面配置を生成して `StageLayoutProvider` で配り、seed 変更時は配下を丸ごと再マウントする
  * - リセット（境界値テスト用、issue #181。EN 切れ時のチェックポイントへのリセットも同じ、issue #315）: `StageSeedProvider` 直下の `ResetProvider`（`_contexts/reset`）が
@@ -108,7 +112,10 @@ const StageProviders = (props: ExpeditionProvidersProps) => {
                               <GamePhaseStoreProvider>
                                 <HexStageHandleProvider>
                                   <PlayerActorEventTargetProvider>
-                                    {children}
+                                    <ChoicesStoreProvider>
+                                      <ExpeditionChoices />
+                                      {children}
+                                    </ChoicesStoreProvider>
                                   </PlayerActorEventTargetProvider>
                                 </HexStageHandleProvider>
                               </GamePhaseStoreProvider>
