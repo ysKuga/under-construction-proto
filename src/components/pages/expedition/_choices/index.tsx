@@ -1,3 +1,5 @@
+import { useEnergySpotChoice } from './energy-spot'
+import { useRescueChoice } from './rescue'
 import { useRouteChoices } from './route'
 
 /**
@@ -9,6 +11,8 @@ import { useRouteChoices } from './route'
  */
 export const ExpeditionChoices = () => {
   useRouteChoices()
+  useEnergySpotChoice()
+  useRescueChoice()
 
   return null
 }
