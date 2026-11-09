@@ -45,9 +45,16 @@ steering の親 backlog.md が競合しやすい(PR ごとに子要素のリン�
      - [_pr/pr-411-.../design.md](_pr/pr-411-.../design.md)
 ```
 
+競合を直した後は、件名が消えない形で続ける([commit.md](../../rules/commit.md)「メッセージ」)。
+
+```bash
+git add <直したファイル>
+GIT_EDITOR=true git -c core.commentChar=auto rebase --continue
+```
+
 ### 4. 件名を確認する
 
-競合を直して続けたコミットは、件名が消えることがある(`#393 ...` が消え、`Co-Authored-By: ...` が件名になる)。
+`core.commentChar=auto` を付けずに続けると、件名が消える(`#393 ...` が消え、`Co-Authored-By: ...` が件名になる)。
 
 - 付け替えの後、必ず `git log --oneline <新しいベース>..HEAD` で件名を一通り見る
 - 崩れていれば下記「コミットの作り直し」で直す
