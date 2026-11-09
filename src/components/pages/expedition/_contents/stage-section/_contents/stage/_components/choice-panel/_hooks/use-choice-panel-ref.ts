@@ -11,6 +11,7 @@ import { UseChoicePanelContentReturn } from '../index.types'
  */
 export const useChoicePanelRef =
   (): UseChoicePanelContentReturn['choicePanelRef'] => {
+    /** 選択肢パネルの imperative API */
     const choicePanelRef = useRef<ChoicePanelHandle>(null)
 
     /** パネルを揺らす */
