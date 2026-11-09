@@ -155,6 +155,9 @@ EOF
 - コピー・import の一括書換等、変更行が多数ファイルへ散る場合、ファイル全体へ oxfmt 当てない
   - `python3 -I -B .claude/scripts/format-import-blocks.py <ファイル>...` で import ブロックのみ整形
   - コピー直後は整形せずコミット(コピー元との差分を書換のみに保つため)
+- oxfmt は import の並び(`import/order`)を直さない
+  - 置換で import を書換・追加した後、変更したファイルへ `npx eslint --fix` 当てる
+  - 変更外の import の並び替え(既存の違反)が混ざった場合、戻す
 
 ## テスト実行
 
@@ -162,6 +165,9 @@ EOF
 
 - `__mocks__/zustand.ts` は `create`/`createStore` のみモック対象、`useStore` 未対応。\
   zustand vanilla store + `useStore` パターンのテストは `vi.unmock('zustand')` 要。
+- `npx vitest run`、`timeout` で上限付けて実行(`timeout 200 npx vitest run ...`)
+  - Bash 側の timeout も合わせて延ばす
+  - 理由: 型チェック・lint とまとめた実行が 120 秒で終わらずバックグラウンドへ移り、止めるのに手間取った(PR #411)
 
 ## 実ブラウザ動作確認
 

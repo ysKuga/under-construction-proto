@@ -32,6 +32,30 @@
   - 例: `git checkout <hash>` からの amend
   - 対処: メッセージへ `#<番号>` 手書き
   - 理由: PR #407 の rebase 後の作り直しで番号 欠落、force push やり直し
+- rebase・cherry-pick の競合解消後の継続、件名(`#<番号> ...`)消える
+  - 原因: エディタを通さず続けても(`GIT_EDITOR=true`)メッセージの掃除が走る
+    - `#` 始まりの件名がコメント扱いで消える
+  - 症状: `Co-Authored-By: ...` が件名になる
+  - フックを止めても(`core.hooksPath=/dev/null`)防げない
+  - rebase: `GIT_EDITOR=true git -c core.commentChar=auto rebase --continue`
+  - cherry-pick: 競合解消・`git add` 後、`git -c core.hooksPath=/dev/null commit -C <元のコミット>` でコミット。\
+    残りがあれば `git cherry-pick --continue`
+    - `core.commentChar=auto` の `cherry-pick --continue` は件名残るが、`# Conflicts:` の行がメッセージへ残る
+  - 継続後 `git log --oneline` で件名確認。崩れた場合の直し方: [stack-rebase](../skills/stack-rebase/SKILL.md)「コミットの作り直し」
+  - 理由: PR #410・#412・#411 の付け替えで 3 回崩れた。git 2.43 で再現・確認(2026-11-09)
+
+## 一部のファイルだけのコミット
+
+作業ツリーの変更の一部だけをコミットする時、`git stash --keep-index` で残りを退避して確認しない。
+
+1. 対象を `git add` する
+2. 型チェックを `&&` でつなぎ、通った時だけコミットする(`;` でつながない)
+3. コミットの単体で通るか確かめる場合、コミット後に別の作業ツリーで型チェックする([stack-rebase](../skills/stack-rebase/SKILL.md)「確認して push する」)
+
+- 失敗した場合、push 前に限り `git reset --soft HEAD~1` で戻す
+- 理由: PR #412 で `stash --keep-index` 中に作業ツリーを編集し、`stash pop` が競合した。\
+  型チェックの失敗を `;` でつないだまま、未完成のファイルを含むコミットを作った
+  - `stash drop` は自動モードの判定で拒否され、退避の中身を手で戻した
 
 ## type
 
