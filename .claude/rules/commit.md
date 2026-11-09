@@ -33,8 +33,10 @@
   - 対処: メッセージへ `#<番号>` 手書き
   - 理由: PR #407 の rebase 後の作り直しで番号 欠落、force push やり直し
 - rebase・cherry-pick の競合解消後の継続、件名(`#<番号> ...`)消える
-  - 原因: エディタを通さず続けても(`GIT_EDITOR=true`)メッセージの掃除が走り、`#` 始まりの件名がコメント扱いで消える。\
-    `Co-Authored-By: ...` が件名になる。フックを止めても(`core.hooksPath=/dev/null`)防げない
+  - 原因: エディタを通さず続けても(`GIT_EDITOR=true`)メッセージの掃除が走る
+    - `#` 始まりの件名がコメント扱いで消える
+  - 症状: `Co-Authored-By: ...` が件名になる
+  - フックを止めても(`core.hooksPath=/dev/null`)防げない
   - rebase: `GIT_EDITOR=true git -c core.commentChar=auto rebase --continue`
   - cherry-pick: 競合解消・`git add` 後、`git -c core.hooksPath=/dev/null commit -C <元のコミット>` でコミット。\
     残りがあれば `git cherry-pick --continue`
