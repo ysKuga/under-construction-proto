@@ -9,6 +9,6 @@
     - 救助: 手持ちあり「<アイコン>使う」・なし「チェックポイントへ戻る」
   - フェーズ: 吹き出しの `showBubbles` でなく `operateStage` で絞る（操作の選択肢のため）
   - 吹き出しの削除: 移設に伴う旧実装の撤去として同じ PR に含める（コミットは分ける）
-    - `bot-bubbles`・`_components/energy-*-bubble` は feature-addition-scope の「変えてよいもの」の外
+    - feature-addition-scope の「変えてよいもの」へ「移設に伴う旧実装の削除」を足した
   - EN スポットの選択肢は player の現在セルを購読する。自動移動中は 1 マスごとに `ExpeditionChoices` が再レンダリングされる
     - 描画は `null`、登録は `useMemo` で変わらないため許容
