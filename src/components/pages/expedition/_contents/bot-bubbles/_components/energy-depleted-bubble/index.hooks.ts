@@ -17,8 +17,8 @@ export const useEnergyDepletedBubbleContent =
       bubbleRef.current?.shake()
     }, [])
 
-    // bot 頭上の吹き出しを揺らす要求: 非表示中の揺れは見えないため条件を設けない
-    useExpeditionEventListener('Expedition-shake-bot-bubble', shake, {
+    // 操作の拒否: 非表示中の揺れは見えないため条件を設けない
+    useExpeditionEventListener('Expedition-action-rejected', shake, {
       allowMultiple: true,
     })
 
