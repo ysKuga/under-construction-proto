@@ -33,6 +33,19 @@
   - 対処: メッセージへ `#<番号>` 手書き
   - 理由: PR #407 の rebase 後の作り直しで番号 欠落、force push やり直し
 
+## 一部のファイルだけのコミット
+
+作業ツリーの変更の一部だけをコミットする時、`git stash --keep-index` で残りを退避して確認しない。
+
+1. 対象を `git add` する
+2. 型チェックを `&&` でつなぎ、通った時だけコミットする(`;` でつながない)
+3. コミットの単体で通るか確かめる場合、コミット後に別の作業ツリーで型チェックする([stack-rebase](../skills/stack-rebase/SKILL.md)「確認して push する」)
+
+- 失敗した場合、push 前に限り `git reset --soft HEAD~1` で戻す
+- 理由: PR #412 で `stash --keep-index` 中に作業ツリーを編集し、`stash pop` が競合した。\
+  型チェックの失敗を `;` でつないだまま、未完成のファイルを含むコミットを作った
+  - `stash drop` は自動モードの判定で拒否され、退避の中身を手で戻した
+
 ## type
 
 [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) 準拠。
