@@ -4,7 +4,7 @@ import {
   useWaypointFlowStore,
   useWaypointFlowStoreApi,
 } from '../../_stores/waypoint-flow'
-import { useChoiceSelectListener } from '../_hooks/use-choice-select-listener'
+import { useChoiceSelectEventListener } from '../_hooks/use-choice-select-event-listener'
 import { useEffectRegisterChoice } from '../_hooks/use-effect-register-choice'
 
 import { useExecutePath } from './_hooks/use-execute-path'
@@ -70,11 +70,11 @@ export const useRouteChoices = (): void => {
     ),
   )
 
-  useChoiceSelectListener(
+  useChoiceSelectEventListener(
     'execute',
     useCallback(() => void executePath(), [executePath]),
   )
-  useChoiceSelectListener(
+  useChoiceSelectEventListener(
     'waypoint',
     useCallback(() => {
       const { cancelSelecting, flowState, setFlowState } =
@@ -90,7 +90,7 @@ export const useRouteChoices = (): void => {
       setFlowState('selecting')
     }, [waypointFlowStoreApi]),
   )
-  useChoiceSelectListener(
+  useChoiceSelectEventListener(
     'cancel',
     useCallback(
       () => waypointFlowStoreApi.getState().clear(),

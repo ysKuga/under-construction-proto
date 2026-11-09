@@ -11,7 +11,7 @@ import { ChoiceEntry } from '../../_stores/choices/types'
  * @param id 購読する選択肢の識別子
  * @param onSelect 選ばれた時の処理
  */
-export const useChoiceSelectListener = (
+export const useChoiceSelectEventListener = (
   id: ChoiceEntry['id'],
   onSelect: () => void,
 ) => {

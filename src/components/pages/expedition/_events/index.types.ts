@@ -20,7 +20,7 @@ export type ExpeditionEventMap = {
   /**
    * 選択肢パネルで選択肢が選ばれた
    *
-   * - 選択肢を登録した機能が、自分の id の時のみ処理する（`useChoiceSelectListener`）
+   * - 選択肢を登録した機能が、自分の id の時のみ処理する（`useChoiceSelectEventListener`）
    */
   'Expedition-choice-select': {
     /** 選ばれた選択肢の識別子 */
