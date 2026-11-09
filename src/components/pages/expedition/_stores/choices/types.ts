@@ -35,6 +35,7 @@ export type ChoicesState = {
   unregister: (id: ChoiceEntry['id']) => void
 }
 
+/** 選択肢パネルへ並べる選択肢の store */
 export type ChoicesStore = StoreApi<ChoicesState>
 
 /** 登録済みの選択肢 */

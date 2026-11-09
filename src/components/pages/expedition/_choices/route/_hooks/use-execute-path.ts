@@ -22,10 +22,15 @@ import { useWaypointFlowStoreApi } from '../../../_stores/waypoint-flow'
 export const useExecutePath = (): (() => Promise<void>) => {
   /** 表示中の経路 */
   const previewPath = usePreviewPath()
+  /** ステージの imperative API（自動移動の命令に使う） */
   const hexStageHandleRef = useHexStageHandleRef()
+  /** 実行の可否を問う event（`Expedition-execute-path`）の発行に使う */
   const expeditionEventDispatcher = useExpeditionEventDispatcher()
+  /** 自動移動の経路の store（経路の固定に使う） */
   const followPathStoreApi = useFollowPathStoreApi()
+  /** 手数の履歴の store（実行した経路の記録に使う） */
   const moveHistoryStoreApi = useMoveHistoryStoreApi()
+  /** 中継点フローの store（フローの終了に使う） */
   const waypointFlowStoreApi = useWaypointFlowStoreApi()
 
   return useCallback(async () => {

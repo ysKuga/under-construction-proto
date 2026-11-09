@@ -18,6 +18,7 @@ export const ChoicesStoreContext = StoreContext
 export const ChoicesStoreProvider = (props: PropsWithChildren) => {
   const { children } = props
 
+  /** 生成した Choices store */
   const [choicesStore] = useState(createChoicesStore)
 
   return (
