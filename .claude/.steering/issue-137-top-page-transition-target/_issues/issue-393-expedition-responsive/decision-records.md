@@ -125,3 +125,5 @@
   - [_closed/pr-410-expedition-action-rejected/design.md](_closed/pr-410-expedition-action-rejected/design.md)
 - 2026-11-09（選択肢の登録の仕組み）: 選択肢を store で登録し、選択を event で受け取る仕組みを足し、経路の選択肢を移した（PR #412）
   - [_closed/pr-412-expedition-choice-registry/design.md](_closed/pr-412-expedition-choice-registry/design.md)
+- 2026-11-09（EN の選択肢）: EN スポットの使用・EN 切れの救助を選択肢パネルへ移し、吹き出しを外した（PR #411）
+  - [_closed/pr-411-expedition-energy-choices/design.md](_closed/pr-411-expedition-energy-choices/design.md)

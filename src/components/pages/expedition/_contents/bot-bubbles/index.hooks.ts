@@ -10,30 +10,21 @@ import {
   timer,
 } from 'rxjs'
 
-import { useEnergyStoreApi } from '@/components/pages/expedition/_stores/energy'
 import { fromStore } from '@/lib/rxjs/from-store'
-import { PLAYER_ACTOR_ID } from '@/components/pages/expedition/_stage-components/hex-stage/constants'
-import { useActorsStoreApi } from '@/components/pages/expedition/_stage-components/hex-stage/_stores/actors'
 
 import { BubbleSlotEntry } from '@/components/theater/aside/bubble-slots/_stores/bubble-slots/types'
 import { EnergySpotChargedBubble } from '../../_components/energy-spot-charged-bubble'
 import { EnergySpotChargingBubble } from '../../_components/energy-spot-charging-bubble'
-import { countEnergySpotCharge } from '../../_lib/count-energy-spot-charge'
 import { useGamePhaseStoreApi } from '../../_stores/game-phase'
-import { useItemStoreApi } from '../../_stores/items'
 import { usePlayerActivityStoreApi } from '../../_stores/player-activity'
 import { ENERGY_SPOT_CHARGED_NOTICE_MS } from '../../constants'
 
-import { EnergyDepletedBubbleContent } from './_components/energy-depleted-bubble'
-import { EnergySpotBubbleContent } from './_components/energy-spot-bubble'
 import { UseBotBubblesReturn } from './index.types'
 
 /**
  * bot 頭上へ格納する吹き出しを組み立てる
  *
  * - 表示条件
- *   - EN 切れ: player が EN 切れ中、かつ EN スポットで補給中でない
- *   - EN スポット: player が EN スポット上で停止中、かつ補給できる（EN が上限未満・残量あり）
  *   - 補給中: player が EN スポットで補給中
  *   - 補給完了: EN スポットでの補給の完了後、一定時間（`ENERGY_SPOT_CHARGED_NOTICE_MS`）
  *     または次の行為（移動等）まで
@@ -44,9 +35,6 @@ import { UseBotBubblesReturn } from './index.types'
  * - store api は参照が安定しているため、初回のみ組み立てる
  */
 export const useBotBubbles = (): UseBotBubblesReturn => {
-  const energyStoreApi = useEnergyStoreApi()
-  const actorsStoreApi = useActorsStoreApi()
-  const itemStoreApi = useItemStoreApi()
   const playerActivityStoreApi = usePlayerActivityStoreApi()
   const gamePhaseStoreApi = useGamePhaseStoreApi()
 
@@ -67,18 +55,6 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
     /** player の行為 */
     const playerActivity$ = fromStore(playerActivityStoreApi).pipe(
       map((state) => state.activity),
-      distinctUntilChanged(),
-    )
-    /** player が EN 切れ中か（補給中は救済手段を提示しないため除く） */
-    const energyDepleted$ = combineLatest([
-      fromStore(energyStoreApi),
-      playerActivity$,
-    ]).pipe(
-      map(
-        ([state, activity]) =>
-          state.getEnergyInfo(PLAYER_ACTOR_ID).current <= 0 &&
-          activity !== 'charging',
-      ),
       distinctUntilChanged(),
     )
     /** player が EN スポットで補給中か */
@@ -104,42 +80,8 @@ export const useBotBubbles = (): UseBotBubblesReturn => {
       ),
       distinctUntilChanged(),
     )
-    /** player が EN スポット上で停止中、かつ補給できるか */
-    const energySpotUsable$ = combineLatest([
-      fromStore(actorsStoreApi),
-      fromStore(itemStoreApi),
-      fromStore(energyStoreApi),
-      playerActivity$,
-    ]).pipe(
-      map(([actors, items, energy, activity]) => {
-        const cell = actors.actors[PLAYER_ACTOR_ID]
-
-        return (
-          activity === 'idle' &&
-          cell !== undefined &&
-          countEnergySpotCharge(
-            items.getItemAtCell(cell),
-            energy.getEnergyInfo(PLAYER_ACTOR_ID),
-          ) > 0
-        )
-      }),
-      distinctUntilChanged(),
-    )
     return {
       playerBubbles: [
-        {
-          Bubble: EnergyDepletedBubbleContent,
-          hides: ['notice'],
-          id: 'energy-depleted',
-          kinds: ['rescue'],
-          visible$: energyDepleted$,
-        },
-        {
-          Bubble: EnergySpotBubbleContent,
-          hides: ['notice'],
-          id: 'energy-spot',
-          visible$: energySpotUsable$,
-        },
         {
           Bubble: EnergySpotChargingBubble,
           hides: ['notice'],

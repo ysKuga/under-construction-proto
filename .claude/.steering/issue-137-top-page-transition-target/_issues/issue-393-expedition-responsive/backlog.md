@@ -1,8 +1,7 @@
 # 実装計画（expedition のレスポンシブ対応）
 
-- [ ] EN スポットの使用・EN 切れの救助を選択肢パネルへ移す
-  1. EN スポット・救助の吹き出しを外す
-  2. 補給中・補給完了のみ残る `bot-bubbles` の名前を見直す
+- [ ] 補給中・補給完了のみ残る `bot-bubbles` の名前を見直す
+  - EN スポットの使用・EN 切れの救助は選択肢パネルへ移した（PR #411）
   - (decision-records.md 2026-10-23 選択肢パネル / 選択肢パネルの event 設計)
 - [ ] マスの情報・手数の履歴の padding を `md` 未満で 4px にする
   - (decision-records.md 2026-10-23 選択肢パネル)
@@ -12,6 +11,10 @@
 - [ ] 傾けた床での表示範囲の移動を検討する
   - (../issue-357-expedition/decision-records.md 2026-10-18 レスポンシブ)
   - (decision-records.md 2026-10-19 実行順序)
+- [ ] `_choices` で player を `PLAYER_ACTOR_ID`（固定値）で参照するのをやめる
+  - 固定値を使い続けるのは望ましくない（2026-11-09 PR #411 のレビュー）
+  - `_events/_event-listeners` も同じ参照をしている
+  - `pages/CLAUDE.md` の依存方向（`_stage-components` は context のみ）へ文言を足して許容はしない
 - [ ] 経路の提示中に外側のクリックでパネルを閉じた後、Esc で経路がキャンセルされない問題を検討・対応する
   - 独立した PR
   - 現状: expedition の `Default` story で観測。修正前からかは未確認（2026-11-07）
